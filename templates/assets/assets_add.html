@@ -1,0 +1,491 @@
+{% extends 'index.html' %}
+{% block page-content %}
+
+<div id="page-wrapper">
+            <div class="row">
+                <div class="col-lg-12">
+                    <h1 class="page-header"><i class="fa  fa-desktop"></i> 资产添加</h1>
+                </div>
+                <!-- /.col-lg-12 -->
+            </div>
+            <!-- /.row -->
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                           	 资产录入
+                        </div>
+                        <div class="panel-body">
+                            <div class="row">
+                           		<div class="col-lg-2">
+                           		</div>
+                                <div class="col-lg-8">
+									<fieldset>
+									<legend>设备资产信息录入 - 必填信息</legend> 
+										<form role="form" method="post" id="addHost" class="main form-horizontal" >{% csrf_token %}
+										<fieldset>
+											<div class="form-group" >
+												 <label class="col-sm-2 control-label">设备类型</label>
+												 <div class="col-sm-6">
+												   <select class="form-control" name="asset_assets_type" id='assets_type_select' onchange="javascript:oBtAssetsType();" >
+														<option value="server" name="asset_assets_type">服务器</option>
+														<option value="switch" name="asset_assets_type">交换机</option>	
+														<option value="route" name="asset_assets_type">路由器</option>	
+														<option value="printer" name="asset_assets_type">打印机</option>	
+														<option value="scanner" name="asset_assets_type">扫描仪</option>		
+														<option value="firewall" name="asset_assets_type">防火墙</option>	
+														<option value="storage" name="asset_assets_type">存储设备</option>	
+														<option value="wifi" name="asset_assets_type">无线设备</option>					
+													</select>	
+												</div>						
+											</div>					
+											
+											<div class="form-group">
+												 <label class="col-sm-2 control-label">资产编号</label>
+												 <div class="col-sm-6">
+												 	<input type="text" class="form-control" name="asset_name" placeholder="编号" value="" class="input-xlarge"  required/>
+												 </div>
+											</div>
+											
+											<div class="form-group">
+												 <label class="col-sm-2 control-label">设备序列号</label>
+												 <div class="col-sm-6">
+												 	<input type="text" class="form-control" name="asset_sn" placeholder="序列号" value="" class="input-xlarge"  required/>
+												 </div>
+											</div>	
+					
+											<div class="form-group">
+												 <label class="col-sm-2 control-label">购买时间</label>
+												 <div class="col-sm-6">
+												 	<input type="text" class="form-control" name="asset_buy_time" placeholder="购买时间" value="" class="input-xlarge"  title="例如2016-01-01" required/>
+												 </div>
+											</div>		
+					
+											<div class="form-group">
+												 <label class="col-sm-2 control-label">过保时间</label>
+												 <div class="col-sm-6">
+												 	<input type="text" class="form-control" name="asset_expire_date" placeholder="过保时间" value=""  title="例如2016-01-01" class="input-xlarge"  required/>
+												 </div>
+											</div>															
+														
+											<div class="form-group">
+												 <label class="col-sm-2 control-label">购买人</label>
+												 <div class="col-sm-6">
+												 	<input type="text" class="form-control" name="asset_buy_user" placeholder="购买人" value="" class="input-xlarge"  required/>
+												 </div>
+											</div>	
+											
+											<div class="form-group">
+												 <label class="col-sm-2 control-label">管理IP</label>
+												 <div class="col-sm-6">
+												 	<input type="text" class="form-control" name="asset_management_ip" placeholder="管理/预设IP" value=""   class="input-xlarge" />
+												 </div>
+											</div>															
+												
+											<div class="form-group">
+												 <label class="col-sm-2 control-label">生产制造商</label>
+												 <div class="col-sm-6">
+												 	<input type="text" class="form-control" name="asset_manufacturer" placeholder="制造商" value=""  class="input-xlarge"  required/>
+												 </div>
+											</div>
+											
+											<div class="form-group">
+												 <label class="col-sm-2 control-label">设备型号</label>
+												 <div class="col-sm-6">
+												 	<input type="text" class="form-control" name="asset_model" placeholder="设备型号" value="" class="input-xlarge"  required/>
+												 </div>
+											</div>						
+											
+											<div class="form-group">
+												 <label class="col-sm-2 control-label">供货商</label>
+												 <div class="col-sm-6">
+												 	<input type="text" class="form-control" name="asset_provider" placeholder="供货商" value="" class="input-xlarge"  required/>
+												 </div>
+											</div>													
+													
+											<div class="form-group">
+												 <label class="col-sm-2 control-label">设备状态</label>
+												 <div class="col-sm-6">
+												   <select class="form-control" name="asset_status" id="asset_status_select"  >
+												   		<option selected="selected" value="">请选择一个类型</option>
+															<option value="0" name="asset_status">已上线</option>	
+															<option value="1" name="asset_status">已下线</option>	
+															<option value="2" name="asset_status">维修中</option>	
+															<option value="3" name="asset_status">已入库</option>	
+															<option value="4" name="asset_status">未使用</option>				   		
+													</select>	
+												 </div>
+											</div>			
+											
+											<div class="form-group">
+												 <label class="col-sm-2 control-label">放置区域</label>
+												 <div class="col-sm-6">
+												   <select class="form-control" name="asset_put_zone"  >
+												   		<option selected="selected" value="">请选择一个类型</option>
+															{% for z in baseAssets.zone %}
+																<option value="{{z.id}}" name="asset_put_zone">{{z.zone_name}}</option>
+															{% endfor %}							   		
+													</select>							 	
+												 </div>
+											</div>		
+											
+											<div class="form-group">
+												 <label class="col-sm-2 control-label">使用组</label>
+												 <div class="col-sm-6">
+												   <select class="form-control" name="asset_group"  >
+												   		<option selected="selected" value="">请选择一个类型</option>
+															{% for g in baseAssets.group %}
+																<option value="{{g.id}}" name="asset_group">{{g.name}}</option>
+															{% endfor %}							   		
+													</select>
+												 </div>
+											</div>																	
+														
+											<div class="form-group">
+												 <label class="col-sm-2 control-label">业务类型</label>
+												 <div class="col-sm-6">
+												   <select class="form-control" name="asset_business"  >
+												   		<option selected="selected" value="">请选择一个类型</option>
+															{% for s in baseAssets.service %}
+																<option value="{{s.id}}" name="asset_business">{{s.service_name}}</option>
+															{% endfor %}								   							
+													</select>
+												 </div>
+											</div>		
+											
+											</fieldset>
+											<fieldset>		
+					
+											<div id="asset_server_chioce" >					
+											<legend>服务器设备资产信息录入 - 可选信息</legend>
+					
+											<div class="form-group" >
+												 <label class="col-sm-2 control-label">主机地址</label>
+												 <div class="col-sm-6">
+												 	<input type="text" class="form-control" name="server_ip" placeholder="Ip Address" value="" pattern="^(\d+\.\d+\.\d+\.\d+|[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(/.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+/.?))$" title="请输入IP地址或者域名"  class="input-xlarge"/>
+												 </div>
+											</div>
+											
+											<div class="form-group">
+												 <label class="col-sm-2 control-label">主机名字</label>
+												 <div class="col-sm-6">
+												 	<input type="text" class="form-control" name="server_hostname" placeholder="Hostname"  class="input-xlarge" value="" />
+												 </div>
+											</div>					
+											
+											<div class="form-group">
+												 <label class="col-sm-2 control-label">账户</label>
+												 <div class="col-sm-6">
+												 <input type="text" class="form-control" name="server_username" placeholder="Username"  class="input-xlarge" value="" />
+												 </div>
+											</div>							
+											
+											<div class="form-group">
+												 <label class="col-sm-2 control-label">密码</label>
+												 <div class="col-sm-6">
+												 <input type="password" class="form-control" name="server_passwd" placeholder="Password"  class="input-xlarge" value="" />
+												 </div>
+											</div>							
+<!-- 											<div class="form-group"> -->
+<!-- 												 <label class="col-sm-2 control-label">密钥文件</label> -->
+<!-- 												 <div class="col-sm-6"> -->
+<!-- 												 <input type="file" name="server_keyfile" value="" /> -->
+<!-- 												 </div> -->
+<!-- 											</div>											 -->
+											<div class="form-group">
+												 <label class="col-sm-2 control-label">端口</label>
+												 <div class="col-sm-6">
+												 <input type="text" class="form-control" name="server_port" placeholder="Port"  class="input-xlarge" pattern="^(\d+)" value="" />
+												 </div>
+											</div>	
+											
+											<div class="form-group">
+												 <label class="col-sm-2 control-label">CPU型号</label>
+												 <div class="col-sm-6">
+												 <input type="text" class="form-control" name="server_cpu" placeholder="Cpu"  class="input-xlarge" value="" />
+												 </div>
+											</div>	
+											
+											<div class="form-group">
+												 <label class="col-sm-2 control-label">物理CPU</label>
+												 <div class="col-sm-6">
+												 <input type="text" class="form-control" name="server_cpu_number" placeholder="物理CPU个数"  class="input-xlarge" value="" />
+												 </div>
+											</div>		
+											
+											<div class="form-group">
+												 <label class="col-sm-2 control-label">逻辑CPU</label>
+												 <div class="col-sm-6">
+												 <input type="text" class="form-control" name="server_vcpu_number" placeholder="逻辑CPU个数"  class="input-xlarge" value="" />
+												 </div>
+											</div>	
+											
+											<div class="form-group">
+												 <label class="col-sm-2 control-label">CPU核心数</label>
+												 <div class="col-sm-6">
+												 <input type="text" class="form-control" name="server_cpu_core" placeholder="单个CPU核心数"  class="input-xlarge" value="" />
+												 </div>
+											</div>															
+											
+											<div class="form-group">
+												 <label class="col-sm-2 control-label">内存容量</label>
+												 <div class="col-sm-6">
+												 <input type="text" class="form-control" name="server_ram_total" placeholder="单位(GB)"  class="input-xlarge" value="" />									 				 
+												 </div>
+											</div>	
+											
+											<div class="form-group">
+												 <label class="col-sm-2 control-label">内核版本</label>
+												 <div class="col-sm-6">
+												 <input type="text" class="form-control" name="server_kernel" placeholder="内核版本"  class="input-xlarge" value="" />
+												 </div>
+											</div>	
+											
+											<div class="form-group">
+												 <label class="col-sm-2 control-label">Selinux状态</label>
+												 <div class="col-sm-6">
+												 <input type="text" class="form-control" name="server_selinux" placeholder="selinux状态"  class="input-xlarge" value="" />
+												 </div>
+											</div>															
+											
+											<div class="form-group">
+												 <label class="col-sm-2 control-label">Swap分区</label>
+												 <div class="col-sm-6">
+												 <input type="text" class="form-control" name="server_swap" placeholder="swap分区容量"  class="input-xlarge" value="" />
+												 </div>
+											</div>						
+											
+											<div class="form-group">
+												 <label class="col-sm-2 control-label">磁盘空间</label>
+												 <div class="col-sm-6">
+												 <input type="text" class="form-control" name="server_disk_total" placeholder="Disk"  class="input-xlarge" value=""/>
+												 </div>
+											</div>	
+											
+											<div class="form-group">
+												 <label class="col-sm-2 control-label"> Raid类型</label>	 
+												 <div class="col-sm-6"> 
+												    	<select class="form-control" name="server_raid"  >
+														<option selected="selected" value="">请选择一个类型</option>
+															{% for r in baseAssets.raid %}
+																<option value="{{r.id}}" name="server_raid">{{r.raid_name}}</option>
+															{% endfor %}										
+														</select>	
+												 </div>
+											</div>																		
+														
+													
+											<div class="form-group">
+												 <label class="col-sm-2 control-label">系统版本号</label>
+												 <div class="col-sm-6">
+												 <input type="text" class="form-control" name="server_system" placeholder="System"  class="input-xlarge" value="" />
+												 </div>
+											</div>	
+																												
+											<div class="form-group">
+												 <label class="col-sm-2 control-label"> 机房线路</label>
+												 <div class="col-sm-6">							 	  
+												    	<select class="form-control" name="server_line"  >
+														<option selected="selected" value="">请选择一个类型</option>
+														{% for l in baseAssets.line %}
+															<option value="{{l.id}}" name="server_line">{{l.line_name}}</option>
+														{% endfor %}									
+														</select>	
+												</div>
+											</div>	 					 											
+											</div>
+											</fieldset>
+											
+											<fieldset>
+					
+											<div id="asset_net_chioce" style="display:none;" >					
+											<legend>网络设备资产信息录入 - 可选信息</legend>
+					
+											<div class="form-group" >
+												 <label class="col-sm-2 control-label">背板带宽</label>
+												 <div class="col-sm-6">
+												 	<input type="text" class="form-control" name="net_bandwidth" placeholder="xGbps"  title="请输入IP地址或者域名"  class="input-xlarge" value="" />
+												 </div>
+											</div>
+											
+											<div class="form-group" >
+												 <label class="col-sm-2 control-label">主机地址</label>
+												 <div class="col-sm-6">
+												 	<input type="text" class="form-control" name="net_ip" placeholder="Ip Address" value="" pattern="^(\d+\.\d+\.\d+\.\d+|[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(/.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+/.?))$" title="请输入IP地址或者域名"  class="input-xlarge"/>
+												 </div>
+											</div>				
+											
+											<div class="form-group">
+												 <label class="col-sm-2 control-label">端口数</label>
+												 <div class="col-sm-6">
+												 <input type="text" class="form-control" name="net_port_number" placeholder="port number" pattern="^(\d+)" class="input-xlarge" value="" />
+												 </div>
+											</div>							
+											
+											<div class="form-group">
+												 <label class="col-sm-2 control-label">固件版本</label>
+												 <div class="col-sm-6">
+												 <input type="text" class="form-control" name="net_firmware" placeholder="firmware"  class="input-xlarge" value="" />
+												 </div>
+											</div>							
+											
+											<div class="form-group">
+												 <label class="col-sm-2 control-label">CPU型号</label>
+												 <div class="col-sm-6">
+												 <input type="text" class="form-control" name="net_cpu" placeholder="cpu"  class="input-xlarge" value="" />
+												 </div>
+											</div>	
+											
+											
+											<div class="form-group">
+												 <label class="col-sm-2 control-label">内存容量</label>
+												 <div class="col-sm-6">
+												 <input type="text" class="form-control" name="net_stone" placeholder="Mem"  class="input-xlarge" value="" />
+												 </div>
+											</div>	
+											
+											<div class="form-group">
+												 <label class="col-sm-2 control-label">配置说明</label>
+												 <div class="col-sm-6">						
+												 	<textarea  class="form-control" rows="5" name="net_configure_detail" placeholder="配置说明" value=""></textarea>
+												 </div>
+											</div>	
+											</div>
+										
+											</fieldset>
+											<div class="form-group">
+											<label class="col-sm-3 control-label"></label>
+											<button type="reset"  class="btn btn-default" >撤销操作</button>
+									 		<button type="button" class="btn btn-default" onclick="addAssetsData(this)" >确认提交</button>
+									 		</div>
+									 		
+										</form>	
+										 </fieldset>                              
+                                </div>
+
+                                <!-- /.col-lg-6 (nested) -->
+                            </div>
+                            <!-- /.row (nested) -->
+                        </div>
+                        <!-- /.panel-body -->
+                    </div>
+                    <!-- /.panel -->
+                </div>
+                <!-- /.col-lg-12 -->
+            </div>
+            <!-- /.row -->
+        </div>
+
+
+
+<script type="text/javascript"> 
+	function getFormData (form, filler) {
+		var assets = {};
+		var server = {};
+		var net = {};
+		for (var i = 0; i < form.length; ++i) {
+			var name = form[i].name;
+			var value = form[i].value;
+			if (name.length == 0)
+				continue;
+			if (value.length == 0) {
+				if ((typeof filler != 'string') || (filler.length == 0))
+					continue;
+				else
+					value = filler;
+			}
+			var assetStart = name.indexOf("asset_");
+			var serverStart = name.indexOf("server_");
+			var netStart = name.indexOf("net_");
+			if (assetStart==0){
+				var asz = "assets."+name.replace("asset_","")+" = '" + value + "'";
+				try {
+					eval(asz);
+				} catch (e) {
+					alert(e);
+				}
+			}
+			else if(serverStart==0){
+				var ssz = "server."+name.replace("server_","")+" = '" + value + "'";
+				try {
+					eval(ssz);
+				} catch (e) {
+					alert(e);
+				}
+			}			
+			else if(netStart==0){
+				var nsz = "net."+name.replace("net_","")+" = '" + value + "'";
+				try {
+					eval(nsz);
+				} catch (e) {
+					alert(e);
+				}
+			}
+			
+		}
+		if (assets.assets_type == "server"){
+			server.assets = assets;
+			return server;		
+		}
+		else {
+			net.assets = assets;
+			return net;
+		}
+	}
+	function oBtAssetsType() {
+		   var obj = document.getElementById("assets_type_select"); 
+		   var index = obj.selectedIndex;
+		   var value = obj.options[index].value; 
+		   if (value=="server"){
+			   document.getElementById("asset_server_chioce").style.display = "";  
+			   document.getElementById("asset_net_chioce").style.display = "none";		   
+		   }
+		   else if (value==""){
+			   document.getElementById("asset_net_chioce").style.display = "none";
+			   document.getElementById("asset_server_chioce").style.display = "none";
+		   }
+		   else {
+			   document.getElementById("asset_net_chioce").style.display = "";
+			   document.getElementById("asset_server_chioce").style.display = "none";	
+		   }
+	}
+
+	function addAssetsData(obj) {
+		var form = document.getElementById('addHost');
+		for (var i = 0; i < form.length; ++i) {
+			var name = form[i].name;
+			var value = form[i].value;
+			var assetStart = name.indexOf("asset_");
+			if (assetStart==0 && value.length == 0){
+				window.wxc.xcConfirm("请注意必填项不能为空~", window.wxc.xcConfirm.typeEnum.error);
+				return false;
+			}
+			
+		};
+		var asset_data = getFormData(document.getElementById('addHost'),'');
+//	 	alert(JSON.stringify(asset_data));  
+		var btnObj = $(obj);
+		if (asset_data.assets.assets_type=="server"){
+			var putUrl = '/api/server/';
+		}
+		else {
+			var putUrl = '/api/net/';
+		}
+		$.ajax({
+			dataType: "JSON",
+			url:putUrl, //请求地址
+			type:"POST",  //提交类似
+			contentType: "application/json",
+			data: JSON.stringify({
+				'data':asset_data
+			}),  //提交参数
+			success:function(response){
+				window.wxc.xcConfirm("资产添加成功", window.wxc.xcConfirm.typeEnum.success);
+			},
+	    	error:function(response){
+	    		window.wxc.xcConfirm("资产编号重复，添加资产失败~", window.wxc.xcConfirm.typeEnum.error);
+	    	}
+		})	
+	}	
+</script>
+{% endblock %}

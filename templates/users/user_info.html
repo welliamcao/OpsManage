@@ -1,0 +1,144 @@
+{% extends 'index.html' %}
+{% block page-content %}
+<div id="page-wrapper">
+    <div class="row">
+         <div class="col-lg-12">
+              <h1 class="page-header"><i class="fa  fa-wrench"></i><code>{{user_info.username}}</code> 用户资料配置</h1>
+         </div>
+                <!-- /.col-lg-12 -->
+    </div>
+	<div class="row">
+                <div class="col-lg-12">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                           	<i class="fa   fa-gear"></i> 用户权限管理
+                        </div>
+                        <div class="panel-body">
+							<div class="row">
+									<div class="col-lg-2">
+									</div>
+											<div id="asset_net_chioce" class="col-lg-6">		
+											<form role="form" method="post" id="addHost" class="main form-horizontal" >{% csrf_token %}			
+						
+												<div class="form-group" >
+													 <label class="col-sm-2 control-label"><i class="fa fa-user"></i> 用户名</label>
+													 <div class="col-sm-6">
+													 	<input class="form-control" type="text" value="{{user_info.username}}" placeholder="用户名" name="username" />
+													 </div>
+												</div>
+												
+												<div class="form-group" >
+													 <label class="col-sm-2 control-label"><i class="fa fa-envelope"></i> 邮箱</label>
+													 <div class="col-sm-6">
+													 	<input class="form-control" type="text" id="form-field-3" value="{{user_info.email}}" placeholder="email" name="email" />
+													 </div>
+												</div>				
+												
+												<div class="form-group">													 
+													{% if user_info.is_superuser %}
+														<label class="col-sm-2 control-label"><i class="fa  fa-check"></i> 管理员</label>													
+													{% else %}
+														<label class="col-sm-2 control-label"><i class="fa fa-times"></i> 管理员</label>
+													{% endif %}
+													 <div class="col-sm-6">
+														<select class="form-control"  name="is_superuser">
+															{% if user_info.is_superuser %}
+																<option selected="selected" value="1">是</option>
+																<option value="0">否</option>																			
+															{% else %}
+																<option  value="1">是</option>
+																<option selected="selected" value="0">否</option>
+															{% endif %}																		
+														</select>
+													 </div>
+												</div>							
+												
+						
+												
+												<div class="form-group">
+													 <label class="col-sm-2 control-label"><i class="fa fa-group"></i> 用户分组</label>
+													 <div class="col-sm-6">
+														<select multiple class="selectpicker" name="groups" data-live-search="true">	
+															{% for ds in groupList %}
+																{% if ds.status == 1  %}			
+																<option selected="selected" value="{{ds.id}}">{{ds.name}}</option>
+																{% else %}
+																<option value="{{ds.id}}">{{ds.name}}</option>
+																{% endif %}
+																				
+															{% endfor %}
+														</select>
+													 </div>
+												</div>	
+												
+												
+												<div class="form-group">
+													 <label class="col-sm-2 control-label">分配权限</label>
+													 <div class="col-sm-6">
+														<select multiple class="selectpicker" name="perms" data-live-search="true" data-live-search-placeholder="Search" data-actions-box="true">	
+															{% for ds in permList %}
+																{% if ds.status == 1 %}
+																	<option selected="selected" value="{{ds.id}}">{{ds.name}}</option>
+																	{% else %}
+																	<option value="{{ds.id}}">{{ds.name}}</option>
+																{% endif %}	
+															{% endfor %}
+														</select>	
+													 </div>
+												</div>	
+
+												<div class="form-group">
+													 <label class="col-sm-2 control-label"><i class="fa fa-terminal"></i> 激活状态</label>
+													 <div class="col-sm-6">
+														<select class="form-control" name="is_active">
+															{% if user.is_active == 0 %}
+																<option selected="selected" value="0">未激活</option>
+																<option value="1">已激活</option>																			
+															{% else %}
+																<option  value="0">未激活</option>
+																<option selected="selected" value="1">已激活</option>
+															{% endif %}																		
+														</select>
+													 </div>
+												</div>													
+												
+												<div class="hr hr32 hr-dotted"></div>                                        
+												<div class="form-group">
+													<div class="col-md-offset-3 col-md-9">
+														<button class="btn btn-default" type="submit" >
+															<i class="fa fa-check"></i>
+																			提交
+														</button>						
+																		&nbsp; &nbsp; &nbsp;
+														<button class="btn btn-default" type="reset">
+															<i class="fa fa-undo"></i>
+																			撤销
+														</button>
+													</div>
+												</div>
+												</form>
+											</div>				
+				                          
+
+							</div>
+                            <!-- /.row (nested) -->
+                        </div>
+                        <!-- /.panel-body -->
+                    </div>
+                    <!-- /.panel -->
+                </div>
+                <!-- /.col-lg-12 -->
+            </div>    
+</div>
+
+
+
+
+	  
+<script type="text/javascript">
+{% if errorInfo %}
+	window.wxc.xcConfirm("{{errorInfo}}", window.wxc.xcConfirm.typeEnum.error);
+{% endif %}
+</script>
+
+{% endblock %}

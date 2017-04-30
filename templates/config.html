@@ -1,0 +1,312 @@
+{% extends 'index.html' %}
+{% block page-content %}
+<div id="page-wrapper">
+    <div class="row">
+         <div class="col-lg-12">
+              <h1 class="page-header"><i class="fa  fa-wrench  "></i> 全局配置</h1>
+         </div>
+                <!-- /.col-lg-12 -->
+    </div>
+	<div class="row">
+                <div class="col-lg-12">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                           	<i class="fa   fa-gear"></i> 全局配置
+                        </div>
+                        <div class="panel-body">               
+				           <ul class="nav nav-tabs">
+				              <li class="active"><a href="#home" data-toggle="tab"><i class="fa fa-history"></i> 日志记录</a>
+				              </li>
+				              <li><a href="#profile" data-toggle="tab"><i class="fa fa-envelope"></i> 部署通知</a>
+				              </li>			              
+				           </ul>
+				
+				                            
+				           <div class="tab-content">
+				              <div class="tab-pane fade in active" id="home">
+				                   <div class="row">
+				                   		<div class="col-lg-12">
+				                   			<br>
+											<form role="form" method="post" id="addConfig" class="main form-horizontal" >{% csrf_token %}			
+						
+												<div class="form-group" >
+													 <label class="col-sm-2 control-label"><i class="fa  fa-tasks"></i> 模块操作记录</label>
+													 <div class="col-sm-6">
+														<select class="form-control" name="ansible_model">
+															{% if config.ansible_model == 1 %}
+																<option selected="selected" value="1">开启</option>
+																<option value="0">关闭</option>																			
+															{% else %}
+																<option selected="selected" value="0">关闭</option>
+																<option  value="1">开启</option>
+															{% endif %}																		
+														</select>
+													 </div>
+												</div>
+												
+												<div class="form-group" >
+													 <label class="col-sm-2 control-label"><i class="fa fa-bookmark"></i> 剧本操作记录</label>
+													 <div class="col-sm-6">
+														<select class="form-control" name="ansible_playbook">
+															{% if config.ansible_playbook == 1 %}
+																<option selected="selected" value="1">开启</option>
+																<option value="0">关闭</option>																			
+															{% else %}
+																<option selected="selected" value="0">关闭</option>
+																<option  value="1">开启</option>
+															{% endif %}																		
+														</select>
+													 </div>
+												</div>				
+												
+												<div class="form-group" >
+													 <label class="col-sm-2 control-label"><i class="fa fa-clock-o"></i> 计划任务操作记录</label>
+													 <div class="col-sm-6">
+														<select class="form-control" name="cron">
+															{% if config.cron == 1 %}
+																<option selected="selected" value="1">开启</option>
+																<option value="0">关闭</option>																			
+															{% else %}
+																<option selected="selected" value="0">关闭</option>
+																<option  value="1">开启</option>
+															{% endif %}																		
+														</select>
+													 </div>
+												</div>
+												
+												<div class="form-group" >
+													 <label class="col-sm-2 control-label"><i class="fa fa-github-alt"></i> 项目操作记录</label>
+													 <div class="col-sm-6">
+														<select class="form-control" name="project">
+															{% if config.project == 1 %}
+																<option selected="selected" value="1">开启</option>
+																<option value="0">关闭</option>																			
+															{% else %}
+																<option selected="selected" value="0">关闭</option>
+																<option  value="1">开启</option>
+															{% endif %}																		
+														</select>
+													 </div>
+												</div>																			
+												<div class="form-group" >
+													 <label class="col-sm-2 control-label"><i class="fa fa-database"></i> 资产操作记录</label>
+													 <div class="col-sm-6">
+														<select class="form-control" name="assets">
+															{% if config.assets == 1 %}
+																<option selected="selected" value="1">开启</option>
+																<option value="0">关闭</option>																			
+															{% else %}
+																<option selected="selected" value="0">关闭</option>
+																<option  value="1">开启</option>
+															{% endif %}																		
+														</select>
+													 </div>
+												</div>												
+												<div class="form-group" >
+													 <label class="col-sm-2 control-label"><i class="fa  fa-linux"></i> 服务器命令记录</label>
+													 <div class="col-sm-6">
+														<select class="form-control" name="server">
+															{% if config.server == 1 %}
+																<option selected="selected" value="1">开启</option>
+																<option value="0">关闭</option>																			
+															{% else %}
+																<option selected="selected" value="0">关闭</option>
+																<option  value="1">开启</option>
+															{% endif %}																		
+														</select>
+													 </div>
+												</div>		
+												<div class="form-group" >
+													 <label class="col-sm-2 control-label"><i class="fa fa-envelope-square"></i> 部署邮件通知</label>
+													 <div class="col-sm-6">
+														<select class="form-control" name="email">
+															{% if config.email == 1 %}
+																<option selected="selected" value="1">开启</option>
+																<option value="0">关闭</option>																			
+															{% else %}
+																<option selected="selected" value="0">关闭</option>
+																<option  value="1">开启</option>
+															{% endif %}																		
+														</select>
+													 </div>
+												</div>																							
+												
+												<div class="hr hr32 hr-dotted"></div>                                        
+												<div class="form-group">
+													<div class="col-md-offset-3 col-md-9">
+														<button class="btn btn-default" type="button" onclick="addConfigData(this)">
+															<i class="fa fa-check"></i>
+																			提交
+														</button>						
+																		&nbsp; &nbsp; &nbsp;
+														<button class="btn btn-default" type="reset">
+															<i class="fa fa-undo"></i>
+																			撤销
+														</button>
+													</div>
+												</div>
+												</form>					                   		
+				                   		</div>
+
+				                   </div>
+				              </div>
+				              <div class="tab-pane fade" id="profile">
+				                   <div class="row">
+				                   		<div class="col-lg-12">
+				                   			<br>
+											<form role="form" method="post" id="addEmail" class="main form-horizontal" >{% csrf_token %}			
+
+												<div class="form-group" >
+													 <label class="col-sm-2 control-label"><i class="fa fa-globe"></i> 本站点URL</label>
+													 <div class="col-sm-6">
+													 	<input class="form-control" type="text" value="{{email.site}}" placeholder="http://192.168.1.233" name="site" />
+													 </div>
+												</div>
+						
+												<div class="form-group" >
+													 <label class="col-sm-2 control-label"><i class="fa fa-user"></i> SMTP服务器地址</label>
+													 <div class="col-sm-6">
+													 	<input class="form-control" type="text" value="{{email.host}}" placeholder="smtp.163.com" name="host" />
+													 </div>
+												</div>
+												
+												<div class="form-group" >
+													 <label class="col-sm-2 control-label"><i class="fa fa-subscript"></i> 端口</label>
+													 <div class="col-sm-6">
+													 	<input class="form-control" type="text" id="form-field-3" value="{{email.port}}" placeholder="25" name="port" />
+													 </div>
+												</div>				
+												
+												<div class="form-group" >
+													 <label class="col-sm-2 control-label"><i class="fa fa-envelope"></i> 发送账户</label>
+													 <div class="col-sm-6">
+													 	<input class="form-control" type="text" value="{{email.user}}" placeholder="ops@163.com" name="user" />
+													 </div>
+												</div>
+												
+												<div class="form-group" >
+													 <label class="col-sm-2 control-label"><i class="fa fa-lock"></i> 密码</label>
+													 <div class="col-sm-6">
+													 	<input class="form-control" type="password" id="form-field-3" value="{{email.passwd}}" placeholder="email" name="passwd" />
+													 </div>
+												</div>																			
+												<div class="form-group" >
+													 <label class="col-sm-2 control-label"><i class="fa fa-flag-o  "></i> 邮件主题标识</label>
+													 <div class="col-sm-6">
+													 	<input class="form-control" type="text" id="form-field-3" value="{{email.subject}}" placeholder="[xx公司]" name="subject" />
+													 </div>
+												</div>												
+												<div class="form-group" >
+													 <label class="col-sm-2 control-label"><i class="fa fa-pencil-square-o"></i> 抄送用户</label>
+													 <div class="col-sm-6">
+													 	<input class="form-control" type="text" id="form-field-3" value="{{email.cc_user}}" placeholder="多个邮箱以,号分开" name="cc_user" />
+													 </div>
+												</div>												
+												
+												<div class="hr hr32 hr-dotted"></div>                                        
+												<div class="form-group">
+													<div class="col-md-offset-3 col-md-9">
+														<button class="btn btn-default" type="buttun" onclick="addEmailData(this)">
+															<i class="fa fa-check"></i>
+																			提交
+														</button>						
+																		&nbsp; &nbsp; &nbsp;
+														<button class="btn btn-default" type="reset">
+															<i class="fa fa-undo"></i>
+																			撤销
+														</button>
+													</div>
+												</div>
+												</form>				                   			
+										</div>
+				                   </div>
+				              </div>				              				             				              
+				           </div>
+
+
+                            <!-- /.row (nested) -->
+                        </div>
+                        <!-- /.panel-body -->
+                    </div>
+                    <!-- /.panel -->
+                </div>
+                <!-- /.col-lg-12 -->
+            </div>    
+</div>
+
+
+<script type="text/javascript">
+
+		function addConfigData(obj) {
+			var btnObj = $(obj);
+			btnObj.attr('disabled',true);
+			var post_data = {}; 
+			var putUrl = '/config/';
+			var form = document.getElementById('addConfig');
+			for (var i = 0; i < form.length; ++i) {
+				var name = form[i].name;
+				var value = form[i].value;
+				if (name.length > 0 && value.length > 0){
+					post_data[name] = value;
+				}
+				
+			};
+			post_data['op'] = 'log';
+			$.ajax({
+				dataType: "JSON",
+				url:putUrl, //请求地址
+				type:"POST",  //提交类似
+				data:post_data, //提交参数
+				success:function(response){
+					btnObj.removeAttr('disabled');
+					window.wxc.xcConfirm("配置修改成功", window.wxc.xcConfirm.typeEnum.success);
+					location.reload();
+				},
+		    	error:function(response){
+		    		btnObj.removeAttr('disabled');
+		    		window.wxc.xcConfirm("配置修改失败", window.wxc.xcConfirm.typeEnum.error);
+		    		location.reload();
+		    	}
+			})	
+		}
+		
+		function addEmailData(obj) {
+			var btnObj = $(obj);
+			btnObj.attr('disabled',true);
+			var required = ["host","port","user","passwd","site"];
+			var post_data = {}; 
+			var putUrl = '/config/';
+			var form = document.getElementById('addEmail');
+			for (var i = 1; i < form.length; ++i) {
+				var name = form[i].name;
+				var value = form[i].value;	
+				idx = $.inArray(name, required);						
+				if (idx >= 0 && value.length == 0){
+					window.wxc.xcConfirm("请注意必填项不能为空~", window.wxc.xcConfirm.typeEnum.error);
+					return false;
+				};	
+				if ( value.length != 0 && name.length != 0 ){
+					post_data[name] = value;
+				};					
+			};	
+			post_data['op'] = 'email';
+			$.ajax({
+				dataType: "JSON",
+				url:putUrl, //请求地址
+				type:"POST",  //提交类似
+				data:post_data, //提交参数
+				success:function(response){
+					btnObj.removeAttr('disabled');
+					window.wxc.xcConfirm("配置修改成功", window.wxc.xcConfirm.typeEnum.success);
+// 					location.reload();
+				},
+		    	error:function(response){
+		    		btnObj.removeAttr('disabled');
+		    		window.wxc.xcConfirm("配置修改失败", window.wxc.xcConfirm.typeEnum.error);
+		    	}
+			})	
+		}		
+  
+</script>
+
+{% endblock %}

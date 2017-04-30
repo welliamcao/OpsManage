@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>运维管理平台</title>
+
+    <!-- jQuery -->
+    <script src="/static/vendor/jquery/jquery.min.js"></script>
+    <!-- Bootstrap Core CSS -->
+    <link href="/static/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- MetisMenu CSS -->
+    <link href="/static/vendor/metisMenu/metisMenu.min.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link href="/static/dist/css/sb-admin-2.css" rel="stylesheet">
+
+    <!-- Morris Charts CSS -->
+    <link href="/static/vendor/morrisjs/morris.css" rel="stylesheet">
+
+    <!-- Custom Fonts -->
+    <link href="/static/vendor/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+    <!-- DataTables CSS -->
+    <link href="/static/vendor/datatables-plugins/dataTables.bootstrap.css" rel="stylesheet">
+
+    <!-- DataTables Responsive CSS -->
+    <link href="/static/vendor/datatables-responsive/dataTables.responsive.css" rel="stylesheet">
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="/static/vendor/bootstrap/js/bootstrap.min.js"></script>
+
+    <!-- Metis Menu Plugin JavaScript -->
+    <script src="/static/vendor/metisMenu/metisMenu.min.js"></script>
+    
+    <!-- Morris Charts JavaScript -->
+    <script src="/static/vendor/raphael/raphael.min.js"></script>
+    <script src="/static/vendor/morrisjs/morris.min.js"></script>
+
+    
+    <!-- Custom Theme JavaScript -->
+    <script src="/static/dist/js/sb-admin-2.js"></script>  
+      
+    <!-- Flot Charts JavaScript -->
+    <script src="/static/vendor/flot/excanvas.min.js"></script>
+    <script src="/static/vendor/flot/jquery.flot.js"></script>
+    <script src="/static/vendor/flot/jquery.flot.pie.js"></script>
+    <script src="/static/vendor/flot/jquery.flot.resize.js"></script>
+    <script src="/static/vendor/flot/jquery.flot.time.js"></script>
+    <script src="/static/vendor/flot-tooltip/jquery.flot.tooltip.min.js"></script>
+    
+    <!-- DataTables JavaScript -->
+    <script src="/static/vendor/datatables/js/jquery.dataTables.min.js"></script>
+    <script src="/static/vendor/datatables-plugins/dataTables.bootstrap.min.js"></script>
+    <script src="/static/vendor/datatables-responsive/dataTables.responsive.js"></script> 
+      
+</head>
+
+<body>
+
+    <div id="wrapper">
+
+        <!-- Navigation -->
+        <nav class="navbar navbar-default navbar-static-top" role="navigation" style="margin-bottom: 0">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="index.html">OpsManage v1.0</a>
+            </div>
+            <!-- /.navbar-header -->
+
+            <ul class="nav navbar-top-links navbar-right">
+                <li class="dropdown">
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                        <i class="fa fa-bell fa-fw">
+                        </i><span class="badge" id="deploy_order_count"></span>
+                        <i class="fa fa-caret-down"></i>
+                    </a>
+	                <ul class="dropdown-menu dropdown-messages" id="deploy_order"> 
+	                </ul>              	
+                    <!-- /.dropdown-messages -->
+                </li>
+                <!-- /.dropdown -->
+                <li class="dropdown">
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                        {{user}} <i class="fa fa-user fa-fw"></i><iclass="fa fa-caret-down"></i>
+                    </a>
+                    <ul class="dropdown-menu dropdown-user">
+                        <li><a href="/user/center/"><i class="fa fa-user fa-fw"></i> User Profile</a>
+                        </li>
+                        <li><a href="#"><i class="fa fa-gear fa-fw"></i> Settings</a>
+                        </li>
+                        <li class="divider"></li>
+                        <li><a href="/logout"><i class="fa fa-sign-out fa-fw"></i> Logout</a>
+                        </li>
+                    </ul>
+                    <!-- /.dropdown-user -->
+                </li>
+                <!-- /.dropdown -->
+            </ul>
+            <!-- /.navbar-top-links -->
+
+            <div class="navbar-default sidebar" role="navigation">
+                <div class="sidebar-nav navbar-collapse">
+                    <ul class="nav" id="side-menu">
+                        <li class="sidebar-search">
+                            <div class="input-group custom-search-form">
+                                <input type="text" class="form-control" placeholder="Search...">
+                                <span class="input-group-btn">
+                                <button class="btn btn-default" type="button">
+                                    <i class="fa fa-search"></i>
+                                </button>
+                            </span>
+                            </div>
+                            <!-- /input-group -->
+                        </li>
+                        <li>
+                            <a href="/"><i class="fa fa-dashboard fa-fw"></i> Dashboard</a>
+                        </li>
+                        <li>
+                            <a href="#"><i class="fa fa-database fa-fw"></i> 资产管理<span class="fa arrow"></span></a>
+                            <ul class="nav nav-second-level">
+                                <li>
+                                    <a href="/assets_config">基础配置</a>
+                                </li>
+                                <li>
+                                    <a href="/assets_add">添加资产</a>
+                                </li>
+								<li>
+                                    <a href="/assets_list">资产列表</a>
+                                </li>
+								<li>
+	                                    <a href="/assets_log">操作日志</a>
+	                            </li>                                                                 
+                            </ul>
+                            <!-- /.nav-second-level -->
+                        </li>                        
+                        <li>
+                            <a href="#"><i class="glyphicon glyphicon-hdd"></i> 代码发布<span class="fa arrow"></span></a>
+                            <ul class="nav nav-second-level">
+                                <li>
+                                    <a href="/deploy_add">项目配置</a>
+                                </li>
+                                <li>
+                                    <a href="/deploy_list">项目列表</a>
+                                </li>
+                                <li>
+                                    <a href="/deploy_order">部署工单</a>
+                                </li>
+								<li>
+	                                <a href="/deploy_log">操作日志</a>
+	                            </li>                                
+                            </ul>
+                            <!-- /.nav-second-level -->
+                        </li>
+                        <li>
+                            <a href="#"><i class="fa fa-table fa-fw"></i> 任务管理<span class="fa arrow"></span></a>
+                            <ul class="nav nav-second-level">
+                                <li>
+                                    <a href="/cron_add">添加任务</a>
+                                </li>                            
+                                <li>
+                                    <a href="/cron_config">批量导入</a>
+                                </li>
+                                <li>
+                                    <a href="/cron_list">任务列表</a>
+                                </li>
+								<li>
+	                                 <a href="/cron_log/">操作日志</a>
+	                            </li>                                 
+                            </ul>
+                            <!-- /.nav-second-level -->
+                        </li>                          
+                        <li>
+                            <a href="#"><i class="fa fa-sitemap fa-fw"></i>应用部署<span class="fa arrow"></span></a>
+                            <ul class="nav nav-second-level">
+                                <li>
+                                    <a href="/apps/model">运行模块</a>
+                                </li>
+                                <li>
+                                    <a href="#">剧本配置<span class="fa arrow"></span></a>
+                                    <ul class="nav nav-third-level">
+                                        <li>
+                                            <a href="/apps/playbook/add">剧本添加</a>
+                                        </li>
+                                        <li>
+                                            <a href="/apps">剧本管理</a>
+                                        </li>
+                                    </ul>
+                                    <!-- /.nav-third-level -->
+                                </li>
+								<li>
+                                    <a href="/apps/log/">操作日志</a>
+                                </li>                                  
+                            </ul>
+                            <!-- /.nav-second-level -->
+                        </li>
+                        <li>
+                            <a href="/config"><i class="fa fa-wrench fa-fw"></i> 全局配置</a>
+                        </li>                           
+                        <li>
+                            <a href="#"><i class="fa fa-group "></i> 用户中心<span class="fa arrow"></span></a>
+                            <ul class="nav nav-second-level">
+                            	<li>
+                                    <a href="/users/manage">用户管理</a>
+                                </li>
+                                <li>
+                                    <a href="/user/center/">用户配置</a>
+                                </li>
+                                <li>
+                                    <a href="/logout">退出</a>
+                                </li>
+                            </ul>
+                            <!-- /.nav-second-level -->
+                        </li>
+                    </ul>
+                </div>
+                <!-- /.sidebar-collapse -->
+            </div>
+            <!-- /.navbar-static-side -->
+        </nav>
+
+<div id="page-wrapper">
+     <div class="row">
+          <div class="col-lg-12">
+              <h1 class="page-header"><i class="fa   fa-dashboard"></i>资产列表</h1>
+          </div>
+                <!-- /.col-lg-12 -->
+      </div>
+            <!-- /.row -->
+	<div class="row">
+                <div class="col-lg-3 col-md-6">
+                    <div class="panel panel-primary">
+                        <div class="panel-heading">
+                            <div class="row">
+                                <div class="col-xs-3">
+                                    <i class="fa fa-desktop fa-5x"></i>
+                                </div>
+                                <div class="col-xs-9 text-right">
+                                    <div class="huge">{{totalAssets}}</div>
+                                    <div>总资产</div>
+                                </div>
+                            </div>
+                        </div>
+                        <a href="#">
+                            <div class="panel-footer">
+                                <span class="pull-left">View Details</span>
+                                <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                                <div class="clearfix"></div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <div class="panel panel-green">
+                        <div class="panel-heading">
+                            <div class="row">
+                                <div class="col-xs-3">
+                                    <i class="fa fa-check  fa-5x"></i>
+                                </div>
+                                <div class="col-xs-9 text-right">
+                                    <div class="huge">{{assetOnline}}</div>
+                                    <div>上线</div>
+                                </div>
+                            </div>
+                        </div>
+                        <a href="#">
+                            <div class="panel-footer">
+                                <span class="pull-left">View Details</span>
+                                <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                                <div class="clearfix"></div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <div class="panel panel-yellow">
+                        <div class="panel-heading">
+                            <div class="row">
+                                <div class="col-xs-3">
+                                    <i class="fa fa-wrench fa-5x"></i>
+                                </div>
+                                <div class="col-xs-9 text-right">
+                                    <div class="huge">{{assetMaintain}}</div>
+                                    <div>维修</div>
+                                </div>
+                            </div>
+                        </div>
+                        <a href="#">
+                            <div class="panel-footer">
+                                <span class="pull-left">View Details</span>
+                                <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                                <div class="clearfix"></div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <div class="panel panel-red">
+                        <div class="panel-heading">
+                            <div class="row">
+                                <div class="col-xs-3">
+                                    <i class="glyphicon glyphicon-floppy-remove  fa-5x"></i>
+                                </div>
+                                <div class="col-xs-9 text-right">
+                                    <div class="huge">{{assetOffline}}</div>
+                                    <div>下线</div>
+                                </div>
+                            </div>
+                        </div>
+                        <a href="#">
+                            <div class="panel-footer">
+                                <span class="pull-left">View Details</span>
+                                <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                                <div class="clearfix"></div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+     </div>            
+     <div class="row">
+         <div class="col-lg-6">
+              <div class="panel panel-default">
+                    <div class="panel-heading">
+                           	 <i class="fa fa-sitemap"></i>设备资产比率
+                     </div>
+                        <!-- /.panel-heading -->
+                     <div class="panel-body">
+                     <div class="flot-chart">
+                          <div class="flot-chart-content" id="assets_per"></div>
+                          </div>
+                     </div>
+                        <!-- /.panel-body -->
+              </div>
+                    <!-- /.panel -->
+         </div>    
+                <div class="col-lg-6">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                           	<i class="fa fa-bookmark"></i> 设备资产明细
+                        </div>
+                        <!-- /.panel-heading -->
+                        <div class="panel-body">
+                            <div id="asset_number"></div>
+                        </div>
+                        <!-- /.panel-body -->
+                    </div>
+                    <!-- /.panel -->
+                </div> 
+     </div>
+	 <div class="row">
+	 		<div class="col-lg-12">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                              <i class="fa fa-database"></i>资产明细
+                        </div>
+                        <!-- /.panel-heading -->
+                        <div class="panel-body">
+                            <table width="100%" class="table table-striped table-bordered table-hover" id="assetsListTable">
+                                <thead>
+									  <tr>
+									       <th class="text-center">资产类型</th>
+									       <th class="text-center">管理IP</th>
+									       <th class="text-center">资产编号</th>
+									       <th class="text-center">设备型号</th>
+									       <th class="text-center">放置区域</th>
+									       <th class="text-center">购买人</th>
+									       <th class="text-center">购买时间</th>
+									       <th class="text-center">使用组</th>
+									       <th class="text-center">设备状态</th>
+									       <th class="text-center">操作</th>
+									    </tr>
+                                </thead>
+                                <tbody>
+                                	{% for a in  assetsList %}
+	                                    <tr class="odd gradeX">
+									         <td class="text-center">	
+									         		{% if a.assets_type == "server" %}
+									         			<button  type="button" class="btn btn-default disabled">服务器</button>
+									         		{% elif a.assets_type == "switch" %}
+									         			<button  type="button" class="btn btn-default disabled">交换机</button>	
+									         		{% elif a.assets_type == "route" %}
+									         			<button  type="button" class="btn btn-default disabled">路由器</button>	
+									         		{% elif a.assets_type == "printer" %}
+									         			<button  type="button" class="btn btn-default disabled">打印机</button>	
+									         		{% elif a.assets_type == "scanner" %}
+									         			<button  type="button" class="btn btn-default disabled">扫描仪</button>	
+									         		{% elif a.assets_type == "firewall" %}
+									         			<button  type="button" class="btn btn-default disabled">防火墙</button>	
+									         		{% elif a.assets_type == "storage" %}
+									         			<button  type="button" class="btn btn-default disabled">存储设备</button>
+									         		{% elif a.assets_type == "wifi" %}
+									         			<button  type="button" class="btn btn-default disabled">无线设备</button>									         													         												         												         											         												         			
+									         		{% endif %}
+									         </td>
+									         <td class="text-center">{{ a.management_ip }}</td>
+									         <td class="text-center">{{ a.name }}</td>
+									         <td class="text-center">{{ a.model }}</td>
+									         <td class="text-center">
+									         	{% for z in baseAssets.zone %}
+									         		{% if z.id == a.put_zone %}
+									         			{{ z.zone_name }}
+									         		{% endif %}
+									         	{% endfor %}
+									         </td>
+									         <td class="text-center">{{ a.buy_user }}</td>
+									         <td class="text-center">{{ a.buy_time|date:"Y/m/d" }}</td>
+									         <td class="text-center">
+									         	{% for g in baseAssets.group %}
+									         		{% if g.id == a.group %}
+									         			<button  type="button" class="btn btn-default disabled">{{ g.name }}</button>	
+									         		{% endif %}
+									         	{% endfor %}								         		
+									         </td>
+									         <td class="text-center">
+									         		{% if a.status == 0 %}
+									         			<button  type="button" class="btn btn-outline btn-success">已上线</button>
+									         		{% elif a.status == 1 %}
+									         			<button  type="button" class="btn btn-outline btn-primary">已下线</button>
+									         		{% elif a.status == 2 %}
+									         			<button  type="button" class="btn btn-outline btn-warning">维修中</button>
+									         		{% elif a.status == 3 %}
+									         			<button  type="button" class="btn btn-outline btn-info">已入库</button>
+									         		{% elif a.status == 4 %}
+									         			<button  type="button" class="btn btn-outline btn-default">未使用</button>
+									         		{% endif %}
+									         </td>	
+									         <td class="text-center">
+									         	<a href="/assets_view/{{a.id}}" style="text-decoration:none;"><button  type="button" class="btn btn-default"><abbr title="查看详细信息"><i class="glyphicon glyphicon-info-sign"></i></abbr></button></a>
+									         	{% if a.assets_type == "server" %}
+												<div class="btn-group">				
+												   <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+												   	   <font class="glyphicon glyphicon-refresh"></font>
+												       <span class="caret"></span>
+												   </button>										   									         	
+										         	<ul class="dropdown-menu" role="menu">
+														  <li>
+													      	<a href="javascript:" onclick='assetsUpdate(this,{{a.server_assets.id}},"{{a.server_assets.ip}}","setup")'>更新主体信息</a>
+													      </li>		
+													      <li>
+													      	<a href="javascript:" onclick='assetsUpdate(this,{{a.server_assets.id}},"{{a.server_assets.ip}}","crawHw")'>更新内存硬盘</a>
+													      </li>							         	
+										         	</ul>
+												</div>									         	
+									         	{% else %}
+												<div class="btn-group">				
+												   <button type="button" class="btn btn-success dropdown-toggle disabled" data-toggle="dropdown">
+												   	   <font class="glyphicon glyphicon-refresh"></font>
+												       <span class="caret"></span>
+												   </button>										   									         	
+												</div>
+									         	{% endif %}
+									         	
+									         	<a href="/assets_mod/{{a.id}}" style="text-decoration:none;"><button  type="button" class="btn btn-default"><abbr title="修改资料"><i class="glyphicon glyphicon-edit"></button></i></abbr></a>
+									         	<button  type="button" class="btn btn-default" onclick="deleteAssets(this,{{a.id}})"><i class="glyphicon glyphicon-trash"></i></button>
+									         </td>
+	                                    </tr>
+	                                 {% endfor %}
+                                </tbody>
+                            </table>
+                            <!-- /.table-responsive -->
+                            <div class="well">
+								<h4>设备资产更新说明</h4>
+	                            <ol>
+	                                <li><p>点击<i class="glyphicon glyphicon-info-sign"></i>查看设备资产明细</li>
+	                                <li><p>点击<i class="glyphicon glyphicon-refresh"></i>更新设备信息</p></li>
+	                                <li><p>点击<i class="glyphicon glyphicon-edit"></i>编辑设备信息</p></li>
+	                                <li><p>点击<i class="glyphicon glyphicon-trash"></i>删除设备信息</p></li>
+	                            </ol>                            
+                                
+                                
+                                <a class="btn btn-default btn-lg btn-block" target="_blank" href="/assets_add"><i class="fa fa-plus-circle "></i>新增资产</a>
+                            </div>
+                        </div>
+                        <!-- /.panel-body -->
+                    </div>
+                    <!-- /.panel -->
+                </div>
+	 </div>
+</div>
+	
+
+
+
+    </div>
+    <!-- /#wrapper -->
+	
+
+	<!--    弹窗开始样式 -->
+   	<script src="/static/dist/js/xcConfirm.js" type="text/javascript" charset="utf-8"></script>
+   	<link rel="stylesheet" type="text/css" href="/static/dist/css/xcConfirm.css"/>
+   	<!--   csrf -->
+	<script src="/static/js/csrf.js"></script>
+
+
+<script type="text/javascript"> 
+	$(document).ready(function() {
+	    $('#assetsListTable').DataTable({
+	        responsive: true
+	    });
+	});
+	//Flot Pie Chart
+	$(function() {
+	    var data = [
+	                {% for ds in assetsNumber %}
+	           		{
+	           			{% if ds.assets_type == "server" %}
+	         				label: "服务器",
+	         			{% elif ds.assets_type == "switch" %}
+	           				label: "交换机",
+	         			{% elif ds.assets_type == "route" %}
+	         				label: "路由器",	
+	         			{% elif ds.assets_type == "printer" %}
+	         				label: "打印机",	
+	         			{% elif ds.assets_type == "scanner" %}
+	         				label: "扫描仪",
+	         			{% elif ds.assets_type == "firewall" %}
+	         				label: "防火墙",	
+	         			{% elif ds.assets_type == "storage" %}
+	         				label: "存储设备",
+	         			{% elif ds.assets_type == "wifi" %}
+	         				label: "无线设备",									         													         												         												         											         												         			
+	         			{% endif %}
+	               		data: {{ ds.dcount }}
+	           		},
+	           {% endfor %}                
+				];
+	
+	    var plotObj = $.plot($("#assets_per"), data, {
+	        series: {
+	            pie: {
+	                show: true
+	            }
+	        },
+	        grid: {
+	            hoverable: true
+	        },
+	        tooltip: true,
+	        tooltipOpts: {
+	            content: "%p.0%, %s", // show percentages, rounding to 2 decimal places
+	            shifts: {
+	                x: 20,
+	                y: 0
+	            },
+	            defaultTheme: false
+	        }
+	    });
+	
+	});
+
+	$(function() {
+	    Morris.Donut({
+	        element: 'asset_number',
+	        data: [
+	               {% for ds in assetsNumber %}
+	               		{
+	               			{% if ds.assets_type == "server" %}
+		         				label: "服务器",
+		         			{% elif ds.assets_type == "switch" %}
+	               				label: "交换机",
+		         			{% elif ds.assets_type == "route" %}
+		         				label: "路由器",	
+		         			{% elif ds.assets_type == "printer" %}
+		         				label: "打印机",	
+		         			{% elif ds.assets_type == "scanner" %}
+		         				label: "扫描仪",
+		         			{% elif ds.assets_type == "firewall" %}
+		         				label: "防火墙",	
+		         			{% elif ds.assets_type == "storage" %}
+		         				label: "存储设备",
+		         			{% elif ds.assets_type == "wifi" %}
+		         				label: "无线设备",									         													         												         												         											         												         			
+		         			{% endif %}
+	                   		value: {{ ds.dcount }}
+	               		},
+	               {% endfor %}
+	               ],
+	        resize: true
+	    });
+	    
+	});
+
+	function deleteAssets(obj,id){
+		var txt=  "是否确认删除？";
+		var btnObj = $(obj);
+		btnObj.attr('disabled',true);
+		var option = {
+			title: "删除当前资产",
+			btn: parseInt("0011",2),
+			onOk: function(){
+				$.ajax({
+					  type: 'DELETE',
+					  url: '/api/assets/'+id+'/',
+				      success:function(response){	
+				    	btnObj.removeAttr('disabled');
+			            window.wxc.xcConfirm("删除成功", window.wxc.xcConfirm.typeEnum.success);
+			            location.reload('/assets_list/');
+				      },
+		              error:function(response){
+		            	btnObj.removeAttr('disabled');
+		            	window.wxc.xcConfirm("删除失败！", window.wxc.xcConfirm.typeEnum.error);	
+		              }
+					});
+			},
+			onCancel:function(){	
+			},
+			onClose:function(){
+			}
+		}
+		window.wxc.xcConfirm(txt, "custom", option);			   
+	}
+
+	   function assetsUpdate(obj, id,ip,type){
+			var btnObj = $(obj);
+			var txt=  "是否确认更新？";
+			var option = {
+					title: "更新主机("+ip+")硬件信息",
+					btn: parseInt("0011",2),
+					onOk: function(){
+						$.ajax({
+							  type: 'POST',
+							  url: '/assets_facts/',
+							  data:{
+									"ip":ip,
+									"server_id":id,
+									"type":type
+								},
+						      success:function(response){			            
+					                if (response["code"]=="200"){ 
+					                	window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.success);
+
+					                }
+						        	else{
+						        		window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
+						        	}						                
+							},
+				            error:function(response){
+				            	window.wxc.xcConfirm("请求数据错误！", window.wxc.xcConfirm.typeEnum.error);
+				            },		
+							});
+					},
+					onCancel:function(){	
+					},
+					onClose:function(){
+					}
+				}			
+			window.wxc.xcConfirm(txt, "custom", option);
+		}
+	
+		$(function() {
+			$.ajax({
+				url:'/api/order/{{user}}/', //请求地址
+				type:"GET",  //提交类似
+				success:function(response){
+					if (response.length > 0 ){						
+							var newStr = ''
+							for (var i=0;i< response.length;i++)
+								{
+								newStr += '<li><a href="/deploy_order/status/'+ response[i]['id'] + '/">'+
+										  '<div>' +
+										  '<strong>' +  response[i]['order_user'] + '</strong>' +
+										  '<span class="pull-right text-muted">' +
+										  '<em>' + response[i]['create_time'].replace("T",' ').replace(/-/g,'/').slice(0,16) + '</em>' +
+										  '</span>' +
+										  '</div>' +
+										  '<div>'+ response[i]['order_subject'] + '</div>' +
+										  '</a>' +
+										  '</li><li class="divider"></li>';
+							};
+							$('#deploy_order').html(newStr);	
+							$('#deploy_order_count').html(response.length);	
+						}
+				}
+			});	
+		});
+	   
+</script>  
+
+  
+    
+</body>
+
+</html>

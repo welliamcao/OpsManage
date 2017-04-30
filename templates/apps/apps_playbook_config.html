@@ -1,0 +1,96 @@
+{% extends 'index.html' %}
+{% block page-content %}
+<div id="page-wrapper">
+    <div class="row">
+         <div class="col-lg-12">
+              <h1 class="page-header"><i class="fa  fa-wrench"></i><code>Ansible Playbook</code>配置中心</h1>
+         </div>
+                <!-- /.col-lg-12 -->
+    </div>
+	<div class="row">
+                <div class="col-lg-12">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+ 						<i class="fa  fa-plus"></i> 添加剧本
+                        </div>
+                        <div class="panel-body">
+                            <div class="row">
+                                <div class="col-lg-6">
+                                <legend><i class="fa  fa-paper-plane"></i>Ansible服务器</legend>
+                                    <form  method="post" enctype="multipart/form-data">  {% csrf_token %}
+                                        <div class="form-group">
+                                            <label>剧本名称</label>
+                                            <input class="form-control" name="playbook_name" required>
+                                            <p class="help-block">例如：系统初始化</p>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>剧本文件</label>
+                                            <input type="file" name="playbook_file" required>
+                                        </div>                                         
+                                        <div class="form-group">
+                                            <label>描述<i class="fa fa-info-circle" data-toggle="tooltip"  title="功能描述"></i></label>
+                                            <textarea class="form-control" rows="3" name="playbook_desc"></textarea>
+                                        </div>                                              
+                                        <button type="reset" class="btn btn-default">撤销</button>
+                                        <button type="submit" class="btn btn-default">添加</button>
+                                    
+                                </div>
+                                <!-- /.col-lg-6 (nested) -->
+                                <div class="col-lg-6">
+                                    <legend><i class="fa  fa-paper-plane-o"></i>目标服务器<i class="fa fa-info-circle" data-toggle="tooltip"  title="如果不配置，则所有人都能使用"></i></legend>
+                                     <div class="form-group">
+                                            <label>服务器选择</label>
+                                            <br>
+                                            <select multiple class="selectpicker" data-live-search="true" name="playbook_server">
+                                            	{% for ds in serverList %}
+                                            		<option name="playbook_server" value="{{ds.id}}">{{ds.ip}}</option>
+                                            	{% endfor %}
+                                            </select>
+                                        </div> 
+                                        <div class="form-group">
+                                            <label>用户组<i class="fa fa-info-circle" data-toggle="tooltip"  title="授权给那些用户组能够使用"></i></label>
+                                            <select class="form-control" name="playbook_auth_group">
+                                            	<option name="playbook_auth_group" value="0">选择用户组</option>
+                                            	{% for ds in groupList %}
+                                            		<option name="playbook_auth_group" value="{{ds.id}}">{{ds.name}}</option>
+                                            	{% endfor %}
+                                            </select>
+                                        </div>                                                                              
+                                        <div class="form-group">
+                                            <label>用户<i class="fa fa-info-circle" data-toggle="tooltip"  title="授权给那些用户能够使用"></i></label>
+                                            <select class="form-control" name="playbook_auth_user">
+                                            	<option name="playbook_auth_user" value="0">选择用户</option>
+                                            	{% for ds in userList %}
+                                            		<option name="playbook_auth_user" value="{{ds.id}}">{{ds.username}}</option>
+                                            	{% endfor %}
+                                            </select>
+                                        </div>  
+                                        <div class="form-group">
+                                            <label>剧本外部变量<i class="fa fa-info-circle" data-toggle="tooltip"  title="值为json格式"></i></label>
+                                            <textarea class="form-control" rows="3" name="playbook_vars"></textarea>
+                                            <p class="help-block">
+												例如：{"user":"root"}
+                                            </p>
+                                        </div>                                        
+                                </div>
+                                <!-- /.col-lg-6 (nested) -->
+                               </form> 
+                            </div>
+                            <!-- /.row (nested) -->
+                        </div>
+                        <!-- /.panel-body -->
+                    </div>
+                    <!-- /.panel -->
+                </div>
+                <!-- /.col-lg-12 -->
+            </div>
+</div>
+
+<script type="text/javascript">
+{% if errorInfo %}
+	window.wxc.xcConfirm("{{errorInfo}}", window.wxc.xcConfirm.typeEnum.error);
+{% endif %}
+$(function () { $("[data-toggle='tooltip']").tooltip(); });
+</script>
+
+{% endblock %}

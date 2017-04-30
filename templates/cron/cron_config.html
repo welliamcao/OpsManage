@@ -1,0 +1,134 @@
+{% extends 'index.html' %}
+{% block page-content %}
+<div id="page-wrapper">
+    <div class="row">
+         <div class="col-lg-12">
+              <h1 class="page-header"><i class="fa  fa-cogs  "></i> 任务配置中心</h1>
+         </div>
+                <!-- /.col-lg-12 -->
+    </div>
+	<div class="row">
+                <div class="col-lg-12">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                           	 批量导入
+                        </div>
+                        <div class="panel-body">
+                            <div class="row">
+                            	<div class="col-lg-3">
+                            	</div>
+                                <div class="col-lg-6">
+                                <legend>计划任务批量导入</legend>
+                                    <form role="form" method="post" id="importCron" class="main form-horizontal" >{% csrf_token %}
+
+											<div class="form-group">
+												 <label class="col-sm-2 control-label">服务器</label>
+												 <div class="col-sm-6">
+												   <select class="form-control" name="cron_server"  >
+												   		<option selected="selected" value="">请选择一台主机</option>
+															{% for ds in serverList %}
+																<option value="{{ds.id}}" name="cron_server">{{ds.ip}}</option>
+															{% endfor %}							   		
+													</select>							 	
+												 </div>
+											</div>
+																				
+											<div class="form-group">
+												 <label class="col-sm-2 control-label">用户</label>
+												 <div class="col-sm-6">
+												 	<input type="text" class="form-control" name="cron_user" placeholder="root" value=""   class="input-xlarge" />
+												 </div>
+											</div>															
+												
+											<div class="form-group">
+												 <label class="col-sm-2 control-label">激活任务</label>
+												 <div class="col-sm-6">
+												   <select class="form-control" name="cron_status"  >
+												   		<option selected="selected" value="0">不激活</option>
+														<option  value="1">激活</option>								   		
+													</select>							 	
+												 </div>
+											</div>														
+																								
+											<div class="form-group">
+												 <label class="col-sm-2 control-label">计划任务数据</label>
+												 <div class="col-sm-8">
+												 	<textarea name="cron_data" class="form-control" rows="10" placeholder="同步时间服务器|0 23 * * * /usr/sbin/ntpdate time.windows.com"></textarea>
+												 </div>
+											</div>				
+																																																										
+											</fieldset>
+											<legend></legend>
+											<div class="form-group">
+											<label class="col-sm-3 control-label"></label>
+											<button type="button"  onclick="repealFromVaule(this)" class="btn btn-danger" >撤销操作</button>
+									 		<button type="button"  class="btn btn-primary" onclick="addCronData(this)" >确认提交</button>
+									 		</div>
+									 		
+										</form>	
+                                </div>
+                                <!-- /.col-lg-6 (nested) -->
+                                <!-- /.col-lg-6 (nested) -->
+                            </div>
+                            <!-- /.row (nested) -->
+                        </div>
+                        <!-- /.panel-body -->
+                    </div>
+                    <!-- /.panel -->
+                </div>
+                <!-- /.col-lg-12 -->
+            </div>    
+</div>
+
+<script type="text/javascript">
+	   function repealFromVaule(){
+		   document.getElementById("importCron").reset();
+	   }
+	   
+
+	  
+	  function addCronData(obj) {
+			var btnObj = $(obj);
+			btnObj.attr('disabled',true);
+			var post_data = {}; 			
+			var form = document.getElementById('importCron');
+			for (var i = 1; i < form.length; ++i) {
+				var name = form[i].name;
+				var value = form[i].value;
+				var assetStart = name.indexOf("cron_");
+				if ( assetStart==0 && value.length == 0){
+					window.wxc.xcConfirm("请注意必填项不能为空~", window.wxc.xcConfirm.typeEnum.error);
+					return false;
+				}
+				else if (name.length > 0 && value.length > 0){
+					post_data[name] = value;
+				}
+				
+			};
+			$.ajax({
+				dataType: "JSON",
+				url:'/cron_config/', //请求地址
+				type:"POST",  //提交类似
+				data:post_data,  //提交参数
+				success:function(response){
+					btnObj.removeAttr('disabled');
+	                if (response["code"]=="200"){ 
+	                	window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.success);
+
+	                }
+		        	else{
+		        		window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
+		        	}
+				},
+		    	error:function(response){
+		    		btnObj.removeAttr('disabled');
+		    		window.wxc.xcConfirm("资产编号重复，添加资产失败~", window.wxc.xcConfirm.typeEnum.error);
+		    		
+		    	}
+			})
+			
+		}		  
+	  
+</script>
+
+{% endblock %}
