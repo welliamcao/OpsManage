@@ -149,6 +149,9 @@ autorestart=true
 redirect_stderr=true
 stopsignal=QUIT
 numprocs=1
+启动celery
+# /usr/local/bin/supervisord -c /etc/supervisord.conf
+# supervisorctl status
 ```
 Ansible部署功能：
 ![image](https://github.com/welliamcao/OpsManage/blob/master/demo_imgs/ansible.gif)
