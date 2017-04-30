@@ -1,2 +1,4 @@
 *.pyc
 upload*
+.DS_Store
+.gitignore
