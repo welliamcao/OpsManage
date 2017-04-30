@@ -58,15 +58,12 @@
 # pip install paramiko
 # pip install ansible
 # pip install redis
-# pip install libvirt-python
 # pip install supervisor
 # pip install redis
 # pip install MySQL-python
 # pip install DBUtils
-# pip install APScheduler-3.3.0
-# pip install libvirt-python
-# pip install pymongo==2.7.1
 ```
+
 五、安装Redis
 ```
 # wget http://download.redis.io/releases/redis-3.2.8.tar.gz
@@ -85,6 +82,7 @@ logfile "/var/log/redis.log"
 ```
 # cd ../
 # mv redis-3.2.8 /usr/local/redis
+# /usr/local/redis/src/redis-server /usr/local/redis/redis.conf
 ```
 六、配置MySQL
 ```
@@ -93,12 +91,12 @@ logfile "/var/log/redis.log"
 default-character-set = utf8
 character_set_server = utf8
 添加以上字段
-
+```
+```
 # mysql -uroot -p
 mysql> create database opsmanage;
-mysql> grant all privileges on opsmanage.* to root@'%' identified by 'welliam';
+mysql> grant all privileges on opsmanage.* to root@'%' identified by 'password';
 mysql>\q
-
 # /etc/init.d/mysqld restart
 ```
 七、配置OpsManage
@@ -119,15 +117,36 @@ DATABASES = {
     }
 }
 STATICFILES_DIRS = (
-     ‘/path/OpsManage/OpsManage/static/',	#修改成自己的配置
+     ‘/yourpath/OpsManage/OpsManage/static/',	#修改成自己的配置
     )
 TEMPLATE_DIRS = (
 #     os.path.join(BASE_DIR,'mysite\templates'),
-    ‘/path/OpsManage/OpsManage/templates/',	#修改成自己的配置
+    ‘/yourpath/OpsManage/OpsManage/templates/',	#修改成自己的配置
 )
-
-# cd ../
+```
+八、生成数据表与管理员账户
+```
+# cd /yourpath/OpsManage/
 # python manage.py migrate
 # python manage.py createsuperuser
-# python manage.py runserver 192.168.1.233:8000
+```
+九、启动部署平台
+```
+# cd /yourpath/OpsManage/
+# python manage.py runserver ip:8000
+```
+十、配置Celery异步任务系统（可选）
+```
+# echo_supervisord_conf > /etc/supervisord.conf
+# vim /etc/supervisord.conf
+最后添加
+[program:celery-worker]
+command=/usr/bin/python manage.py celery worker --loglevel=info -E -B  -c 2
+directory=/yourpath/OpsManage
+stdout_logfile=/var/log/celery-worker.log
+autostart=true
+autorestart=true
+redirect_stderr=true
+stopsignal=QUIT
+numprocs=1
 ```
