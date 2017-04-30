@@ -1,18 +1,18 @@
-##OpsManage是什么？
+## OpsManage是什么？
 一款代码部署、应用部署、计划任务、设备资产管理平台。
 
-##开发语言与框架：
+## 开发语言与框架：
  * 编程语言：Python2.7 + HTML + JScripts
  * 前端Web框架：Bootstrap
  * 后端Web框架：Django
  * 后端Task框架：Celery + Redis
 
-##OpsManage环境要求
+## OpsManage环境要求
  * 编程语言：Python 2.7
  * 操作系统：CentOS 6+
  * Ansible版本：2.0 +
 
-##安装环境配置
+## 安装环境配置
 一、安装Python
 ```
 # yum install zlib zlib-devel readline-devel sqlite-devel bzip2-devel openssl-devel gdbm-devel libdbi-devel ncurses-libs kernel-devel libxslt-devel libffi-devel python-devel mysql-devel zlib-devel mysql-server -y
