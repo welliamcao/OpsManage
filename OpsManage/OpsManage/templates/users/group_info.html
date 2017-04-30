@@ -1,0 +1,82 @@
+{% extends 'index.html' %}
+{% block page-content %}
+<div id="page-wrapper">
+    <div class="row">
+         <div class="col-lg-12">
+              <h1 class="page-header"><i class="fa  fa-wrench"></i><code>{{group.name}}</code> 权限配置</h1>
+         </div>
+                <!-- /.col-lg-12 -->
+    </div>
+	<div class="row">
+                <div class="col-lg-12">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                           	<i class="fa   fa-gear"></i> 用户组权限管理
+                        </div>
+                        <div class="panel-body">
+							<div class="row">
+									<div class="col-lg-2">
+									</div>
+											<div id="asset_net_chioce" class="col-lg-6">		
+											<form role="form" method="post" id="addHost" class="main form-horizontal" >{% csrf_token %}			
+						
+												<div class="form-group" >
+													 <label class="col-sm-2 control-label"><i class="fa fa-group"></i> 用户组名</label>
+													 <div class="col-sm-6">
+													 	<input class="form-control" type="text" value="{{group.name}}" placeholder="用户名" name="name" />
+													 </div>
+												</div>
+		
+												<div class="form-group">
+													 <label class="col-sm-2 control-label">分配权限</label>
+													 <div class="col-sm-6">
+														<select multiple class="selectpicker" name="perms" data-live-search="true" data-live-search-placeholder="Search" data-actions-box="true">	
+															{% for ds in permList %}
+																{% if ds.status == 1 %}
+																	<option selected="selected" value="{{ds.id}}">{{ds.name}}</option>
+																	{% else %}
+																	<option value="{{ds.id}}">{{ds.name}}</option>
+																{% endif %}	
+															{% endfor %}
+														</select>	
+													 </div>
+												</div>												
+												
+												<div class="hr hr32 hr-dotted"></div>                                        
+												<div class="form-group">
+													<div class="col-md-offset-3 col-md-9">
+														<button class="btn btn-default" type="submit" >
+															<i class="fa fa-check"></i>
+																			提交
+														</button>						
+																		&nbsp; &nbsp; &nbsp;
+														<button class="btn btn-default" type="reset">
+															<i class="fa fa-undo"></i>
+																			撤销
+														</button>
+													</div>
+												</div>
+												</form>
+											</div>				
+				                          
+
+							</div>
+                            <!-- /.row (nested) -->
+                        </div>
+                        <!-- /.panel-body -->
+                    </div>
+                    <!-- /.panel -->
+                </div>
+                <!-- /.col-lg-12 -->
+            </div>    
+</div>
+
+
+	  
+<script type="text/javascript">
+{% if errorInfo %}
+	window.wxc.xcConfirm("{{errorInfo}}", window.wxc.xcConfirm.typeEnum.error);
+{% endif %}
+</script>
+
+{% endblock %}

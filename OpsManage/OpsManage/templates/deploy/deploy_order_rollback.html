@@ -1,0 +1,281 @@
+{% extends 'index.html' %}
+{% block page-content %}
+<div id="page-wrapper">
+    <div class="row">
+         <div class="col-lg-12">
+              <h1 class="page-header"><i class="fa fa-github"></i><code>{{order.order_project.project_name}}</code> 项目回滚</h1>
+         </div>
+                <!-- /.col-lg-12 -->
+    </div>
+	<div class="row">
+                <div class="col-lg-12">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+ 						<i class="fa    fa-gears"></i>代码回滚
+                        </div>
+                        <div class="panel-body">
+                            <div class="row">
+                                <div class="col-lg-6">
+                                <legend><i class="fa  fa-paper-plane"></i>部署服务器</legend>
+                                    <form role="form" id="deployRun" class="main form-horizontal" >{% csrf_token %}
+										<fieldset>															
+											<div class="form-group">
+												 <label class="col-sm-2 control-label">项目名称</label>
+												 <div class="col-sm-6">
+												 	<input type="text" class="form-control" name="project_name" value="{{order.order_project.project_name}}"  class="input-xlarge" disabled/>
+												 	<input type="hidden" class="form-control" name="project_model" value="rollback"  class="input-xlarge" disabled/>
+												 </div>
+											</div>
+											<div class="form-group">
+												 <label class="col-sm-2 control-label">更新主题</label>
+												 <div class="col-sm-6">												 	
+                                            		<input class="form-control" value="{{order.order_subject}}" disabled>
+												 </div>
+											</div>	
+					
+											<div class="form-group">
+												 <label class="col-sm-2 control-label">更新内容</label>
+												 <div class="col-sm-6">                                           
+                                            		<textarea class="form-control" rows="3" disabled>{{order.order_content}}</textarea>
+												 </div>
+											</div>												
+											{% if order.order_project.project_model == 'branch' and  order.order_project.project_repertory == 'git' %}																
+											<div class="form-group">
+												 <label class="col-sm-2 control-label">分支</label>
+												 <div class="col-sm-6">
+													<input type="text" class="form-control" name="project_branch" value="{{order.order_branch}}"  class="input-xlarge" disabled/>							 	
+												 </div>
+											</div>													
+											
+											<div class="form-group">
+												 <label class="col-sm-2 control-label">版本选择</label>
+												 <div class="col-sm-6">
+													<div class="input-group">
+														<input type="text" class="form-control " name="project_version" value="{{order.order_comid}}" disabled>
+														<span class="input-group-btn">
+															<button class="btn btn-success" type="button"  data-toggle="modal" data-target="#myModal" >
+																查看
+															</button>
+														</span>
+													</div>											 
+												</div>
+											</div>
+											{% elif order.order_project.project_model == 'tag' and  order.order_project.project_repertory == 'git' %}
+											<div class="form-group">
+												 <label class="col-sm-2 control-label">Tag版本</label>
+												 <div class="col-sm-6">
+												 	{% if order.order_tag %}
+												 		<input type="text" class="form-control" name="project_branch" value="{{order.order_tag}}"  class="input-xlarge" disabled/>
+												 	{% else %}
+														<input type="text" class="form-control" name="project_branch"   class="input-xlarge" disabled/>	
+													{% endif %}					 	
+												 </div>
+											</div>	
+											{% else %}
+												<div class="form-group">
+													 <label class="col-sm-2 control-label">更新版本</label>
+													 <div class="col-sm-6">
+														<div class="input-group">
+															<input type="text" class="form-control " name="project_version" value="{{order.order_comid}}" disabled>
+															<span class="input-group-btn">
+																<button class="btn btn-success" type="button"  data-toggle="modal" data-target="#myModal" >
+																	查看
+																</button>
+															</span>
+														</div>											 
+
+													</div>
+												</div>																						
+											{% endif %}																																													
+											
+											<div class="form-group">
+												 <label class="col-sm-2 control-label">部署指派</label>
+												 <div class="col-sm-6">												 	
+                                            		<input class="form-control" value="{{order.order_audit}}" disabled>
+												 </div>
+											</div>	
+											<div class="form-group">
+												 <label class="col-sm-2 control-label">紧急程度</label>
+												 <div class="col-sm-6">	
+										         	{% if order.order_level == 1 %}
+										         		<button  type="button" class="btn btn-outline btn-default disabled">非紧急</button>
+										         	{% else %}
+										         		<button  type="button" class="btn btn-outline btn-warning disabled">紧急</button>
+										         	{% endif %} 
+												 </div>
+											</div>																						
+											<div class="form-group">
+												 <label class="col-sm-2 control-label">工单状态</label>
+												 <div class="col-sm-6">	
+										         	{% if order.order_status == 0 %}
+										         		<button  type="button" class="btn btn-outline btn-info">已通过</button>								         	
+										         	{% elif order.order_status == 1 %}
+										         		<button  type="button" class="btn btn-outline btn-danger disabled"><del>已撤销</del></button>
+										         	{% elif order.order_status == 2 %}
+										         		<button  type="button" class="btn btn-outline btn-warning">审核中</button>
+										         	{% elif order.order_status == 3 %}
+										         		<button  type="button" class="btn btn-outline btn-success disabled" >已部署</button>
+										         	{% endif %}	
+												 </div>
+											</div>											
+											{% if order.order_status == 1 %}
+												<div class="form-group">
+													 <label class="col-sm-2 control-label">撤销原因</label>
+													 <div class="col-sm-6">                                           
+	                                            		<textarea class="form-control" rows="3" disabled>{{order.order_cancel}}</textarea>
+													 </div>
+												</div>													
+											{% endif %}
+											</fieldset>
+											<legend></legend>
+											<div class="form-group">
+											<label class="col-sm-3 control-label"></label>
+											<button type="button"  class="btn btn-default disabled" >撤销部署</button>
+									 			<button type="button"  class="btn btn-default" onclick="runDeploy(this)" >开始回滚</button>
+									 		</div>																		 		
+										</form>                                        
+                                </div>
+                                <!-- /.col-lg-6 (nested) -->
+                                <div class="col-lg-6">
+                                    <legend><i class="fa  fa-paper-plane-o"></i>部署结果</legend>
+									<div class="well well-lg">
+				                        <div id="result">
+										      <i class="fa fa-frown-o"></i>Ops！好汉不回头~			                        
+				                        </div>
+				                    </div>                                       
+                                <!-- /.col-lg-6 (nested) -->
+                            </div>
+                            <!-- /.row (nested) -->
+                        </div>
+                        <!-- /.panel-body -->
+                    </div>
+                    <!-- /.panel -->
+                </div>
+                <!-- /.col-lg-12 -->
+            </div>
+          
+<!-- 模态框（Modal） -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+	<div class="modal-dialog" style="width: 70%;">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+					&times;
+				</button>
+				<h4 class="modal-title" id="myModalLabel">
+					<code>{{order.order_project.project_name}}</code>项目<code>{{order.order_comid|slice:":7"}}</code>版本提交历史
+				</h4>
+			</div>
+			<div class="modal-body">
+				<div id="version_result">
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">关闭
+				</button>
+				<button type="button" class="btn btn-primary" onclick="getVersion(this,'{{order.order_branch}}','{{order.order_comid}}')">
+					点击查看
+				</button>
+			</div>
+		</div><!-- /.modal-content -->
+	</div><!-- /.modal -->
+</div>              
+          
+</div>
+
+<script type="text/javascript">
+
+
+function getVersion(obj,project_branch,project_version) {
+	var btnObj = $(obj);
+	btnObj.attr('disabled',true);
+	$("#version_result").html("正在提交，请稍等。。。");
+	$.ajax({
+		url:'/deploy_version/'+"{{order.order_project.id}}/", //请求地址
+		type:"POST",  //提交类似
+		data:{
+			'project_branch':project_branch,
+			'project_version':project_version,
+			'op':'histroy'
+		},  //提交参数
+		success:function(response){
+			btnObj.removeAttr('disabled');
+			if (response["code"] == "200"){
+				$("#version_result").html(response["data"]);
+			}
+			
+		},
+    	error:function(response){
+    		btnObj.removeAttr('disabled');
+    		window.wxc.xcConfirm("查看失败", window.wxc.xcConfirm.typeEnum.error);
+    		clearInterval(interval);
+    	}
+	})	
+}
+
+		
+	function runDeploy(obj) {
+		var btnObj = $(obj);
+		btnObj.attr('disabled',true);
+		var form = document.getElementById('deployRun');
+		var post_data = {};
+		for (var i = 1; i < form.length; ++i) {
+			var name = form[i].name;
+			var value = form[i].value;
+			var project = name.indexOf("project_");
+			if ( project==0 && value.length==0){
+				window.wxc.xcConfirm("请注意必填项不能为空~", window.wxc.xcConfirm.typeEnum.error);
+				return false;
+			}
+			else if (name.length > 0 && value.length > 0){
+				post_data[name] = value;
+			};
+			
+		};
+		$("#result").html("服务器正在处理，请稍等。。。");
+		/* 轮训获取结果 开始  */
+	   var interval = setInterval(function(){  
+	        $.ajax({  
+	            url : '/deploy_result/{{order.order_project.id}}/',  
+	            type : 'post', 
+	            data:post_data,
+	            success : function(result){
+	            	if (result["msg"] !== null ){
+	            		$("#result").append("<p>"+result["msg"]+"</p>"); 
+	            		if (result["msg"].indexOf("[Done]") == 0){
+	            			clearInterval(interval);
+	            			window.wxc.xcConfirm("回滚成功", window.wxc.xcConfirm.typeEnum.success);
+    						btnObj.attr('disabled',true);
+	            			
+	            		}
+	            	}  
+	            }  
+	        });  
+	    },1000); 
+		
+	    /* 轮训获取结果结束  */
+		$.ajax({
+			url:'/deploy_run/{{order.order_project.id}}/', //请求地址
+			type:"POST",  //提交类似
+			data:post_data,  //提交参数
+			success:function(response){
+				btnObj.removeAttr('disabled');
+				if (response["code"] == "500"){
+					clearInterval(interval);
+					window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
+				}
+				
+			},
+	    	error:function(response){
+	    		btnObj.removeAttr('disabled');
+	    		window.wxc.xcConfirm("部署失败", window.wxc.xcConfirm.typeEnum.error);
+	    		clearInterval(interval);
+	    	}
+		})	
+	}	
+{% if errorInfo %}
+	window.wxc.xcConfirm("{{errorInfo}}", window.wxc.xcConfirm.typeEnum.error);
+{% endif %}
+</script>
+
+{% endblock %}

@@ -1,0 +1,518 @@
+{% extends 'index.html' %}
+{% block page-content %}
+<div id="page-wrapper">
+            <div class="row">
+                <div class="col-lg-12">
+                    <h1 class="page-header"><i class="fa  fa-gears "></i> 资产修改</h1>
+                </div>
+                <!-- /.col-lg-12 -->
+            </div>
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                           	 资产修改
+                        </div>
+                        <div class="panel-body">
+							<div class="row">
+                           		<div class="col-lg-2">
+                           		</div>
+                                <div class="col-lg-8">
+                                	<legend>设备资产信息修改 - 必填信息</legend>	
+                                		<form role="form" method="post" id="addHost" class="main form-horizontal">{% csrf_token %}
+										<fieldset>
+											<div class="form-group" >
+												 <label class="col-sm-2 control-label">设备类型</label>
+												 <div class="col-sm-6">
+													{% if asset_main.assets_type == "server" %}
+														 <input type="text" class="form-control"  value="服务器" class="input-xlarge"  disabled/>
+													{% elif asset_main.assets_type == "switch" %}
+														 <input type="text" class="form-control"  value="交换机" class="input-xlarge"  disabled/>							         				
+													{% elif asset_main.assets_type == "route" %}
+														 <input type="text" class="form-control"  value="路由器" class="input-xlarge"  disabled/>
+													{% elif asset_main.assets_type == "printer" %}
+														 <input type="text" class="form-control"  value="打印机" class="input-xlarge"  disabled/>	
+													{% elif asset_main.assets_type == "scanner" %}
+														 <input type="text" class="form-control"  value="扫描仪" class="input-xlarge"  disabled/>	
+													{% elif asset_main.assets_type == "firewall" %}
+														 <input type="text" class="form-control"  value="防火墙" class="input-xlarge"  disabled/>	
+													{% elif asset_main.assets_type == "storage" %}
+														 <input type="text" class="form-control"  value="存储设备" class="input-xlarge"  disabled/>
+													{% elif asset_main.assets_type == "wifi" %}
+														 <input type="text" class="form-control"  value="无线设备" class="input-xlarge"  disabled/>									         													         												         												         											         												         			
+													{% endif %}	
+													<input type="text" class="form-control" name="asset_assets_type"  value="{{ asset_main.assets_type }}" class="input-xlarge" style="display:none;">						 
+													<input type="text" class="form-control" name="asset_id"  value="{{ asset_main.id }}" class="input-xlarge" style="display:none;">						 
+												</div>						
+											</div>					
+											
+											<div class="form-group">
+												 <label class="col-sm-2 control-label">资产编号</label>
+												 <div class="col-sm-6">
+												 	<input type="text" class="form-control"  placeholder="编号" name="asset_name" value="{{ asset_main.name }}" class="input-xlarge"  disabled/>
+												 </div>
+											</div>
+											
+											<div class="form-group">
+												 <label class="col-sm-2 control-label">设备序列号</label>
+												 <div class="col-sm-6">
+												 	<input type="text" class="form-control"  placeholder="序列号" name="asset_sn" value="{{ asset_main.sn }}" class="input-xlarge"  disabled/>
+												 </div>
+											</div>	
+					
+											<div class="form-group">
+												 <label class="col-sm-2 control-label">购买时间</label>
+												 <div class="col-sm-6">
+												 	<input type="text" class="form-control" name="asset_buy_time" placeholder="购买时间" value="{{ asset_main.buy_time|date:'Y-m-d' }}" class="input-xlarge" pattern="^\d{4}[-]\d{2}[-]\d{2}$" title="例如2016-01-01" required/>
+												 </div>
+											</div>		
+					
+											<div class="form-group">
+												 <label class="col-sm-2 control-label">过保时间</label>
+												 <div class="col-sm-6">
+												 	<input type="text" class="form-control" name="asset_expire_date" placeholder="过保时间" value="{{ asset_main.expire_date|date:'Y-m-d' }}" pattern="^\d{4}[-]\d{2}[-]\d{2}$" title="例如2016-01-01" class="input-xlarge"  required/>
+												 </div>
+											</div>															
+														
+											<div class="form-group">
+												 <label class="col-sm-2 control-label">购买人</label>
+												 <div class="col-sm-6">
+												 	<input type="text" class="form-control" name="asset_buy_user" placeholder="购买人" value="{{ asset_main.buy_user }}" class="input-xlarge"  required/>
+												 </div>
+											</div>	
+											
+											<div class="form-group">
+												 <label class="col-sm-2 control-label">管理IP</label>
+												 <div class="col-sm-6">
+												 	<input type="text" class="form-control" name="asset_management_ip" placeholder="管理/预设IP" value="{{ asset_main.management_ip }}" pattern="^(\d+\.\d+\.\d+\.\d+|[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(/.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+/.?))$"  class="input-xlarge" />
+												 </div>
+											</div>															
+												
+											<div class="form-group">
+												 <label class="col-sm-2 control-label">生产制造商</label>
+												 <div class="col-sm-6">
+												 	<input type="text" class="form-control" name="asset_manufacturer" placeholder="制造商" value="{{ asset_main.manufacturer }}"  class="input-xlarge"  required/>
+												 </div>
+											</div>
+											
+											<div class="form-group">
+												 <label class="col-sm-2 control-label">设备型号</label>
+												 <div class="col-sm-6">
+												 	<input type="text" class="form-control" name="asset_model" placeholder="设备型号" value="{{ asset_main.model }}" class="input-xlarge"  required/>
+												 </div>
+											</div>						
+											
+											<div class="form-group">
+												 <label class="col-sm-2 control-label">供货商</label>
+												 <div class="col-sm-6">
+												 	<input type="text" class="form-control" name="asset_provider" placeholder="供货商" value="{{ asset_main.provider }}" class="input-xlarge"  required/>
+												 </div>
+											</div>													
+													
+											<div class="form-group">
+												 <label class="col-sm-2 control-label">设备状态</label>
+												 <div class="col-sm-6">
+													<select class="form-control" name="asset_status" id="asset_status_select">
+														{% if asset_main.status == 0 %}
+															<option value="{{asset_main.status}}" name="asset_status" selected="selected" >已上线</option>
+										         			<option value="1" name="asset_status">已下线</option>
+										         			<option value="2" name="asset_status">维修中</option>
+										         			<option value="3" name="asset_status">已入库</option>
+										         			<option value="4" name="asset_status">未使用</option>
+										         		{% elif asset_main.status == 1 %}
+										         			<option value="0" name="asset_status">已上线</option>
+										         			<option value="{{asset_main.status}}" name="asset_status" selected="selected">已下线</option>
+										         			<option value="2" name="asset_status">维修中</option>
+										         			<option value="3" name="asset_status">已入库</option>
+										         			<option value="4" name="asset_status">未使用</option>
+										         		{% elif asset_main.status == 2 %}
+										         			<option value="0" name="asset_status" >已上线</option>
+										         			<option value="1" name="asset_status">已下线</option>
+										         			<option value="{{asset_main.status}}" name="asset_status" selected="selected" >维修中</option>
+										         			<option value="3" name="asset_status">已入库</option>
+										         			<option value="4" name="asset_status">未使用</option>
+										         		{% elif asset_main.status == 3 %}
+										         			<option value="0" name="asset_status">已上线</option>
+										         			<option value="1" name="asset_status">已下线</option>
+										         			<option value="2" name="asset_status">维修中</option>
+										         			<option value="{{asset_main.status}}" name="asset_status" selected="selected">已入库</option>
+										         			<option value="4" name="asset_status">未使用</option>
+										         		{% elif asset_main.status == 4 %}
+										         			<option value="0" name="asset_status">已上线</option>
+										         			<option value="1" name="asset_status">已下线</option>
+										         			<option value="2" name="asset_status">维修中</option>
+										         			<option value="3" name="asset_status">已入库</option>
+										         			<option value="{{asset_main.status}}" name="asset_status" selected="selected" >未使用</option>
+										         		{% endif %}
+													</select>	
+												 </div>
+											</div>			
+											
+											<div class="form-group">
+												 <label class="col-sm-2 control-label">放置区域</label>
+												 <div class="col-sm-6">
+<!-- 												 	<input type="text" class="form-control" name="asset_put_zone" placeholder="放置区域" value="{{ asset_main.put_zone }}" class="input-xlarge" /> -->
+													<select class="form-control" name="asset_put_zone"  >
+														{% for z in assets_data.zone %}
+															{% if z.id == asset_main.zone %}
+																<option value="{{asset_main.zone}}" name="asset_put_zone" selected="selected" >{{z.zone_name}}</option>
+															{% else %}
+																<option value="{{z.id}}" name="asset_put_zone">{{z.zone_name}}</option>
+															{% endif %}										
+														{% endfor %}						   																						
+													</select>												 
+												 </div>
+											</div>		
+											
+											<div class="form-group">
+												 <label class="col-sm-2 control-label">使用组</label>
+												 <div class="col-sm-6">
+												   <select class="form-control" name="asset_group"  >
+														{% for g in assets_data.group %}
+															{% if g.id == asset_main.group %}
+																<option value="{{g.id}}" name="asset_group" selected="selected" >{{g.name}}</option>
+															{% else %}
+																<option value="{{g.id}}" name="asset_group">{{g.name}}</option>
+															{% endif %}										
+														{% endfor %}						   																						
+													</select>
+												 </div>
+											</div>																	
+														
+											<div class="form-group">
+												 <label class="col-sm-2 control-label">业务类型</label>
+												 <div class="col-sm-6">
+												   <select class="form-control" name="asset_business"  >
+														{% for s in assets_data.service %}
+															{% if s.id == asset_main.business %}
+																<option value="{{asset_main.business}}" name="asset_business" selected="selected" >{{s.service_name}}</option>
+															{% else %}
+																<option value="{{s.id}}" name="asset_business">{{s.service_name}}</option>
+															{% endif %}										
+														{% endfor %}							   						   					
+													</select>
+												 </div>
+											</div>		
+											
+											</fieldset>
+											<fieldset>		
+											{% if asset_type == "server" %}
+											<div id="asset_server_chioce" >					
+											<legend>服务器设备资产信息修改 - 可选信息</legend>
+					
+											<div class="form-group" >
+												 <label class="col-sm-2 control-label">主机地址</label>
+												 <div class="col-sm-6">
+												 	<input type="text" class="form-control" name="server_ip" placeholder="Ip Address" value="{{ asset_body.ip }}" pattern="^(\d+\.\d+\.\d+\.\d+|[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(/.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+/.?))$" title="请输入IP地址或者域名"  class="input-xlarge"/>
+												 </div>
+											</div>
+											
+											<div class="form-group">
+												 <label class="col-sm-2 control-label">主机名字</label>
+												 <div class="col-sm-6">
+												 	<input type="text" class="form-control" name="server_hostname" placeholder="Hostname"  class="input-xlarge" value="{{ asset_body.hostname }}" />
+												 </div>
+											</div>					
+											
+											<div class="form-group">
+												 <label class="col-sm-2 control-label">账户</label>
+												 <div class="col-sm-6">
+												 <input type="text" class="form-control" name="server_username" placeholder="Username"  class="input-xlarge" value="{{ asset_body.username }}" />
+												 </div>
+											</div>							
+											
+											<div class="form-group">
+												 <label class="col-sm-2 control-label">密码</label>
+												 <div class="col-sm-6">
+												 <input type="password" class="form-control" name="server_password" placeholder="Password"  class="input-xlarge" value="{{ asset_body.passwd }}" />
+												 </div>
+											</div>							
+											
+											<div class="form-group">
+												 <label class="col-sm-2 control-label">端口</label>
+												 <div class="col-sm-6">
+												 <input type="text" class="form-control" name="server_port" placeholder="Port"  class="input-xlarge" pattern="^(\d+)" value="{{ asset_body.port }}" />
+												 </div>
+											</div>	
+											
+											<div class="form-group">
+												 <label class="col-sm-2 control-label">CPU型号</label>
+												 <div class="col-sm-6">
+												 <input type="text" class="form-control" name="server_cpu" placeholder="Cpu"  class="input-xlarge" value="{{ asset_body.cpu }}" />
+												 </div>
+											</div>	
+											
+											<div class="form-group">
+												 <label class="col-sm-2 control-label">物理CPU</label>
+												 <div class="col-sm-6">
+												 <input type="text" class="form-control" name="server_cpu_number" placeholder="物理CPU个数"  class="input-xlarge" value="{{ asset_body.cpu_number }}" />
+												 </div>
+											</div>		
+											
+											<div class="form-group">
+												 <label class="col-sm-2 control-label">逻辑CPU</label>
+												 <div class="col-sm-6">
+												 <input type="text" class="form-control" name="server_vcpu_number" placeholder="逻辑CPU个数"  class="input-xlarge" value="{{ asset_body.vcpu_number }}" />
+												 </div>
+											</div>	
+											
+											<div class="form-group">
+												 <label class="col-sm-2 control-label">CPU核心数</label>
+												 <div class="col-sm-6">
+												 <input type="text" class="form-control" name="server_cpu_core" placeholder="单个CPU核心数"  class="input-xlarge" value="{{ asset_body.cpu_core }}" />
+												 </div>
+											</div>															
+											
+											<div class="form-group">
+												 <label class="col-sm-2 control-label">内存容量</label>
+												 <div class="col-sm-6">
+												 <input type="text" class="form-control" name="server_ram_total" placeholder="Mem"  class="input-xlarge" value="{{ asset_body.ram_total  }}" />							 
+												 </div>
+											</div>	
+											
+											<div class="form-group">
+												 <label class="col-sm-2 control-label">内核版本</label>
+												 <div class="col-sm-6">
+												 <input type="text" class="form-control" name="server_kernel" placeholder="内核版本"  class="input-xlarge" value="{{ asset_body.kernel  }}" />
+												 </div>
+											</div>	
+											
+											<div class="form-group">
+												 <label class="col-sm-2 control-label">Selinux状态</label>
+												 <div class="col-sm-6">
+												 <input type="text" class="form-control" name="server_selinux" placeholder="selinux状态"  class="input-xlarge" value="{{ asset_body.selinux  }}" />
+												 </div>
+											</div>															
+											
+											<div class="form-group">
+												 <label class="col-sm-2 control-label">Swap分区</label>
+												 <div class="col-sm-6">
+												 <input type="text" class="form-control" name="server_swap" placeholder="swap分区容量"  class="input-xlarge" value="{{ asset_body.swap  }}" />
+												 </div>
+											</div>						
+											
+											<div class="form-group">
+												 <label class="col-sm-2 control-label">磁盘空间</label>
+												 <div class="col-sm-6">
+												 <input type="text" class="form-control" name="server_disk_total" placeholder="Disk"  class="input-xlarge" value="{{ asset_body.disk_total }}"/>
+												 </div>
+											</div>	
+											
+											<div class="form-group">
+												 <label class="col-sm-2 control-label"> Raid类型</label>	 
+												 <div class="col-sm-6"> 
+												    	<select class="form-control" name="server_raid"  >
+														<option selected="selected" value="">请选择一个类型</option>
+															{% for r in assets_data.raid %}
+																{% if r.id == asset_body.raid %}
+																	<option value="{{asset_body.raid}}" name="server_raid" selected="selected" >{{r.raid_name}}</option>
+																{% else %}											
+																<option value="{{r.id}}" name="server_raid">{{r.raid_name}}</option>
+																{% endif %}
+															{% endfor %}										
+														</select>								 	
+												 </div>
+											</div>																		
+														
+													
+											<div class="form-group">
+												 <label class="col-sm-2 control-label">系统版本号</label>
+												 <div class="col-sm-6">
+												 <input type="text" class="form-control" name="server_system" placeholder="System"  class="input-xlarge" value="{{ asset_body.system }}" />
+												 </div>
+											</div>	
+																												
+											<div class="form-group">
+												 <label class="col-sm-2 control-label"> 机房线路</label>
+												 <div class="col-sm-6">		
+					<!-- 							 	<input type="text" class="form-control" name="server_line" placeholder="Line"  class="input-xlarge" value="{{ asset_body.line }}" /> -->
+													 <select class="form-control" name="server_line"  >
+															{% for l in assets_data.line %}
+																{% if l.line_name == asset_body.line %}
+																	<option value="{{asset_body.line}}" name="server_line" selected="selected" >{{asset_body.line}}</option>
+																{% else %}											
+																	<option value="{{l.line_name}}" name="server_line">{{l.line_name}}</option>
+																{% endif %}
+															{% endfor %}		
+													</select>					 						 	  	
+												</div>
+											</div>	 					 											
+											</div>
+											</fieldset>
+											
+											<fieldset>
+											{% else %}
+											<div id="asset_net_chioce" style="display:;" >					
+											<legend>网络设备资产信息修改 - 可选信息</legend>
+					
+											<div class="form-group" >
+												 <label class="col-sm-2 control-label">背板带宽</label>
+												 <div class="col-sm-6">
+												 	<input type="text" class="form-control" name="net_bandwidth" placeholder="xGbps"  title="请输入IP地址或者域名"  class="input-xlarge" value="{{ asset_body.bandwidth }}" />
+												 </div>
+											</div>
+											
+											<div class="form-group" >
+												 <label class="col-sm-2 control-label">主机地址</label>
+												 <div class="col-sm-6">
+												 	<input type="text" class="form-control" name="net_ip" placeholder="Ip Address" value="{{ asset_body.ip }}" pattern="^(\d+\.\d+\.\d+\.\d+|[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(/.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+/.?))$" title="请输入IP地址或者域名"  class="input-xlarge"/>
+												 </div>
+											</div>				
+											
+											<div class="form-group">
+												 <label class="col-sm-2 control-label">端口数</label>
+												 <div class="col-sm-6">
+												 <input type="text" class="form-control" name="net_port_number" placeholder="port number" pattern="^(\d+)" class="input-xlarge" value="{{ asset_body.port_number}}" />
+												 </div>
+											</div>							
+											
+											<div class="form-group">
+												 <label class="col-sm-2 control-label">固件版本</label>
+												 <div class="col-sm-6">
+												 <input type="text" class="form-control" name="net_firmware" placeholder="firmware"  class="input-xlarge" value="{{ asset_body.firmware }}" />
+												 </div>
+											</div>							
+											
+											<div class="form-group">
+												 <label class="col-sm-2 control-label">CPU型号</label>
+												 <div class="col-sm-6">
+												 <input type="text" class="form-control" name="net_cpu" placeholder="cpu"  class="input-xlarge" value="{{ asset_body.cpu }}" />
+												 </div>
+											</div>	
+											
+											
+											<div class="form-group">
+												 <label class="col-sm-2 control-label">内存容量</label>
+												 <div class="col-sm-6">
+												 <input type="text" class="form-control" name="net_stone" placeholder="Mem"  class="input-xlarge" value="{{ asset_body.stone }}" />
+												 </div>
+											</div>	
+											
+											<div class="form-group">
+												 <label class="col-sm-2 control-label">配置说明</label>
+												 <div class="col-sm-6">						
+												 	<textarea  class="form-control" rows="5" name="net_configure_detail" placeholder="配置说明"  id="configure_detail" value=""></textarea>
+												 </div>
+											</div>	
+											</div>
+										{% endif %}
+											</fieldset>
+											<legend></legend>
+											<div class="form-group">
+											<label class="col-sm-3 control-label"></label>
+											<button type="button" id="add_host_submit" onclick="repealFromVaule(this)" class="btn btn-danger" >撤销操作</button>
+									 		<button type="button" id="add_host_submit"  class="btn btn-primary" onclick="addAssetsData(this)" >确认提交</button>
+									 		</div>
+									 		
+										</form>	
+                                </div>
+                            </div>	
+                            <!-- /.row (nested) -->
+                        </div>
+                        <!-- /.panel-body -->
+                    </div>
+                    <!-- /.panel -->
+                </div>
+                <!-- /.col-lg-12 -->
+            </div>
+</div>
+<script type="text/javascript">
+function addAssetsData(obj) {
+	var form = document.getElementById('addHost');
+	for (var i = 0; i < form.length; ++i) {
+		var name = form[i].name;
+		var value = form[i].value;
+		var assetStart = name.indexOf("asset_");
+		if (assetStart==0 && value.length == 0){
+			window.wxc.xcConfirm("请注意必填项不能为空~", window.wxc.xcConfirm.typeEnum.error);
+			return false;
+		}
+		
+	};
+	var asset_data = getFormData(document.getElementById('addHost'),'');
+// 	alert(JSON.stringify(asset_data));  
+	var btnObj = $(obj);
+	if ("{{ asset_type }}"=="server"){
+		var putUrl = '/api/server/{{ asset_body.id }}/';
+	}
+	else {
+		var putUrl = '/api/net/{{ asset_body.id }}/';
+	}
+	$.ajax({
+		dataType: "JSON",
+		url:putUrl, //请求地址
+		type:"PUT",  //提交类似
+		contentType: "application/json",
+		data: JSON.stringify({
+			'data':asset_data
+		}),  //提交参数
+		success:function(response){
+			window.wxc.xcConfirm("资产修改成功", window.wxc.xcConfirm.typeEnum.success);
+		},
+    	error:function(response){
+    		window.wxc.xcConfirm("数据格式不对，修改资产失败~", window.wxc.xcConfirm.typeEnum.error);
+    	}
+	})	
+}
+
+
+
+
+
+
+
+function getFormData (form, filler) {
+	var assets = {};
+	var server = {};
+	var net = {};
+	for (var i = 0; i < form.length; ++i) {
+		var name = form[i].name;
+		var value = form[i].value;
+		if (name.length == 0)
+			continue;
+		if (value.length == 0) {
+			if ((typeof filler != 'string') || (filler.length == 0))
+				continue;
+			else
+				value = filler;
+		}
+		var assetStart = name.indexOf("asset_");
+		var serverStart = name.indexOf("server_");
+		var netStart = name.indexOf("net_");
+		if (assetStart==0){
+			var asz = "assets."+name.replace("asset_","")+" = '" + value + "'";
+			try {
+				eval(asz);
+			} catch (e) {
+				alert(e);
+			}
+		}
+		else if(serverStart==0){
+			var ssz = "server."+name.replace("server_","")+" = '" + value + "'";
+			try {
+				eval(ssz);
+			} catch (e) {
+				alert(e);
+			}
+		}			
+		else if(netStart==0){
+			var nsz = "net."+name.replace("net_","")+" = '" + value + "'";
+			try {
+				eval(nsz);
+			} catch (e) {
+				alert(e);
+			}
+		}
+		
+	}
+	if ("{{ asset_type }}" == "server"){
+		server.assets = assets;
+		return server;		
+	}
+	else {
+		net.assets = assets;
+		return net;
+	}
+}
+</script> 
+{% endblock %}

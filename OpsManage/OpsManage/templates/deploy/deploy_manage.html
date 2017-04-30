@@ -1,0 +1,175 @@
+{% extends 'index.html' %}
+{% block page-content %}
+<div id="page-wrapper">
+    <div class="row">
+         <div class="col-lg-12">
+              <h1 class="page-header"><i class="fa fa-github"></i><code>{{project.project_name}}</code> 项目管理</h1>
+         </div>
+                <!-- /.col-lg-12 -->
+    </div>
+	<div class="row">
+                <div class="col-lg-12">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+ 						<i class="fa    fa-gears"></i> 项目管理
+                        </div>
+                        <div class="panel-body">
+                            <div class="row">
+                                <div class="col-lg-4">
+                                <legend><i class="fa  fa-paper-plane"></i>项目管理</legend>
+                                    <form role="form" id="deployRun" class="main form-horizontal" >{% csrf_token %}
+										<fieldset>															
+											<div class="form-group">
+												 <label class="col-sm-2 control-label">项目名称</label>
+												 <div class="col-sm-6">
+												 	<input type="text" class="form-control" name="project_name" value="{{project.project_name}}"  class="input-xlarge" disabled/>
+												 </div>
+											</div>
+											{% if project.project_model == 'branch' %}																
+											<div class="form-group">
+												 <label class="col-sm-2 control-label">分支</label>
+												 <div class="col-sm-6">
+												   <select class="form-control" name="project_branch"  id="branch_choice"  onchange="javascript:oBtBranchChoice();">
+												   			<option  selected="selected" name="project_branch">选择一个分支</option>
+															{% for ds in bList %}
+																{% if ds.status == 1 %}
+																	<option value="{{ds.name}}" selected="selected" name="project_branch">{{ds.value}}</option>
+																{% else %}
+																	<option value="{{ds.name}}" name="project_branch">{{ds.value}}</option>
+																{% endif %}
+															{% endfor %}							   		
+													</select>							 	
+												 </div>
+											</div>													
+											
+											<div class="form-group">
+												 <label class="col-sm-2 control-label">版本选择</label>
+												 <div class="col-sm-6">
+												   <select class="form-control" name="project_version" id="project_version" >
+												   		<option selected="selected" value="" name="project_version" >请选择版本</option>
+															{% for ds in vList %}
+																<option value="{{ds.comid}}" name="project_version">{{ds.ver}} - {{ds.desc}} - {{ds.user}} </option>
+															{% endfor %}						   		
+													</select>	
+												</div>
+											</div>
+											{% else %}
+											<div class="form-group">
+												 <label class="col-sm-2 control-label">分支</label>
+												 <div class="col-sm-6">
+												   <select class="form-control" name="project_branch"  >
+												   		<option value="" name="project_branch">请选择Tag</option>
+															{% for ds in bList %}
+																<option value="{{ds.name}}" name="project_branch">{{ds.value}}</option>
+															{% endfor %}							   		
+													</select>							 	
+												 </div>
+											</div>												
+											{% endif %}																																													
+											
+											</fieldset>
+											<legend></legend>
+											<div class="form-group">
+											<label class="col-sm-3 control-label"></label>
+											<button type="button"  onclick="repealFromVaule(this)" class="btn btn-default" >撤销</button>
+									 		<button type="button"  class="btn btn-default" onclick="getVersion(this)" >查看</button>
+									 		</div>
+									 		
+										</form>                                        
+                                </div>
+                                <!-- /.col-lg-6 (nested) -->
+                                <div class="col-lg-8">
+                                    <legend><i class="fa  fa-paper-plane-o"></i>变更历史</legend>
+									<div id="result">
+				                   </div>                                       
+                                <!-- /.col-lg-6 (nested) -->
+                            </div>
+                            <!-- /.row (nested) -->
+                        </div>
+                        <!-- /.panel-body -->
+                    </div>
+                    <!-- /.panel -->
+                </div>
+                <!-- /.col-lg-12 -->
+            </div>
+</div>
+
+<script type="text/javascript">
+
+	function oBtBranchChoice() {
+		   var obj = document.getElementById("branch_choice"); 
+		   var index = obj.selectedIndex;
+		   var value = obj.options[index].value; 
+		   obj.options[index].selected = true;
+		   if (value.length > 0 ){
+				$.ajax({
+					  type: 'POST',
+					  url: '/deploy_version/' + {{project.id}} + '/',
+					  data: {
+						  "model":"branch",
+						  'name':value,
+						  'op':'query',
+					  },
+				      success:function(response){	
+			                if (response["code"]=="200"){ 
+			        			var htmlStr = '<select class="form-control" name="project_version" id="project_version"  required><option selected="selected" value="" name="order_comid" >请选择版本</option>';
+			        			for (x in response["data"]){
+									htmlStr += '<option value="'+ response["data"][x]['comid'] + '"name="order_comid">' + response["data"][x]['ver'] + ' - ' + response["data"][x]['desc'] + ' - ' + response["data"][x]['user'] +'</option>';																
+								};
+								htmlStr += '</select>'
+								$('#project_version').html(htmlStr);
+			                }
+					},
+		            error:function(response){
+		            	window.wxc.xcConfirm("获取分支版本失败", window.wxc.xcConfirm.typeEnum.error);
+		            },							  
+					})		   	   
+		   }
+	}
+
+	
+	function getVersion(obj) {
+		var btnObj = $(obj);
+		btnObj.attr('disabled',true);
+		var form = document.getElementById('deployRun');
+		var post_data = {};
+		for (var i = 1; i < form.length; ++i) {
+			var name = form[i].name;
+			var value = form[i].value;
+			var project = name.indexOf("project_");
+			if ( project==0 && value.length==0){
+				window.wxc.xcConfirm("请注意必填项不能为空~", window.wxc.xcConfirm.typeEnum.error);
+				return false;
+			}
+			else if (name.length > 0 && value.length > 0){
+				post_data[name] = value;
+			};
+			
+		};
+		post_data['op'] = 'histroy';
+		$("#result").html("正在提交，请稍等。。。");
+		$.ajax({
+			url:'/deploy_version/'+"{{project.id}}/", //请求地址
+			type:"POST",  //提交类似
+			data:post_data,  //提交参数
+			success:function(response){
+				btnObj.removeAttr('disabled');
+				if (response["code"] == "200"){
+					$("#result").html(response["data"]);
+				}
+				
+			},
+	    	error:function(response){
+	    		btnObj.removeAttr('disabled');
+	    		window.wxc.xcConfirm("查看失败", window.wxc.xcConfirm.typeEnum.error);
+	    		clearInterval(interval);
+	    	}
+		})	
+	}	
+
+{% if errorInfo %}
+	window.wxc.xcConfirm("{{errorInfo}}", window.wxc.xcConfirm.typeEnum.error);
+{% endif %}
+</script>
+
+{% endblock %}

@@ -1,0 +1,189 @@
+{% extends 'index.html' %}
+{% block page-content %}
+<div id="page-wrapper">
+    <div class="row">
+         <div class="col-lg-12">
+              <h1 class="page-header"><i class="fa fa-pencil-square-o"></i><code>{{project.project_name}}</code> 项目部署申请</h1>
+         </div>
+                <!-- /.col-lg-12 -->
+    </div>
+	<div class="row">
+                <div class="col-lg-12">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+ 						<i class="fa  fa-plus"></i> 添加项目申请
+                        </div>
+                        <div class="panel-body">
+                            <div class="row">
+                            	<div class="col-lg-3">
+                            	</div>
+                                <div class="col-lg-6">
+                                <legend><i class="fa  fa-hand-o-right"></i>申请工单</legend>
+                                    <form role="form" method="post" class="main form-horizontal">{% csrf_token %}
+										<fieldset>															
+											<div class="form-group">
+												 <label class="col-sm-2 control-label">项目名称</label>
+												 <div class="col-sm-6">
+                                            		<input class="form-control" name="order_project" value="{{project.project_name}}" disabled>
+												 </div>
+											</div>
+											
+											<div class="form-group">
+												 <label class="col-sm-2 control-label">更新主题</label>
+												 <div class="col-sm-6">												 	
+                                            		<input class="form-control" name="order_subject" required>
+                                            		<p class="help-block">例如：opsmanage优化</p>
+												 </div>
+											</div>	
+					
+											<div class="form-group">
+												 <label class="col-sm-2 control-label">更新内容</label>
+												 <div class="col-sm-6">                                           
+                                            		<textarea class="form-control" rows="3" name="order_content" required></textarea>
+												 </div>
+											</div>		
+											{% if project.project_model == 'branch' and project.project_repertory == 'git' %}											
+											<div class="form-group">
+												 <label class="col-sm-2 control-label">分支选择</label>
+												 <div class="col-sm-6">
+												 	<select class="form-control" name="order_branch" id="branch_choice"  onchange="javascript:oBtBranchChoice();" required>
+															{% for ds in bList %}
+															{% if ds.status == 1 %}
+																	<option value="{{ds.name}}" selected="selected" name="order_branch">{{ds.value}}</option>
+															{% else %}
+																	<option value="{{ds.name}}" name="order_branch">{{ds.value}}</option>
+															{% endif %}
+														{% endfor %}							   		
+													</select>
+												 </div>
+											</div>																												
+											<div class="form-group">
+												 <label class="col-sm-2 control-label">版本选择</label>
+												 <div class="col-sm-6">
+												 	<select class="form-control" name="order_comid" id="version_choice"  required>
+														   <option selected="selected" value="" name="order_comid" >请选择版本</option>
+															{% for ds in vList %}
+																<option value="{{ds.comid}}" name="order_comid">{{ds.ver}} - {{ds.desc}} - {{ds.user}} </option>
+															{% endfor %}						   		
+													</select>
+												 </div>
+											</div>	
+											{% elif project.project_model == 'tag' and  project.project_repertory == 'git' %}
+											<div class="form-group">
+												 <label class="col-sm-2 control-label">分支/标签</label>
+												 <div class="col-sm-6">
+												   <select class="form-control" name="order_tag"  >
+												   		<option value="" name="order_tag">请选择Tag</option>
+															{% for ds in bList %}
+																<option value="{{ds.name}}" name="order_tag">{{ds.value}}</option>
+															{% endfor %}							   		
+													</select>							 	
+												 </div>
+											</div>	
+											{% else %}
+												<div class="form-group" style="display:none;">
+													 <label class="col-sm-2 control-label">分支</label>
+													 <div class="col-sm-6">													   
+														<input type="hidden" name="order_branch"	value="trunk" disabled/>					 	
+													 </div>
+												</div>													
+												
+												<div class="form-group">
+													 <label class="col-sm-2 control-label">版本选择</label>
+													 <div class="col-sm-6">
+													   <select class="form-control" name="order_comid" >
+													   		<option selected="selected" value="" name="order_comid" >请选择版本</option>
+																{% for ds in vList %}
+																	<option value="{{ds.comid}}" name="order_comid">{{ds.ver}} - {{ds.desc}} - {{ds.user}} </option>
+																{% endfor %}						   		
+														</select>	
+													</div>
+												</div>																								
+											{% endif %}	
+											<div class="form-group">
+												 <label class="col-sm-2 control-label">部署指派<i class="fa fa-info-circle" data-toggle="tooltip"  title="指派授权用户"></i></label>
+												 <div class="col-sm-6">
+												 	 <select class="form-control" name="order_audit"  required>
+														   <option selected="selected" value="" name="order_audit" >请选择授权用户</option>
+															{% for ds in userList %}
+																<option value="{{ds}}" name="oorder_audit">{{ds}}</option>
+															{% endfor %}						   		
+													</select>
+												 </div>
+											</div>
+											
+																					
+											<div class="form-group">
+												 <label class="col-sm-2 control-label">紧急程度</label>
+												 <div class="col-sm-6">
+												 	<select class="form-control" name="order_level"  >
+														<option selected="selected" value="0" name="order_level" >非紧急</option>
+														<option value="1" name="order_level" >紧急</option>						   		
+													</select>
+												 </div>
+											</div>															
+																									
+																																																						
+											</fieldset>
+											<legend></legend>
+											<div class="form-group">
+											<label class="col-sm-3 control-label"></label>
+											<button type="reset"  class="btn btn-default" >撤销申请</button>
+									 		<button type="submit"  class="btn btn-default" >提交申请</button>
+									 		</div>
+									 		
+										</form>	
+                                </div>
+                            </div>
+                            <!-- /.row (nested) -->
+                        </div>
+                        <!-- /.panel-body -->
+                    </div>
+                    <!-- /.panel -->
+                </div>
+                <!-- /.col-lg-12 -->
+            </div>
+</div>
+
+<script type="text/javascript">
+
+function oBtBranchChoice() {
+	   var obj = document.getElementById("branch_choice"); 
+	   var index = obj.selectedIndex;
+	     //保持选中状态
+	   var value = obj.options[index].value; 
+	   $("#branch_choice option:selected").text('* '+value);
+	   obj.options[index].selected = true;
+	   if (value.length > 0 ){
+			$.ajax({
+				  type: 'POST',
+				  url: '/deploy_version/' + {{project.id}} + '/',
+				  data: {
+					  "model":"branch",
+					  'name':value,
+					  'op':'query',
+				  },
+			      success:function(response){	
+		                if (response["code"]=="200"){ 
+		        			var htmlStr = '<select class="form-control" name="project_version" id="version_choice"  required><option selected="selected" value="" name="order_comid" >请选择版本</option>';
+		        			for (x in response["data"]){
+								htmlStr += '<option value="'+ response["data"][x]['comid'] + '"name="order_comid">' + response["data"][x]['ver'] + ' - ' + response["data"][x]['desc'] + ' - ' + response["data"][x]['user'] +'</option>';																
+							};
+							htmlStr += '</select>'
+							$('#version_choice').html(htmlStr);
+		                }
+				},
+	            error:function(response){
+	            	window.wxc.xcConfirm("获取分支版本失败", window.wxc.xcConfirm.typeEnum.error);
+	            },							  
+				})		   	   
+	   }
+}
+
+{% if errorInfo %}
+	window.wxc.xcConfirm("{{errorInfo}}", window.wxc.xcConfirm.typeEnum.error);
+{% endif %}
+$(function () { $("[data-toggle='tooltip']").tooltip(); });
+</script>
+
+{% endblock %}

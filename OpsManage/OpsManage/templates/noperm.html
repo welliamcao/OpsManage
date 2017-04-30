@@ -1,0 +1,57 @@
+{% extends 'index.html' %}
+{% block page-content %}
+<div id="page-wrapper">
+    <div class="row">
+         <div class="col-lg-12">
+              <h1 class="page-header"><i class="fa  fa-ban   "></i><code>403</code>您无权操作此项</h1>
+         </div>
+                <!-- /.col-lg-12 -->
+    </div>
+	<div class="row">
+		<div class="well">
+			<hr />
+			<h3 class="lighter smaller">尝试操作失败...</h3>
+
+			<div>
+				<ul class="list-unstyled spaced inline bigger-110 margin-15">
+					<li>
+						<i class="fa fa-hand-o-right   blue"></i>
+						您是否有权限操作此项
+					</li>
+					<li>
+						<i class="fa fa-hand-o-right   blue"></i>
+						您的权限是否过期
+					</li>
+					<li>
+						<i class="fa fa-hand-o-right   blue"></i>
+						您的账户是否过期
+					</li>
+
+					<li>
+						<i class="fa fa-hand-o-right   blue"></i>
+						联系管理员
+					</li>
+				</ul>
+			</div>
+
+			<hr />
+			<div class="space"></div>
+
+			<div class="center">
+				<a href="#" class="btn btn-grey">
+				<i class="fa fa-arrow-left"></i>
+					返回
+				</a>
+
+			<a href="/" class="btn btn-primary">
+				<i class="fa fa-dashboard"></i>
+					主页
+				</a>
+			</div>
+		</div>
+    </div>    
+</div>
+
+
+
+{% endblock %}
