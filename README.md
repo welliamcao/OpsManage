@@ -136,7 +136,12 @@ TEMPLATE_DIRS = (
 # cd /yourpath/OpsManage/
 # python manage.py runserver ip:8000
 ```
-十、配置Celery异步任务系统（可选）
+十、配置证书认证
+```
+# ssh-keygen -t  rsa
+# ssh-copy-id -i ~/.ssh/id_rsa.pub  root@ipaddress
+```
+十一、配置Celery异步任务系统（可选）
 ```
 # echo_supervisord_conf > /etc/supervisord.conf
 # vim /etc/supervisord.conf
