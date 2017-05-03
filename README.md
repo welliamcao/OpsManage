@@ -105,8 +105,8 @@ mysql>\q
 ```
 # cd /path/OpsManage/OpsManage
 # vim settings.py
-BROKER_URL =  #修改成自己的配置
-REDSI_KWARGS_LPUSH = #修改成自己的配置
+BROKER_URL =  redis://192.168.1.233:6379/3 #修改成自己的配置
+REDSI_KWARGS_LPUSH = {"host":'192.168.1.233','port':6379,'db':3} #修改成自己的配置
 DATABASES = {
     'default': {
         'ENGINE':'django.db.backends.mysql',
