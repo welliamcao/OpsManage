@@ -10,7 +10,8 @@
 ## OpsManage环境要求
  * 编程语言：Python 2.7
  * 操作系统：CentOS 6+
- * Ansible版本：2.0 +
+ * Ansible版本：2.0 + 
+ * 部署平台及节点服务器：rsync
 
 ## 安装环境配置
 一、安装Python
