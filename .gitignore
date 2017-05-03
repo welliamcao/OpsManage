@@ -2,3 +2,6 @@
 upload*
 .DS_Store
 .gitignore
+.settings
+.project
+.pydevproject
