@@ -141,7 +141,7 @@ TEMPLATE_DIRS = (
 # ssh-keygen -t  rsa
 # ssh-copy-id -i ~/.ssh/id_rsa.pub  root@ipaddress
 ```
-十一、配置Celery异步任务系统（可选）
+十一、配置Celery异步任务系统
 ```
 # echo_supervisord_conf > /etc/supervisord.conf
 # vim /etc/supervisord.conf
