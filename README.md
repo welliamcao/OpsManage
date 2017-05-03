@@ -79,6 +79,7 @@
 daemonize yes
 loglevel warning
 logfile "/var/log/redis.log"
+bind 你的服务器ip地址
 ```
 ```
 # cd ../
@@ -147,7 +148,7 @@ TEMPLATE_DIRS = (
 # vim /etc/supervisord.conf
 最后添加
 [program:celery-worker]
-command=/usr/bin/python manage.py celery worker --loglevel=info -E -B  -c 2
+command=/usr/bin/python manage.py celery worker --loglevel=info -E -c 2
 directory=/yourpath/OpsManage
 stdout_logfile=/var/log/celery-worker.log
 autostart=true
