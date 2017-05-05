@@ -57,14 +57,14 @@
 											<div class="form-group">
 												 <label class="col-sm-2 control-label">购买时间</label>
 												 <div class="col-sm-6">
-												 	<input type="text" class="form-control" name="asset_buy_time" placeholder="购买时间" value="" class="input-xlarge"  title="例如2016-01-01" required/>
+														<input  type="text"  name="asset_buy_time"  class="form-control form_datetime" data-date-format="yyyy-mm-dd" title="例如2016-01-01" required>
 												 </div>
 											</div>		
 					
 											<div class="form-group">
 												 <label class="col-sm-2 control-label">过保时间</label>
 												 <div class="col-sm-6">
-												 	<input type="text" class="form-control" name="asset_expire_date" placeholder="过保时间" value=""  title="例如2016-01-01" class="input-xlarge"  required/>
+												 	<input  type="text"  name="asset_expire_date"  class="form-control form_datetime" data-date-format="yyyy-mm-dd" title="例如2016-01-01" required>
 												 </div>
 											</div>															
 														
@@ -487,5 +487,9 @@
 	    	}
 		})	
 	}	
+	
+    $(".form_datetime").datetimepicker({format: 'yyyy-mm-dd'});
+
+	
 </script>
 {% endblock %}
