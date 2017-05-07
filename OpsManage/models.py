@@ -292,7 +292,7 @@ class Log_Project_Config(models.Model):
     project_user = models.CharField(max_length=50,verbose_name='操作用户',default=None)
     project_name = models.CharField(max_length=100,verbose_name='名称',default=None)
     project_content = models.CharField(max_length=100,default=None)
-    project_branch = models.CharField(max_length=100,default=None)
+    project_branch = models.CharField(max_length=100,default=None,blank=True,null=True)
     create_time = models.DateTimeField(auto_now_add=True,blank=True,null=True,verbose_name='执行时间')
     class Meta:
         db_table = 'opsmanage_log_project_config'
