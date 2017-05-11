@@ -2,7 +2,7 @@
 # _#_ coding:utf-8 _*_ 
 import uuid,os,json
 from django.http import HttpResponseRedirect,JsonResponse
-from django.shortcuts import render_to_response,render
+from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.contrib.auth.decorators import login_required
 from OpsManage.models import Server_Assets
