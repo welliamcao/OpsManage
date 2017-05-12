@@ -63,24 +63,24 @@
 												 </div>
 											</div>
 											
-<!-- 											<div class="form-group"> -->
-<!-- 												 <label class="col-sm-2 control-label">上传脚本</label> -->
-<!-- 												 <div class="col-sm-6"> -->
-<!-- 												 	<input type="file" name="cron_script" placeholder="任务描述" value="" /> -->
-<!-- 												 </div> -->
-<!-- 											</div>		 -->
+											<div class="form-group">
+												 <label class="col-sm-2 control-label">上传脚本</label>
+												 <div class="col-sm-6">
+												 	<input type="file" name="cron_script" placeholder="任务描述" value="" />
+												 </div>
+											</div>		
 
-<!-- 											<div class="form-group"> -->
-<!-- 												 <label class="col-sm-2 control-label" >脚本路径</label> -->
-<!-- 												 <div class="col-sm-6"> -->
-<!-- 												 	{% if cron.cron_script_path %} -->
-<!-- 												 		<input type="text" class="form-control"  name="cron_script_path" placeholder="/usr/local/src/update.sh" value="{{ cron.cron_script_path }}" class="input-xlarge" pattern="^(/[\w-.\w]+)*$" title="正确格式：/usr/local/src/update.sh"/> -->
-<!-- 												 	{% else %} -->
-<!-- 												 		<input type="text" class="form-control"  name="cron_script_path" placeholder="/usr/local/src/update.sh" value="" class="input-xlarge" pattern="^(/[\w-.\w]+)*$" title="正确格式：/usr/local/src/update.sh"/> -->
-<!-- 												 	{% endif %} -->
+											<div class="form-group">
+												 <label class="col-sm-2 control-label" >脚本路径</label>
+												 <div class="col-sm-6">
+												 	{% if cron.cron_script_path %}
+												 		<input type="text" class="form-control"  name="cron_script_path" placeholder="/usr/local/src/update.sh" value="{{ cron.cron_script_path }}" class="input-xlarge"  title="正确格式：/usr/local/src/update.sh"/>
+												 	{% else %}
+												 		<input type="text" class="form-control"  name="cron_script_path" placeholder="/usr/local/src/update.sh" value="" class="input-xlarge"  title="正确格式：/usr/local/src/update.sh"/>
+												 	{% endif %}
 												 	
-<!-- 												 </div> -->
-<!-- 											</div>											 -->
+												 </div>
+											</div>											
 																					
 											<div class="form-group">
 												 <label class="col-sm-2 control-label">用户</label>
