@@ -160,45 +160,49 @@
 											<legend>服务器设备资产信息录入 - 可选信息</legend>
 					
 											<div class="form-group" >
-												 <label class="col-sm-2 control-label">主机地址</label>
+												 <label class="col-sm-2 control-label">主机地址<i class="fa fa-info-circle" data-toggle="tooltip"  title="必填项"></i></label>
 												 <div class="col-sm-6">
 												 	<input type="text" class="form-control" name="server_ip" placeholder="Ip Address" value="" pattern="^(\d+\.\d+\.\d+\.\d+|[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(/.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+/.?))$" title="请输入IP地址或者域名"  class="input-xlarge"/>
 												 </div>
 											</div>
-											
+
 											<div class="form-group">
-												 <label class="col-sm-2 control-label">主机名字</label>
+												 <label class="col-sm-2 control-label">认证方式<i class="fa fa-info-circle" data-toggle="tooltip"  title="如果选择密钥方式认证，请先在部署服务器到节点服务器做好证书认证"></i></label>
 												 <div class="col-sm-6">
-												 	<input type="text" class="form-control" name="server_hostname" placeholder="Hostname"  class="input-xlarge" value="" />
+												 	<select class="form-control" id='auth_type_select' onchange="javascript:oBtAuthType();" name="server_keyfile">
+												 		<option value="1" name="server_keyfile">密钥认证</option>
+												 		<option value="0" name="server_keyfile">账户密码</option>
+												 	</select>
 												 </div>
-											</div>					
-											
+											</div>
+											<div id="auth_accout_select" style="display:none;">
+												<div class="form-group">
+													 <label class="col-sm-2 control-label">主机名字</label>
+													 <div class="col-sm-6">
+													 	<input type="text" class="form-control" name="server_hostname" placeholder="Hostname"  class="input-xlarge" value="" />
+													 </div>
+												</div>					
+												
+												<div class="form-group">
+													 <label class="col-sm-2 control-label">账户</label>
+													 <div class="col-sm-6">
+													 <input type="text" class="form-control" name="server_username" placeholder="Username"  class="input-xlarge" value="" />
+													 </div>
+												</div>							
+												
+												<div class="form-group">
+													 <label class="col-sm-2 control-label">密码</label>
+													 <div class="col-sm-6">
+													 <input type="password" class="form-control" name="server_passwd" placeholder="Password"  class="input-xlarge" value="" />
+													 </div>
+												</div>							
+											</div>
 											<div class="form-group">
-												 <label class="col-sm-2 control-label">账户</label>
-												 <div class="col-sm-6">
-												 <input type="text" class="form-control" name="server_username" placeholder="Username"  class="input-xlarge" value="" />
-												 </div>
-											</div>							
-											
-											<div class="form-group">
-												 <label class="col-sm-2 control-label">密码</label>
-												 <div class="col-sm-6">
-												 <input type="password" class="form-control" name="server_passwd" placeholder="Password"  class="input-xlarge" value="" />
-												 </div>
-											</div>							
-<!-- 											<div class="form-group"> -->
-<!-- 												 <label class="col-sm-2 control-label">密钥文件</label> -->
-<!-- 												 <div class="col-sm-6"> -->
-<!-- 												 <input type="file" name="server_keyfile" value="" /> -->
-<!-- 												 </div> -->
-<!-- 											</div>											 -->
-											<div class="form-group">
-												 <label class="col-sm-2 control-label">端口</label>
-												 <div class="col-sm-6">
-												 <input type="text" class="form-control" name="server_port" placeholder="Port"  class="input-xlarge" pattern="^(\d+)" value="" />
-												 </div>
-											</div>	
-											
+												<label class="col-sm-2 control-label">端口</label>
+												<div class="col-sm-6">
+												<input type="text" class="form-control" name="server_port" placeholder="Port"  class="input-xlarge" pattern="^(\d+)" value="" />
+												</div>
+											</div>												
 											<div class="form-group">
 												 <label class="col-sm-2 control-label">CPU型号</label>
 												 <div class="col-sm-6">
@@ -379,6 +383,8 @@
 
 
 <script type="text/javascript"> 
+	$(function () { $("[data-toggle='tooltip']").tooltip(); });
+	
 	function getFormData (form, filler) {
 		var assets = {};
 		var server = {};
@@ -432,6 +438,7 @@
 			return net;
 		}
 	}
+	
 	function oBtAssetsType() {
 		   var obj = document.getElementById("assets_type_select"); 
 		   var index = obj.selectedIndex;
@@ -450,6 +457,18 @@
 		   }
 	}
 
+	function oBtAuthType() {
+		   var obj = document.getElementById("auth_type_select"); 
+		   var index = obj.selectedIndex;
+		   var value = obj.options[index].value; 
+		   if (value=="0"){
+			   document.getElementById("auth_accout_select").style.display = "";  	   
+		   }
+		   else {
+			   document.getElementById("auth_accout_select").style.display = "none";	
+		   }
+	}	
+	
 	function addAssetsData(obj) {
 		var form = document.getElementById('addHost');
 		for (var i = 0; i < form.length; ++i) {

@@ -206,28 +206,47 @@
 												 	<input type="text" class="form-control" name="server_ip" placeholder="Ip Address" value="{{ asset_body.ip }}" pattern="^(\d+\.\d+\.\d+\.\d+|[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(/.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+/.?))$" title="请输入IP地址或者域名"  class="input-xlarge"/>
 												 </div>
 											</div>
-											
+
 											<div class="form-group">
-												 <label class="col-sm-2 control-label">主机名字</label>
+												 <label class="col-sm-2 control-label">认证方式<i class="fa fa-info-circle" data-toggle="tooltip"  title="如果选择密钥方式认证，请先在部署服务器到节点服务器做好证书认证"></i></label>
 												 <div class="col-sm-6">
-												 	<input type="text" class="form-control" name="server_hostname" placeholder="Hostname"  class="input-xlarge" value="{{ asset_body.hostname }}" />
+												 	<select class="form-control" id='auth_type_select' onchange="javascript:oBtAuthType();" name="server_keyfile">
+												 		{% if asset_body.keyfile == 1 %}
+													 		<option value="1" name="server_keyfile" selected="selected">密钥认证</option>
+													 		<option value="0" name="server_keyfile" >账户密码</option>
+												 		{% else %}
+															<option value="1" name="server_keyfile">密钥认证</option>
+													 		<option value="0" name="server_keyfile" selected="selected">账户密码</option>												 		
+												 		{% endif %}
+												 	</select>
 												 </div>
-											</div>					
-											
-											<div class="form-group">
-												 <label class="col-sm-2 control-label">账户</label>
-												 <div class="col-sm-6">
-												 <input type="text" class="form-control" name="server_username" placeholder="Username"  class="input-xlarge" value="{{ asset_body.username }}" />
-												 </div>
-											</div>							
-											
-											<div class="form-group">
-												 <label class="col-sm-2 control-label">密码</label>
-												 <div class="col-sm-6">
-												 <input type="password" class="form-control" name="server_password" placeholder="Password"  class="input-xlarge" value="{{ asset_body.passwd }}" />
-												 </div>
-											</div>							
-											
+											</div>
+											{% if asset_body.keyfile == 1 %}
+												<div id="auth_accout_select" style="display:none;">
+											{% else %}
+												<div id="auth_accout_select">
+											{% endif %}
+												<div class="form-group">
+													 <label class="col-sm-2 control-label">主机名字</label>
+													 <div class="col-sm-6">
+													 	<input type="text" class="form-control" name="server_hostname" placeholder="Hostname"  class="input-xlarge" value="{{ asset_body.hostname }}" />
+													 </div>
+												</div>					
+												
+												<div class="form-group">
+													 <label class="col-sm-2 control-label">账户</label>
+													 <div class="col-sm-6">
+													 <input type="text" class="form-control" name="server_username" placeholder="Username"  class="input-xlarge" value="{{ asset_body.username }}" />
+													 </div>
+												</div>							
+												
+												<div class="form-group">
+													 <label class="col-sm-2 control-label">密码</label>
+													 <div class="col-sm-6">
+													 <input type="password" class="form-control" name="server_password" placeholder="Password"  class="input-xlarge" value="{{ asset_body.passwd }}" />
+													 </div>
+												</div>							
+											</div>
 											<div class="form-group">
 												 <label class="col-sm-2 control-label">端口</label>
 												 <div class="col-sm-6">
@@ -417,6 +436,8 @@
             </div>
 </div>
 <script type="text/javascript">
+$(function () { $("[data-toggle='tooltip']").tooltip(); });
+
 function addAssetsData(obj) {
 	var form = document.getElementById('addHost');
 	for (var i = 0; i < form.length; ++i) {
@@ -456,7 +477,17 @@ function addAssetsData(obj) {
 }
 
 
-
+function oBtAuthType() {
+	   var obj = document.getElementById("auth_type_select"); 
+	   var index = obj.selectedIndex;
+	   var value = obj.options[index].value; 
+	   if (value=="0"){
+		   document.getElementById("auth_accout_select").style.display = "";  	   
+	   }
+	   else {
+		   document.getElementById("auth_accout_select").style.display = "none";	
+	   }
+}	
 
 
 

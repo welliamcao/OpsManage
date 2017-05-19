@@ -55,8 +55,8 @@ def cron_add(request):
         if  int(cron_status) == 1: 
             try:
                 sList = [server.ip]
-                resource = [{"hostname": server.ip, "port": int(server.port),
-                             "username": server.username,"password": server.passwd}]              
+                if server.keyfile == 1:resource = [{"hostname": server.ip, "port": int(server.port)}] 
+                else:resource = [{"hostname": server.ip, "port": int(server.port),"username": server.username,"password": server.passwd}]              
                 ANS = ANSRunner(resource)
                 if cron.cron_script:
                     src = os.getcwd() + '/' + str(cron.cron_script)
@@ -127,7 +127,8 @@ def cron_mod(request,cid):
                                   context_instance=RequestContext(request))  
         try:
             sList = [cron.cron_server.ip]
-            resource = [{"hostname": cron.cron_server.ip, "port": int(cron.cron_server.port),
+            if cron.cron_server.keyfile == 1:resource = [{"hostname": cron.cron_server.ip, "port": int(cron.cron_server.port)}] 
+            else:resource = [{"hostname": cron.cron_server.ip, "port": int(cron.cron_server.port),
                          "username": cron.cron_server.username,"password": cron.cron_server.passwd}]    
             cron = Cron_Config.objects.get(id=cid)
             if request.FILES.get('cron_script'):
@@ -140,30 +141,24 @@ def cron_mod(request,cid):
                     src = os.getcwd() + '/' + str(cron.cron_script)
                     file_args = """src={src} dest={dest} owner={user} group={user} mode=755""".format(src=src,dest=cron.cron_script_path,user=cron.cron_user)
                     ANS.run_model(host_list=sList,module_name="copy",module_args=file_args)  
-                    result = ANS.handle_model_data(ANS.get_model_result(), 'copy',file_args)  
-                if result[0].get('status') != 'failed':
-                    cron_args = """name={name} minute='{minute}' hour='{hour}' day='{day}'
-                                   weekday='{weekday}' month='{month}' user='{user}' job='{job}'""".format(name=cron.cron_name,minute=cron.cron_minute,
-                                                                                                        hour=cron.cron_hour,day=cron.cron_day,
-                                                                                                         weekday=cron.cron_week,month=cron.cron_month,
-                                                                                                         user=cron.cron_user,job=cron.cron_command
-                                                                                                         )                              
-                    ANS.run_model(host_list=sList,module_name="cron",module_args=cron_args)    
-                    result = ANS.handle_model_data(ANS.get_model_result(), 'cron',cron_args) 
+                cron_args = """name={name} minute='{minute}' hour='{hour}' day='{day}'
+                               weekday='{weekday}' month='{month}' user='{user}' job='{job}'""".format(name=cron.cron_name,minute=cron.cron_minute,
+                                                                                                    hour=cron.cron_hour,day=cron.cron_day,
+                                                                                                     weekday=cron.cron_week,month=cron.cron_month,
+                                                                                                     user=cron.cron_user,job=cron.cron_command
+                                                                                                     )                              
+                ANS.run_model(host_list=sList,module_name="cron",module_args=cron_args)    
         except Exception,e:
-            return render_to_response('cron/cron_mod.html',{"user":request.user,"errorInfo":"错误信息:"+str(e)}, 
-                                  context_instance=RequestContext(request))    
-        if result[0].get('status') == 'failed':
-            return render_to_response('cron/cron_add.html',{"user":request.user,
-                                                            "errorInfo":"错误信息:"+result[0].get('msg')}, 
-                                  context_instance=RequestContext(request))                   
+            return render_to_response('cron/cron_modf.html',{"user":request.user,"errorInfo":"错误信息:"+str(e)}, 
+                                  context_instance=RequestContext(request))                     
         return HttpResponseRedirect('/cron_mod/{id}/'.format(id=cid))
     
     elif request.method == "DELETE":      
         try:
             recordCron.delay(cron_user=str(request.user),cron_id=cid,cron_name=cron.cron_name,cron_content="删除计划任务",cron_server=cron.cron_server.ip)
             sList = [cron.cron_server.ip]
-            resource = [{"hostname": cron.cron_server.ip, "port": int(cron.cron_server.port),
+            if cron.cron_server.keyfile == 1:resource = [{"hostname": cron.cron_server.ip, "port": int(cron.cron_server.port)}] 
+            else:resource = [{"hostname": cron.cron_server.ip, "port": int(cron.cron_server.port),
                          "username": cron.cron_server.username,"password": cron.cron_server.passwd}]    
             ANS = ANSRunner(resource)  
             ANS.run_model(host_list=sList,module_name="cron",module_args="""name={name} state=absent""".format(name=cron.cron_name))    
@@ -180,7 +175,6 @@ def cron_config(request):
         return render_to_response('cron/cron_config.html',{"user":request.user,"serverList":serverList},
                                   context_instance=RequestContext(request))    
     elif request.method == "POST": 
-        print request.POST
         try:
             server = Server_Assets.objects.get(id=request.POST.get('cron_server'))
         except:
@@ -210,8 +204,8 @@ def cron_config(request):
                     recordCron.delay(cron_user=str(request.user),cron_id=cron.id,cron_name=cron.cron_name,cron_content="导入计划任务",cron_server=server.ip)
                     if  int(cron.cron_status) == 1: 
                         sList = [server.ip]
-                        resource = [{"hostname": server.ip, "port": int(server.port),
-                                     "username": server.username,"password": server.passwd}]              
+                        if server.keyfile == 1:resource = [{"hostname": server.ip, "port": int(server.port)}] 
+                        else:resource = [{"hostname": server.ip, "port": int(server.port),"username": server.username,"password": server.passwd}]                
                         ANS = ANSRunner(resource)
                         ANS.run_model(host_list=sList,module_name="cron",module_args="""name={name} minute='{minute}' hour='{hour}' day='{day}'
                                                                                      weekday='{weekday}' month='{month}' user='{user}' job='{job}'""".format(name=cron.cron_name,minute=cron.cron_minute,

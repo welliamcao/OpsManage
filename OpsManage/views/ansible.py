@@ -30,9 +30,8 @@ def apps_model(request):
         for server in serverList:
             server_assets = Server_Assets.objects.get(id=server)
             sList.append(server_assets.ip)
-            resource.append({"hostname": server_assets.ip, "port": int(server_assets.port),
-                             "username": server_assets.username,
-                             "password": server_assets.passwd})
+            if server_assets.keyfile == 1:resource.append({"hostname": server_assets.ip, "port": int(server_assets.port)})
+            else:resource.append({"hostname": server_assets.ip, "port": int(server_assets.port),"username": server_assets.username,"password": server_assets.passwd})
         if len(request.POST.get('custom_model')) > 0:model_name = request.POST.get('custom_model')
         else:model_name = request.POST.get('ansible_model',None)
         redisKey = base.makeToken(strs=str(request.user)+"ansible_model")
@@ -165,9 +164,8 @@ def apps_playbook_run(request,pid):
             for server in serverList:
                 server_assets = Server_Assets.objects.get(ip=server)
                 sList.append(server_assets.ip)
-                resource.append({"hostname": server_assets.ip, "port": int(server_assets.port),
-                                 "username": server_assets.username,
-                                 "password": server_assets.passwd})
+                if server_assets.keyfile == 1:resource.append({"hostname": server_assets.ip, "port": int(server_assets.port)})
+                else:resource.append({"hostname": server_assets.ip, "port": int(server_assets.port),"username": server_assets.username,"password": server_assets.passwd})
             if playbook.playbook_vars:playbook_vars = playbook.playbook_vars
             else:playbook_vars = request.POST.get('playbook_vars')
             try:

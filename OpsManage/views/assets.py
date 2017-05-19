@@ -146,10 +146,8 @@ def assets_facts(request,args=None):
         if genre == 'setup':
             try:
                 server_assets = Server_Assets.objects.get(id=request.POST.get('server_id'))
-                resource = [
-                                {"hostname": server_assets.ip, "port": server_assets.port,
-                                 "username": server_assets.username, "password": server_assets.passwd}
-                            ]
+                if server_assets.keyfile == 1:resource = [{"hostname": server_assets.ip, "port": int(server_assets.port)}] 
+                else:resource = [{"hostname": server_assets.ip, "port": server_assets.port,"username": server_assets.username, "password": server_assets.passwd}]
             except Exception,e:
                 return  JsonResponse({'msg':"数据更新失败-查询不到该主机资料~","code":502})
             ANS = ANSRunner(resource)
@@ -186,10 +184,8 @@ def assets_facts(request,args=None):
             try:
                 server_assets = Server_Assets.objects.get(id=server_id)
                 assets = Assets.objects.get(id=server_assets.assets_id)
-                resource = [
-                                {"hostname": server_assets.ip, "port": server_assets.port,
-                                 "username": server_assets.username, "password": server_assets.passwd}
-                            ]
+                if server_assets.keyfile == 1:resource = [{"hostname": server_assets.ip, "port": int(server_assets.port)}] 
+                else:resource = [{"hostname": server_assets.ip, "port": server_assets.port,"username": server_assets.username, "password": server_assets.passwd}]
             except Exception,e:
                 return  JsonResponse({'msg':"数据更新失败-查询不到该主机资料~","code":502})
             ANS = ANSRunner(resource)

@@ -83,7 +83,7 @@ class ServerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Server_Assets
         fields = ('id','ip','hostname','username','port','passwd',
-                  'line','cpu','cpu_number','vcpu_number',
+                  'line','cpu','cpu_number','vcpu_number','keyfile',
                   'cpu_core','disk_total','ram_total','kernel',
                   'selinux','swap','raid','system','assets') 
 

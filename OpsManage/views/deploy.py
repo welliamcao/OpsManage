@@ -294,10 +294,14 @@ def deploy_run(request,pid):
                 server = Server_Assets.objects.get(ip=ds.server) 
                 hostList.append(ds.server)
                 data = dict()
-                data["hostname"] = server.ip
-                data["port"] = int(server.port)
-                data["username"] = server.username
-                data["password"] = server.passwd
+                if server.keyfile == 1:
+                    data['port'] = int(server.port)
+                    data["hostname"] = server.ip
+                else:
+                    data["hostname"] = server.ip
+                    data["port"] = int(server.port)
+                    data["username"] = server.username
+                    data["password"] = server.passwd
                 resource.append(data)            
             if resource and hostList:
                 if exclude:args = '''src={srcDir} dest={desDir} links=yes recursive=yes compress=yes delete=yes rsync_opts="{exclude}"'''.format(srcDir=softdir, desDir=ds.dir,exclude=exclude)
