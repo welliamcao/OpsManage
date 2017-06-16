@@ -14,7 +14,7 @@ from django.contrib.auth.decorators import permission_required
 from OpsManage.utils.ansible_api_v2 import ANSRunner
 
 @login_required()
-@permission_required('Opsmanage.can_add_cron_config',login_url='/noperm/') 
+@permission_required('OpsManage.can_add_cron_config',login_url='/noperm/') 
 def cron_add(request):
     serverList = Server_Assets.objects.all()
     if request.method == "GET": 
@@ -86,7 +86,7 @@ def cron_add(request):
         return HttpResponseRedirect('/cron_add')
 
 @login_required()
-@permission_required('Opsmanage.can_read_config',login_url='/noperm/') 
+@permission_required('OpsManage.can_read_config',login_url='/noperm/') 
 def cron_list(request):
     cronList = Cron_Config.objects.select_related().all()
     return render_to_response('cron/cron_list.html',{"user":request.user,
@@ -94,7 +94,7 @@ def cron_list(request):
                               context_instance=RequestContext(request)) 
     
 @login_required()
-@permission_required('Opsmanage.can_change_cron_config',login_url='/noperm/') 
+@permission_required('OpsManage.can_change_cron_config',login_url='/noperm/') 
 def cron_mod(request,cid): 
     try:
         cron = Cron_Config.objects.select_related().get(id=cid)
@@ -168,7 +168,7 @@ def cron_mod(request,cid):
         return JsonResponse({'msg':'删除成功',"code":200,'data':[]})       
         
 @login_required()
-@permission_required('Opsmanage.can_add_cron_config',login_url='/noperm/') 
+@permission_required('OpsManage.can_add_cron_config',login_url='/noperm/') 
 def cron_config(request):
     serverList = Server_Assets.objects.all()
     if request.method == "GET": 

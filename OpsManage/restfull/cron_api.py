@@ -11,7 +11,7 @@ from rest_framework.decorators import api_view
 from django.contrib.auth.decorators import permission_required
 
 @api_view(['GET', 'POST' ])
-@permission_required('Opsmanage.can_add_cron_config',raise_exception=True)
+@permission_required('OpsManage.can_add_cron_config',raise_exception=True)
 def cron_list(request,format=None):
     """
     List all order, or create a server assets order.
@@ -28,7 +28,7 @@ def cron_list(request,format=None):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET', 'PUT', 'DELETE'])
-@permission_required('Opsmanage.can_change_cron_config',raise_exception=True)
+@permission_required('OpsManage.can_change_cron_config',raise_exception=True)
 def cron_detail(request, id,format=None):
     """
     Retrieve, update or delete a server assets instance.

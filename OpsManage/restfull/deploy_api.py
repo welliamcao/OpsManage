@@ -14,7 +14,7 @@ from rest_framework import generics
 from django.db.models import Q 
 
 @api_view(['GET', 'POST' ])
-@permission_required('Opsmanage.can_add_project_config',raise_exception=True)
+@permission_required('OpsManage.can_add_project_config',raise_exception=True)
 def deploy_list(request,format=None):
     """
     List all order, or create a server assets order.
@@ -33,7 +33,7 @@ def deploy_list(request,format=None):
 #         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)  
     
 @api_view(['GET', 'PUT', 'DELETE'])
-@permission_required('Opsmanage.can_delete_project_config',raise_exception=True)
+@permission_required('OpsManage.can_delete_project_config',raise_exception=True)
 def deploy_detail(request, id,format=None):
     """
     Retrieve, update or delete a server assets instance.

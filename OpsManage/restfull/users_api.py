@@ -9,7 +9,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import permission_required
 
 @api_view(['GET', 'POST' ])
-@permission_required('Opsmanage.add_user',raise_exception=True)
+@permission_required('OpsManage.add_user',raise_exception=True)
 def user_list(request,format=None):
     """
     List all order, or create a server assets order.
@@ -26,7 +26,7 @@ def user_list(request,format=None):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET', 'PUT', 'DELETE'])
-@permission_required('Opsmanage.change_user',raise_exception=True)
+@permission_required('OpsManage.change_user',raise_exception=True)
 def user_detail(request, id,format=None):
     """
     Retrieve, update or delete a server assets instance.

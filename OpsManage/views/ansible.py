@@ -16,14 +16,14 @@ from OpsManage.tasks import recordAnsibleModel,recordAnsiblePlaybook
 from django.contrib.auth.decorators import permission_required
 
 @login_required()
-@permission_required('Opsmanage.can_read_ansible_playbook',login_url='/noperm/')
+@permission_required('OpsManage.can_read_ansible_playbook',login_url='/noperm/')
 def apps_model(request):
     if request.method == "GET":
         serverList = Server_Assets.objects.all()
         return render_to_response('apps/apps_model.html',{"user":request.user,
                                                             "serverList":serverList},
                                   context_instance=RequestContext(request))
-    elif  request.method == "POST" and request.user.has_perm('Opsmanage.can_change_ansible_playbook'):
+    elif  request.method == "POST" and request.user.has_perm('OpsManage.can_change_ansible_playbook'):
         resource = []
         sList = []
         serverList = request.POST.getlist('ansible_server')
@@ -59,7 +59,7 @@ def ansible_run(request):
         
         
 @login_required()
-@permission_required('Opsmanage.can_add_ansible_playbook',login_url='/noperm/')
+@permission_required('OpsManage.can_add_ansible_playbook',login_url='/noperm/')
 def apps_add(request):
     if request.method == "GET":
         serverList = Server_Assets.objects.all()
@@ -98,7 +98,7 @@ def apps_add(request):
         return HttpResponseRedirect('/apps/playbook/add') 
     
 @login_required()
-@permission_required('Opsmanage.can_read_ansible_playbook',login_url='/noperm/')
+@permission_required('OpsManage.can_read_ansible_playbook',login_url='/noperm/')
 def apps_list(request):
     if request.method == "GET":
         #获取已登录用户的user id跟group id
@@ -118,7 +118,7 @@ def apps_list(request):
                                   context_instance=RequestContext(request))      
 
 @login_required()
-@permission_required('Opsmanage.can_add_ansible_playbook',login_url='/noperm/')
+@permission_required('OpsManage.can_add_ansible_playbook',login_url='/noperm/')
 def apps_playbook_file(request,pid):
     try:
         playbook = Ansible_Playbook.objects.get(id=pid)
@@ -135,7 +135,7 @@ def apps_playbook_file(request,pid):
         else:return JsonResponse({'msg':"剧本不存在，可能已经被删除.","code":500,'data':[]})
              
 @login_required()
-@permission_required('Opsmanage.can_change_ansible_playbook',login_url='/noperm/')
+@permission_required('OpsManage.can_change_ansible_playbook',login_url='/noperm/')
 def apps_playbook_run(request,pid):
     try:
         playbook = Ansible_Playbook.objects.get(id=pid)
@@ -208,7 +208,7 @@ def apps_playbook_run(request,pid):
             return JsonResponse({'msg':"剧本执行失败，{user}正在执行该剧本".format(user=DsRedis.OpsAnsiblePlayBookLock.get(playbook.playbook_uuid+'-locked')),"code":500,'data':[]}) 
         
 @login_required()
-@permission_required('Opsmanage.can_change_ansible_playbook',login_url='/noperm/')
+@permission_required('OpsManage.can_change_ansible_playbook',login_url='/noperm/')
 def apps_playbook_modf(request,pid):
     try:
         playbook = Ansible_Playbook.objects.get(id=pid)

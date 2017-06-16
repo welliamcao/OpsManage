@@ -12,7 +12,7 @@ from OpsManage.tasks import recordAssets
 from django.contrib.auth.decorators import permission_required
 
 @api_view(['GET', 'POST' ])
-@permission_required('Opsmanage.can_add_service_assets',raise_exception=True)
+@permission_required('OpsManage.can_add_service_assets',raise_exception=True)
 def service_list(request,format=None):
     """
     List all order, or create a server assets order.
@@ -30,7 +30,7 @@ def service_list(request,format=None):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET', 'PUT', 'DELETE'])
-@permission_required('Opsmanage.can_change_service_assets',raise_exception=True)
+@permission_required('OpsManage.can_change_service_assets',raise_exception=True)
 def service_detail(request, id,format=None):
     """
     Retrieve, update or delete a server assets instance.
@@ -53,7 +53,7 @@ def service_detail(request, id,format=None):
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
      
-    elif request.method == 'DELETE' and request.user.has_perm('Opsmanage.can_delete_assets'):
+    elif request.method == 'DELETE' and request.user.has_perm('OpsManage.can_delete_assets'):
         if not request.user.has_perm('OpsManage.can_delete_service_assets'):
             return Response(status=status.HTTP_403_FORBIDDEN)
         snippet.delete()
@@ -114,7 +114,7 @@ def group_detail(request, id,format=None):
         return Response(status=status.HTTP_204_NO_CONTENT)     
 
 @api_view(['GET', 'POST' ])
-@permission_required('Opsmanage.can_add_zone_assets',raise_exception=True)
+@permission_required('OpsManage.can_add_zone_assets',raise_exception=True)
 def zone_list(request,format=None):
     """
     List all order, or create a server assets order.
@@ -133,7 +133,7 @@ def zone_list(request,format=None):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET', 'PUT', 'DELETE'])
-@permission_required('Opsmanage.can_change_zone_assets',raise_exception=True)
+@permission_required('OpsManage.can_change_zone_assets',raise_exception=True)
 def zone_detail(request, id,format=None):
     """
     Retrieve, update or delete a server assets instance.
@@ -164,7 +164,7 @@ def zone_detail(request, id,format=None):
         return Response(status=status.HTTP_204_NO_CONTENT)   
     
 @api_view(['GET', 'POST' ])
-@permission_required('Opsmanage.can_add_line_assets',raise_exception=True)
+@permission_required('OpsManage.can_add_line_assets',raise_exception=True)
 def line_list(request,format=None):
     """
     List all order, or create a server assets order.
@@ -182,7 +182,7 @@ def line_list(request,format=None):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET', 'PUT', 'DELETE'])
-@permission_required('Opsmanage.can_change_line_assets',raise_exception=True)
+@permission_required('OpsManage.can_change_line_assets',raise_exception=True)
 def line_detail(request, id,format=None):
     """
     Retrieve, update or delete a server assets instance.
@@ -213,7 +213,7 @@ def line_detail(request, id,format=None):
         return Response(status=status.HTTP_204_NO_CONTENT)  
     
 @api_view(['GET', 'POST' ])
-@permission_required('Opsmanage.can_add_raid_assets',raise_exception=True)
+@permission_required('OpsManage.can_add_raid_assets',raise_exception=True)
 def raid_list(request,format=None):
     """
     List all order, or create a server assets order.
@@ -231,7 +231,7 @@ def raid_list(request,format=None):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET', 'PUT', 'DELETE'])
-@permission_required('Opsmanage.can_change_raid_assets',raise_exception=True)
+@permission_required('OpsManage.can_change_raid_assets',raise_exception=True)
 def raid_detail(request, id,format=None):
     """
     Retrieve, update or delete a server assets instance.
@@ -306,7 +306,7 @@ def raid_detail(request, id,format=None):
            
 
 @api_view(['GET', 'POST' ])
-@permission_required('Opsmanage.can_add_assets',raise_exception=True)
+@permission_required('OpsManage.can_add_assets',raise_exception=True)
 def asset_list(request,format=None):
     """
     List all order, or create a server assets order.
@@ -324,7 +324,7 @@ def asset_list(request,format=None):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)    
     
 @api_view(['GET', 'PUT', 'DELETE'])
-@permission_required('Opsmanage.can_change_assets',raise_exception=True)
+@permission_required('OpsManage.can_change_assets',raise_exception=True)
 def asset_detail(request, id,format=None):
     """
     Retrieve, update or delete a server assets instance.
@@ -355,7 +355,7 @@ def asset_detail(request, id,format=None):
 
 
 @api_view(['GET', 'POST' ])
-@permission_required('Opsmanage.can_add_server_assets',raise_exception=True)
+@permission_required('OpsManage.can_add_server_assets',raise_exception=True)
 def asset_server_list(request,format=None):
     """
     List all order, or create a server assets order.
@@ -378,7 +378,7 @@ def asset_server_list(request,format=None):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST) 
     
 @api_view(['GET', 'PUT', 'DELETE'])
-@permission_required('Opsmanage.can_change_server_assets',raise_exception=True)
+@permission_required('OpsManage.can_change_server_assets',raise_exception=True)
 def asset_server_detail(request, id,format=None):
     """
     Retrieve, update or delete a server assets instance.
@@ -429,7 +429,7 @@ def asset_server_detail(request, id,format=None):
    
     
 @api_view(['GET', 'POST' ])
-@permission_required('Opsmanage.can_add_net_assets',raise_exception=True)
+@permission_required('OpsManage.can_add_net_assets',raise_exception=True)
 def asset_net_list(request,format=None):
     """
     List all order, or create a new net assets.
@@ -452,7 +452,7 @@ def asset_net_list(request,format=None):
     
     
 @api_view(['GET', 'PUT', 'DELETE'])
-@permission_required('Opsmanage.can_change_net_assets',raise_exception=True)
+@permission_required('OpsManage.can_change_net_assets',raise_exception=True)
 def asset_net_detail(request, id,format=None):
     """
     Retrieve, update or delete a net assets instance.

@@ -36,19 +36,20 @@ def getBaseAssets():
             "line":lineList,"raid":raidList}
 
 @login_required(login_url='/login')
+@permission_required('OpsManage.can_read_assets',login_url='/noperm/') 
 def assets_config(request):
     return render_to_response('assets/assets_config.html',{"user":request.user,"baseAssets":getBaseAssets()},
                               context_instance=RequestContext(request))
     
 @login_required(login_url='/login')
-@permission_required('Opsmanage.can_add_assets',login_url='/noperm/') 
+@permission_required('OpsManage.can_add_assets',login_url='/noperm/') 
 def assets_add(request):
     if request.method == "GET":
         return render_to_response('assets/assets_add.html',{"user":request.user,"baseAssets":getBaseAssets()},
                                   context_instance=RequestContext(request))      
     
 @login_required(login_url='/login')
-@permission_required('Opsmanage.can_read_assets',login_url='/noperm/') 
+@permission_required('OpsManage.can_read_assets',login_url='/noperm/') 
 def assets_list(request):
     assetsList = Assets.objects.all().order_by("-id") 
     assetOnline = Assets.objects.filter(status=0).count()
@@ -62,7 +63,7 @@ def assets_list(request):
                               context_instance=RequestContext(request))
 
 @login_required(login_url='/login')
-@permission_required('Opsmanage.can_read_assets',login_url='/noperm/') 
+@permission_required('OpsManage.can_read_assets',login_url='/noperm/') 
 def assets_view(request,aid): 
     try:
         assets = Assets.objects.get(id=aid)
@@ -100,7 +101,7 @@ def assets_view(request,aid):
                             context_instance=RequestContext(request))  
              
 @login_required(login_url='/login')
-@permission_required('Opsmanage.can_change_assets',login_url='/noperm/') 
+@permission_required('OpsManage.can_change_assets',login_url='/noperm/') 
 def assets_modf(request,aid):  
     try:
         assets = Assets.objects.get(id=aid)
@@ -138,7 +139,7 @@ def assets_modf(request,aid):
                             context_instance=RequestContext(request))  
         
 @login_required(login_url='/login')
-@permission_required('Opsmanage.can_change_server_assets',login_url='/noperm/') 
+@permission_required('OpsManage.can_change_server_assets',login_url='/noperm/') 
 def assets_facts(request,args=None):
     if request.method == "POST" and request.user.has_perm('OpsManage.change_server_assets'):
         server_id = request.POST.get('server_id')

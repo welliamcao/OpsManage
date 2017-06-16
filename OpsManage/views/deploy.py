@@ -19,7 +19,7 @@ from OpsManage.tasks import recordProject,sendEmail
 from django.contrib.auth.decorators import permission_required
 
 @login_required()
-@permission_required('Opsmanage.can_add_project_config',login_url='/noperm/')
+@permission_required('OpsManage.can_add_project_config',login_url='/noperm/')
 def deploy_add(request):
     if request.method == "GET":
         serverList = Server_Assets.objects.all()
@@ -73,7 +73,7 @@ def deploy_add(request):
         return HttpResponseRedirect('/deploy_add') 
     
 @login_required()
-@permission_required('Opsmanage.can_change_project_config',login_url='/noperm/')
+@permission_required('OpsManage.can_change_project_config',login_url='/noperm/')
 def deploy_modf(request,pid): 
     try:
         project = Project_Config.objects.select_related().get(id=pid)
@@ -143,7 +143,7 @@ def deploy_modf(request,pid):
         return HttpResponseRedirect('/deploy_mod/{id}/'.format(id=pid))          
         
 @login_required()
-@permission_required('Opsmanage.can_read_project_config',login_url='/noperm/')
+@permission_required('OpsManage.can_read_project_config',login_url='/noperm/')
 def deploy_list(request):
     deployList = Project_Config.objects.all()
     for ds in deployList:
@@ -157,7 +157,7 @@ def deploy_list(request):
                               context_instance=RequestContext(request))  
     
 @login_required()
-@permission_required('Opsmanage.can_change_project_config',login_url='/noperm/')
+@permission_required('OpsManage.can_change_project_config',login_url='/noperm/')
 def deploy_init(request,pid):      
     if request.method == "POST": 
         project = Project_Config.objects.select_related().get(id=pid)
@@ -350,7 +350,7 @@ def deploy_result(request,pid):
         else:return JsonResponse({'msg':None,"code":200,'data':[]})
         
 @login_required()
-@permission_required('Opsmanage.can_add_project_order',login_url='/noperm/')
+@permission_required('OpsManage.can_add_project_order',login_url='/noperm/')
 def deploy_ask(request,pid):
     try:
         project = Project_Config.objects.get(id=pid)
@@ -413,7 +413,7 @@ def deploy_order(request):
                                                               "authOrder":authOrder,"rejectOrder":rejectOrder,
                                                               "deploy_nmuber":deploy_nmuber,"deploy_project":deploy_project},
                                   context_instance=RequestContext(request)) 
-    elif request.method == "POST" and request.user.has_perm('Opsmanage.can_add_project_order'):  
+    elif request.method == "POST" and request.user.has_perm('OpsManage.can_add_project_order'):  
         if request.POST.get('model') in ['disable','auth','finish']:
             try:     
                 Project_Order.objects.filter(id=request.POST.get('id')).update(
@@ -447,7 +447,7 @@ def deploy_order_status(request,pid):
     
     
 @login_required()
-@permission_required('Opsmanage.can_add_project_order',login_url='/noperm/')
+@permission_required('OpsManage.can_add_project_order',login_url='/noperm/')
 def deploy_order_rollback(request,pid):
     if request.method == "GET":
         order= Project_Order.objects.get(id=pid)

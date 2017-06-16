@@ -104,7 +104,7 @@ def noperm(request):
     return render_to_response('noperm.html',{"user":request.user},context_instance=RequestContext(request)) 
 
 @login_required(login_url='/login')
-@permission_required('Opsmanage.can_change_global_config',login_url='/noperm/')
+@permission_required('OpsManage.can_change_global_config',login_url='/noperm/')
 def config(request):
     if request.method == "GET":
         try: 
