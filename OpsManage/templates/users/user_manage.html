@@ -97,19 +97,12 @@
 																		<ul class="dropdown-menu">
 																				<li>
 																					{% if ds.is_active %}
-																						<a href="javascript:" onclick="onBtnHandleUser(this,{{ ds.id}},'{{ ds.username }}',0,'active')">取消激活</a>
+																						<a href="javascript:" onclick="onBtnHandleUser(this,{{ ds.id}},'{{ ds.username }}',0,'inactive')">取消激活</a>
 																					{% else %}
 																						<a href="javascript:" onclick="onBtnHandleUser(this,{{ ds.id}},'{{ ds.username }}',1,'active')">激活用户</a>
 																					{% endif %}
 																				</li>													
 																				<li class="divider"></li>					
-																				<li>
-																					{% if ds.is_superuser %}
-																						<a href="javascript:" onclick="onBtnHandleUser(this,{{ ds.id}},'{{ ds.username }}',0,'superuser')">取消超管权限</a>
-																					{% else %}
-																						<a href="javascript:" onclick="onBtnHandleUser(this,{{ ds.id}},'{{ ds.username }}',1,'superuser')">激活超管权限</a>
-																					{% endif %}
-																				</li>
 																				<li>
 																					<a href="javascript:" onclick="onBtnHandleUser(this,{{ ds.id}},'{{ ds.username }}',0,'delete')">删除用户</a>
 																				</li>														
@@ -510,7 +503,6 @@
 							  url: '/api/user/'+id+'/',
 							  data:post_data,
 						      success:function(response){			            
- 
 					               window.wxc.xcConfirm("用户资料更新成功", window.wxc.xcConfirm.typeEnum.success);
 					                
 							},

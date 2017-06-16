@@ -42,7 +42,7 @@
 													{% endif %}
 													 <div class="col-sm-6">
 														<select class="form-control"  name="is_superuser">
-															{% if user_info.is_superuser %}
+															{% if user_info.is_superuser == 1 %}
 																<option selected="selected" value="1">是</option>
 																<option value="0">否</option>																			
 															{% else %}
@@ -91,7 +91,7 @@
 													 <label class="col-sm-2 control-label"><i class="fa fa-terminal"></i> 激活状态</label>
 													 <div class="col-sm-6">
 														<select class="form-control" name="is_active">
-															{% if user.is_active == 0 %}
+															{% if user_info.is_active == 0 %}
 																<option selected="selected" value="0">未激活</option>
 																<option value="1">已激活</option>																			
 															{% else %}

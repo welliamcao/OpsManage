@@ -87,12 +87,13 @@ def user(request,uid):
     elif request.method == "POST":
         try:
             user = User.objects.get(id=uid)
+            print  uid,request.POST.get('is_superuser',0)
             User.objects.filter(id=uid).update(
                                             is_active = request.POST.get('is_active'),
-                                            is_superuser = request.POST.get('is_superuser'),  
+                                            is_superuser = int(request.POST.get('is_superuser')),
                                             email = request.POST.get('email'), 
                                             username = request.POST.get('username')
-                                            )            
+                                            )          
             #如果权限key不存在就单做清除权限
             if request.POST.getlist('perms') is None:user.user_permissions.clear()
             else:
