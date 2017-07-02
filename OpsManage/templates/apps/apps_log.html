@@ -39,11 +39,14 @@
 				                                        <th class="text-center">模块参数</th>
 				                                        <th class="text-center">服务器</th>
 				                                        <th class="text-center">操作时间</th>
+				                                        {% if perms.can_delete_log_ansible_model %}
+				                                        	<th class="text-center">操作</th>
+				                                        {% endif %}					                                        
 				                                    </tr>
 				                                </thead>
 				                                <tbody>
 				                                	{% for ds in modelList %}
-				                                		<tr class="odd gradeX">
+				                                		<tr class="odd gradeX" id="modelLogs-{{ds.id}}">
 				                                			<td class="text-center">
 				                                				 {{ forloop.counter }}
 				                                			</td>
@@ -51,7 +54,22 @@
 				                                			<td class="text-center">{{ds.ans_model}} </td>
 				                                			<td class="text-center">{{ds.ans_args}} </td>
 				                                			<td class="text-center">{{ds.ans_server}} </td>
-				                                			<td class="text-center">{{ds.create_time|date:"Y/m/d H:i  "}} </td>
+				                                			<td class="text-center">{{ds.create_time|date:"Y/m/d H:i  "}} </td>				                                			
+					                                		<td class="text-center">
+																<a href="javascript:" onclick="getAnsibleResult(this,'model',{{ds.id}})">
+							                                		<button class="btn btn-primary btn-xs"  data-toggle="modal" data-target="#myAnsibleModelModal">					                                					
+																		<i class="glyphicon glyphicon-zoom-in  bigger-110 icon-only"></i>
+																	</button>
+																</a>					                                		
+					                                			{% if perms.can_delete_log_ansible_model %}
+						                                			<a href="javascript:" onclick="deleteAnsibleModelLogs(this,{{ds.id}})">
+							                                			<button class="btn btn-danger btn-xs">					                                					
+																			<i class="glyphicon glyphicon-trash  bigger-110 icon-only"></i>
+																		</button>
+																	</a>
+																{% endif %}	
+															</td>
+																			                                			
 				                                		</tr>
 				                                	{% endfor %}
 				                                </tbody>
@@ -72,19 +90,41 @@
 				                                        <th class="text-center">剧本内容</th>
 				                                        <th class="text-center">服务器</th>
 				                                        <th class="text-center">操作时间</th>
+				                                        {% if perms.delete_log_ansible_playbook %}
+				                                        	<th class="text-center">操作</th>
+				                                        {% endif %}					                                        
 				                                    </tr>
 				                                </thead>
 				                                <tbody>
 				                                	{% for ds in playbookList %}
-				                                		<tr class="odd gradeX">
+				                                		<tr class="odd gradeX" id="playbookLogs-{{ds.id}}">
 				                                			<td class="text-center">
-				                                				 <a href="/apps/playbook/modf/{{ds.cron_id}}/">{{ds.ans_id}}</a>
+				                                				 {{ds.id}}
 				                                			</td>
 				                                			<td class="text-center">{{ds.ans_user}} </td>
-				                                			<td class="text-center">{{ds.ans_name}} </td>
+				                                			<td class="text-center">
+				                                				<a href="/apps/playbook/modf/{{ds.ans_id}}/">
+				                                					{{ds.ans_name}}
+				                                				</a>
+				                                			</td>
 				                                			<td class="text-center">{{ds.ans_content}} </td>
 				                                			<td class="text-center">{{ds.ans_server}} </td>
-				                                			<td class="text-center">{{ds.create_time|date:"Y/m/d H:i  "}} </td>
+				                                			<td class="text-center">{{ds.create_time|date:"Y/m/d H:i  "}}
+				                                			</td>
+				                                			<td class="text-center">
+																<a href="javascript:" onclick="getAnsibleResult(this,'playbook',{{ds.id}})">
+							                                		<button class="btn btn-primary btn-xs"  data-toggle="modal" data-target="#myAnsibleModelModal">					                                					
+																		<i class="glyphicon glyphicon-zoom-in  bigger-110 icon-only"></i>
+																	</button>
+																</a>				                                							                                			
+					                                			{% if perms.delete_log_ansible_playbook %}
+					                                				<a href="javascript:" onclick="deleteAnsiblePlaybookLogs(this,{{ds.id}})">
+						                                				<button class="btn btn-danger btn-xs">					                                					
+																			<i class="glyphicon glyphicon-trash  bigger-110 icon-only"></i>
+																		</button>
+																	</a>
+																{% endif %}	
+															</td>				                                			
 				                                		</tr>
 				                                	{% endfor %}
 				                                </tbody>
@@ -103,7 +143,35 @@
                     <!-- /.panel -->
                 </div>
                 <!-- /.col-lg-12 -->
-            </div>    
+            </div>   
+            
+            
+            <!-- 模态框（Modal） -->
+			<div class="modal fade" id="myAnsibleModelModal" tabindex="-1" role="dialog" aria-labelledby="myAnsibleModelModalLabel" aria-hidden="true">
+				<div class="modal-dialog" style="width:1280px;height:auto;">
+					<div class="modal-content">
+						<div class="modal-header">
+							<button type="button" class="close" data-dismiss="modal" 
+									aria-hidden="true">×
+							</button>
+							<h4 class="modal-title" id="myAnsibleModelModalLabel">
+								执行结果
+							</h4>
+						</div>
+						<div class="modal-body">
+							<pre>
+								<div id="ansible_task_result">
+								</div>
+							</pre>
+						</div>
+						<div class="modal-footer">
+							<button type="button" class="btn btn-default" 
+									data-dismiss="modal">关闭
+							</button>
+						</div>
+					</div><!-- /.modal-content -->
+				</div><!-- /.modal-dialog -->
+			</div><!-- /.modal --> 
 </div>
 
 
@@ -121,7 +189,42 @@
 		    });
 		});
 				
-  
+		function deleteAnsibleModelLogs(obj,id) {
+			$.ajax({
+				dataType: "JSON",
+				url:'/api/logs/ansible/model/'+ id +'/', //请求地址
+				type:"DELETE",  //提交类似
+				success:function(response){
+					var str= 'modelLogs-' + id
+					document.getElementById(str).innerHTML = ''; 
+				}					
+			})					
+		}	
+
+		function deleteAnsiblePlaybookLogs(obj,id) {
+			$.ajax({
+				dataType: "JSON",
+				url:'/api/logs/ansible/playbook/'+ id +'/', //请求地址
+				type:"DELETE",  //提交类似
+				success:function(response){
+					var str= 'playbookLogs-' + id
+					document.getElementById(str).innerHTML = ''; 
+				}					
+			})					
+		}
+		
+		
+		function getAnsibleResult(obj,model,id) {
+			$.ajax({
+				dataType: "JSON",
+				url:'/apps/log/'+ model + '/'+ id +'/', //请求地址
+				type:"POST",  //提交类似
+				success:function(response){
+					$("#ansible_task_result").html(response["data"]); 
+				}					
+			})					
+		}		
+		
 </script>
 
 {% endblock %}

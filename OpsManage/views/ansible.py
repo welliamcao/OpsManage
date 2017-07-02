@@ -8,11 +8,12 @@ from django.contrib.auth.decorators import login_required
 from OpsManage.models import Server_Assets
 from OpsManage.data.DsRedisOps import DsRedis
 from OpsManage.utils.ansible_api_v2 import ANSRunner
-from OpsManage.utils import base
 from django.contrib.auth.models import User,Group
 from OpsManage.models import (Ansible_Playbook,Ansible_Playbook_Number,
-                              Log_Ansible_Model,Log_Ansible_Playbook)
-from OpsManage.tasks import recordAnsibleModel,recordAnsiblePlaybook
+                              Log_Ansible_Model,Log_Ansible_Playbook,
+                              Ansible_CallBack_Model_Result,
+                              Ansible_CallBack_PlayBook_Result)
+from OpsManage.data.DsMySQL import AnsibleRecord
 from django.contrib.auth.decorators import permission_required
 
 @login_required()
@@ -20,7 +21,7 @@ from django.contrib.auth.decorators import permission_required
 def apps_model(request):
     if request.method == "GET":
         serverList = Server_Assets.objects.all()
-        return render_to_response('apps/apps_model.html',{"user":request.user,
+        return render_to_response('apps/apps_model.html',{"user":request.user,"ans_uuid":uuid.uuid4(),
                                                             "serverList":serverList},
                                   context_instance=RequestContext(request))
     elif  request.method == "POST" and request.user.has_perm('OpsManage.can_change_ansible_playbook'):
@@ -34,26 +35,22 @@ def apps_model(request):
             else:resource.append({"hostname": server_assets.ip, "port": int(server_assets.port),"username": server_assets.username,"password": server_assets.passwd})
         if len(request.POST.get('custom_model')) > 0:model_name = request.POST.get('custom_model')
         else:model_name = request.POST.get('ansible_model',None)
-        redisKey = base.makeToken(strs=str(request.user)+"ansible_model")
+        redisKey = request.POST.get('ans_uuid')
+        #操作日志异步记录      
+#         redisKey = base.makeToken(strs=str(request.user)+"ansible_model")
+        logId = AnsibleRecord.Model.insert(user=str(request.user),ans_model=model_name,ans_server=','.join(sList),ans_args=request.POST.get('ansible_agrs',None))
         DsRedis.OpsAnsibleModel.delete(redisKey)
         DsRedis.OpsAnsibleModel.lpush(redisKey, "[Start] Ansible Model: {model}  ARGS:{args}".format(model=model_name,args=request.POST.get('ansible_agrs',"None")))
-        ANS = ANSRunner(resource,redisKey)
+        ANS = ANSRunner(resource,redisKey,logId)
         ANS.run_model(host_list=sList,module_name=model_name,module_args=request.POST.get('ansible_agrs',""))
         DsRedis.OpsAnsibleModel.lpush(redisKey, "[Done] Ansible Done.")
-        #操作日志异步记录
-        recordAnsibleModel.delay(user=str(request.user),ans_model=model_name,ans_server=','.join(sList),ans_args=request.POST.get('ansible_agrs',None))
         return JsonResponse({'msg':"操作成功","code":200,'data':[]})
     
 @login_required()
 def ansible_run(request):
     if request.method == "POST":
-        if request.POST.get('model') == 'model':
-            strs = str(request.user)+"ansible_model"
-            redisKey = base.makeToken(strs)
-            msg = DsRedis.OpsAnsibleModel.rpop(redisKey)
-        elif request.POST.get('model') == 'playbook':
-            redisKey = request.POST.get('playbook_uuid')
-            msg = DsRedis.OpsAnsiblePlayBook.rpop(redisKey)
+        redisKey = request.POST.get('ans_uuid')          
+        msg = DsRedis.OpsAnsibleModel.rpop(redisKey)
         if msg:return JsonResponse({'msg':msg,"code":200,'data':[]}) 
         else:return JsonResponse({'msg':None,"code":200,'data':[]})
         
@@ -94,7 +91,8 @@ def apps_add(request):
                 return render_to_response('apps/apps_playbook_config.html',{"user":request.user,"errorInfo":"目标服务器信息添加错误：%s" % str(e)},
                                           context_instance=RequestContext(request)) 
         #操作日志异步记录
-        recordAnsiblePlaybook.delay(user=str(request.user),ans_id=playbook.id,ans_name=playbook.playbook_name,ans_content="添加Ansible剧本",ans_server=','.join(sList))
+#         recordAnsiblePlaybook.delay(user=str(request.user),ans_id=playbook.id,ans_name=playbook.playbook_name,ans_content="添加Ansible剧本",ans_server=','.join(sList))
+        AnsibleRecord.PlayBook.insert(user=str(request.user),ans_id=playbook.id,ans_name=playbook.playbook_name,ans_content="添加Ansible剧本",ans_server=','.join(sList))
         return HttpResponseRedirect('/apps/playbook/add') 
     
 @login_required()
@@ -143,7 +141,7 @@ def apps_playbook_run(request,pid):
         if numberList:serverList = []
         else:serverList = Server_Assets.objects.all()
     except:
-        return render_to_response('apps/apps_playbook.html',{"user":request.user,
+        return render_to_response('apps/apps_playbook.html',{"user":request.user,"ans_uuid":playbook.playbook_uuid,
                                                          "errorInfo":"剧本不存在，可能已经被删除."}, 
                                   context_instance=RequestContext(request))     
     if request.method == "GET":
@@ -155,7 +153,7 @@ def apps_playbook_run(request,pid):
             #加上剧本执行锁
             DsRedis.OpsAnsiblePlayBookLock.set(redisKey=playbook.playbook_uuid+'-locked',value=request.user)
             #删除旧的执行消息
-            DsRedis.OpsAnsiblePlayBook.delete(playbook.playbook_uuid)
+            DsRedis.OpsAnsiblePlayBook.delete(playbook.playbook_uuid)            
             playbook_file = os.getcwd() + '/' + str(playbook.playbook_file)
             sList = []
             resource = []
@@ -175,8 +173,11 @@ def apps_playbook_run(request,pid):
             except Exception,e:
                 DsRedis.OpsAnsiblePlayBookLock.delete(redisKey=playbook.playbook_uuid+'-locked')
                 return JsonResponse({'msg':"剧本外部变量不是Json格式","code":500,'data':[]})
+            logId = AnsibleRecord.PlayBook.insert(user=str(request.user),ans_id=playbook.id,ans_name=playbook.playbook_name,
+                                        ans_content="执行Ansible剧本",ans_server=','.join(sList))   
+            print      logId    
             #执行ansible playbook
-            ANS = ANSRunner(resource,redisKey=playbook.playbook_uuid)
+            ANS = ANSRunner(resource,redisKey=playbook.playbook_uuid,logId=logId)
             ANS.run_playbook(host_list=sList, playbook_path=playbook_file,extra_vars=playbook_vars)
             #获取结果
             result = ANS.get_playbook_result()
@@ -202,7 +203,8 @@ def apps_playbook_run(request,pid):
             #切换版本之后取消项目部署锁
             DsRedis.OpsAnsiblePlayBookLock.delete(redisKey=playbook.playbook_uuid+'-locked') 
             #操作日志异步记录
-            recordAnsiblePlaybook.delay(user=str(request.user),ans_id=playbook.id,ans_name=playbook.playbook_name,ans_content="执行Ansible剧本",ans_server=','.join(sList))                         
+#             recordAnsiblePlaybook.delay(user=str(request.user),ans_id=playbook.id,ans_name=playbook.playbook_name,
+#                                         ans_content="执行Ansible剧本",uuid=playbook.playbook_uuid,ans_server=','.join(sList))
             return JsonResponse({'msg':"操作成功","code":200,'data':dataList,"statPer":statPer})        
         else:
             return JsonResponse({'msg':"剧本执行失败，{user}正在执行该剧本".format(user=DsRedis.OpsAnsiblePlayBookLock.get(playbook.playbook_uuid+'-locked')),"code":500,'data':[]}) 
@@ -261,9 +263,8 @@ def apps_playbook_modf(request,pid):
                 Ansible_Playbook_Number.objects.filter(playbook=playbook,server=ip).delete()  
         else:
             for server in numberList:
-                Ansible_Playbook_Number.objects.filter(playbook=playbook,playbook_server=server.playbook_server).delete()   
-        #操作日志异步记录
-        recordAnsiblePlaybook.delay(user=str(request.user),ans_id=playbook.id,ans_name=playbook.playbook_name,ans_content="修改Ansible剧本",ans_server=None)                                            
+                Ansible_Playbook_Number.objects.filter(playbook=playbook,playbook_server=server.playbook_server).delete()               
+        AnsibleRecord.PlayBook.insert(user=str(request.user),ans_id=playbook.id,ans_name=playbook.playbook_name,ans_content="修改Ansible剧本",ans_server=None)                             
         return HttpResponseRedirect('/apps/playbook/modf/{id}/'.format(id=pid)) 
     
 @login_required(login_url='/login')  
@@ -274,3 +275,26 @@ def ansible_log(request):
         return render_to_response('apps/apps_log.html',{"user":request.user,"modelList":modelList,
                                                             "playbookList":playbookList},
                                   context_instance=RequestContext(request))
+        
+@login_required(login_url='/login')  
+def ansible_log_view(request,model,id):
+    if request.method == "POST":
+        if model == 'model':
+            try:
+                result = ''
+                logId = Log_Ansible_Model.objects.get(id=id)
+                for ds in Ansible_CallBack_Model_Result.objects.filter(logId=logId):
+                    result += ds.content
+                    result += '\n'
+            except Exception,e:
+                return JsonResponse({'msg':"查看失败","code":500,'data':e})
+        elif model == 'playbook':
+            try:
+                result = ''
+                logId = Log_Ansible_Playbook.objects.get(id=id)
+                for ds in Ansible_CallBack_PlayBook_Result.objects.filter(logId=logId):
+                    result += ds.content
+                    result += '\n'                
+            except Exception,e:
+                return JsonResponse({'msg':"查看失败","code":500,'data':e})               
+        return JsonResponse({'msg':"操作成功","code":200,'data':result})

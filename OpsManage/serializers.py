@@ -58,10 +58,14 @@ class AssetsSerializer(serializers.ModelSerializer):
                   'buy_user','management_ip','manufacturer','provider',
                   'model','status','put_zone','group','business')  
 
+class AssetsLogsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Log_Assets
+        fields = ('id','assets_id','assets_user','assets_content','assets_type','create_time') 
         
 
 class ProjectConfigSerializer(serializers.ModelSerializer): 
-    project_number = serializers.StringRelatedField(many=True)#ProjectNumberSerializer(required=False)
+    project_number = serializers.StringRelatedField(many=True)
     class Meta:
         model = Project_Config
         fields = ('id','project_env','project_name','project_local_command',
@@ -69,13 +73,37 @@ class ProjectConfigSerializer(serializers.ModelSerializer):
                   'project_address','project_repertory','project_status',
                   'project_remote_command','project_number')   
 
+class DeployLogsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Log_Project_Config
+        fields = ('id','project_id','project_user','project_name',
+                  'project_content','project_branch','create_time') 
+
 class AnbiblePlaybookSerializer(serializers.ModelSerializer): 
-    server_number = serializers.StringRelatedField(many=True)#ProjectNumberSerializer(required=False)
+    server_number = serializers.StringRelatedField(many=True)
     class Meta:
         model =  Ansible_Playbook
         fields = ('id','playbook_name','playbook_desc','playbook_vars',
                   'playbook_uuid','playbook_file','playbook_auth_group',
                   'playbook_auth_user','server_number')   
+        
+class AnsibleModelLogsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Log_Ansible_Model
+        fields = ('id','ans_user','ans_model','ans_args',
+                  'ans_server','create_time') 
+        
+class AnsiblePlaybookLogsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Log_Ansible_Playbook
+        fields = ('id','ans_user','ans_name','ans_content','ans_id',
+                  'ans_server','ans_content','create_time') 
+
+class CronLogsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Log_Cron_Config
+        fields = ('id','cron_id','cron_user','cron_name','cron_content',
+                  'cron_server','create_time') 
 
 class ServerSerializer(serializers.ModelSerializer): 
     assets = AssetsSerializer(required=False)

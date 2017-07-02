@@ -37,6 +37,7 @@
 															 <label class="col-sm-2 control-label">剧本名称</label>
 															 <div class="col-sm-6">											
 																<input  type="text"   class="form-control" placeholder="输入模块"  value="{{playbook.playbook_name}}" disabled>
+																<input  type="hidden"   class="form-control" name="ans_uuid" value="{{playbook.playbook_uuid}}">
 															</div>
 														</div> 																								
 														<div class="form-group">
@@ -176,6 +177,7 @@
 		$("#playbook_vars").text(JSON.stringify(songResJson,null,2)); 
 	{% endif %}
 	
+	
 	function getAnsiblePlayBookFile(obj,id) {
 		var btnObj = $(obj);
 		$.ajax({
@@ -238,7 +240,7 @@
 		    	}	            
 	        });  
 	    },1000); 
-		
+// 	   document.getElementById("ans_uuid").value = uuid();
 // 	    /* 轮训获取结果结束  */
 		$.ajax({
 			url:'/apps/playbook/run/'+ {{playbook.id}} +'/', //请求地址

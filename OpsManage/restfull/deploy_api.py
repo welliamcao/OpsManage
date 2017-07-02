@@ -46,13 +46,6 @@ def deploy_detail(request, id,format=None):
     if request.method == 'GET':
         serializer = ProjectConfigSerializer(snippet)
         return Response(serializer.data)
- 
-#     elif request.method == 'PUT':
-#         serializer = ProjectConfigSerializer(snippet, data=request.data)
-#         if serializer.is_valid():
-#             serializer.save()
-#             return Response(serializer.data)
-#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
      
     elif request.method == 'DELETE':
         if not request.user.has_perm('OpsManage.delete_project_config'):
@@ -60,6 +53,27 @@ def deploy_detail(request, id,format=None):
         recordProject.delay(project_user=str(request.user),project_id=id,project_name=snippet.project_name,project_content="删除项目")
         snippet.delete()
         return Response(status=status.HTTP_204_NO_CONTENT) 
+    
+@api_view(['GET', 'DELETE'])
+@permission_required('OpsManage.delete_log_project_config',raise_exception=True)
+def deployLogs_detail(request, id,format=None):
+    """
+    Retrieve, update or delete a server assets instance.
+    """
+    try:
+        snippet = Log_Project_Config.objects.get(id=id)
+    except Log_Project_Config.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+ 
+    if request.method == 'GET':
+        serializer = DeployLogsSerializer(snippet)
+        return Response(serializer.data)
+     
+    elif request.method == 'DELETE':
+        if not request.user.has_perm('OpsManage.delete_log_project_config'):
+            return Response(status=status.HTTP_403_FORBIDDEN)
+        snippet.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)     
     
 class OrderList(generics.ListAPIView):
     serializer_class = DeployOrderSerializer 

@@ -42,16 +42,51 @@ def playbook_detail(request, id,format=None):
     if request.method == 'GET':
         serializer = AnbiblePlaybookSerializer(snippet)
         return Response(serializer.data)
- 
-#     elif request.method == 'PUT':
-#         serializer = ProjectConfigSerializer(snippet, data=request.data)
-#         if serializer.is_valid():
-#             serializer.save()
-#             return Response(serializer.data)
-#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
      
     elif request.method == 'DELETE':
         if not request.user.has_perm('OpsManage.can_delete_ansible_playbook'):
+            return Response(status=status.HTTP_403_FORBIDDEN)
+        snippet.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT) 
+    
+@api_view(['GET', 'PUT', 'DELETE'])
+@permission_required('OpsManage.can_delete_log_ansible_model',raise_exception=True)
+def modelLogsdetail(request, id,format=None):
+    """
+    Retrieve, update or delete a server assets instance.
+    """
+    try:
+        snippet = Log_Ansible_Model.objects.get(id=id)
+    except Log_Ansible_Model.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+ 
+    if request.method == 'GET':
+        serializer = AnsibleModelLogsSerializer(snippet)
+        return Response(serializer.data)
+     
+    elif request.method == 'DELETE':
+        if not request.user.has_perm('OpsManage.can_delete_log_ansible_model'):
+            return Response(status=status.HTTP_403_FORBIDDEN)
+        snippet.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT) 
+    
+@api_view(['GET', 'PUT', 'DELETE'])
+@permission_required('OpsManage.delete_log_ansible_playbook',raise_exception=True)
+def playbookLogsdetail(request, id,format=None):
+    """
+    Retrieve, update or delete a server assets instance.
+    """
+    try:
+        snippet = Log_Ansible_Playbook.objects.get(id=id)
+    except Log_Ansible_Playbook.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+ 
+    if request.method == 'GET':
+        serializer = AnsiblePlaybookLogsSerializer(snippet)
+        return Response(serializer.data)
+     
+    elif request.method == 'DELETE':
+        if not request.user.has_perm('OpsManage.delete_log_ansible_playbook'):
             return Response(status=status.HTTP_403_FORBIDDEN)
         snippet.delete()
         return Response(status=status.HTTP_204_NO_CONTENT) 

@@ -235,19 +235,7 @@ class Log_Assets(models.Model):
         db_table = 'opsmanage_log_assets'
         verbose_name = '项目配置操作记录表'  
         verbose_name_plural = '项目配置操作记录表' 
- 
-# class Assets_Satus(models.Model):   
-#     status_name = models.CharField(max_length=100,unique=True)    
-#     '''自定义权限'''
-#     class Meta:
-#         permissions = (
-#             ("can_read_assets_status", "读取资产状态权限"),
-#             ("can_change_assets_status", "更改资产状态权限"),
-#             ("can_add_assets_status", "添加资产状态权限"),
-#             ("can_delete_assets_status", "删除资产状态权限"),              
-#         )
-#         verbose_name = '资产状态'  
-#         verbose_name_plural = '资产状态'         
+         
 
 class Project_Config(models.Model):  
     project_repertory_choices = (
@@ -498,3 +486,11 @@ class Server_Command_Record(models.Model):
         )
         verbose_name = '服务器操作日志表'  
         verbose_name_plural = '服务器操作日志表' 
+        
+class Ansible_CallBack_Model_Result(models.Model):
+    logId = models.ForeignKey('Log_Ansible_Model')
+    content = models.TextField(verbose_name='输出内容',blank=True,null=True)
+    
+class Ansible_CallBack_PlayBook_Result(models.Model):
+    logId = models.ForeignKey('Log_Ansible_Playbook')
+    content = models.TextField(verbose_name='输出内容',blank=True,null=True)

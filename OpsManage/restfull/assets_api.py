@@ -59,6 +59,27 @@ def service_detail(request, id,format=None):
         snippet.delete()
         recordAssets.delay(user=str(request.user),content="删除业务类型：{service_name}".format(service_name=snippet.service_name),type="service",id=id)
         return Response(status=status.HTTP_204_NO_CONTENT)   
+  
+@api_view(['GET', 'DELETE'])
+@permission_required('OpsManage.read_log_assets',raise_exception=True)
+def assetsLog_detail(request, id,format=None):
+    """
+    Retrieve, update or delete a server assets instance.
+    """    
+    try:
+        snippet = Log_Assets.objects.get(id=id)
+    except Log_Assets.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+ 
+    if request.method == 'GET':
+        serializer = AssetsLogsSerializer(snippet)
+        return Response(serializer.data)
+     
+    elif request.method == 'DELETE' and request.user.has_perm('OpsManage.delete_log_assets'):
+        if not request.user.has_perm('OpsManage.delete_log_assets'):
+            return Response(status=status.HTTP_403_FORBIDDEN)
+        snippet.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)    
     
 @api_view(['GET', 'POST' ])
 @permission_required('Opsmanage.add_group',raise_exception=True)

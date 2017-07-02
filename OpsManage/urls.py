@@ -58,6 +58,7 @@ urlpatterns = [
     url(r'^apps/model/$',ansible.apps_model),
     url(r'^apps/run/$',ansible.ansible_run),
     url(r'^apps/log/$',ansible.ansible_log),
+    url(r'^apps/log/(?P<model>[a-z]+)/(?P<id>[0-9]+)/$',ansible.ansible_log_view),
     url(r'^apps/playbook/add/$',ansible.apps_add),
     url(r'^apps/playbook/file/(?P<pid>[0-9]+)/$',ansible.apps_playbook_file),  
     url(r'^apps/playbook/run/(?P<pid>[0-9]+)/$',ansible.apps_playbook_run),    
@@ -92,6 +93,11 @@ urlpatterns = [
     url(r'^api/playbook/$', ansible_api.playbook_list),  
     url(r'^api/playbook/(?P<id>[0-9]+)/$', ansible_api.playbook_detail),
     url('^api/order/(?P<username>.+)/$', deploy_api.OrderList.as_view()),
+    url('^api/logs/assets/(?P<id>[0-9]+)/$', assets_api.assetsLog_detail),
+    url('^api/logs/cron/(?P<id>[0-9]+)/$', cron_api.cronLogsdetail),
+    url('^api/logs/ansible/model/(?P<id>[0-9]+)/$', ansible_api.modelLogsdetail),
+    url('^api/logs/ansible/playbook/(?P<id>[0-9]+)/$', ansible_api.playbookLogsdetail),
+    url('^api/logs/deploy/(?P<id>[0-9]+)/$', deploy_api.deployLogs_detail),
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)

@@ -23,19 +23,19 @@ def recordAssets(user,content,type,id=None):
     try:
         config = Global_Config.objects.get(id=1)
         if config.assets == 1:
-            Log_Assets.objects.create(
+            logs = Log_Assets.objects.create(
                                       assets_id = id,
                                       assets_user = user,
                                       assets_content = content,
                                       assets_type = type
                                       )
-        return True
+        return logs.id
     except Exception,e:
         print e
         return False
 
 @task  
-def recordAnsibleModel(user,ans_model,ans_server,ans_args=None):
+def recordAnsibleModel(user,ans_model,ans_server,uuid,ans_args=None):
     try:
         config = Global_Config.objects.get(id=1)
         if config.ansible_model == 1:
@@ -43,15 +43,15 @@ def recordAnsibleModel(user,ans_model,ans_server,ans_args=None):
                                       ans_user = user,
                                       ans_server = ans_server,
                                       ans_args = ans_args,
-                                      ans_model = ans_model
+                                      ans_model = ans_model,
+                                      ans_uuid = uuid
                                       )
-        return True
+            return True
     except Exception,e:
-        print e
         return False
     
 @task  
-def recordAnsiblePlaybook(user,ans_id,ans_name,ans_content,ans_server=None):
+def recordAnsiblePlaybook(user,ans_id,ans_name,ans_content,uuid=None,ans_server=None):
     try:
         config = Global_Config.objects.get(id=1)
         if config.ansible_playbook == 1:
@@ -61,6 +61,7 @@ def recordAnsiblePlaybook(user,ans_id,ans_name,ans_content,ans_server=None):
                                       ans_name = ans_name,
                                       ans_id = ans_id,
                                       ans_content = ans_content,
+                                      ans_uuid = uuid
                                       )
         return True
     except Exception,e:

@@ -35,11 +35,14 @@
 				                                    	<th class="text-center">操作内容</th>
 				                                    	<th class="text-center">操作用户</th>
 														<th class="text-center">操作时间</th>
+				                                        {% if perms.opsmanage_log_project_config.delete_log_project_config %}
+				                                        	<th class="text-center">操作</th>
+				                                        {% endif %}														
 				                                    </tr>
 				                                </thead>
 				                                <tbody>
 				                                	{% for ds in projectList %}
-				                                		<tr class="odd gradeX">
+				                                		<tr class="odd gradeX" id="deployLogs-{{ds.id}}">
 				                                			<td class="text-center">{{ds.project_name}} </td>
 				                                			<td class="text-center">
 				                                			{% if ds.project_branch %}
@@ -49,6 +52,15 @@
 				                                			<td class="text-center">{{ds.project_content}} </td>
 				                                			<td class="text-center">{{ds.project_user}} </td>				                                			
 				                                			<td class="text-center">{{ds.create_time|date:"Y/m/d H:i  "}} </td>
+				                                			{% if perms.opsmanage_log_project_config.delete_log_project_config %}
+					                                			<td class="text-center">
+					                                				<a href="javascript:" onclick="deleteDeployLogs(this,{{ds.id}})">
+						                                				<button class="btn btn-danger btn-xs">					                                					
+																			<i class="glyphicon glyphicon-trash  bigger-110 icon-only"></i>
+																		</button>
+																	</a>
+																</td>
+															{% endif %}				                                			
 				                                		</tr>
 				                                	{% endfor %}
 				                                </tbody>
@@ -79,7 +91,17 @@
 		    });
 		});
 
-				
+		function deleteDeployLogs(obj,id) {
+			$.ajax({
+				dataType: "JSON",
+				url:'/api/logs/deploy/'+ id +'/', //请求地址
+				type:"DELETE",  //提交类似
+				success:function(response){
+					var str= 'deployLogs-' + id
+					document.getElementById(str).innerHTML = ''; 
+				}					
+			})					
+		}				
   
 </script>
 

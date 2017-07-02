@@ -35,7 +35,7 @@ def cron_detail(request, id,format=None):
     """
     try:
         snippet = Cron_Config.objects.get(id=id)
-    except Service_Assets.DoesNotExist:
+    except Cron_Config.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
  
     if request.method == 'GET':
@@ -51,6 +51,27 @@ def cron_detail(request, id,format=None):
      
     elif request.method == 'DELETE':
         if not request.user.has_perm('OpsManage.delete_service_assets'):
+            return Response(status=status.HTTP_403_FORBIDDEN)
+        snippet.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)  
+    
+@api_view(['GET', 'PUT', 'DELETE'])
+@permission_required('OpsManage.delete_log_cron_config',raise_exception=True)
+def cronLogsdetail(request, id,format=None):
+    """
+    Retrieve, update or delete a server assets instance.
+    """
+    try:
+        snippet = Log_Cron_Config.objects.get(id=id)
+    except Log_Cron_Config.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+ 
+    if request.method == 'GET':
+        serializer = CronLogsSerializer(snippet)
+        return Response(serializer.data)
+     
+    elif request.method == 'DELETE':
+        if not request.user.has_perm('OpsManage.delete_log_cron_config'):
             return Response(status=status.HTTP_403_FORBIDDEN)
         snippet.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)  

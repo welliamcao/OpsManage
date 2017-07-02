@@ -28,6 +28,7 @@
 		                                            	{% endfor %}
 		                                            </select>
 		                                            <input  type="hidden"   class="form-control"  name="model" value="model">
+		                                            <input  type="hidden"   class="form-control" id="ans_uuid" name="ans_uuid" value="{{ans_uuid}}">
 												 </div>
 											</div>
 											<div class="form-group" >			 		             
@@ -90,6 +91,7 @@
 </div>
 
 <script type="text/javascript">
+
 
 function oBtAnsibleModel() {
 	   var obj = document.getElementById("ansible_model"); 
@@ -180,7 +182,7 @@ function oBtAnsibleModel() {
 		    	}	            
 	        });  
 	    },1000); 
-		
+
 // 	    /* 轮训获取结果结束  */
 		$.ajax({
 			url:'/apps/model/', //请求地址

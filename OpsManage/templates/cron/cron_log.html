@@ -36,11 +36,14 @@
 				                                        <th class="text-center">操作内容</th>
 				                                        <th class="text-center">服务器</th>
 				                                        <th class="text-center">操作时间</th>
+				                                        {% if perms.opsmanage_log_cron_config.delete_log_cron_config %}
+				                                        	<th class="text-center">操作</th>
+				                                        {% endif %}					                                        
 				                                    </tr>
 				                                </thead>
 				                                <tbody>
 				                                	{% for ds in cronList %}
-				                                		<tr class="odd gradeX">
+				                                		<tr class="odd gradeX" id="cronLogs-{{ds.id}}">
 				                                			<td class="text-center">
 				                                				 <a href="/cron_mod/{{ds.cron_id}}/">{{ds.cron_id}}</a>
 				                                			</td>
@@ -49,6 +52,15 @@
 				                                			<td class="text-center">{{ds.cron_content}} </td>
 				                                			<td class="text-center">{{ds.cron_server}} </td>
 				                                			<td class="text-center">{{ds.create_time|date:"Y/m/d H:i  "}} </td>
+				                                			{% if perms.opsmanage_log_cron_config.delete_log_cron_config %}
+					                                			<td class="text-center">
+					                                				<a href="javascript:" onclick="deleteCronLogs(this,{{ds.id}})">
+						                                				<button class="btn btn-danger btn-xs">					                                					
+																			<i class="glyphicon glyphicon-trash  bigger-110 icon-only"></i>
+																		</button>
+																	</a>
+																</td>
+															{% endif %}					                                			
 				                                		</tr>
 				                                	{% endfor %}
 				                                </tbody>
@@ -79,7 +91,17 @@
 		    });
 		});
 
-				
+		function deleteCronLogs(obj,id) {
+			$.ajax({
+				dataType: "JSON",
+				url:'/api/logs/cron/'+ id +'/', //请求地址
+				type:"DELETE",  //提交类似
+				success:function(response){
+					var str= 'cronLogs-' + id
+					document.getElementById(str).innerHTML = ''; 
+				}					
+			})					
+		}					
   
 </script>
 
