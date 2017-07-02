@@ -175,7 +175,6 @@ def apps_playbook_run(request,pid):
                 return JsonResponse({'msg':"剧本外部变量不是Json格式","code":500,'data':[]})
             logId = AnsibleRecord.PlayBook.insert(user=str(request.user),ans_id=playbook.id,ans_name=playbook.playbook_name,
                                         ans_content="执行Ansible剧本",ans_server=','.join(sList))   
-            print      logId    
             #执行ansible playbook
             ANS = ANSRunner(resource,redisKey=playbook.playbook_uuid,logId=logId)
             ANS.run_playbook(host_list=sList, playbook_path=playbook_file,extra_vars=playbook_vars)
