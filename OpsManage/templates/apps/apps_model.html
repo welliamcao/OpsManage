@@ -18,19 +18,49 @@
                                 <div class="col-lg-6">
                                 <legend><i class="fa  fa-paper-plane"></i>Ansible服务器</legend>
                                     <form role="form" id="ansibleModelRun" class="main form-horizontal" >{% csrf_token %}
-										<fieldset>															
-											<div class="form-group">
-												 <label class="col-sm-2 control-label">服务器选择</label>
+										<fieldset>
+											<div class="form-group" >			 		             
+													<label class="col-sm-2 control-label">动态主机</label>	
+													<div class="col-sm-6">
+														<select class="form-control" name="server_model" id="server_model" onchange="javascript:oBtAnsibleServerl();">
+															<option value="service" name="server_model">业务类型</option>
+															<option value="group" name="server_model">使用部门</option>	
+															<option value="custom" name="server_model">自定义</option> 	
+														</select>		
+													</div>	
+											</div>	
+											<div id="service_server" class="form-group">
+												 <label class="col-sm-2 control-label" >业务类型</label>
+												 <div class="col-sm-6">
+		                                            <select class="form-control" name="ansible_service"  id="ansible_service" required>
+		                                            	{% for ds in serviceList %}
+		                                            		<option name="service" value="{{ds.id}}">{{ds.service_name}}</option>
+		                                            	{% endfor %}
+		                                            </select>
+												 </div>
+											</div>												
+											<div id="group_server" class="form-group" style="display:none;">
+												 <label class="col-sm-2 control-label" >使用部门</label>
+												 <div class="col-sm-6">
+		                                            <select class="form-control" name="ansible_group"  id="ansible_group" required>
+		                                            	{% for ds in groupList %}
+		                                            		<option name="group" value="{{ds.id}}">{{ds.name}}</option>
+		                                            	{% endfor %}
+		                                            </select>
+												 </div>
+											</div>																																				
+											<div id="custom_server" class="form-group" style="display:none;">
+												 <label class="col-sm-2 control-label" >服务器选择</label>
 												 <div class="col-sm-6">
 		                                            <select multiple class="selectpicker" data-live-search="true" name="ansible_server"  id="ansible_server" required>
 		                                            	{% for ds in serverList %}
 		                                            		<option name="server" value="{{ds.id}}">{{ds.ip}}</option>
 		                                            	{% endfor %}
 		                                            </select>
-		                                            <input  type="hidden"   class="form-control"  name="model" value="model">
-		                                            <input  type="hidden"   class="form-control" id="ans_uuid" name="ans_uuid" value="{{ans_uuid}}">
 												 </div>
 											</div>
+		                                    <input  type="hidden"   class="form-control"  name="model" value="model">
+		                                    <input  type="hidden"   class="form-control" id="ans_uuid" name="ans_uuid" value="{{ans_uuid}}">											
 											<div class="form-group" >			 		             
 													<label class="col-sm-2 control-label">模块类型</label>	
 													<div class="col-sm-6">
@@ -92,6 +122,27 @@
 
 <script type="text/javascript">
 
+function oBtAnsibleServerl(){
+	   var obj = document.getElementById("server_model"); 
+	   var index = obj.selectedIndex;
+	   var value = obj.options[index].value; 
+	   if (value=="group"){
+		   document.getElementById("group_server").style.display = "";
+		   document.getElementById("service_server").style.display = "none";
+		   document.getElementById("custom_server").style.display = "none";
+	   }
+	   else if (value=="custom"){
+		   document.getElementById("group_server").style.display = "none";
+		   document.getElementById("service_server").style.display = "none";
+		   document.getElementById("custom_server").style.display = "";
+	   }
+	   else {
+		   document.getElementById("group_server").style.display = "none";
+		   document.getElementById("service_server").style.display = "";
+		   document.getElementById("custom_server").style.display = "none"; 
+	   }	
+}
+
 
 function oBtAnsibleModel() {
 	   var obj = document.getElementById("ansible_model"); 
@@ -152,7 +203,7 @@ function oBtAnsibleModel() {
 		for (var i = 1; i < form.length; ++i) {
 			var name = form[i].name;
 			var value = form[i].value;
-			var project = name.indexOf("ansible_");
+			var project = name.indexOf("ansible_model");
 			if ( project==0 && value.length==0 && name!="ansible_agrs"){
 				window.wxc.xcConfirm("请注意必填项不能为空~", window.wxc.xcConfirm.typeEnum.error);
 				btnObj.removeAttr('disabled');

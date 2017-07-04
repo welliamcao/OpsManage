@@ -78,13 +78,13 @@ def deploy_modf(request,pid):
     try:
         project = Project_Config.objects.select_related().get(id=pid)
         tagret_server = Project_Number.objects.filter(project=project)
+        serverList = Server_Assets.objects.all()
     except:
         return render_to_response('deploy/deploy_modf.html',{"user":request.user,
                                                          "errorInfo":"项目不存在，可能已经被删除."},
                                 context_instance=RequestContext(request))     
     if request.method == "GET": 
         groupList = Group.objects.all()
-        serverList = Server_Assets.objects.all()
         server = [ s.server for s in tagret_server]
         for ds in serverList:
             if ds.ip in server:ds.count = 1
@@ -119,15 +119,12 @@ def deploy_modf(request,pid):
         if ipList:
             tagret_server_list = [ s.server for s in tagret_server ]
             postServerList = []
+            print tagret_server_list
             for sid in ipList:
                 try:
                     server = Server_Assets.objects.get(id=sid) 
                     postServerList.append(server.ip) 
-                    if server.ip in tagret_server_list:     
-                        Project_Number.objects.filter(id=pid).update(dir=request.POST.get('dir'),
-                                                      server=server.ip,
-                                                      project=project)
-                    else:
+                    if server.ip not in tagret_server_list:     
                         Project_Number.objects.create(dir=request.POST.get('dir'),
                                                       server=server.ip,
                                                       project=project)                        
