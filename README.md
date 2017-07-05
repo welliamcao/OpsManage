@@ -1,6 +1,7 @@
 ## OpsManage是什么？
 一款代码部署、应用部署、计划任务、设备资产管理平台。
 
+**开源协议**：[GNU General Public License v2](http://www.gnu.org/licenses/old-licenses/gpl-2.0.html)
 ## 开发语言与框架：
  * 编程语言：Python2.7 + HTML + JScripts
  * 前端Web框架：Bootstrap
