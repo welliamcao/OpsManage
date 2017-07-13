@@ -119,7 +119,6 @@ def deploy_modf(request,pid):
         if ipList:
             tagret_server_list = [ s.server for s in tagret_server ]
             postServerList = []
-            print tagret_server_list
             for sid in ipList:
                 try:
                     server = Server_Assets.objects.get(id=sid) 
@@ -223,11 +222,17 @@ def deploy_run(request,pid):
         version.pull(path=project.project_repo_dir)        
         vList = version.log(path=project.project_repo_dir, number=50)
         return render_to_response('deploy/deploy_run.html',{"user":request.user,
-                                                         "project":project,
+                                                         "project":project,"serverList":serverList,
                                                          "bList":bList,"vList":vList}, 
                                   context_instance=RequestContext(request)) 
         
     elif request.method == "POST":
+        if request.POST.getlist('project_server',None):
+            serverList = [ Project_Number.objects.get(project=project,server=ds) for ds in request.POST.getlist('project_server') ]
+            allServerList = [ ds.server  for ds in Project_Number.objects.filter(project=project) ]
+            #获取项目目标服务器列表与分批部署服务器（post提交）列表的差集
+            tmpServer = [ i for i in allServerList if i not in request.POST.getlist('project_server') ]
+        else:return JsonResponse({'msg':"项目部署失败：未选择目标服务器","code":500,'data':[]}) 
         if DsRedis.OpsProject.get(redisKey=project.project_uuid+"-locked") is None:#判断该项目是否有人在部署
             #给项目部署加上锁
             DsRedis.OpsProject.set(redisKey=project.project_uuid+"-locked",value=request.user)
@@ -335,7 +340,7 @@ def deploy_run(request,pid):
             recordProject.delay(project_user=str(request.user),project_id=project.id,
                                 project_name=project.project_name,project_content="部署项目",
                                 project_branch=bName)          
-            return JsonResponse({'msg':"项目部署成功","code":200,'data':[]}) 
+            return JsonResponse({'msg':"项目部署成功","code":200,'data':tmpServer}) 
         else:
             return JsonResponse({'msg':"项目部署失败：{user}正在部署改项目，请稍后再提交部署。".format(user=DsRedis.OpsProject.get(redisKey=project.project_uuid+"-locked")),"code":500,'data':[]}) 
                         
@@ -434,12 +439,13 @@ def deploy_order_status(request,pid):
     if request.method == "GET":
         try:
             order= Project_Order.objects.get(id=pid)
+            serverList = Project_Number.objects.filter(project=order.order_project)
             if order.order_audit == str(request.user):order.order_perm = 'pass'
         except:
             return render_to_response('deploy/deploy_ask.html',{"user":request.user,
                                                 "errorInfo":"工单不存在，可能已经被删除."}, 
                                               context_instance=RequestContext(request))             
-        return render_to_response('deploy/deploy_order_status.html',{"user":request.user,"order":order},
+        return render_to_response('deploy/deploy_order_status.html',{"user":request.user,"order":order,"serverList":serverList},
                                   context_instance=RequestContext(request)) 
     
     

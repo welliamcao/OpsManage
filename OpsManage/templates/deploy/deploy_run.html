@@ -26,6 +26,16 @@
 												 	<input type="hidden" class="form-control" name="project_uuid" value="{{project.project_uuid}}" disabled/>
 												 </div>
 											</div>
+		                                     <div class="form-group">
+		                                            <label class="col-sm-2 control-label">目标服务器</label>
+		                                            <div class="col-sm-6">
+			                                            <select multiple class="selectpicker" data-live-search="true" name="project_server" required>
+			                                            	{% for ds in serverList %}
+			                                            		<option name="project_server" selected="selected"  value="{{ds.server}}">{{ds.server}}</option>
+			                                            	{% endfor %}
+			                                            </select>
+		                                            </div>
+		                                      </div> 											
 											{% if project.project_model == 'branch' and project.project_repertory == 'git' %}																
 											<div class="form-group">
 												 <label class="col-sm-2 control-label">分支</label>
@@ -196,7 +206,7 @@
 		$.ajax({
 			url:'/deploy_run/'+"{{project.id}}/", //请求地址
 			type:"POST",  //提交类似
-			data:post_data,  //提交参数
+			data:$("#deployRun").serialize(),  //提交参数
 			success:function(response){
 				btnObj.removeAttr('disabled');
 				if (response["code"] == "500"){

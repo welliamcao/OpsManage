@@ -22,28 +22,38 @@
 											<div class="form-group">
 												 <label class="col-sm-2 control-label">项目名称</label>
 												 <div class="col-sm-6">
-												 	<input type="text" class="form-control" name="project_name" value="{{order.order_project.project_name}}"  class="input-xlarge" disabled/>
-												 	<input type="hidden" class="form-control" name="project_uuid" value="{{order.order_project.project_uuid}}" disabled/>
+												 	<input type="text" class="form-control" name="project_name" value="{{order.order_project.project_name}}"  class="input-xlarge" readonly="readonly" />
+												 	<input type="hidden" class="form-control" name="project_uuid" value="{{order.order_project.project_uuid}}" readonly="readonly"/>
 												 </div>
 											</div>
+		                                     <div class="form-group">
+		                                            <label class="col-sm-2 control-label">目标服务器</label>
+		                                            <div class="col-sm-6">
+			                                            <select multiple class="selectpicker" data-live-search="true" name="project_server" id="project_server" required>
+			                                            	{% for ds in serverList %}
+			                                            		<option name="project_server" selected="selected"  value="{{ds.server}}">{{ds.server}}</option>
+			                                            	{% endfor %}
+			                                            </select>
+		                                            </div>
+		                                      </div> 											
 											<div class="form-group">
 												 <label class="col-sm-2 control-label">更新主题</label>
 												 <div class="col-sm-6">												 	
-                                            		<input class="form-control" value="{{order.order_subject}}" disabled>
+                                            		<input class="form-control" value="{{order.order_subject}}" readonly="readonly">
 												 </div>
 											</div>	
 					
 											<div class="form-group">
 												 <label class="col-sm-2 control-label">更新内容</label>
 												 <div class="col-sm-6">                                           
-                                            		<textarea class="form-control" rows="3" disabled>{{order.order_content}}</textarea>
+                                            		<textarea class="form-control" rows="3" readonly="readonly">{{order.order_content}}</textarea>
 												 </div>
 											</div>												
 											{% if order.order_project.project_model == 'branch' and order.order_project.project_repertory == 'git'  %}																
 											<div class="form-group">
 												 <label class="col-sm-2 control-label">分支</label>
 												 <div class="col-sm-6">
-													<input type="text" class="form-control" name="project_branch" value="{{order.order_branch}}"  class="input-xlarge" disabled/>							 	
+													<input type="text" class="form-control" name="project_branch" value="{{order.order_branch}}"  class="input-xlarge" readonly="readonly"/>							 	
 												 </div>
 											</div>													
 											
@@ -51,14 +61,13 @@
 												 <label class="col-sm-2 control-label">更新版本</label>
 												 <div class="col-sm-6">
 													<div class="input-group">
-														<input type="text" class="form-control " name="project_version" value="{{order.order_comid}}" disabled>
+														<input type="text" class="form-control " name="project_version" value="{{order.order_comid}}" readonly="readonly">
 														<span class="input-group-btn">
 															<button class="btn btn-success" type="button"  data-toggle="modal" data-target="#myModal" >
 																查看
 															</button>
 														</span>
 													</div>											 
-<!-- 													<input type="text" class="form-control" name="project_version" value="{{order.order_comid}}"  class="input-xlarge" disabled/>	 -->
 												</div>
 											</div>
 											{% elif order.order_project.project_model == 'tag' and  order.order_project.project_repertory == 'git'  %}
@@ -66,9 +75,9 @@
 												 <label class="col-sm-2 control-label">Tag版本</label>
 												 <div class="col-sm-6">
 												 	{% if order.order_tag %}
-												 		<input type="text" class="form-control" name="project_branch" value="{{order.order_tag}}"  class="input-xlarge" disabled/>
+												 		<input type="text" class="form-control" name="project_branch" value="{{order.order_tag}}"  class="input-xlarge" readonly="readonly"/>
 												 	{% else %}
-														<input type="text" class="form-control" name="project_branch"   class="input-xlarge" disabled/>	
+														<input type="text" class="form-control" name="project_branch"   class="input-xlarge" readonly="readonly"/>	
 													{% endif %}					 	
 												 </div>
 											</div>	
@@ -77,7 +86,7 @@
 													 <label class="col-sm-2 control-label">更新版本</label>
 													 <div class="col-sm-6">
 														<div class="input-group">
-															<input type="text" class="form-control " name="project_version" value="{{order.order_comid}}" disabled>
+															<input type="text" class="form-control " name="project_version" value="{{order.order_comid}}" readonly="readonly">
 															<span class="input-group-btn">
 																<button class="btn btn-success" type="button"  data-toggle="modal" data-target="#myModal" >
 																	查看
@@ -92,7 +101,7 @@
 											<div class="form-group">
 												 <label class="col-sm-2 control-label">部署指派</label>
 												 <div class="col-sm-6">												 	
-                                            		<input class="form-control" value="{{order.order_audit}}" disabled>
+                                            		<input class="form-control" value="{{order.order_audit}}" readonly="readonly">
 												 </div>
 											</div>	
 											<div class="form-group">
@@ -143,14 +152,15 @@
 											<legend></legend>
 											<div class="form-group">
 											<label class="col-sm-3 control-label"></label>
-											<button type="button"  class="btn btn-default disabled" >撤销部署</button>
 											{% if order.order_status == 0 %}
-									 			<button type="button"  class="btn btn-default" onclick="runDeploy(this)" >开始部署</button>
+												<button type="button"  class="btn btn-default disabled">完成部署</button>
+									 			<button type="button"  class="btn btn-default" onclick="runDeploy(this)" >点击部署</button>
 									 		{% else %}
+									 			<button type="button"  class="btn btn-default disabled">完成部署</button>
 									 			<button type="button"  class="btn btn-default disabled">确认部署</button>
 									 		{% endif %}
 									 		</div>																		 		
-										</form>                                        
+									</form>                                        
                                 </div>
                                 <!-- /.col-lg-6 (nested) -->
                                 <div class="col-lg-6">
@@ -178,32 +188,60 @@
                 </div>
                 <!-- /.col-lg-12 -->
             </div>
-<!-- 模态框（Modal） -->
-<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-	<div class="modal-dialog" style="width: 70%;">
-		<div class="modal-content">
-			<div class="modal-header">
-				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">
-					&times;
-				</button>
-				<h4 class="modal-title" id="myModalLabel">
-					<code>{{order.order_project.project_name}}</code>项目<code>{{order.order_comid|slice:":7"}}</code>版本提交历史
-				</h4>
-			</div>
-			<div class="modal-body">
-				<div id="version_result">
+	<!-- 模态框（Modal） -->
+	<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+		<div class="modal-dialog" style="width: 70%;">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+						&times;
+					</button>
+					<h4 class="modal-title" id="myModalLabel">
+						<code>{{order.order_project.project_name}}</code>项目<code>{{order.order_comid|slice:":7"}}</code>版本提交历史
+					</h4>
 				</div>
-			</div>
-			<div class="modal-footer">
-				<button type="button" class="btn btn-default" data-dismiss="modal">关闭
-				</button>
-				<button type="button" class="btn btn-primary" onclick="getVersion(this,'{{order.order_branch}}','{{order.order_comid}}')">
-					点击查看
-				</button>
-			</div>
-		</div><!-- /.modal-content -->
-	</div><!-- /.modal -->
-</div>            
+				<div class="modal-body">
+					<div id="version_result">
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">关闭
+					</button>
+					<button type="button" class="btn btn-primary" onclick="getVersion(this,'{{order.order_branch}}','{{order.order_comid}}')">
+						点击查看
+					</button>
+				</div>
+			</div><!-- /.modal-content -->
+		</div><!-- /.modal -->
+	</div>        
+	
+	<div class="modal fade" id="myDeployModal" tabindex="-1" role="dialog" aria-labelledby="myDeployModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" 
+							aria-hidden="true">×
+					</button>
+					<h4 class="modal-title" id="myDeployLabel">
+						部署进度
+					</h4>
+				</div>
+				<div class="modal-body">
+					<div id="noDeployServerList">
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-success" onclick="finishDeploy(this)">
+						完成部署
+					</button>				
+					<button type="button" class="btn btn-primary" 
+							data-dismiss="modal">继续部署
+					</button>
+				</div>
+			</div><!-- /.modal-content -->
+		</div><!-- /.modal-dialog -->
+	</div><!-- /.modal -->	
+	    
 </div>
 
 
@@ -292,6 +330,35 @@
 {% endif %}
 		
 {% if order.order_status == 0 %}
+	function finishDeploy(obj){
+		$.ajax({
+		  type: 'POST',
+		  url: '/deploy_order/',
+		  data: {
+			  "id":{{order.id}},
+			  "model":'finish',
+			  "order_status":3
+		  },
+			success:function(response){
+				if (response["code"] == "200"){
+					window.wxc.xcConfirm("部署完成", window.wxc.xcConfirm.typeEnum.success);
+					location.reload();
+// 					$('#permOrder').remove();
+// 					btnObj.attr('disabled',true);
+					
+				}
+				else{
+					window.wxc.xcConfirm("部署成功,但是未能更新工单状态", window.wxc.xcConfirm.typeEnum.error);
+				}
+				
+			},
+	    	error:function(response){
+	    		window.wxc.xcConfirm("部署失败", window.wxc.xcConfirm.typeEnum.error);
+	    		clearInterval(interval);
+	    	}
+	});			
+	}
+	
 	function runDeploy(obj) {
 		var btnObj = $(obj);
 		btnObj.attr('disabled',true);
@@ -322,33 +389,51 @@
 	            		$("#result").append("<p>"+result["msg"]+"</p>"); 
 	            		if (result["msg"].indexOf("[Done]") == 0){
 	            			clearInterval(interval);
-	            			/* 更新数据库-更新完成 */
-	            			$.ajax({
-		  						  type: 'POST',
-								  url: '/deploy_order/',
-								  data: {
-									  "id":{{order.id}},
-									  "model":'finish',
-									  "order_status":3
-								  },
-		            				success:function(response){
-		            					if (response["code"] == "200"){
-		            						window.wxc.xcConfirm("部署成功", window.wxc.xcConfirm.typeEnum.success);
-		            						$('#permOrder').remove();
-		            						btnObj.attr('disabled',true);
-		            						
-		            					}
-		            					else{
-		            						window.wxc.xcConfirm("部署成功,但是未能更新工单状态", window.wxc.xcConfirm.typeEnum.error);
-		            					}
-		            					
-		            				},
-		            		    	error:function(response){
-		            		    		window.wxc.xcConfirm("部署失败", window.wxc.xcConfirm.typeEnum.error);
-		            		    		clearInterval(interval);
-		            		    	}
-	            			});	
-	            			
+	            			/* 更新数据库-更新完成 */	
+	            			if (noDeployServer.length == 0){
+	            				$.ajax({
+	            					  type: 'POST',
+	            					  url: '/deploy_order/',
+	            					  data: {
+	            						  "id":{{order.id}},
+	            						  "model":'finish',
+	            						  "order_status":3
+	            					  },
+	            						success:function(response){
+	            							if (response["code"] == "200"){
+	            								window.wxc.xcConfirm("部署完成", window.wxc.xcConfirm.typeEnum.success);
+	            								$('#permOrder').remove();
+	            								btnObj.attr('disabled',true);	            								
+	            							}
+	            							else{
+	            								window.wxc.xcConfirm("部署成功,但是未能更新工单状态", window.wxc.xcConfirm.typeEnum.error);
+	            							}
+	            							
+	            						},
+	            				    	error:function(response){
+	            				    		window.wxc.xcConfirm("部署失败", window.wxc.xcConfirm.typeEnum.error);
+	            				    		clearInterval(interval);
+	            				    	}
+	            				});			            				
+	            			}
+	            			else{
+	            				var liStr = '';
+	            				for (var i = 0; i < noDeployServer.length; ++i) {
+	            					liStr += '<li>' + noDeployServer[i]  +'</li>'
+	            				};
+	            				divStr = '<div class="group">' +
+											'<div>' +
+												'<p>下列服务器未部署，是否继续部署：</p>' +
+												'<ul>' + liStr +
+												'</ul>' +
+											'</div>' +
+										'</div>';
+								$('#noDeployServerList').html(divStr);
+		            			$(function () { $('#myDeployModal').modal({
+		            				keyboard: true
+		            			})});
+	            			};
+
 	            		}
 	            	}  
 	            }  
@@ -357,11 +442,13 @@
 		
 	    /* 轮训获取结果结束  */
 		$.ajax({
+			cache:false,
 			url:'/deploy_run/{{order.order_project.id}}/', //请求地址
 			type:"POST",  //提交类似
-			data:post_data,  //提交参数
+			data:$("#deployRun").serialize(),  //提交参数
 			success:function(response){
 				btnObj.removeAttr('disabled');
+				noDeployServer = response["data"];
 				if (response["code"] == "500"){
 					clearInterval(interval);
 					window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
