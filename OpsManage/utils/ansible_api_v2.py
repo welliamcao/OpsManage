@@ -399,6 +399,9 @@ class ANSRunner(object):
             )  
             tqm._stdout_callback = self.callback  
             tqm.run(play)  
+        except Exception as err: 
+            DsRedis.OpsAnsibleModel.lpush(self.redisKey,data=err)
+            if self.logId:AnsibleSaveResult.Model.insert(self.logId, err)              
         finally:  
             if tqm is not None:  
                 tqm.cleanup()  
