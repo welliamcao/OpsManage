@@ -31,7 +31,6 @@ def apps_model(request):
     elif  request.method == "POST" and request.user.has_perm('OpsManage.can_change_ansible_playbook'):
         resource = []
         sList = []
-        print request.POST.get('server_model')
         if request.POST.get('server_model') in ['service','group','custom']:
             if request.POST.get('server_model') == 'custom':
                 serverList = request.POST.getlist('ansible_server')

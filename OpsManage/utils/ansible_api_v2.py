@@ -417,7 +417,9 @@ class ANSRunner(object):
             )  
             executor._tqm._stdout_callback = self.callback  
             executor.run()  
-        except Exception as e: 
+        except Exception as err: 
+            DsRedis.OpsAnsibleModel.lpush(self.redisKey,data=err)
+            if self.logId:AnsibleSaveResult.Model.insert(self.logId, err)            
             return False
             
     def get_model_result(self):  
