@@ -20,7 +20,7 @@
 ## 安装环境配置
 一、安装Python
 ```
-# yum install zlib zlib-devel readline-devel sqlite-devel bzip2-devel openssl-devel gdbm-devel libdbi-devel ncurses-libs kernel-devel libxslt-devel libffi-devel python-devel mysql-devel zlib-devel mysql-server sshpass -y
+# yum install zlib zlib-devel readline-devel sqlite-devel bzip2-devel openssl-devel gdbm-devel libdbi-devel ncurses-libs kernel-devel libxslt-devel libffi-devel python-devel mysql-devel zlib-devel mysql-server sshpass gcc -y
 # wget http://mirrors.sohu.com/python/2.7.12/Python-2.7.12.tgz
 # tar -xzvf Python-2.7.12.tgz
 # cd Python-2.7.12
