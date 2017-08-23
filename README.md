@@ -110,7 +110,7 @@ mysql>\q
 ```
 # cd /path/OpsManage/OpsManage
 # vim settings.py
-BROKER_URL =  redis://192.168.1.233:6379/3 #修改成自己的配置
+BROKER_URL =  redis://192.168.1.233:6379/3 #修改成自己的配置，格式是redis://[:password]@host:port/db
 REDSI_KWARGS_LPUSH = {"host":'192.168.1.233','port':6379,'db':3} #修改成自己的配置
 DATABASES = {
     'default': {
@@ -118,7 +118,8 @@ DATABASES = {
         'NAME':'opsmanage',
         'USER':'root',		#修改成自己的配置
         'PASSWORD':'welliam',	#修改成自己的配置
-        'HOST':'192.168.1.233'  #修改成自己的配置
+        'HOST':'192.168.1.233', #修改成自己的配置
+        'PORT': 3306
 #         'ENGINE': 'django.db.backends.sqlite3',
 #         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
