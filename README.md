@@ -56,18 +56,7 @@
 
 四、安装模块
 ```
-# pip install django==1.8.17
-# pip install Celery 
-# pip install django-celery 
-# pip install celery-with-redis
-# pip install djangorestframework
-# pip install paramiko
-# pip install ansible==2.2.2
-# pip install redis
-# pip install supervisor
-# pip install redis
-# pip install MySQL-python
-# pip install DBUtils
+pip install -r requirements.txt
 ```
 
 五、安装Redis
