@@ -1,0 +1,12 @@
+django==1.8.17
+Celery==3.1.20
+django-celery
+celery-with-redis
+djangorestframework
+paramiko
+ansible==2.2.2
+redis
+supervisor
+redis
+MySQL-python
+DBUtils
