@@ -385,7 +385,7 @@
 									       <th class="text-center">放置区域</th>
 									       <th class="text-center">购买人</th>
 									       <th class="text-center">购买时间</th>
-									       <th class="text-center">使用组</th>
+									       <th class="text-center">业务类型</th>
 									       <th class="text-center">设备状态</th>
 									       <th class="text-center">操作</th>
 									    </tr>
@@ -425,9 +425,9 @@
 									         <td class="text-center">{{ a.buy_user }}</td>
 									         <td class="text-center">{{ a.buy_time|date:"Y/m/d" }}</td>
 									         <td class="text-center">
-									         	{% for g in baseAssets.group %}
-									         		{% if g.id == a.group %}
-									         			<button  type="button" class="btn btn-default disabled">{{ g.name }}</button>	
+									         	{% for s in baseAssets.service %}
+									         		{% if s.id == a.business %}
+									         			<button  type="button" class="btn btn-default disabled">{{ s.service_name }}</button>	
 									         		{% endif %}
 									         	{% endfor %}								         		
 									         </td>

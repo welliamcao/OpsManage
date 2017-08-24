@@ -83,10 +83,27 @@ def apps_add(request):
         serverList = Server_Assets.objects.all()
         groupList = Group.objects.all()
         userList = User.objects.all()
+        serviceList = Service_Assets.objects.all()
         return render_to_response('apps/apps_playbook_config.html',{"user":request.user,"userList":userList,
-                                                            "serverList":serverList,"groupList":groupList},
+                                                            "serverList":serverList,"groupList":groupList,
+                                                            "serviceList":serviceList},
                                   context_instance=RequestContext(request))
-    elif request.method == "POST":            
+    elif request.method == "POST":   
+        sList = []
+        if request.POST.get('server_model') in ['service','group','custom']:  
+            if request.POST.get('server_model') == 'custom':
+                for sid in request.POST.getlist('playbook_server'):
+                    server = Server_Assets.objects.get(id=sid)
+                    sList.append(server.ip)
+                playbook_server_value = None
+            elif request.POST.get('server_model') == 'group':
+                serverList = Assets.objects.filter(group=request.POST.get('ansible_group'))
+                sList = [  s.server_assets.ip for s in serverList ]
+                playbook_server_value = request.POST.get('ansible_group')
+            elif request.POST.get('server_model') == 'service':
+                serverList = Assets.objects.filter(business=request.POST.get('ansible_service'))
+                sList = [  s.server_assets.ip for s in serverList ]   
+                playbook_server_value = request.POST.get('ansible_service')                            
         try:      
             playbook = Ansible_Playbook.objects.create(
                                             playbook_name = request.POST.get('playbook_name'),
@@ -94,25 +111,22 @@ def apps_add(request):
                                             playbook_vars = request.POST.get('playbook_vars'), 
                                             playbook_uuid = uuid.uuid4(),
                                             playbook_file = request.FILES.get('playbook_file'),
+                                            playbook_server_model = request.POST.get('server_model','custom'), 
+                                            playbook_server_value = playbook_server_value, 
                                             playbook_auth_group = request.POST.get('playbook_auth_group',0),
                                             playbook_auth_user = request.POST.get('playbook_auth_user',0),
                                             )
         except Exception,e:
             return render_to_response('apps/apps_playbook_config.html',{"user":request.user,"errorInfo":"剧本添加错误：%s" % str(e)},
                                     context_instance=RequestContext(request)) 
-        sList = []
-        if request.POST.getlist('playbook_server',None):
+        for sip in sList:
             try:
-                for sid in request.POST.getlist('playbook_server'):
-                    server = Server_Assets.objects.get(id=sid)
-                    sList.append(server.ip)
-                    Ansible_Playbook_Number.objects.create(playbook=playbook,playbook_server=server.ip)
+                Ansible_Playbook_Number.objects.create(playbook=playbook,playbook_server=sip)
             except Exception,e:
-                playbook.delete()
+                playbook.delete()                    
                 return render_to_response('apps/apps_playbook_config.html',{"user":request.user,"errorInfo":"目标服务器信息添加错误：%s" % str(e)},
-                                          context_instance=RequestContext(request)) 
+                                    context_instance=RequestContext(request))             
         #操作日志异步记录
-#         recordAnsiblePlaybook.delay(user=str(request.user),ans_id=playbook.id,ans_name=playbook.playbook_name,ans_content="添加Ansible剧本",ans_server=','.join(sList))
         AnsibleRecord.PlayBook.insert(user=str(request.user),ans_id=playbook.id,ans_name=playbook.playbook_name,ans_content="添加Ansible剧本",ans_server=','.join(sList))
         return HttpResponseRedirect('/apps/playbook/add') 
     
@@ -246,41 +260,58 @@ def apps_playbook_modf(request,pid):
             if ds.ip in numberList:ds.count = 1
             else:ds.count = 0
         groupList = Group.objects.all()
-        userList = User.objects.all()        
+        userList = User.objects.all()
+        serviceList = Service_Assets.objects.all()        
         return render_to_response('apps/apps_playbook_modf.html',{"user":request.user,"userList":userList,
                                                                   "playbook":playbook,"serverList":serverList,
-                                                                  "groupList":groupList},
+                                                                  "groupList":groupList,"serviceList":serviceList},
                                   context_instance=RequestContext(request))
     elif request.method == "POST":
+        sList = []
+        if request.POST.get('server_model') in ['service','group','custom']:  
+            if request.POST.get('server_model') == 'custom':
+                for sid in request.POST.getlist('playbook_server'):
+                    server = Server_Assets.objects.get(id=sid)
+                    sList.append(server.ip)
+                playbook_server_value = None
+            elif request.POST.get('server_model') == 'group':
+                serverList = Assets.objects.filter(group=request.POST.get('ansible_group'))
+                sList = [  s.server_assets.ip for s in serverList ]
+                playbook_server_value = request.POST.get('ansible_group')
+            elif request.POST.get('server_model') == 'service':
+                serverList = Assets.objects.filter(business=request.POST.get('ansible_service'))
+                sList = [  s.server_assets.ip for s in serverList ]   
+                playbook_server_value = request.POST.get('ansible_service')          
         try:      
             Ansible_Playbook.objects.filter(id=pid).update(
                                     playbook_name = request.POST.get('playbook_name'),
                                     playbook_desc = request.POST.get('playbook_desc'), 
                                     playbook_vars = request.POST.get('playbook_vars',None), 
+                                    playbook_server_model = request.POST.get('server_model','custom'), 
+                                    playbook_server_value = playbook_server_value,                                     
                                     playbook_auth_group = request.POST.get('playbook_auth_group',0),
                                     playbook_auth_user = request.POST.get('playbook_auth_user',0),
                                     )
         except Exception,e:
             return render_to_response('apps/apps_playbook_modf.html',{"user":request.user,"errorInfo":"剧本添加错误：%s" % str(e)},
                                     context_instance=RequestContext(request)) 
-        if request.POST.getlist('playbook_server',None):
+        if sList:
             tagret_server_list = [ s.playbook_server for s in numberList ]
             postServerList = []
-            for sid in request.POST.getlist('playbook_server'):
+            for sip in sList:
                 try:
-                    server = Server_Assets.objects.get(id=sid) 
-                    postServerList.append(server.ip) 
-                    if server.ip not in tagret_server_list:   
-                        Ansible_Playbook_Number.objects.create(playbook=playbook,playbook_server=server.ip)                        
+                    postServerList.append(sip) 
+                    if sip not in tagret_server_list:   
+                        Ansible_Playbook_Number.objects.create(playbook=playbook,playbook_server=sip)                        
                 except Exception,e:
+                    print e
                     return render_to_response('apps/apps_playbook_modf.html',{"user":request.user,
-                                                                        "serverList":serverList,
                                                                         "errorInfo":"目标服务器信息修改错误：%s" % str(e)},
                                               context_instance=RequestContext(request)) 
             #清除目标主机 - 
             delList = list(set(tagret_server_list).difference(set(postServerList)))
             for ip in delList:
-                Ansible_Playbook_Number.objects.filter(playbook=playbook,server=ip).delete()  
+                Ansible_Playbook_Number.objects.filter(playbook=playbook,playbook_server=ip).delete()  
         else:
             for server in numberList:
                 Ansible_Playbook_Number.objects.filter(playbook=playbook,playbook_server=server.playbook_server).delete()               

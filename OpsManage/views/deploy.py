@@ -435,6 +435,7 @@ def deploy_order(request):
     else:return JsonResponse({'msg':"您无权操作此项","code":500,'data':[]})
         
 @login_required()
+@permission_required('OpsManage.can_add_project_order',login_url='/noperm/')
 def deploy_order_status(request,pid):
     if request.method == "GET":
         try:
