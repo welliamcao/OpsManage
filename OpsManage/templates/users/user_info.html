@@ -3,7 +3,7 @@
 <div id="page-wrapper">
     <div class="row">
          <div class="col-lg-12">
-              <h1 class="page-header"><i class="fa  fa-wrench"></i><code>{{user_info.username}}</code> 用户资料配置</h1>
+              <h1 class="page-header"><i class="fa  fa-wrench"></i><code>{{user_info.username}}</code> 资料配置</h1>
          </div>
                 <!-- /.col-lg-12 -->
     </div>
@@ -11,13 +11,24 @@
                 <div class="col-lg-12">
                     <div class="panel panel-default">
                         <div class="panel-heading">
-                           	<i class="fa   fa-gear"></i> 用户权限管理
+                           	<i class="fa   fa-gear"></i> 用户管理
                         </div>
                         <div class="panel-body">
-							<div class="row">
-									<div class="col-lg-2">
-									</div>
-											<div id="asset_net_chioce" class="col-lg-6">		
+
+				                            
+				           <ul class="nav nav-tabs">
+				              <li class="active"><a href="#home" data-toggle="tab"><i class="fa   fa-user"></i> 权限</a>
+				              </li>
+				              <li><a href="#profile" data-toggle="tab"><i class="fa    fa-linux"></i> 主机</a>
+				              </li>
+				           </ul>
+				
+				                            
+				           <div class="tab-content">
+				              <div class="tab-pane fade in active" id="home">
+				              			<br>	
+										<div id="asset_net_chioce" class="col-lg-6">
+		
 											<form role="form" method="post" id="addHost" class="main form-horizontal" >{% csrf_token %}			
 						
 												<div class="form-group" >
@@ -100,7 +111,7 @@
 															{% endif %}																		
 														</select>
 													 </div>
-												</div>													
+												</div>																								
 												
 												<div class="hr hr32 hr-dotted"></div>                                        
 												<div class="form-group">
@@ -117,10 +128,73 @@
 													</div>
 												</div>
 												</form>
-											</div>				
-				                          
+											</div>
+				              </div>
+				              <div class="tab-pane fade" id="profile">
+				                   <div class="row">
+				                   		<div class="col-lg-4">
+				                   			<br>
+		                                    <form role="form" id="websshModelRun" class="main form-horizontal" >{% csrf_token %}
+												<fieldset>
+													<div class="form-group" >			 		             
+															<label class="col-sm-2 control-label">选择主机</label>	
+															<div class="col-sm-6">
+																<select class="form-control" name="server_model" id="server_model" onchange="javascript:oBtWebsshServer();">
+																	<option value="service" name="server_model">业务类型</option>
+																	<option value="group" name="server_model">使用部门</option>	
+																	<option value="custom" name="server_model">自定义</option> 	
+																</select>		
+															</div>	
+													</div>	
+													<div id="service_server" class="form-group">
+														 <label class="col-sm-2 control-label" >业务类型</label>
+														 <div class="col-sm-6">
+				                                            <select class="form-control" name="webssh_service"  id="webssh_service" required>
+				                                            	{% for ds in serviceList %}
+				                                            		<option name="service" value="{{ds.id}}">{{ds.service_name}}</option>
+				                                            	{% endfor %}
+				                                            </select>
+														 </div>
+													</div>												
+													<div id="group_server" class="form-group" style="display:none;">
+														 <label class="col-sm-2 control-label" >使用部门</label>
+														 <div class="col-sm-6">
+				                                            <select class="form-control" name="webssh_group"  id="webssh_group" required>
+				                                            	{% for ds in groupList %}
+				                                            		<option name="group" value="{{ds.id}}">{{ds.name}}</option>
+				                                            	{% endfor %}
+				                                            </select>
+														 </div>
+													</div>																																				
+													<div id="custom_server" class="form-group" style="display:none;">
+														 <label class="col-sm-2 control-label" >自定义</label>
+														 <div class="col-sm-6">
+				                                            <select  multiple class="selectpicker" name="webssh_server" data-live-search="true" data-live-search-placeholder="Search" data-actions-box="true" required>
+				                                            	{% for ds in serverList %}
+				                                            		{% if ds.status == 1 %}
+				                                            			<option name="server" value="{{ds.id}}" selected="selected">{{ds.ip}}</option>
+				                                            		{% else %}
+				                                            			<option name="server" value="{{ds.id}}">{{ds.ip}}</option>
+				                                            		{% endif %}
+				                                            	{% endfor %}
+				                                            </select>
+														 </div>
+													</div>
+								
+													<div class="form-group">
+														<label class="col-sm-3 control-label"></label>
+														<button type="button"  class="btn btn-default" >撤销</button>
+												 		<button type="button"  class="btn btn-default" onclick="runWebsshModel(this)" >提交</button>
+											 		</div>																															 		
+												</form>  
+				                   		</div>
+				              		</div>
+				              	</div>
+				           </div>
 
-							</div>
+
+                            <!-- /.row (nested) -->
+                        </div>
                             <!-- /.row (nested) -->
                         </div>
                         <!-- /.panel-body -->
@@ -139,6 +213,52 @@
 {% if errorInfo %}
 	window.wxc.xcConfirm("{{errorInfo}}", window.wxc.xcConfirm.typeEnum.error);
 {% endif %}
+	function oBtWebsshServer(){
+		   var obj = document.getElementById("server_model"); 
+		   var index = obj.selectedIndex;
+		   var value = obj.options[index].value; 
+		   if (value=="group"){
+			   document.getElementById("group_server").style.display = "";
+			   document.getElementById("service_server").style.display = "none";
+			   document.getElementById("custom_server").style.display = "none";
+		   }
+		   else if (value=="custom"){
+			   document.getElementById("group_server").style.display = "none";
+			   document.getElementById("service_server").style.display = "none";
+			   document.getElementById("custom_server").style.display = "";
+		   }
+		   else {
+			   document.getElementById("group_server").style.display = "none";
+			   document.getElementById("service_server").style.display = "";
+			   document.getElementById("custom_server").style.display = "none"; 
+		   }	
+	}
+	
+	function runWebsshModel(obj) {
+		var btnObj = $(obj);
+		btnObj.attr('disabled',true);
+		$.ajax({
+			url:'/user/server/{{user_info.id}}/', //请求地址
+			type:"POST",  //提交类似
+			data:$('#websshModelRun').serialize(),  //提交参数
+			success:function(response){
+				btnObj.removeAttr('disabled');
+				if (response["code"] == "500"){
+					btnObj.removeAttr('disabled');
+					window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
+				}
+				else {
+					btnObj.removeAttr('disabled');
+					window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.success);					
+				}
+				
+			},
+	    	error:function(response){
+	    		btnObj.removeAttr('disabled');
+	    		window.wxc.xcConfirm("添加失败", window.wxc.xcConfirm.typeEnum.error);
+	    	}
+		})	
+	}
 </script>
 
 {% endblock %}

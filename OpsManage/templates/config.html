@@ -130,7 +130,20 @@
 														</select>
 													 </div>
 												</div>																							
-												
+												<div class="form-group" >
+													 <label class="col-sm-2 control-label"><i class="fa fa-envelope-square"></i> WebSSH</label>
+													 <div class="col-sm-6">
+														<select class="form-control" name="webssh">
+															{% if config.webssh == 1 %}
+																<option selected="selected" value="1">开启</option>
+																<option value="0">关闭</option>																			
+															{% else %}
+																<option selected="selected" value="0">关闭</option>
+																<option  value="1">开启</option>
+															{% endif %}																		
+														</select>
+													 </div>
+												</div>													
 												<div class="hr hr32 hr-dotted"></div>                                        
 												<div class="form-group">
 													<div class="col-md-offset-3 col-md-9">

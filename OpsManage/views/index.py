@@ -132,7 +132,8 @@ def config(request):
                                                       project =  request.POST.get('project'),
                                                       assets =  request.POST.get('assets',0),
                                                       server =  request.POST.get('server',0),
-                                                      email =  request.POST.get('email',0),                                                     
+                                                      email =  request.POST.get('email',0),   
+                                                      webssh =  request.POST.get('webssh',0),                                                   
                                                     )
             else:
                 config = Global_Config.objects.create(
@@ -142,7 +143,8 @@ def config(request):
                                                       project =  request.POST.get('project'),
                                                       assets =  request.POST.get('assets'),
                                                       server =  request.POST.get('server'),
-                                                      email =  request.POST.get('email')
+                                                      email =  request.POST.get('email'),
+                                                      webssh =  request.POST.get('webssh',0)
                                                     )    
             return JsonResponse({'msg':'配置修改成功',"code":200,'data':[]})   
         elif request.POST.get('op') == "email":
@@ -172,3 +174,5 @@ def config(request):
                                             )    
             return JsonResponse({'msg':'配置修改成功',"code":200,'data':[]})  
         
+
+
