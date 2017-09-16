@@ -177,4 +177,4 @@ Ansible部署功能：
 ![image](https://github.com/welliamcao/OpsManage/blob/master/demo_imgs/user.gif)
 
 WebSSH:
-![image](https://github.com/welliamcao/OpsManage/blob/master/demo_imgs/webssh.png)
+![image](https://github.com/welliamcao/OpsManage/blob/beta/demo_imgs/webssh.png)
