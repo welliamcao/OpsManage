@@ -87,3 +87,18 @@ def getDaysAgo(num):
     otherStyleTime = threeDayAgo .strftime("%Y%m%d")
     return otherStyleTime
 
+def mkSshdir(user):
+    cmd = "mkdir -p /var/lib/gateone/users/{user}/.ssh/".format(user=user)
+    return commands.getstatusoutput(cmd)
+
+def cpSshKey(user):
+    cmd = "yes y|cp -raf /root/.ssh/id_rsa* /var/lib/gateone/users/{user}/.ssh/".format(user=user)
+    return commands.getstatusoutput(cmd)    
+
+def mkDefaultIds(user):
+    cmd = "cd /var/lib/gateone/users/{user}/.ssh/ && echo id_rsa > .default_ids".format(user=user)
+    return commands.getstatusoutput(cmd)     
+
+def delUserIds(user): 
+    cmd = "rm -rf /var/lib/gateone/users/{user}/".format(user=user)
+    return commands.getstatusoutput(cmd)      

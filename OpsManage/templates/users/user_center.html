@@ -19,6 +19,10 @@
 				           <ul class="nav nav-tabs">
 				              <li class="active"><a href="#home" data-toggle="tab"><i class="fa  fa-tasks"></i> 我的工单</a>
 				              </li>
+				              {% if serverList %}
+				              <li><a href="#server" data-toggle="tab"><i class="fa fa-linux"></i> 我的主机</a>
+				              </li>			
+				              {% endif %}	              
 				              <li><a href="#profile" data-toggle="tab"><i class="fa   fa-lock"></i> 修改密码</a>
 				              </li>
 				           </ul>
@@ -125,6 +129,94 @@
 
 				                   </div>
 				              </div>
+				              {% if serverList %}
+				              <div class="tab-pane fade" id="server">
+				                   <div class="row">
+				                   		<div class="col-sm-12">
+				                   			<br>	
+				                            <table width="100%" class="table table-striped table-bordered table-hover" id="assetsListTable">
+				                                <thead>
+													  <tr>
+													       <th class="text-center">资产类型</th>
+													       <th class="text-center">管理IP</th>
+													       <th class="text-center">资产编号</th>
+													       <th class="text-center">设备型号</th>
+													       <th class="text-center">放置区域</th>
+													       <th class="text-center">购买人</th>
+													       <th class="text-center">购买时间</th>
+													       <th class="text-center">业务类型</th>
+													       <th class="text-center">设备状态</th>
+													       <th class="text-center">操作</th>
+													    </tr>
+				                                </thead>
+				                                <tbody>
+				                                	{% for a in  serverList %}
+					                                    <tr class="odd gradeX">
+													         <td class="text-center">	
+													         		{% if a.assets_type == "server" %}
+													         			<button  type="button" class="btn btn-default disabled">服务器</button>
+													         		{% elif a.assets_type == "switch" %}
+													         			<button  type="button" class="btn btn-default disabled">交换机</button>	
+													         		{% elif a.assets_type == "route" %}
+													         			<button  type="button" class="btn btn-default disabled">路由器</button>	
+													         		{% elif a.assets_type == "printer" %}
+													         			<button  type="button" class="btn btn-default disabled">打印机</button>	
+													         		{% elif a.assets_type == "scanner" %}
+													         			<button  type="button" class="btn btn-default disabled">扫描仪</button>	
+													         		{% elif a.assets_type == "firewall" %}
+													         			<button  type="button" class="btn btn-default disabled">防火墙</button>	
+													         		{% elif a.assets_type == "storage" %}
+													         			<button  type="button" class="btn btn-default disabled">存储设备</button>
+													         		{% elif a.assets_type == "wifi" %}
+													         			<button  type="button" class="btn btn-default disabled">无线设备</button>									         													         												         												         											         												         			
+													         		{% endif %}
+													         </td>
+													         <td class="text-center">{{ a.management_ip }}</td>
+													         <td class="text-center">{{ a.name }}</td>
+													         <td class="text-center">{{ a.model }}</td>
+													         <td class="text-center">
+													         	{% for z in baseAssets.zone %}
+													         		{% if z.id == a.put_zone %}
+													         			{{ z.zone_name }}
+													         		{% endif %}
+													         	{% endfor %}
+													         </td>
+													         <td class="text-center">{{ a.buy_user }}</td>
+													         <td class="text-center">{{ a.buy_time|date:"Y/m/d" }}</td>
+													         <td class="text-center">
+													         	{% for s in baseAssets.service %}
+													         		{% if s.id == a.business %}
+													         			<button  type="button" class="btn btn-default disabled">{{ s.service_name }}</button>	
+													         		{% endif %}
+													         	{% endfor %}								         		
+													         </td>
+													         <td class="text-center">
+													         		{% if a.status == 0 %}
+													         			<button  type="button" class="btn btn-outline btn-success">已上线</button>
+													         		{% elif a.status == 1 %}
+													         			<button  type="button" class="btn btn-outline btn-primary">已下线</button>
+													         		{% elif a.status == 2 %}
+													         			<button  type="button" class="btn btn-outline btn-warning">维修中</button>
+													         		{% elif a.status == 3 %}
+													         			<button  type="button" class="btn btn-outline btn-info">已入库</button>
+													         		{% elif a.status == 4 %}
+													         			<button  type="button" class="btn btn-outline btn-default">未使用</button>
+													         		{% endif %}
+													         </td>	
+													         <td class="text-center">
+													         	<a href="/assets_view/{{a.id}}" style="text-decoration:none;"><button  type="button" class="btn btn-default"><abbr title="查看详细信息"><i class="glyphicon glyphicon-info-sign"></i></abbr></button></a>
+
+													         	
+													         	<a href="/webssh/{{a.server_assets.id}}/" style="text-decoration:none;"><button  type="button" class="btn btn-default"><abbr title="查看详细信息"><i class="fa fa-desktop"></i></abbr></button></a>
+													         </td>
+					                                    </tr>
+					                                 {% endfor %}
+				                                </tbody>
+				                            </table>				                   					                   			
+										</div>
+				                   </div>
+				              </div>	
+				              {% endif %}			              
 				              <div class="tab-pane fade" id="profile">
 				                   <div class="row">
 				                   		<div class="col-sm-2"></div>
@@ -178,6 +270,13 @@
 
 
 <script type="text/javascript">
+
+		$(document).ready(function() {
+		    $('#assetsListTable').DataTable({
+		        responsive: true
+		    });
+		});
+
 
 		$(document).ready(function() {
 		    $('#orderTableList').DataTable({

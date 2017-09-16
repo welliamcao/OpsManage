@@ -1,0 +1,68 @@
+<html>
+<head>
+<title>WebSSH - {{ server.ip }}</title>
+<script src="/static/vendor/jquery/jquery.min.js"></script>
+<!--    弹窗开始样式 -->
+<script src="/static/dist/js/xcConfirm.js" type="text/javascript" charset="utf-8"></script>
+<link rel="stylesheet" type="text/css" href="/static/dist/css/xcConfirm.css"/>
+</head>
+<body>
+
+
+			
+				<div title="{{ server.ip }}" id="gateone_container" style="position: relative; width: 100%; height: 55em;margin: 0 auto">  
+				  
+				    <div id="gateone"></div>  
+				  
+				</div>  
+
+
+<script type="text/javascript" src="/static/js/gateone.js"></script>  
+ 
+
+{% if errorInfo %}
+	<script type="text/javascript"> 
+		window.wxc.xcConfirm("{{errorInfo}}", window.wxc.xcConfirm.typeEnum.error);
+	</script> 
+{% else %}
+	<script type="text/javascript">
+    $(document).ready(function(){           
+        var ip = "{{ server.ip }}";  
+        var ssh_url = 'ssh://{{ server.username }}@' + ip + ':' + {{ server.port }};             
+        var request = $.ajax({  
+            url:'/api/webssh/',   
+            type:"GET",  
+            dataType:"json",  
+  
+        });  
+        
+        request.done(function (auth_info) {
+        	console.log(auth_info["auth"]);
+            GateOne.init({
+                auth: auth_info["auth"],
+                url: auth_info["url"],
+                scrollback: 10000,
+                disableTermTransitions: 'true',
+                autoConnectURL: ssh_url,
+                showToolbar: false
+            });
+        }); 
+//         GateOne.Net.autoConnect();
+        GateOne.Base.superSandbox("GateOne.SomePlugin", ["GateOne", "GateOne.Net",  "GateOne.Terminal.Input", "GateOne.Terminal"], function(window, undefined) {   
+            var location =  ip;                
+            GateOne.prefs.autoConnectURL=ssh_url;  
+            GateOne.prefs.fontSize="100%";  
+            GateOne.prefs.scrollback = 10000;  // scrollback buffer up to 10,000 lines  
+            GateOne.Terminal.loadFont("Source Code Pro", "100%");  
+            GateOne.locations; // Holds the state of all current known/open locations  
+            GateOne.Net.setLocation(location); // Change locations in the current tab on-the-fly!这里设置的作用在于记录和保持ssh登陆的状态，只要不logout或者断开session，关闭页面后打开还会回到上次的状态  
+        });  
+    }); // end of document ready  
+  
+  
+
+  
+</script> 	
+{% endif %}
+</body>
+</html>

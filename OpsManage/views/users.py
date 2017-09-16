@@ -8,6 +8,11 @@ from django.contrib.auth.models import User,Group,Permission
 from django.contrib.auth.decorators import permission_required
 from django.db.models import Q 
 from OpsManage.models import Project_Order
+from OpsManage.models import (Server_Assets,Service_Assets,
+                                Assets,User_Server,Global_Config)
+from OpsManage.utils import base
+from OpsManage.views import assets
+from django.conf import settings
 
 @login_required()
 @permission_required('auth.change_user',login_url='/noperm/') 
@@ -34,6 +39,14 @@ def register(request):
                     user.is_superuser = 0                        
                     user.set_password(request.POST.get('password'))
                     user.save()
+                    try:
+                        config = Global_Config.objects.get(id=1)
+                        if config.webssh == 1:
+                            base.mkSshdir(request.POST.get('username'))
+                            base.cpSshKey(request.POST.get('username'))
+                            base.mkDefaultIds(request.POST.get('username'))
+                    except:
+                        pass
                     return JsonResponse({"code":200,"data":None,"msg":"用户注册成功"})
             except Exception,e:
                 return JsonResponse({"code":500,"data":None,"msg":"用户注册失败"}) 
@@ -42,9 +55,26 @@ def register(request):
 @login_required()
 def user_center(request):
     if request.method == "GET": 
+        serverList = []
+        baseAssets = {}
+        try:
+            baseAssets = assets.getBaseAssets()            
+            config = Global_Config.objects.get(id=1)
+            if config.webssh == 1 and request.user.is_superuser:
+                serverList = Assets.objects.all().order_by("-id") 
+            elif config.webssh == 1:
+                userServer = User_Server.objects.filter(user_id=int(request.user.id))
+                serverList = []
+                for s in userServer:
+                    ser = Server_Assets.objects.get(id=s.server_id)
+                    serverList.append(ser.assets)
+        except:
+            pass        
         orderList = Project_Order.objects.filter(Q(order_user=User.objects.get(username=request.user)) |
                                                 Q(order_audit=User.objects.get(username=request.user))).order_by("id")[0:150]       
-        return render_to_response('users/user_center.html',{"user":request.user,"orderList":orderList},
+        return render_to_response('users/user_center.html',{"user":request.user,"orderList":orderList,
+                                                            "serverList":serverList,"baseAssets":baseAssets,
+                                                            "gateone_api_url":settings.GATEONE_API_URL},
                                   context_instance=RequestContext(request)) 
     if request.method == "POST":
         if request.POST.get('password') == request.POST.get('c_password'):
@@ -63,7 +93,7 @@ def user(request,uid):
     if request.method == "GET":
         try:
             user = User.objects.get(id=uid)
-        except:
+        except Exception,e:
             return render_to_response('users/user_info.html',{"user":request.user,
                                                              "errorInfo":"用户不存在，可能已经被删除."}, 
                                       context_instance=RequestContext(request))         
@@ -79,15 +109,22 @@ def user(request,uid):
         userGroupList = [ g.get('id') for g in user.groups.values()]
         for gs  in groupList:
             if gs.id in userGroupList:gs.status = 1
-            else:gs.status = 0                       
+            else:gs.status = 0 
+        serverList = Server_Assets.objects.all()
+        userServerListId =  [ i.server_id for i in User_Server.objects.filter(user_id=user.id)]
+        for ser in serverList:
+            if ser.id in userServerListId:ser.status = 1
+            else:ser.status = 0
+            
+        serviceList = Service_Assets.objects.all()                      
         return render_to_response('users/user_info.html',{"user":request.user,"user_info":user,
+                                                          "serverList":serverList,"serviceList":serviceList,
                                                           "permList":permList,"groupList":groupList},
                                   context_instance=RequestContext(request))
             
     elif request.method == "POST":
         try:
             user = User.objects.get(id=uid)
-            print  uid,request.POST.get('is_superuser',0)
             User.objects.filter(id=uid).update(
                                             is_active = request.POST.get('is_active'),
                                             is_superuser = int(request.POST.get('is_superuser')),
@@ -135,7 +172,51 @@ def user(request,uid):
             
  
 
-    
+@login_required       
+def user_server(request,uid):  
+    try:
+        user = User.objects.get(id=uid)
+    except Exception,e:
+        return JsonResponse({"code":500,"data":None,"msg":"主机分配失败：%s" % str(e)})
+    if request.method == "POST":
+        sList = []
+        
+        if request.POST.get('server_model') in ['service','group','custom']:
+            if request.POST.get('server_model') == 'custom':
+                serverList = request.POST.getlist('webssh_server')
+                for server in serverList:
+                    try:
+                        sList.append(Server_Assets.objects.get(id=server))
+                    except:
+                        pass
+            elif request.POST.get('server_model') == 'group':
+                serverList = Assets.objects.filter(group=request.POST.get('webssh_group'))
+                for server in serverList:
+                    sList.append(server.server_assets)  
+            elif request.POST.get('server_model') == 'service':
+                serverList = Assets.objects.filter(business=request.POST.get('webssh_service'))
+                for server in serverList:
+                    sList.append(server.server_assets)
+        try:
+            serverList = [ i.id for i in sList ]
+            userServer =  User_Server.objects.filter(user_id=user.id)
+            userServerList = []
+            for s in userServer:
+                userServerList.append(s.server_id)
+            addServerList =  list(set(serverList).difference(set(userServerList)))
+            delServerList = list(set(userServerList).difference(set(serverList)))
+            #添加新增的主机
+            for s in addServerList:
+                User_Server.objects.create(user_id=user.id,server_id=s)
+            #删除去掉的主机
+            for s in delServerList:
+                User_Server.objects.get(user_id=user.id,server_id=s).delete()
+        except Exception,e:
+            return JsonResponse({"code":500,"data":None,"msg":"主机分配失败：%s" % str(e)})  
+        return JsonResponse({"code":200,"data":None,"msg":"主机分配成功"})         
+          
+        
+  
     
         
 @login_required    

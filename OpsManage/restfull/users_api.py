@@ -7,6 +7,8 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import permission_required
+from OpsManage.models import Global_Config
+from OpsManage.utils import base
 
 @api_view(['GET', 'POST' ])
 @permission_required('OpsManage.add_user',raise_exception=True)
@@ -50,5 +52,11 @@ def user_detail(request, id,format=None):
     elif request.method == 'DELETE':
         if not request.user.has_perm('OpsManage.delete_user'):
             return Response(status=status.HTTP_403_FORBIDDEN)
+        try:
+            config = Global_Config.objects.get(id=1)
+            if config.webssh == 1:
+                base.delUserIds(snippet.username)
+        except:
+            pass        
         snippet.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)  

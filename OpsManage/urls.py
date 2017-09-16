@@ -16,7 +16,7 @@ Including another URLconf
 
 from django.conf.urls import url,include
 from django.contrib import admin
-from OpsManage.views import index,assets,cron,deploy,ansible,users
+from OpsManage.views import index,assets,cron,deploy,ansible,users,webssh
 from rest_framework.urlpatterns import format_suffix_patterns
 from OpsManage.restfull import assets_api,cron_api,deploy_api,ansible_api,users_api
 
@@ -66,6 +66,7 @@ urlpatterns = [
     url(r'^users/manage$',users.user_manage),
     url(r'^register/',users.register),
     url(r'^user/(?P<uid>[0-9]+)/$',users.user),
+    url(r'^user/server/(?P<uid>[0-9]+)/$',users.user_server),
     url(r'^user/center/$',users.user_center),
     url(r'^group/(?P<gid>[0-9]+)/$',users.group),
     url(r'^api/assets/$', assets_api.asset_list), 
@@ -98,6 +99,9 @@ urlpatterns = [
     url('^api/logs/ansible/model/(?P<id>[0-9]+)/$', ansible_api.modelLogsdetail),
     url('^api/logs/ansible/playbook/(?P<id>[0-9]+)/$', ansible_api.playbookLogsdetail),
     url('^api/logs/deploy/(?P<id>[0-9]+)/$', deploy_api.deployLogs_detail),
+    url('^webssh/(?P<id>[0-9]+)/$', webssh.webssh),
+    url('^websshFrame/(?P<id>[0-9]+)/$', webssh.websshFrame),
+    url('^api/webssh/$', webssh.generate_gate_one_auth_obj),
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)
