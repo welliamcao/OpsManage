@@ -21,7 +21,7 @@
                         <div class="panel-body">
 							<table id="myWebsshTable" class="table table-hover">
 				            	<tr>
-						            <td ><strong><i class="fa fa-terminal fa-fw"></i> {{server.ip}}</strong>
+						            <td ><strong>&nbsp;&nbsp;<i class="fa fa-terminal fa-fw"></i> {{server.ip}}</strong>
 						            </td>
 						            <td>
 						            <a onclick="addTab('{{server.ip}}','{{gateone_api_url}}/websshFrame/{{server.id}}/?location={{server.ip}}')">
@@ -32,7 +32,7 @@
 				            	{% for ds in serverList  %}
 				            	<tr>
 				            		{% if server.id != ds.id %}
-						                <td ><strong><i class="fa fa-terminal fa-fw"></i> {{ ds.ip }}</strong>
+						                <td ><strong>&nbsp;&nbsp;<i class="fa fa-terminal fa-fw"></i> {{ ds.ip }}</strong>
 						                </td>
 						                <td>
 						                	<a onclick="addTab('{{ds.ip}}','{{gateone_api_url}}/websshFrame/{{ds.id}}/?location={{ds.ip}}')">
