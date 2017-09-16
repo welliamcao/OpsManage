@@ -114,11 +114,11 @@ DATABASES = {
     }
 }
 STATICFILES_DIRS = (
-     ‘/yourpath/OpsManage/OpsManage/static/',	#修改成自己的配置
+     '/yourpath/OpsManage/OpsManage/static/',	#修改成自己的配置
     )
 TEMPLATE_DIRS = (
 #     os.path.join(BASE_DIR,'mysite\templates'),
-    ‘/yourpath/OpsManage/OpsManage/templates/',	#修改成自己的配置
+    '/yourpath/OpsManage/OpsManage/templates/',	#修改成自己的配置
 )
 ```
 八、生成数据表与管理员账户
@@ -175,3 +175,6 @@ Ansible部署功能：
 
 用户管理：
 ![image](https://github.com/welliamcao/OpsManage/blob/master/demo_imgs/user.gif)
+
+WebSSH:
+![image](https://github.com/welliamcao/OpsManage/blob/master/demo_imgs/webssh.png)
