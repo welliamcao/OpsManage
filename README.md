@@ -155,6 +155,9 @@ numprocs=1
 # /usr/local/bin/supervisord -c /etc/supervisord.conf
 # supervisorctl status
 ```
+十二、配置WebSSH(可选)
+>  参照[GateOne.md](https://github.com/welliamcao/OpsManage/blob/beta/GateOne.md)进行安装配置
+
 Ansible部署功能：
 ![image](https://github.com/welliamcao/OpsManage/blob/master/demo_imgs/ansible.gif)
 
