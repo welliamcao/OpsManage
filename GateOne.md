@@ -64,3 +64,7 @@ GATEONE_SECRET = 'ZjFkMzFjNzk0MjI4NGYwYmJlMDM5MjFkOGJmMTEwMmFlO' #对应30api_ke
 
 三、开启WebSSH功能
 > 全局配置 -> 开启WebSSH
+
+四、常见问题
+
+ * [Unit gateone.service not found](https://github.com/welliamcao/OpsManage/issues/31)
