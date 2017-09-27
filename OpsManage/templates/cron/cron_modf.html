@@ -24,42 +24,42 @@
 											<div class="form-group">
 												 <label class="col-sm-2 control-label">分</label>
 												 <div class="col-sm-6">
-												 	<input type="text" class="form-control" name="cron_minute" placeholder="*/1" value="{{ cron.cron_minute }}"  class="input-xlarge" required pattern="^(\*|\*\/[0-5]?[0-9]|[0-5]?[0-9]|)$"  title="正确格式：00-59 or * or */1"  />
+												 	<input type="text" class="form-control" name="cron_minute" placeholder="*/1" value="{{ cron.cron_minute|default:"" }}"  class="input-xlarge" required pattern="^(\*|\*\/[0-5]?[0-9]|[0-5]?[0-9]|)$"  title="正确格式：00-59 or * or */1"  />
 												 </div>
 											</div>
 											
 											<div class="form-group">
 												 <label class="col-sm-2 control-label">时</label>
 												 <div class="col-sm-6">
-												 	<input type="text" class="form-control" name="cron_hour" placeholder="0-23" value="{{ cron.cron_hour }}" class="input-xlarge" required pattern="^(\*|\*\/[0-2]?[0-3]|[0-2]?[0-3])$"  title="正确格式：0-23 or * or */1" />
+												 	<input type="text" class="form-control" name="cron_hour" placeholder="0-23" value="{{ cron.cron_hour|default:"" }}" class="input-xlarge" required pattern="^(\*|\*\/[0-2]?[0-3]|[0-2]?[0-3])$"  title="正确格式：0-23 or * or */1" />
 												 </div>
 											</div>	
 					
 											<div class="form-group">
 												 <label class="col-sm-2 control-label">日</label>
 												 <div class="col-sm-6">
-												 	<input type="text" class="form-control" name="cron_day" placeholder="1-31" value="{{ cron.cron_day }}" class="input-xlarge" required pattern="^(\*|[0-3]?[0-9]|\*\/[0-3]?[0-9])$"  title="正确格式：01 or * or */1"/>
+												 	<input type="text" class="form-control" name="cron_day" placeholder="1-31" value="{{ cron.cron_day|default:"" }}" class="input-xlarge" required pattern="^(\*|[0-3]?[0-9]|\*\/[0-3]?[0-9])$"  title="正确格式：01 or * or */1"/>
 												 </div>
 											</div>		
 					
 											<div class="form-group">
 												 <label class="col-sm-2 control-label">月</label>
 												 <div class="col-sm-6">
-												 	<input type="text" class="form-control" name="cron_week" placeholder="*" value="{{ cron.cron_week }}"  class="input-xlarge"  required  pattern="^(\*|[0-1]?[0-9]|\*\/[0-1]?[0-9])$"  title="正确格式：01 or * or */1"/>
+												 	<input type="text" class="form-control" name="cron_week" placeholder="*" value="{{ cron.cron_week|default:"" }}"  class="input-xlarge"  required  pattern="^(\*|[0-1]?[0-9]|\*\/[0-1]?[0-9])$"  title="正确格式：01 or * or */1"/>
 												 </div>
 											</div>															
 														
 											<div class="form-group">
 												 <label class="col-sm-2 control-label">周</label>
 												 <div class="col-sm-6">
-												 	<input type="text" class="form-control" name="cron_month" placeholder="0-7" value="{{ cron.cron_month }}" class="input-xlarge"  required pattern="^(\*|[0-6]||[0-6]\*\/)$"  title="正确格式：01 or * or */1"/>
+												 	<input type="text" class="form-control" name="cron_month" placeholder="0-7" value="{{ cron.cron_month|default:"" }}" class="input-xlarge"  required pattern="^(\*|[0-6]||[0-6]\*\/)$"  title="正确格式：01 or * or */1"/>
 												 </div>
 											</div>	
 
 											<div class="form-group">
 												 <label class="col-sm-2 control-label">命令</label>
 												 <div class="col-sm-6">
-												 	<input type="text" class="form-control" name="cron_command" placeholder="/usr/sbin/ntpdate time.windows.com" value="{{ cron.cron_command }}" class="input-xlarge"  required/>
+												 	<input type="text" class="form-control" name="cron_command" placeholder="/usr/sbin/ntpdate time.windows.com" value="{{ cron.cron_command|default:"" }}" class="input-xlarge"  required/>
 												 </div>
 											</div>
 											
@@ -74,7 +74,7 @@
 												 <label class="col-sm-2 control-label" >脚本路径</label>
 												 <div class="col-sm-6">
 												 	{% if cron.cron_script_path %}
-												 		<input type="text" class="form-control"  name="cron_script_path" placeholder="/usr/local/src/update.sh" value="{{ cron.cron_script_path }}" class="input-xlarge"  title="正确格式：/usr/local/src/update.sh"/>
+												 		<input type="text" class="form-control"  name="cron_script_path" placeholder="/usr/local/src/update.sh" value="{{ cron.cron_script_path|default:"" }}" class="input-xlarge"  title="正确格式：/usr/local/src/update.sh"/>
 												 	{% else %}
 												 		<input type="text" class="form-control"  name="cron_script_path" placeholder="/usr/local/src/update.sh" value="" class="input-xlarge"  title="正确格式：/usr/local/src/update.sh"/>
 												 	{% endif %}
@@ -85,7 +85,7 @@
 											<div class="form-group">
 												 <label class="col-sm-2 control-label">用户</label>
 												 <div class="col-sm-6">
-												 	<input type="text" class="form-control" name="cron_user" placeholder="root" value="{{ cron.cron_user }}"   class="input-xlarge" />
+												 	<input type="text" class="form-control" name="cron_user" placeholder="root" value="{{ cron.cron_user|default:"" }}"   class="input-xlarge" />
 												 </div>
 											</div>															
 												
@@ -108,14 +108,14 @@
 											<div class="form-group">
 												 <label class="col-sm-2 control-label">任务名称</label>
 												 <div class="col-sm-6">
-												 	<input type="text" class="form-control" name="cron_name" placeholder="计划任务名称" value="{{ cron.cron_name }}"  class="input-xlarge"  disabled/>
+												 	<input type="text" class="form-control" name="cron_name" placeholder="计划任务名称" value="{{ cron.cron_name|default:"" }}"  class="input-xlarge"  disabled/>
 												 </div>
 											</div>
 											
 											<div class="form-group">
 												 <label class="col-sm-2 control-label">任务描述</label>
 												 <div class="col-sm-6">
-												 	<input type="text" class="form-control" name="cron_desc" placeholder="任务描述" value="{{ cron.cron_desc }}" class="input-xlarge"  required/>
+												 	<input type="text" class="form-control" name="cron_desc" placeholder="任务描述" value="{{ cron.cron_desc|default:"" }}" class="input-xlarge"  required/>
 												 </div>
 											</div>						
 											
