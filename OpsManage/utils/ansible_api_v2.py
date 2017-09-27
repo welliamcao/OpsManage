@@ -2,6 +2,7 @@
 # -*- coding=utf-8 -*-
 import json,sys,os
 from collections import namedtuple
+from ansible import constants
 from ansible.parsing.dataloader import DataLoader
 from ansible.vars import VariableManager
 from ansible.inventory import Inventory,Host,Group
@@ -11,6 +12,7 @@ from ansible.plugins.callback import CallbackBase
 from ansible.executor.playbook_executor import PlaybookExecutor
 from OpsManage.data.DsRedisOps import DsRedis 
 from OpsManage.data.DsMySQL import AnsibleSaveResult
+
 
 class MyInventory(Inventory):  
     """ 
@@ -59,6 +61,7 @@ class MyInventory(Inventory):
             my_host.set_variable('ansible_ssh_user', username)  
             my_host.set_variable('ansible_ssh_pass', password)  
             my_host.set_variable('ansible_ssh_private_key_file', ssh_key)  
+
   
             # set other variables  
             for key, value in host.iteritems():  
@@ -353,6 +356,7 @@ class ANSRunner(object):
         self.results_raw = {}  
         self.redisKey = redisKey
         self.logId = logId
+         
   
     def __initializeData(self):  
         """ 初始化ansible """  
@@ -384,7 +388,8 @@ class ANSRunner(object):
                 hosts=host_list,  
                 gather_facts='no',  
                 tasks=[dict(action=dict(module=module_name, args=module_args))]  
-        )  
+        )
+         
         play = Play().load(play_source, variable_manager=self.variable_manager, loader=self.loader)  
         tqm = None  
         if self.redisKey:self.callback = ModelResultsCollectorToSave(self.redisKey,self.logId)  
@@ -398,6 +403,7 @@ class ANSRunner(object):
                     passwords=self.passwords,  
             )  
             tqm._stdout_callback = self.callback  
+            constants.HOST_KEY_CHECKING = False #关闭第一次使用ansible连接客户端是输入命令
             tqm.run(play)  
         except Exception as err: 
             DsRedis.OpsAnsibleModel.lpush(self.redisKey,data=err)
@@ -419,6 +425,7 @@ class ANSRunner(object):
                 options=self.options, passwords=self.passwords,  
             )  
             executor._tqm._stdout_callback = self.callback  
+            constants.HOST_KEY_CHECKING = False #关闭第一次使用ansible连接客户端是输入命令
             executor.run()  
         except Exception as err: 
             DsRedis.OpsAnsibleModel.lpush(self.redisKey,data=err)
