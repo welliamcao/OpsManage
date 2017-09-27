@@ -81,7 +81,7 @@ def cron_add(request):
                 cron.delete()
                 return render_to_response('cron/cron_add.html',{"user":request.user,
                                                                    "serverList":serverList,
-                                                                   "errorInfo":"错误信息:"+script[0].get('msg')}, 
+                                                                   "errorInfo":"错误信息:"+result[0].get('msg')}, 
                                       context_instance=RequestContext(request)) 
         return HttpResponseRedirect('/cron_add')
 
