@@ -57,14 +57,25 @@ GATEONE_SERVER = 'https://192.168.88.233'   ##改成GateOne运行的地址
 GATEONE_API_URL = 'http://192.168.88.233:8000'  #改成OpsManage运行的地址
 GATEONE_KEY = 'NTA3ZGY5Y2VjZjg3NGRhOGI3YjE3NTZmMjViNzRhNjY3O' #对应30api_keys.conf的key
 GATEONE_SECRET = 'ZjFkMzFjNzk0MjI4NGYwYmJlMDM5MjFkOGJmMTEwMmFlO' #对应30api_keys.conf的secret
-
 ```
 二、安装OpsManage
 >  参照OpsManage的[readme.md](https://github.com/welliamcao/OpsManage/blob/beta/README.md)进行安装
 
+
 三、开启WebSSH功能
 > 全局配置 -> 开启WebSSH
+
+配置OpsManage平台管理员账户
+```
+# mkdir -p /var/lib/gateone/users/admin/.ssh   #注意这里的admin是你的OpsManage管理员账户
+# cd /var/lib/gateone/users/admin/.ssh/
+# cp /root/.ssh/id* .              #这里的证书需要有权限能够登陆其他远程服务器
+# echo id_rsa > ./.default_ids
+```
+
+
 
 四、常见问题
 
  * [Unit gateone.service not found](https://github.com/welliamcao/OpsManage/issues/31)
+ * [SSL routines:SSL_CTX_use_certificate_chain_file:PEM lib](https://github.com/welliamcao/OpsManage/issues/34)
