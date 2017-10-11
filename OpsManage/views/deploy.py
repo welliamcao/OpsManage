@@ -30,8 +30,7 @@ def deploy_add(request):
     elif  request.method == "POST":
         serverList = Server_Assets.objects.all()
         ipList = request.POST.getlist('server') 
-        try: 
-            print request.POST     
+        try:    
             project = Project_Config.objects.create(
                                                     project_name = request.POST.get('project_name'),
                                                     project_env = request.POST.get('project_env'), 
@@ -126,7 +125,13 @@ def deploy_modf(request,pid):
                     if server.ip not in tagret_server_list:     
                         Project_Number.objects.create(dir=request.POST.get('dir'),
                                                       server=server.ip,
-                                                      project=project)                        
+                                                      project=project)    
+                    elif server.ip in tagret_server_list and request.POST.get('dir'):
+                        try:
+                            Project_Number.objects.filter(project=project,server=server.ip).update(dir=request.POST.get('dir'))  
+                        except Exception,e:
+                            print e
+                            pass                                          
                 except Exception,e:
                     return render_to_response('deploy/deploy_modf.html',{"user":request.user,
                                                                         "serverList":serverList,
@@ -232,18 +237,38 @@ def deploy_run(request,pid):
             allServerList = [ ds.server  for ds in Project_Number.objects.filter(project=project) ]
             #获取项目目标服务器列表与分批部署服务器（post提交）列表的差集
             tmpServer = [ i for i in allServerList if i not in request.POST.getlist('project_server') ]
+        elif request.POST.get('project_model',None) == "rollback":tmpServer = None
         else:return JsonResponse({'msg':"项目部署失败：未选择目标服务器","code":500,'data':[]}) 
         if DsRedis.OpsProject.get(redisKey=project.project_uuid+"-locked") is None:#判断该项目是否有人在部署
             #给项目部署加上锁
             DsRedis.OpsProject.set(redisKey=project.project_uuid+"-locked",value=request.user)
             DsRedis.OpsDeploy.delete(project.project_uuid)  
-            if request.POST.get('project_mode',None) == "rollback":
+            if request.POST.get('project_model',None) == "rollback":
                 if project.project_model == 'branch':
+                    bName = request.POST.get('project_version') 
                     trueDir = project.project_dir+project.project_env+'/'+ request.POST.get('project_version')  + '/'
                     DsRedis.OpsDeploy.lpush(project.project_uuid, data="[Start] Start Rollback branch:%s  vesion: %s" % (request.POST.get('project_branch'),request.POST.get('project_version')))
                 elif  project.project_model == 'tag':
+                    bName = request.POST.get('project_branch') 
                     trueDir = project.project_dir+project.project_env+'/'+ request.POST.get('project_branch') + '/'
                     DsRedis.OpsDeploy.lpush(project.project_uuid, data="[Start] Start Rollback tag:%s" % request.POST.get('project_branch'))
+                #创建版本目录
+                base.mkdir(dirPath=trueDir)
+                DsRedis.OpsDeploy.lpush(project.project_uuid, data="[Running] Mkdir version dir: {dir} ".format(dir=trueDir))
+                #创建快捷方式
+                softdir = project.project_dir+project.project_name+'/'
+                result = base.lns(spath=trueDir, dpath=softdir.rstrip('/'))
+                DsRedis.OpsDeploy.lpush(project.project_uuid, data="[Running] Make softlink cmd:  ln -s  {sdir} {ddir} info: {info}".format(sdir=trueDir,ddir=softdir,info=result[1]))
+                if result[0] > 0:return JsonResponse({'msg':result[1],"code":500,'data':[]})    
+                #获取要排除的文件 
+                exclude = None
+                if project.project_exclude:
+                    try:
+                        exclude = ''
+                        for s in project.project_exclude.split(','):
+                            exclude =  '--exclude "{file}"'.format(file=s.replace('\r\n','').replace('\n','').strip()) + ' ' + exclude
+                    except Exception,e:
+                        return JsonResponse({'msg':str(e),"code":500,'data':[]})                                 
             else:
                 #判断版本上线类型再切换分支到指定的分支/Tag
                 if project.project_model == 'branch':
@@ -287,10 +312,10 @@ def deploy_run(request,pid):
                     result = base.rsync(sourceDir=project.project_repo_dir, destDir=trueDir,exclude=exclude)
                     DsRedis.OpsDeploy.lpush(project.project_uuid, data="[Running] Rsync {sDir} to {dDir} exclude {exclude}".format(sDir=project.project_repo_dir,dDir=trueDir,exclude=exclude))  
                     if result[0] > 0:return JsonResponse({'msg':result[1],"code":500,'data':[]})                         
-            #授权文件
-            result = base.chown(user=project.project_user, path=trueDir)
-            DsRedis.OpsDeploy.lpush(project.project_uuid, data="[Running] Chown {user} to {path}".format(user=project.project_user,path=trueDir)) 
-            if result[0] > 0:return JsonResponse({'msg':result[1],"code":500,'data':[]})        
+                #授权文件
+                result = base.chown(user=project.project_user, path=trueDir)
+                DsRedis.OpsDeploy.lpush(project.project_uuid, data="[Running] Chown {user} to {path}".format(user=project.project_user,path=trueDir)) 
+                if result[0] > 0:return JsonResponse({'msg':result[1],"code":500,'data':[]})        
             #调用ansible同步代码到远程服务器上           
             resource = []
             hostList = []
@@ -336,7 +361,7 @@ def deploy_run(request,pid):
             #切换版本之后取消项目部署锁
             DsRedis.OpsProject.delete(redisKey=project.project_uuid+"-locked") 
             #异步记入操作日志
-            if request.POST.get('project_version'):bName = request.POST.get('project_version') 
+#             if request.POST.get('project_version'):bName = request.POST.get('project_version') 
             recordProject.delay(project_user=str(request.user),project_id=project.id,
                                 project_name=project.project_name,project_content="部署项目",
                                 project_branch=bName)          
