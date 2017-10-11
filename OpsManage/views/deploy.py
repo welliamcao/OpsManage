@@ -95,6 +95,7 @@ def deploy_modf(request,pid):
                                 context_instance=RequestContext(request))         
     elif  request.method == "POST":
         ipList = request.POST.getlist('server',None)
+        #
         try:      
             Project_Config.objects.filter(id=pid).update(
                                                     project_name = request.POST.get('project_name'),
@@ -118,6 +119,7 @@ def deploy_modf(request,pid):
                                   context_instance=RequestContext(request)) 
         if ipList:
             tagret_server_list = [ s.server for s in tagret_server ]
+            tagret_server_dir = [ s.dir for s in tagret_server ][0]
             postServerList = []
             for sid in ipList:
                 try:
@@ -126,7 +128,11 @@ def deploy_modf(request,pid):
                     if server.ip not in tagret_server_list:     
                         Project_Number.objects.create(dir=request.POST.get('dir'),
                                                       server=server.ip,
-                                                      project=project)                        
+                                                      project=project)
+                    # 判断是否需要修改部署目录
+                    elif server.ip in tagret_server_list and request.POST.get('dir') != tagret_server_dir:
+                        Project_Number.objects.filter(project=project, server=server.ip).update(
+                            dir=request.POST.get('dir'),)                        
                 except Exception,e:
                     return render_to_response('deploy/deploy_modf.html',{"user":request.user,
                                                                         "serverList":serverList,
