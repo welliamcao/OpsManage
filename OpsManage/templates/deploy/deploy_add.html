@@ -20,7 +20,7 @@
                                     <form role="form" method="post">  {% csrf_token %}
                                         <div class="form-group">
                                             <label>项目名称</label>
-                                            <input class="form-control" name="project_name" required pattern="^\w+$" title="只支持英文格式">
+                                            <input class="form-control" name="project_name" required pattern="^[A-Za-z]+$" title="只支持英文格式">
                                             <p class="help-block">例如：opsmanage</p>
                                         </div>
                                         <div class="form-group">
