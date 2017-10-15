@@ -221,11 +221,24 @@
 												 	</select>
 												 </div>
 											</div>
+												<div class="form-group">
+													 <label class="col-sm-2 control-label">账户</label>
+													 <div class="col-sm-6">
+													 <input type="text" class="form-control" name="server_username" placeholder="Username"  class="input-xlarge" value="{{ asset_body.username|default:"" }}" />
+													 </div>
+												</div>											
 											{% if asset_body.keyfile == 1 %}
 												<div id="auth_accout_select" style="display:none;">
 											{% else %}
 												<div id="auth_accout_select">
 											{% endif %}
+	
+												<div class="form-group">
+													 <label class="col-sm-2 control-label">密码</label>
+													 <div class="col-sm-6">
+													 <input type="password" class="form-control" name="server_passwd" placeholder="Password"  class="input-xlarge" value="{{ asset_body.passwd|default:"" }}" />
+													 </div>
+												</div>																							
 												<div class="form-group">
 													 <label class="col-sm-2 control-label">主机名字</label>
 													 <div class="col-sm-6">
@@ -233,19 +246,9 @@
 													 </div>
 												</div>					
 												
-												<div class="form-group">
-													 <label class="col-sm-2 control-label">账户</label>
-													 <div class="col-sm-6">
-													 <input type="text" class="form-control" name="server_username" placeholder="Username"  class="input-xlarge" value="{{ asset_body.username|default:"" }}" />
-													 </div>
-												</div>							
+						
 												
-												<div class="form-group">
-													 <label class="col-sm-2 control-label">密码</label>
-													 <div class="col-sm-6">
-													 <input type="password" class="form-control" name="server_passwd" placeholder="Password"  class="input-xlarge" value="{{ asset_body.passwd|default:"" }}" />
-													 </div>
-												</div>							
+							
 											</div>
 											<div class="form-group">
 												 <label class="col-sm-2 control-label">端口</label>

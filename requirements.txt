@@ -10,3 +10,4 @@ supervisor
 redis
 MySQL-python
 DBUtils
+xlrd

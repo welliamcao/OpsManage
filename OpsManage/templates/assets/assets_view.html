@@ -115,7 +115,7 @@
                                     <span class="pull-right text-muted small">
                                     {% for g in baseAssets.group %}
                                     	{% if g.id == asset_main.group %}
-                                    		<em>{{ g.group_name }}</em>
+                                    		<em>{{ g.name }}</em>
                                     	{% endif %}
                                     {% endfor %}                                    
                                     </span>
@@ -189,12 +189,12 @@
                                 </a>
                                 <a href="#" class="list-group-item">
                                     <i class="fa fa-hdd-o fa-fw"></i> 磁盘总容量
-                                    <span class="pull-right text-muted small"><em>{{ asset_body.disk_total }}</em>
+                                    <span class="pull-right text-muted small"><em>{{ asset_body.disk_total }}MB</em>
                                     </span>
                                 </a>
                                 <a href="#" class="list-group-item">
                                     <i class="fa fa-tachometer fa-fw"></i> 内存容量
-                                    <span class="pull-right text-muted small"><em>{{ asset_body.ram_total  }}</em>
+                                    <span class="pull-right text-muted small"><em>{{ asset_body.ram_total  }}MB</em>
                                     </span>
                                 </a>
                                 <a href="#" class="list-group-item">
@@ -214,7 +214,7 @@
                                 </a>
                                 <a href="#" class="list-group-item">
                                     <i class="fa fa-trophy fa-fw"></i> Swap容量
-                                    <span class="pull-right text-muted small"><em>{{ asset_body.swap  }}</em>
+                                    <span class="pull-right text-muted small"><em>{{ asset_body.swap  }}MB</em>
                                     </span>
                                 </a>                                                                                                                                                                                                
                             </div>    
@@ -304,7 +304,7 @@
 								 </table>
 								 {% if  asset_body.ram_total %}
 				                <div class="text-right">
-				                  <a href="#"><i class="fa fa-arrow-circle-right"></i>内存容量： {{ asset_body.ram_total }}</a>
+				                  <a href="#"><i class="fa fa-arrow-circle-right"></i>内存容量： {{ asset_body.ram_total }} MB</a>
 				                </div>
 				                {% endif %}									                         
                         </div>

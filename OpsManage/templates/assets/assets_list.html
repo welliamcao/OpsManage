@@ -149,7 +149,10 @@
                                     <a href="/assets_list">资产列表</a>
                                 </li>
 								<li>
-	                                    <a href="/assets_log">操作日志</a>
+                                    <a href="/assets_search/">资产查询</a>
+                                </li>                                
+								<li>
+	                                    <a href="/assets_log/">操作日志</a>
 	                            </li>                                                                 
                             </ul>
                             <!-- /.nav-second-level -->
@@ -164,7 +167,7 @@
                                     <a href="/deploy_list">项目列表</a>
                                 </li>
                                 <li>
-                                    <a href="/deploy_order">部署工单</a>
+                                    <a href="/deploy_order/">部署工单</a>
                                 </li>
 								<li>
 	                                <a href="/deploy_log">操作日志</a>
@@ -200,10 +203,10 @@
                                     <a href="#">剧本配置<span class="fa arrow"></span></a>
                                     <ul class="nav nav-third-level">
                                         <li>
-                                            <a href="/apps/playbook/add">剧本添加</a>
+                                            <a href="/apps/playbook/add/">剧本添加</a>
                                         </li>
                                         <li>
-                                            <a href="/apps">剧本管理</a>
+                                            <a href="/apps/">剧本管理</a>
                                         </li>
                                     </ul>
                                     <!-- /.nav-third-level -->
@@ -372,6 +375,20 @@
                     <div class="panel panel-default">
                         <div class="panel-heading">
                               <i class="fa fa-database"></i>资产明细
+	                            <div class="pull-right">
+	                                <div class="btn-group">
+	                                    <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">
+	                                        	更多操作
+	                                        <span class="caret"></span>
+	                                    </button>
+	                                    <ul class="dropdown-menu pull-right" role="menu">
+	                                        <li><a href="#" data-toggle="modal" data-target="#myAssetsImportModal"><i class="fa fa-pencil fa-fw"></i>批量导入</a>
+	                                        </li>
+	                                        <li><a href="/assets_search"><i class="fa fa-search fa-fw"></i>高级搜索</a>
+	                                        </li>
+	                                    </ul>
+	                                </div>
+	                            </div>                              
                         </div>
                         <!-- /.panel-heading -->
                         <div class="panel-body">
@@ -499,6 +516,32 @@
 </div>
 	
 
+                            <div class="modal fade" id="myAssetsImportModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                                            <h4 class="modal-title" id="myModalLabel">Excel文件批量导入资产</h4>
+                                        </div>
+                                        <form role="form" method="post" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"  enctype="multipart/form-data" action='/assets_import/' class="main form-horizontal">{% csrf_token %}
+	                                        <div class="modal-body">
+	                                            	<div class="form-group">
+													 <label class="col-sm-2 control-label">上传文件</label>
+													 <div class="col-sm-6">
+													 	<input type="file" name="import_file"  placeholder="上传excel文件" required/>
+													 </div>
+												</div>
+	                                            
+	                                        <div class="modal-footer">
+	                                            <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+	                                            <button type="submit" class="btn btn-primary">导入</button>
+	                                        </div>
+                                        </form>
+                                    </div>
+                                    <!-- /.modal-content -->
+                                </div>
+                                <!-- /.modal-dialog -->
+                            </div>
 
 
     </div>
@@ -692,6 +735,7 @@
 				}
 			});	
 		});
+				
 	   
 </script>  
 
