@@ -321,34 +321,37 @@
                 <div class="panel-body">
                 	<div id="div-search-result" style="display:none;">
                 		<div class="col-lg-10">
-                		</div>
-
-						<div class="form-group input-group pull right">
-                              <span class="input-group-btn">
-                              	  <button class="btn btn-success" id="search_result_count" type="button">5条记录
-                                  </button>
-                              </span>						
-                              <input id="input_search_result" onkeyup="SearchServerResults()" type="text" placeholder="关键词搜索..." class="form-control">
-
-                        </div>                        
+                		</div>                       
                         <div>
-							<table   width="100%" class="table table-hover" id="dataTables-Search">
+							<table   width="100%" class="table table-striped table-bordered table-hover dataTable no-footer" id="dataTables-Search">						
 	                                <thead>
 										  <tr>
-										       <th class="text-center">资产类型</th>
-										       <th class="text-center">管理IP</th>
-										       <th class="text-center">资产编号</th>
-										       <th class="text-center">设备型号</th>
-										       <th class="text-center">放置区域</th>
-										       <th class="text-center">购买人</th>
-										       <th class="text-center">购买时间</th>
-										       <th class="text-center">业务类型</th>
-										       <th class="text-center">设备状态</th>
-										       <th class="text-center">操作</th>
+										       <th>资产类型</th>
+										       <th>管理IP</th>
+										       <th>资产编号</th>
+										       <th>设备型号</th>
+										       <th>放置区域</th>
+										       <th>购买人</th>
+										       <th>购买时间</th>
+										       <th>业务类型</th>
+										       <th>设备状态</th>
+										       <th>操作</th>
 										    </tr>
+									        <tfoot>
+									            <tr>
+											       <th>资产类型</th>
+											       <th>管理IP</th>
+											       <th>资产编号</th>
+											       <th>设备型号</th>
+											       <th>放置区域</th>
+											       <th>购买人</th>
+											       <th>购买时间</th>
+											       <th>业务类型</th>
+											       <th>设备状态</th>
+											       <th>操作</th>
+									            </tr>
+									        </tfoot>										    
 	                                </thead>
-	                                <tbody id="search-result">
-	                                </tbody>
 	                       	</table>
                        	</div>
                    </div>                   
@@ -977,13 +980,22 @@
             }
 
             $.post('/assets_search/', parameter, function (result) {
-                if (result['data'].length > 0) {
+                if (result["data"].length > 0) {
                 	document.getElementById("div-search-result").style.display = "";
-                    $('#search-result').html(result['data']); 
-                    $('#search_result_count').text(result['count']+'条记录');
+						 var table = $('#dataTables-Search').dataTable();
+						 oSettings = table.fnSettings();
+						 table.fnClearTable(this);
+						 for (var i=0; i<result["data"].length; i++)
+						 {
+						   table.oApi._fnAddData(oSettings, result["data"][i]);
+						 }
+						 oSettings.aiDisplay = oSettings.aiDisplayMaster.slice();
+						 table.fnDraw();                	               	
                 }
                 else{
-                	$('#search-result').html('<br>抱歉未查询到相关数据~'); 
+                	//没有数据就清空
+                	var table = $('#dataTables-Search').dataTable();
+                	table.fnClearTable(this);
                 }
             })
         }

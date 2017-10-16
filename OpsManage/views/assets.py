@@ -1,6 +1,6 @@
 #!/usr/bin/env python  
 # _#_ coding:utf-8 _*_  
-import os,xlrd
+import os,xlrd,json
 from django.http import JsonResponse
 from django.shortcuts import render_to_response,HttpResponseRedirect
 from django.template import RequestContext
@@ -467,7 +467,7 @@ def assets_search(request):
             server = True
             serverList = Server_Assets.objects.filter(**data) 
         baseAssets = getBaseAssets()
-        trTags = ''
+        dataList = []
         for a in serverList:
             if server:a = a.assets
             if a.assets_type == "server":
@@ -535,12 +535,8 @@ def assets_search(request):
                      <a href="/assets_mod/{id}" style="text-decoration:none;"><button  type="button" class="btn btn-default"><abbr title="修改资料"><i class="glyphicon glyphicon-edit"></button></i></abbr></a>
                      <button  type="button" class="btn btn-default" onclick="deleteAssets(this,{id})"><i class="glyphicon glyphicon-trash"></i></button>
                  </td>'''.format(id=a.id,assets_type_div=assets_type_div)
-            trTag = '<tr>{assets_type}{management_ip}{name}{model}{put_zone}{buy_user}{buy_time}{service}{status}{opt}</tr>'.format(assets_type=assets_type,management_ip=management_ip,
-                                                                                                                      name=name,service=service,status=status,opt=opt,
-                                                                                                                      assets_type_div=assets_type_div,model=model,
-                                                                                                                      buy_user=buy_user,buy_time=buy_time,put_zone=put_zone)
-            trTags = trTag + trTags
-        return JsonResponse({'msg':"数据查询成功","code":200,'data':trTags,'count':len(serverList)})     
+            dataList.append([assets_type,management_ip,name,model,put_zone,buy_user,buy_time,service,status,opt])                                                                                                                                                                                          
+        return JsonResponse({'msg':"数据查询成功","code":200,'data':dataList,'count':0})     
     
 @login_required(login_url='/login')  
 def assets_log(request):
