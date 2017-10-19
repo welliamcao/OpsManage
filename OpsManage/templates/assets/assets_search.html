@@ -16,13 +16,12 @@
                 </div>
                         
                 <div class="panel-body">
-                	<div class="form-group" >
-                         <table>
-                            <tr>
-                                <td >
-                                     <strong> 设备类型：</strong>
-                                </td>
-                                <td class="col-xs-5 col-sm-2">
+
+				   <div class="row" >
+				      <div class="col-xs-6 col-sm-3">
+							<div class="form-group">
+								<label class="col-sm-3 control-label">设备类型:</label>
+								<div class="col-sm-8">
 									 <select class="form-control" id="selAssetsType" >
 									 		<option selected="selected" value="">请选择一个类型</option>
 											<option value="server" name="assets_type">服务器</option>
@@ -34,115 +33,127 @@
 											<option value="storage" name="assets_type">存储设备</option>	
 											<option value="wifi" name="assets_type">无线设备</option>				
 									</select>
-                                </td> 
-
-                                                               
-                                <td >
-                                     <strong>生产制造商：</strong>
-                                </td>
-                                <td class="col-xs-5 col-sm-2">
+								</div>
+							</div>
+				      </div>
+				      <div class="col-xs-6 col-sm-3">
+							<div class="form-group">
+								<label class="col-sm-3 control-label">制造商:</label>
+								<div class="col-sm-8">
 									 <select class="form-control" id="selManufacturer" >
 									 	<option selected="selected" value="">请选择一个类型</option>
 									 	{% for m in manufacturerList %}
 									 		<option value="{{m}}" name="manufacturer">{{m}}</option>
 									 	{% endfor %}
+									</select>
+								</div>
+							</div>
+				      </div>
 				
-									</select>
-                                </td>
-
-                                
-                                <td > 
-                                     <strong>设备型号：</strong>
-                                </td>
-                                <td class="col-xs-5 col-sm-2">
-									 <select class="form-control" id="selModel" >
-									 	<option selected="selected" value="">请选择一个类型</option>
-									 	{% for m in modelList %}
-									 		<option value="{{m}}" name="model">{{m}}</option>
-									 	{% endfor %}				
-									</select>
-                                </td>
-
-
-                                <td >
-                                    	<strong>供货商：</strong>
-                                </td>
-                                <td class="col-xs-5 col-sm-2">
+				      <div class="col-xs-6 col-sm-3">
+							<div class="form-group">
+								<label class="col-sm-3 control-label">供货商:</label>
+								<div class="col-sm-8">
 									 <select class="form-control" id="selProvider" >
 									 	<option selected="selected" value="">请选择一个类型</option>
 									 	{% for m in providerList %}
 									 		<option value="{{m}}" name="provider">{{m}}</option>
 									 	{% endfor %}														
 									</select>
-                                </td>
-
-
-                                <td >
-                                    	<strong>Raid类型：</strong>
-                                </td>
-                                <td class="col-xs-5 col-sm-2">
+								</div>
+							</div>
+				      </div>
+				
+				      <div class="col-xs-6 col-sm-3">
+							<div class="form-group">
+								<label class="col-sm-3 control-label">设备型号:</label>
+								<div class="col-sm-8">
+									 <select class="form-control" id="selModel" >
+									 	<option selected="selected" value="">请选择一个类型</option>
+									 	{% for m in modelList %}
+									 		<option value="{{m}}" name="model">{{m}}</option>
+									 	{% endfor %}				
+									</select>
+								</div>
+							</div>
+				      </div>	   
+				   </div>
+                	<hr>
+				   <div class="row" >
+				      <div class="col-xs-6 col-sm-3">
+							<div class="form-group">
+								<label class="col-sm-3 control-label">Raid类型:</label>
+								<div class="col-sm-8">
 									<select class="form-control"  id="selRaid"  >
 										<option selected="selected" value="">请选择一个类型</option>
 									 	{% for r in baseAssets.raid %}
 									 		<option value="{{r.id}}" name="raid">{{r.raid_name}}</option>
 									 	{% endfor %}												   		
 									</select>
-                                </td>                              
-                            </tr>
-                        </table> 
-                        <hr>                  	
-                        <table>
-                            <tr>
-                                <td>
-                                    <strong>CPU类型：</strong>
-                                </td>
-                                <td class="col-xs-5 col-sm-2">
+								</div>
+							</div>
+				      </div>
+				      <div class="col-xs-6 col-sm-3">
+							<div class="form-group">
+								<label class="col-sm-3 control-label">CPU类型:</label>
+								<div class="col-sm-8">
 									 <select class="form-control" id="selCpu" >
 									 	<option selected="selected" value="">请选择一个类型</option>
 									 	{% for c in cpuList %}
 									 		<option value="{{c}}" name="cpu">{{c}}</option>
 									 	{% endfor %}				
-									</select> 								
-                                </td>   
-                                <td>
-                                    <strong>购买人：</strong>
-                                </td>
-                                <td class="col-xs-5 col-sm-2">
+									</select> 
+								</div>
+							</div>
+				      </div>
+				
+				      <div class="col-xs-6 col-sm-3">
+							<div class="form-group">
+								<label class="col-sm-3 control-label">购买人:</label>
+								<div class="col-sm-8">
 									 <select class="form-control" id="selBuyUser" >
 									 	<option selected="selected" value="">请选择一个类型</option>
 									 	{% for b in buyUserList %}
 									 		<option value="{{b}}" name="buy_user">{{b}}</option>
 									 	{% endfor %}										 				
 									</select>
-                                </td>                                                        
-                                <td>
-                                    <strong>认证方式：</strong>
-                                </td>
-                                <td class="col-xs-5 col-sm-2">
+								</div>
+							</div>
+				      </div>
+				
+				      <div class="col-xs-6 col-sm-3">
+							<div class="form-group">
+								<label class="col-sm-3 control-label">认证方式:</label>
+								<div class="col-sm-8">
 									 <select class="form-control" id="selKeyfile" >
 									 	<option selected="selected" value="">请选择一个类型</option>
 										<option value="1" name="keyfile">密钥认证</option>
 										<option value="0" name="keyfile">密码认证</option>					
 									</select>
-                                </td>                       
-                            
-                                <td >
-                                    	<strong>线路类型：</strong>
-                                </td>
-                                <td class="col-xs-5 col-sm-2" text="left">
+								</div>
+							</div>
+				      </div>	   
+				   </div>                
+                
+                <hr>
+				   <div class="row" >
+				      <div class="col-xs-6 col-sm-3">
+							<div class="form-group">
+								<label class="col-sm-3 control-label">线路类型:</label>
+								<div class="col-sm-8">
 									 <select class="form-control" id="selLine" >
 									 	<option selected="selected" value="">请选择一个类型</option>
 									 	{% for l in baseAssets.line %}
 									 		<option value="{{l.id}}" name="line">{{l.line_name}}</option>
 									 	{% endfor %}									 			
 									</select>
-                                </td>
-
-
-                                <td>
-                                    	<strong>设备状态：</strong>
-                                </td>
-                                <td class="col-xs-5 col-sm-2" text="left">
+								</div>
+							</div>
+				      </div>
+				      <div class="col-xs-6 col-sm-3">
+							<div class="form-group">
+								<label class="col-sm-3 control-label">设备状态:</label>
+								<div class="col-sm-8">
 									<select class="form-control"  id="selStatus"  >
 										<option selected="selected" value="">请选择一个类型</option>
 										<option value="0" name="status">已上线</option>	
@@ -151,153 +162,183 @@
 										<option value="3" name="status">已入库</option>	
 										<option value="4" name="status">未使用</option>				   		
 									</select>
-                                </td> 
-
-                             
-                            </tr>
-                        </table>
-                        <hr>
-                         <table>
-                            <tr>
-                                <td>
-                                     <strong> 使用部门：</strong>
-                                </td>
-                                <td class="col-xs-5 col-sm-2" text="left">
-									 <select class="form-control" id="selGroup" >
+								</div>
+							</div>
+				      </div>
+				
+				      <div class="col-xs-6 col-sm-3">
+							<div class="form-group">
+								<label class="col-sm-3 control-label">使用部门:</label>
+								<div class="col-sm-8">
+								 	<select class="form-control" id="selGroup" >
 									 	<option selected="selected" value="">请选择一个类型</option>
 									 	{% for g in baseAssets.group %}
 									 		<option value="{{g.id}}" name="group">{{g.name}}</option>
 									 	{% endfor %}									 				
-									</select>                          
-                                <td>
-                                     <strong>所属业务：</strong>
-                                </td>
-                                <td class="col-xs-5 col-sm-2" text="left">
+									</select> 
+								</div>
+							</div>
+				      </div>
+				
+				      <div class="col-xs-6 col-sm-3">
+							<div class="form-group">
+								<label class="col-sm-3 control-label">所属业务:</label>
+								<div class="col-sm-8">
 									 <select class="form-control" id="selBusiness" >
 									 	<option selected="selected" value="">请选择一个类型</option>
 									 	{% for s in baseAssets.service %}
 									 		<option value="{{s.id}}" name="business">{{s.service_name}}</option>
 									 	{% endfor %}										 					
-									</select> 					
-                                </td>
-
-                                
-                                <td>
-                                     <strong>所在机房：</strong>
-                                </td>
-                                <td class="col-xs-5 col-sm-2" text="left">
+									</select> 
+								</div>
+							</div>
+				      </div>	   
+				   </div>                
+                
+                   <hr>
+				   <div class="row" >
+				      <div class="col-xs-6 col-sm-3">
+							<div class="form-group">
+								<label class="col-sm-3 control-label">所在机房:</label>
+								<div class="col-sm-8">
 									 <select class="form-control" id="selZone" >
 									 	<option selected="selected" value="">请选择一个类型</option>
 									 	{% for z in baseAssets.zone %}
 									 		<option value="{{z.id}}" name="put_zone">{{z.zone_name}}</option>
 									 	{% endfor %}			
 									</select>
-                                </td>
-
-                                <td>
-                                     <strong>Selinux：</strong>
-                                </td>
-                                <td class="col-xs-5 col-sm-2" text="left">
+								</div>
+							</div>
+				      </div>
+				      <div class="col-xs-6 col-sm-3">
+							<div class="form-group">
+								<label class="col-sm-3 control-label">Selinux:</label>
+								<div class="col-sm-8">
 									 <select class="form-control" id="selSelinux" >
 									 	<option selected="selected" value="">请选择一个类型</option>
 									 	{% for b in selinuxList %}
 									 		<option value="{{b}}" name="selinux">{{b}}</option>
 									 	{% endfor %}				
 									</select>
-                                </td>
-                                <td>
-                                     <strong>System版本：</strong>
-                                </td>
-                                <td class="col-xs-5 col-sm-2" text="left">
+								</div>
+							</div>
+				      </div>
+				
+				      <div class="col-xs-6 col-sm-3">
+							<div class="form-group">
+								<label class="col-sm-3 control-label">系统版本:</label>
+								<div class="col-sm-8">
 									 <select class="form-control" id="selSystem" >
 									 	<option selected="selected" value="">请选择一个类型</option>
 									 	{% for b in systemList %}
 									 		<option value="{{b}}" name="system">{{b}}</option>
 									 	{% endfor %}																
 									</select>
-                                </td>                             
-                            </tr>
-                        </table>                        
-                        <hr>
-                        <table>
-                            <tr>
-                                <td>
-                                    <strong>逻辑CPU：</strong>
-                                </td>
-                                <td >
+								</div>
+							</div>
+				      </div>
+				
+				      <div class="col-xs-6 col-sm-3">
+							<div class="form-group">
+								<label class="col-sm-3 control-label">内核版本:</label>
+								<div class="col-sm-8">
+									 <select class="form-control" id="selKernel" >
+									 	<option selected="selected" value="">请选择一个类型</option>
+									 	{% for k in kernelList %}
+									 		<option value="{{k}}" name="kernel">{{k}}</option>
+									 	{% endfor %}										 					
+									</select> 
+								</div>
+							</div>
+				      </div>	   
+				   </div>   
+                   <hr>
+				   <div class="row" >
+				      <div class="col-xs-6 col-sm-3">
+							<div class="form-group">
+								<label class="col-sm-3 control-label">逻辑CPU:</label>
+								<div class="col-sm-8">
 									<input type="text" id="vcpu_number" style="border:0; color:#f6931f; font-weight:bold;">
 									<div id="vcpu_number-range"></div>
-                                </td>  
-                                <td class="col-sm-1">
-                                    <strong>物理CPU：</strong>
-                                </td>
-                                <td>
+								</div>
+							</div>
+				      </div>
+				      <div class="col-xs-6 col-sm-3">
+							<div class="form-group">
+								<label class="col-sm-3 control-label">物理CPU:</label>
+								<div class="col-sm-8">
 									<input type="text" id="cpu_number" style="border:0; color:#f6931f; font-weight:bold;">								 
 									<div id="cpu_number-range"></div>
-                                </td>                                                              
-
-                                <td class="col-sm-1">
-                                    <strong>CPU核心数：</strong>
-                                </td>
-                                <td>
+								</div>
+							</div>
+				      </div>
+				
+				      <div class="col-xs-6 col-sm-3">
+							<div class="form-group">
+								<label class="col-sm-3 control-label">CPU核心数:</label>
+								<div class="col-sm-8">
 									<input type="text" id="cpu_core" style="border:0; color:#f6931f; font-weight:bold;">
 									<div id="cpu_core-range"></div>
-                                </td>
-                                                               
-                                <td class="col-sm-1">
-                                   <strong>Swap区间(MB)：</strong>
-                                </td>
-                                <td>
+								</div>
+							</div>
+				      </div>
+				
+				      <div class="col-xs-6 col-sm-3">
+							<div class="form-group">
+								<label class="col-sm-3 control-label">Swap区间:</label>
+								<div class="col-sm-8">
 									<input type="text" id="swap" style="border:0; color:#f6931f; font-weight:bold;">
 									<div id="swap-range"></div>
-                                </td>
-                                
-
-
-                                
-                            </tr>
-                        </table>                        
- 
-                        <hr>
-                        <table>
-                            <tr>
-                                 <td >
-                                    <strong> 内存区间：</strong>
-                                </td>
-                                <td>
+								</div>
+							</div>
+				      </div>	   
+				   </div> 				                                                                
+ 				   <hr>
+				   <div class="row" >
+				      <div class="col-xs-6 col-sm-3">
+							<div class="form-group">
+								<label class="col-sm-3 control-label">内存区间:</label>
+								<div class="col-sm-8">
 									<input type="text" id="ram_total" style="border:0; color:#f6931f; font-weight:bold;">
 									<div id="ram_total-range"></div>
-                                </td>                             
-                                <td class="col-sm-1">
-                                   	 <strong>硬盘容量(GB)：</strong>
-                                </td>
-                                <td>
+								</div>
+							</div>
+				      </div>
+				      <div class="col-xs-6 col-sm-3">
+							<div class="form-group">
+								<label class="col-sm-3 control-label">硬盘容量:</label>
+								<div class="col-sm-8">
 									<input type="text" id="disk_total" style="border:0; color:#f6931f; font-weight:bold;">
 									<div id="disk_total-range"></div>
-                                </td>                            
-                        
-                                <td class="col-sm-1">
-                                    <strong> 购买年份：</strong>
-                                </td>
-                                <td>
+								</div>
+							</div>
+				      </div>
+				
+				      <div class="col-xs-6 col-sm-3">
+							<div class="form-group">
+								<label class="col-sm-3 control-label">购买年份:</label>
+								<div class="col-sm-8">
 									<input type="text" id="buy_time" style="border:0; color:#f6931f; font-weight:bold;">
 									<div id="buy_time-range"></div>
-                                </td>
-                                                               
-                                <td class="col-sm-1">
-                                   <strong>过保年份：</strong>
-                                </td>
-                                <td>
+								</div>
+							</div>
+				      </div>
+				
+				      <div class="col-xs-6 col-sm-3">
+							<div class="form-group">
+								<label class="col-sm-3 control-label">过保年份:</label>
+								<div class="col-sm-8">
 									<input type="text" id="expire_date" style="border:0; color:#f6931f; font-weight:bold;">
 									<div id="expire_date-range"></div>
-                                </td>                       
-                            </tr>
-                        </table>                                                                    
+								</div>
+							</div>
+				      </div>	   
+				   </div> 				                                                                      
                         
                     </div>
                 </div>        
             </div>
-            </div>  
+
             
 		<div class="col-lg-12">
             <div class="panel panel-default">
@@ -941,20 +982,20 @@
                     changepage(1);
                 }
             }) 
-			//系统版本
-            $('#selSystem').change(function () {
-                if ($('#selSystem').val() != "") {
-                    $("#hdnSystem").val($('#selSystem').val());
-                    var span = "<span class='label label-success' id='spanSystem'>" + $("#selSystem").find("option:selected").text()
-                    + " <img alt='' src='/static/img/close.png' onclick='removeself(this)' /><input name='system' type='hidden' value='"
-                    + $('#selSystem').val() + "' /></span> &nbsp;";
-                    if ($("#spanSystem").length == 0) {
+			//内核版本
+            $('#selKernel').change(function () {
+                if ($('#selKernel').val() != "") {
+                    $("#hdnKernel").val($('#selKernel').val());
+                    var span = "<span class='label label-success' id='spanKernel'>" + $("#selKernel").find("option:selected").text()
+                    + " <img alt='' src='/static/img/close.png' onclick='removeself(this)' /><input name='kernel' type='hidden' value='"
+                    + $('#selKernel').val() + "' /></span> &nbsp;";
+                    if ($("#spanKernel").length == 0) {
                         $('#divSelectedType').append(span);
                     }
                     else {
-                        $("#spanSystem").html($("#selSystem").find("option:selected").text()
-                         + " <img alt='' src='/static/img/close.png' onclick='removeself(this)' /><input name='system' type='hidden' value='"
-                         + $('#selSystem').val() + "' /></span> &nbsp;");
+                        $("#spanKernel").html($("#selKernel").find("option:selected").text()
+                         + " <img alt='' src='/static/img/close.png' onclick='removeself(this)' /><input name='kernel' type='hidden' value='"
+                         + $('#selKernel').val() + "' /></span> &nbsp;");
                     }
                     changepage(1);
                 }

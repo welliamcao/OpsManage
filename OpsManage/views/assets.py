@@ -372,12 +372,13 @@ def assets_search(request):
         cpuList = [  a.cpu for a in Assets.objects.raw('SELECT id,cpu from opsmanage_server_assets WHERE cpu is not null GROUP BY cpu')]
         buyUserList = [  m.buy_user for m in Assets.objects.raw('SELECT id,buy_user from opsmanage_assets WHERE buy_user is not null GROUP BY buy_user')]
         selinuxList = [  m.selinux for m in Assets.objects.raw('SELECT id,selinux from opsmanage_server_assets WHERE selinux is not null GROUP BY selinux')]
-        systemList = [  m.system for m in Assets.objects.raw('SELECT id,system from opsmanage_server_assets WHERE system is not null GROUP BY system')]      
+        systemList = [  m.system for m in Assets.objects.raw('SELECT id,system from opsmanage_server_assets WHERE system is not null GROUP BY system')]    
+        kernelList = [  m.kernel for m in Assets.objects.raw('SELECT id,kernel from opsmanage_server_assets WHERE kernel is not null GROUP BY kernel')]   
         return render_to_response('assets/assets_search.html',{"user":request.user,"baseAssets":getBaseAssets(),
                                                                "manufacturerList":manufacturerList,"modelList":modelList,
                                                                "providerList":providerList,"cpuList":cpuList,
                                                                "buyUserList":buyUserList,"selinuxList":selinuxList,
-                                                               "systemList":systemList,
+                                                               "systemList":systemList,'kernelList':kernelList,
                                                              },
                                   context_instance=RequestContext(request)) 
     elif request.method == "POST":  
