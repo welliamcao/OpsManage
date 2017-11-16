@@ -155,7 +155,7 @@
 													<select class="form-control" name="asset_put_zone"  >
 														{% for z in assets_data.zone %}
 															{% if z.id == asset_main.zone %}
-																<option value="{{asset_main.zone}}" name="asset_put_zone" selected="selected" >{{z.zone_name|default:""}}</option>
+																<option value="{{z.id}}" name="asset_put_zone" selected="selected" >{{z.zone_name|default:""}}</option>
 															{% else %}
 																<option value="{{z.id}}" name="asset_put_zone">{{z.zone_name|default:""}}</option>
 															{% endif %}										
@@ -185,7 +185,7 @@
 												   <select class="form-control" name="asset_business"  >
 														{% for s in assets_data.service %}
 															{% if s.id == asset_main.business %}
-																<option value="{{asset_main.business}}" name="asset_business" selected="selected" >{{s.service_name|default:""}}</option>
+																<option value="{{s.id}}" name="asset_business" selected="selected" >{{s.service_name|default:""}}</option>
 															{% else %}
 																<option value="{{s.id}}" name="asset_business">{{s.service_name|default:""}}</option>
 															{% endif %}										
@@ -327,7 +327,7 @@
 														<option selected="selected" value="">请选择一个类型</option>
 															{% for r in assets_data.raid %}
 																{% if r.id == asset_body.raid %}
-																	<option value="{{asset_body.raid}}" name="server_raid" selected="selected" >{{r.raid_name}}</option>
+																	<option value="{{r.id}}" name="server_raid" selected="selected" >{{r.raid_name}}</option>
 																{% else %}											
 																<option value="{{r.id}}" name="server_raid">{{r.raid_name}}</option>
 																{% endif %}
@@ -351,9 +351,9 @@
 													 <select class="form-control" name="server_line"  >
 															{% for l in assets_data.line %}
 																{% if l.line_name == asset_body.line %}
-																	<option value="{{asset_body.line}}" name="server_line" selected="selected" >{{asset_body.line}}</option>
+																	<option value="{{l.id}}" name="server_line" selected="selected" >{{asset_body.line}}</option>
 																{% else %}											
-																	<option value="{{l.line_name}}" name="server_line">{{l.line_name}}</option>
+																	<option value="{{l.id}}" name="server_line">{{l.line_name}}</option>
 																{% endif %}
 															{% endfor %}		
 													</select>					 						 	  	
