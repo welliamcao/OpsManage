@@ -503,7 +503,7 @@
 				window.wxc.xcConfirm("资产添加成功", window.wxc.xcConfirm.typeEnum.success);
 			},
 	    	error:function(response){
-	    		window.wxc.xcConfirm("资产编号重复，添加资产失败~", window.wxc.xcConfirm.typeEnum.error);
+	    		window.wxc.xcConfirm("资产添加失败："+response.toJSONString(), window.wxc.xcConfirm.typeEnum.error);
 	    	}
 		})	
 	}	

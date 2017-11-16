@@ -474,7 +474,7 @@ function addAssetsData(obj) {
 			window.wxc.xcConfirm("资产修改成功", window.wxc.xcConfirm.typeEnum.success);
 		},
     	error:function(response){
-    		window.wxc.xcConfirm("数据格式不对，修改资产失败~", window.wxc.xcConfirm.typeEnum.error);
+    		window.wxc.xcConfirm("资产添加失败："+response.toJSONString(), window.wxc.xcConfirm.typeEnum.error);
     	}
 	})	
 }

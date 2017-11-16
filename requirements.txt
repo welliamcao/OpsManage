@@ -5,7 +5,6 @@ celery-with-redis
 djangorestframework==3.5.3
 paramiko
 ansible==2.2.2
-redis
 supervisor
 redis
 MySQL-python
