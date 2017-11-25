@@ -64,7 +64,24 @@
 				                                		</tr>
 				                                	{% endfor %}
 				                                </tbody>
-				                            </table>			                   			
+				                            </table>				       
+										{% if projectList %}
+											<ul class="pagination">
+											        {% if projectList.has_previous %}
+											            <li><a href="/deploy_log/{{ projectList.previous_page_number }}/">&laquo;</a></li>
+											        {% endif %}
+											        {% for page in projectList.paginator.page_range %}
+											        	{% if projectList.number == page %}
+											        		<li class="disabled"><a href="/deploy_log/{{page}}/">{{page}}</a></li>
+											        	{% else %}
+											        		<li><a href="/deploy_log/{{page}}/">{{page}}</a></li>
+											        	{% endif %}
+											        {% endfor %}
+											        {% if projectList.has_next %}
+											            <li><a href="/deploy_log/{{ projectList.next_page_number }}/">&raquo;</a></li>
+											        {% endif %}
+											</ul>
+                     		            {% endif %}		
 										</div>
 				                   </div>
 				              </div>				              

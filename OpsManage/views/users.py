@@ -9,6 +9,7 @@ from django.contrib.auth.decorators import permission_required
 from django.db.models import Q 
 from OpsManage.models import Project_Order
 
+
 @login_required()
 @permission_required('auth.change_user',login_url='/noperm/') 
 def user_manage(request):

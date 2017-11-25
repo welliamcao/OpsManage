@@ -12,6 +12,7 @@ from OpsManage.tasks import recordCron
 from OpsManage.models import Log_Cron_Config
 from django.contrib.auth.decorators import permission_required
 from OpsManage.utils.ansible_api_v2 import ANSRunner
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 @login_required()
 @permission_required('OpsManage.can_add_cron_config',login_url='/noperm/') 
@@ -93,8 +94,16 @@ def cron_add(request):
 
 @login_required()
 @permission_required('OpsManage.can_read_config',login_url='/noperm/') 
-def cron_list(request):
-    cronList = Cron_Config.objects.select_related().all()
+def cron_list(request,page):
+#     cronList = Cron_Config.objects.select_related().all()
+    allCronList = Cron_Config.objects.select_related().all()[0:1000]
+    paginator = Paginator(allCronList, 25)          
+    try:
+        cronList = paginator.page(page)
+    except PageNotAnInteger:
+        cronList = paginator.page(1)
+    except EmptyPage:
+        cronList = paginator.page(paginator.num_pages)     
     return render_to_response('cron/cron_list.html',{"user":request.user,
                                                     "cronList":cronList},
                               context_instance=RequestContext(request)) 
@@ -126,6 +135,7 @@ def cron_mod(request,cid):
                        cron_script_path=request.POST.get('cron_script_path',None),
                        cron_status=request.POST.get('cron_status'),
                                        )
+            print request.POST.get('cron_command')
             recordCron.delay(cron_user=str(request.user),cron_id=cid,cron_name=cron.cron_name,cron_content="修改计划任务",cron_server=cron.cron_server.ip)
         except Exception,e:
             return render_to_response('cron/cron_modf.html',
@@ -228,8 +238,15 @@ def cron_config(request):
         else:return JsonResponse({'msg':'添加成功',"code":200,'data':[]}) 
         
 @login_required(login_url='/login')  
-def cron_log(request):
+def cron_log(request,page):
     if request.method == "GET":
-        cronList = Log_Cron_Config.objects.all().order_by('-id')[0:120]
+        allCronList = Log_Cron_Config.objects.all().order_by('-id')[0:1000]
+        paginator = Paginator(allCronList, 25)          
+        try:
+            cronList = paginator.page(page)
+        except PageNotAnInteger:
+            cronList = paginator.page(1)
+        except EmptyPage:
+            cronList = paginator.page(paginator.num_pages)          
         return render_to_response('cron/cron_log.html',{"user":request.user,"cronList":cronList},
                                   context_instance=RequestContext(request))

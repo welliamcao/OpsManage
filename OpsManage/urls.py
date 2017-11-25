@@ -18,7 +18,7 @@ from django.conf.urls import url,include
 from django.contrib import admin
 from OpsManage.views import index,assets,cron,deploy,ansible,users
 from rest_framework.urlpatterns import format_suffix_patterns
-from OpsManage.restfull import assets_api,cron_api,deploy_api,ansible_api,users_api
+from OpsManage.restfull import assets_api,cron_api,deploy_api,ansible_api,users_api,logs_api
 
 
 urlpatterns = [
@@ -35,24 +35,24 @@ urlpatterns = [
     url(r'^assets_mod/(?P<aid>[0-9]+)/$',assets.assets_modf), 
     url(r'^assets_view/(?P<aid>[0-9]+)/$',assets.assets_view),
     url(r'^assets_facts',assets.assets_facts),
-    url(r'^assets_log/',assets.assets_log),
+    url(r'^assets_log/(?P<page>[0-9]+)/$',assets.assets_log),
     url(r'^assets_import/',assets.assets_import),
     url(r'^assets_search/',assets.assets_search),
     url(r'^cron_add',cron.cron_add),
-    url(r'^cron_list',cron.cron_list),
+    url(r'^cron_list/(?P<page>[0-9]+)/$',cron.cron_list),
     url(r'^cron_config',cron.cron_config),
-    url(r'^cron_log',cron.cron_log),
+    url(r'^cron_log/(?P<page>[0-9]+)/$',cron.cron_log),
     url(r'^cron_mod/(?P<cid>[0-9]+)/$',cron.cron_mod),
     url(r'^deploy_add',deploy.deploy_add),
     url(r'^deploy_list',deploy.deploy_list),
-    url(r'^deploy_log',deploy.deploy_log),
+    url(r'^deploy_log/(?P<page>[0-9]+)/$',deploy.deploy_log),
     url(r'^deploy_mod/(?P<pid>[0-9]+)/$',deploy.deploy_modf),
     url(r'^deploy_init/(?P<pid>[0-9]+)/$',deploy.deploy_init),
     url(r'^deploy_version/(?P<pid>[0-9]+)/$',deploy.deploy_version),    
     url(r'^deploy_run/(?P<pid>[0-9]+)/$',deploy.deploy_run),
     url(r'^deploy_result/(?P<pid>[0-9]+)/$',deploy.deploy_result),
     url(r'^deploy_ask/(?P<pid>[0-9]+)/$',deploy.deploy_ask),
-    url(r'^deploy_order/$',deploy.deploy_order),
+    url(r'^deploy_order/(?P<page>[0-9]+)/$',deploy.deploy_order),
     url(r'^deploy_order/status/(?P<pid>[0-9]+)/$',deploy.deploy_order_status),
     url(r'^deploy_order/rollback/(?P<pid>[0-9]+)/$',deploy.deploy_order_rollback),
     url(r'^deploy_manage/(?P<pid>[0-9]+)/$',deploy.deploy_manage),
@@ -100,6 +100,8 @@ urlpatterns = [
     url('^api/logs/ansible/model/(?P<id>[0-9]+)/$', ansible_api.modelLogsdetail),
     url('^api/logs/ansible/playbook/(?P<id>[0-9]+)/$', ansible_api.playbookLogsdetail),
     url('^api/logs/deploy/(?P<id>[0-9]+)/$', deploy_api.deployLogs_detail),
+    url('^api/logs/search/model/$', logs_api.AnsibleModelLogsList),
+    url('^api/logs/search/playbook/$', logs_api.AnsiblePlayBookLogsList),
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)

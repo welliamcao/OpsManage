@@ -228,7 +228,24 @@
                                 	{% endfor %}
                                 </tbody>
                             </table>
-                            <!-- /.table-responsive -->                            
+                            <!-- /.table-responsive --> 
+										{% if orderList %}
+											<ul class="pagination">
+											        {% if orderList.has_previous %}
+											            <li><a href="/deploy_order/{{ projectList.previous_page_number }}/">&laquo;</a></li>
+											        {% endif %}
+											        {% for page in orderList.paginator.page_range %}
+											        	{% if orderList.number == page %}
+											        		<li class="disabled"><a href="/deploy_order/{{page}}/">{{page}}</a></li>
+											        	{% else %}
+											        		<li><a href="/deploy_order/{{page}}/">{{page}}</a></li>
+											        	{% endif %}
+											        {% endfor %}
+											        {% if orderList.has_next %}
+											            <li><a href="/deploy_order/{{ orderList.next_page_number }}/">&raquo;</a></li>
+											        {% endif %}
+											</ul>
+                     		            {% endif %}	                                                      
                         </div>
                         <!-- /.panel-body -->
                     </div>
@@ -259,7 +276,7 @@
 				onOk: function(){
 					$.ajax({
 						  type: 'POST',
-						  url: '/deploy_order/',
+						  url: '/deploy_order/1/',
 						  data: {
 							  "id":id,
 							  "model":model,
@@ -294,7 +311,7 @@
 					};
 					$.ajax({
 						  type: 'POST',
-						  url: '/deploy_order/',
+						  url: '/deploy_order/1/',
 						  data: {
 							  "model":model,
 							  'order_cancel':result,

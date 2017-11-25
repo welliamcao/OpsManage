@@ -17,6 +17,7 @@ from django.db.models import Count
 from django.db.models import Q 
 from OpsManage.tasks import recordProject,sendEmail
 from django.contrib.auth.decorators import permission_required
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 @login_required()
 @permission_required('OpsManage.can_add_project_config',login_url='/noperm/')
@@ -423,16 +424,23 @@ def deploy_ask(request,pid):
     
     
 @login_required()
-def deploy_order(request):
+def deploy_order(request,page):
     if request.method == "GET":
-        orderList = Project_Order.objects.filter(Q(order_user=User.objects.get(username=request.user)) |
-                                                 Q(order_audit=User.objects.get(username=request.user))).order_by("id")[0:150]
+        allOrderList = Project_Order.objects.filter(Q(order_user=User.objects.get(username=request.user)) |
+                                                 Q(order_audit=User.objects.get(username=request.user))).order_by("-id")[0:1000]
         totalOrder = Project_Order.objects.all().count()
         doneOrder = Project_Order.objects.filter(order_status=3).count()
         authOrder = Project_Order.objects.filter(order_status=2).count()
         rejectOrder = Project_Order.objects.filter(order_status=1).count()
         deploy_nmuber = Project_Order.objects.values('order_user').annotate(dcount=Count('order_user'))
         deploy_project =  Project_Order.objects.values('order_project').annotate(dcount=Count('order_project'))
+        paginator = Paginator(allOrderList, 25)          
+        try:
+            orderList = paginator.page(page)
+        except PageNotAnInteger:
+            orderList = paginator.page(1)
+        except EmptyPage:
+            orderList = paginator.page(paginator.num_pages)        
         for ds in deploy_project:
             ds['order_project'] = Project_Config.objects.get(id=ds.get('order_project')).project_name
         return render_to_response('deploy/deploy_order.html',{"user":request.user,"orderList":orderList,
@@ -505,8 +513,16 @@ def deploy_manage(request,pid):
                                   context_instance=RequestContext(request))
         
 @login_required(login_url='/login')  
-def deploy_log(request):
+def deploy_log(request,page):
     if request.method == "GET":
-        projectList = Log_Project_Config.objects.all().order_by('-id')[0:120]
+        allProjectList = Log_Project_Config.objects.all().order_by('-id')[0:1000]
+        paginator = Paginator(allProjectList, 25)          
+        try:
+            projectList = paginator.page(page)
+        except PageNotAnInteger:
+            projectList = paginator.page(1)
+        except EmptyPage:
+            projectList = paginator.page(paginator.num_pages)        
         return render_to_response('deploy/deploy_log.html',{"user":request.user,"projectList":projectList},
-                                  context_instance=RequestContext(request))         
+                                  context_instance=RequestContext(request))    
+     

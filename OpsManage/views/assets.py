@@ -11,6 +11,7 @@ from OpsManage.utils.ansible_api_v2 import ANSRunner
 from django.contrib.auth.models import Group
 from OpsManage.tasks import recordAssets
 from django.contrib.auth.decorators import permission_required
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 def getBaseAssets():
     try:
@@ -540,8 +541,15 @@ def assets_search(request):
         return JsonResponse({'msg':"数据查询成功","code":200,'data':dataList,'count':0})     
     
 @login_required(login_url='/login')  
-def assets_log(request):
+def assets_log(request,page):
     if request.method == "GET":
-        assetsList = Log_Assets.objects.all().order_by('-id')[0:120]
+        allAssetsList = Log_Assets.objects.all().order_by('-id')[0:1000]
+        paginator = Paginator(allAssetsList, 25)          
+        try:
+            assetsList = paginator.page(page)
+        except PageNotAnInteger:
+            assetsList = paginator.page(1)
+        except EmptyPage:
+            assetsList = paginator.page(paginator.num_pages)        
         return render_to_response('assets/assets_log.html',{"user":request.user,"assetsList":assetsList},
                                   context_instance=RequestContext(request))

@@ -77,7 +77,23 @@
   <!-- DataTables JavaScript -->
   <link rel="stylesheet" href="/static/dist/css/jquery.dataTables.min.css">
   <script src="/static/js/jquery.dataTables.min.js"></script>
-
+  <style type="text/css">
+	pre {
+		overflow: auto;
+		white-space: normal;
+		white-space: pre-wrap;       /* css-3 */
+		white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
+		white-space: -pre-wrap;      /* Opera 4-6 */
+		white-space: -o-pre-wrap;    /* Opera 7 */
+		word-wrap: break-word;       /* Internet Explorer 5.5+ */
+		border:1px solid #ccc;
+		padding:5px;
+		margin:10px;
+		font-family: Consolas,monospace;
+		color:#ADFF2F;
+		background-color:#000000;
+	}  
+</style>
 </head>
 
 <body>
@@ -162,7 +178,7 @@
                                     <a href="/assets_search/">资产查询</a>
                                 </li>                                    
 								<li>
-	                                    <a href="/assets_log/">操作日志</a>
+	                                <a href="/assets_log/1/">操作日志</a>
 	                            </li>                                                        
                             </ul>
                             <!-- /.nav-second-level -->
@@ -177,10 +193,10 @@
                                     <a href="/deploy_list">项目列表</a>
                                 </li>
                                 <li>
-                                    <a href="/deploy_order/">部署工单</a>
+                                    <a href="/deploy_order/1/">部署工单</a>
                                 </li> 
 								<li>
-	                                <a href="/deploy_log">操作日志</a>
+	                                <a href="/deploy_log/1/">操作日志</a>
 	                            </li>                                 
                             </ul>
                             <!-- /.nav-second-level -->
@@ -195,10 +211,10 @@
                                     <a href="/cron_config">批量导入</a>
                                 </li>
                                 <li>
-                                    <a href="/cron_list">任务列表</a>
+                                    <a href="/cron_list/1/">任务列表</a>
                                 </li>
 								<li>
-	                                 <a href="/cron_log/">操作日志</a>
+	                                 <a href="/cron_log/1/">操作日志</a>
 	                            </li>                                 
                             </ul>
                             <!-- /.nav-second-level -->

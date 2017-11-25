@@ -64,7 +64,24 @@
 				                                		</tr>
 				                                	{% endfor %}
 				                                </tbody>
-				                            </table>			                   			
+				                            </table>
+										{% if cronList %}
+											<ul class="pagination">
+											        {% if cronList.has_previous %}
+											            <li><a href="/cron_log/{{ cronList.previous_page_number }}/">&laquo;</a></li>
+											        {% endif %}
+											        {% for page in cronList.paginator.page_range %}
+											        	{% if cronList.number == page %}
+											        		<li class="disabled"><a href="/cron_log/{{page}}/">{{page}}</a></li>
+											        	{% else %}
+											        		<li><a href="/cron_log/{{page}}/">{{page}}</a></li>
+											        	{% endif %}
+											        {% endfor %}
+											        {% if cronList.has_next %}
+											            <li><a href="/cron_log/{{ cronList.next_page_number }}/">&raquo;</a></li>
+											        {% endif %}
+											</ul>
+                     		            {% endif %}					                            			                   			
 										</div>
 				                   </div>
 				              </div>				              

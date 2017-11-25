@@ -64,7 +64,26 @@
 				                                		</tr>
 				                                	{% endfor %}
 				                                </tbody>
-				                            </table>					                   		
+				                            </table>
+
+										{% if assetsList %}
+											<ul class="pagination">
+											        {% if assetsList.has_previous %}
+											            <li><a href="/assets_log/{{ assetsList.previous_page_number }}/">&laquo;</a></li>
+											        {% endif %}
+											        {% for page in assetsList.paginator.page_range %}
+											        	{% if assetsList.number == page %}
+											        		<li class="disabled"><a href="/assets_log/{{page}}/">{{page}}</a></li>
+											        	{% else %}
+											        		<li><a href="/assets_log/{{page}}/">{{page}}</a></li>
+											        	{% endif %}
+											        {% endfor %}
+											        {% if assetsList.has_next %}
+											            <li><a href="/assets_log/{{ assetsList.next_page_number }}/">&raquo;</a></li>
+											        {% endif %}
+											</ul>
+                     		            {% endif %}					                            
+				                            					                   		
 				                   		</div>
 
 				                   </div>
