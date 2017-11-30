@@ -414,6 +414,7 @@ class Ansible_Playbook(models.Model):
     playbook_file = models.FileField(upload_to = './upload/playbook/',verbose_name='剧本路径')
     playbook_auth_group = models.SmallIntegerField(verbose_name='授权组',blank=True,null=True)
     playbook_auth_user = models.SmallIntegerField(verbose_name='授权用户',blank=True,null=True,)
+    playbook_type = models.SmallIntegerField(verbose_name='剧本类型',blank=True,null=True,default=0)
     class Meta:
         db_table = 'opsmanage_ansible_playbook'
         permissions = (

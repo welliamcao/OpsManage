@@ -13,6 +13,7 @@
 
     <!-- jQuery -->
     <script src="/static/vendor/jquery/jquery.min.js"></script>
+    
     <!-- Bootstrap Core CSS -->
     <link href="/static/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
 
@@ -69,31 +70,40 @@
     <link rel="stylesheet" href="/static/dist/css/bootstrap-datetimepicker.min.css" type="text/css"/>
     <script type="text/javascript" src="/static/js/bootstrap-datetimepicker.js"></script> 
     
+    <!-- ACE Editor -->   
+	<script src="http://cdn.bootcss.com/ace/1.2.4/ace.js"></script>
+	<script src="http://cdn.bootcss.com/ace/1.2.4/ext-language_tools.js"></script>
+	<script src="http://cdn.bootcss.com/ace/1.2.4/ext-old_ie.js"></script>
+	<script src="http://cdn.bootcss.com/ace/1.2.4/theme-monokai.js"></script> 	
     
-    
-  <link rel="stylesheet" href="/static/dist/css/jquery-ui.min.css">
-  <script src="/static/dist/js/jquery-ui.min.js"></script>
+<!--   	<link rel="stylesheet" href="/static/dist/css/jquery-ui.min.css">
+  	<script src="/static/dist/js/jquery-ui.min.js"></script> -->
 
-  <!-- DataTables JavaScript -->
-  <link rel="stylesheet" href="/static/dist/css/jquery.dataTables.min.css">
-  <script src="/static/js/jquery.dataTables.min.js"></script>
-  <style type="text/css">
-	pre {
-		overflow: auto;
-		white-space: normal;
-		white-space: pre-wrap;       /* css-3 */
-		white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
-		white-space: -pre-wrap;      /* Opera 4-6 */
-		white-space: -o-pre-wrap;    /* Opera 7 */
-		word-wrap: break-word;       /* Internet Explorer 5.5+ */
-		border:1px solid #ccc;
-		padding:5px;
-		margin:10px;
-		font-family: Consolas,monospace;
-		color:#ADFF2F;
-		background-color:#000000;
-	}  
-</style>
+  	<!-- DataTables JavaScript -->
+  	<link rel="stylesheet" href="/static/dist/css/jquery.dataTables.min.css">
+  	<script src="/static/js/jquery.dataTables.min.js"></script>
+  	<style type="text/css">
+		pre {
+			overflow: auto;
+			white-space: normal;
+			white-space: pre-wrap;       /* css-3 */
+			white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
+			white-space: -pre-wrap;      /* Opera 4-6 */
+			white-space: -o-pre-wrap;    /* Opera 7 */
+			word-wrap: break-word;       /* Internet Explorer 5.5+ */
+			border:1px solid #ccc;
+			padding:5px;
+			margin:10px;
+			font-family: Consolas,monospace;
+			color:#ADFF2F;
+			background-color:#000000;
+		}  
+		#compile-editor {
+		    /* position: absolute; */
+		    width: 100%;
+		    height: 400px;
+		}		
+	</style>
 </head>
 
 <body>
@@ -229,8 +239,11 @@
                                     <a href="#">剧本配置<span class="fa arrow"></span></a>
                                     <ul class="nav nav-third-level">
                                         <li>
-                                            <a href="/apps/playbook/add/">剧本添加</a>
+                                            <a href="/apps/playbook/upload/">上传剧本</a>
                                         </li>
+                                        <li>
+                                            <a href="/apps/playbook/online/">在线编辑</a>
+                                        </li>                                        
                                         <li>
                                             <a href="/apps/">剧本列表</a>
                                         </li>

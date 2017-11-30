@@ -11,7 +11,7 @@
                 <div class="col-lg-12">
                     <div class="panel panel-default">
                         <div class="panel-heading">
- 						<i class="fa  fa-plus"></i> 添加剧本
+ 						<i class="fa  fa-edit"></i> 修改剧本
                         </div>
                         <div class="panel-body">
                             <div class="row">
@@ -23,16 +23,22 @@
                                             <input class="form-control" name="playbook_name" value={{playbook.playbook_name}} required>
                                             <p class="help-block">例如：系统初始化</p>
                                         </div>
-<!--                                         <div class="form-group"> -->
-<!--                                             <label>剧本文件</label> -->
-<!--                                             <input type="file" name="playbook_file"> -->
-<!--                                         </div>                                          -->
-                                        <div class="form-group">
-                                            <label>描述<i class="fa fa-info-circle" data-toggle="tooltip"  title="功能描述"></i></label>
-                                            <textarea class="form-control" rows="3" name="playbook_desc">{{playbook.playbook_desc}}</textarea>
-                                        </div>                                              
+                                        {% if playbook.playbook_type == 1 and playbook.playbook_contents %}
+	                                        	<div id="compile-editor">{{playbook.playbook_contents}}</div> 
+	                                        	<br>
+                                        {% else %}
+	                                        <div class="form-group">
+	                                            <label>描述<i class="fa fa-info-circle" data-toggle="tooltip"  title="功能描述"></i></label>
+	                                            <textarea class="form-control" rows="3" name="playbook_desc">{{playbook.playbook_desc}}</textarea>
+	                                        </div>                                         
+                                        {% endif %}
+                                             
                                         <button type="reset" class="btn btn-default">撤销</button>
+                                        {% if playbook.playbook_type == 1 %}
+                                        <button type="button" class="btn btn-default" onclick="oBtAnsiblePlaybookOnline(this)">添加</button>
+                                        {% else %}
                                         <button type="submit" class="btn btn-default">修改</button>
+                                        {% endif %}
                                     
                                 </div>
                                 <!-- /.col-lg-6 (nested) -->
@@ -97,7 +103,7 @@
                                         	<div id="custom_server" class="form-group" style="display:none;">
                                         {% endif %}                                         
                                             <label>勾选目标服务器<i class="fa fa-info-circle" data-toggle="tooltip"  title="自定选择服务器"></i></label>
-                                            <select multiple class="selectpicker" data-live-search="true" name="playbook_server">
+                                            <select multiple class="selectpicker" data-live-search="true" name="playbook_server" id="playbook_server">
                                             	{% for ds in serverList %}
                                             			{% if ds.count == 1 %}
                                             				<option name="playbook_server" value="{{ds.id}}" selected="selected">{{ds.ip}}</option>
@@ -156,6 +162,75 @@
 </div>
 
 <script type="text/javascript">
+$(function () { $("[data-toggle='tooltip']").tooltip(); });
+{% if playbook.playbook_type == 1 %}
+	$(function () {
+		var editor = ace.edit("compile-editor");
+		require("ace/ext/old_ie");
+		var langTools = ace.require("ace/ext/language_tools");
+		editor.setTheme("ace/theme/monokai");
+		editor.getSession().setMode("ace/mode/yaml");
+		editor.setShowPrintMargin(false);
+		editor.setOptions({
+		    enableBasicAutocompletion: true,
+		    enableSnippets: true,
+		    enableLiveAutocompletion: true
+		}); 
+				 
+	});
+	
+	
+    function getMultiple(){
+        var select = document.getElementById("playbook_server");
+        var str = [];
+        for(i=0;i<select.length;i++){
+            if(select.options[i].selected){
+                str.push(select[i].value);
+            }
+        }
+        return str;
+    } 	
+	  
+    
+	function oBtAnsiblePlaybookOnline(obt) {
+		var editor = ace.edit("compile-editor");
+	    var contents = editor.getSession().getValue(); 
+	    var playbook_name = document.getElementsByName("playbook_name")[0].value;
+	    if ( contents.length == 0 || playbook_name.length == 0 ){
+	    	window.wxc.xcConfirm("剧本名称或者内容不能为空", window.wxc.xcConfirm.typeEnum.error);
+	    	return false;
+	    };
+		$.ajax({
+			  type: 'POST',
+			  url: '/apps/playbook/online/modf/{{playbook.id}}/',
+			  data: {
+				  "playbook_name":playbook_name,
+				  'server_model':document.getElementById("server_model").value,
+				  "playbook_vars":document.getElementsByName("playbook_auth_user")[0].value,
+				  "playbook_server":getMultiple(),
+				  "playbook_auth_group":document.getElementsByName("playbook_auth_group")[0].value,
+				  'playbook_auth_user':document.getElementsByName("playbook_auth_user")[0].value,
+				  'ansible_service':document.getElementsByName("ansible_service")[0].value,
+				  'ansible_group':document.getElementsByName("ansible_group")[0].value,
+				  "playbook_vars":document.getElementsByName("playbook_vars")[0].value,
+				  "playbook_content":contents
+			  },
+		      success:function(response){	
+	                if (response["code"]=="200"){ 
+	                	window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.success);
+	                	window.location.reload();
+	                }
+		        	else{
+		        		window.wxc.xcConfirm("添加失败：" + response["msg"], window.wxc.xcConfirm.typeEnum.error);
+		        	};	
+
+				},
+	          error:function(response){
+	          	window.wxc.xcConfirm("添加失败", window.wxc.xcConfirm.typeEnum.error);
+	          },							  
+			});
+	};		
+{% endif %}
 {% if playbook.playbook_vars %}
 	var songResJson=JSON.parse(document.getElementById('playbook_vars').value);
 	$("#playbook_vars").text(JSON.stringify(songResJson,null,2)); 
@@ -163,7 +238,7 @@
 {% if errorInfo %}
 	window.wxc.xcConfirm("{{errorInfo}}", window.wxc.xcConfirm.typeEnum.error);
 {% endif %}
-$(function () { $("[data-toggle='tooltip']").tooltip(); });
+
 
 function oBtAnsibleServerl(){
 	   var obj = document.getElementById("server_model"); 

@@ -60,6 +60,6 @@ class AnsibleRecord(object):
                                               ans_id = ans_id,
                                               ans_content = ans_content,
                                               )
-            except Exception,e:
-                print e
+            except Exception, ex:
+                print ex
                 return False        

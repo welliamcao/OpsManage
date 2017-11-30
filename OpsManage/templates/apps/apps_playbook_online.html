@@ -1,0 +1,203 @@
+{% extends 'index.html' %}
+{% block page-content %}
+<div id="page-wrapper">
+    <div class="row">
+         <div class="col-lg-12">
+              <h1 class="page-header"><i class="fa  fa-wrench"></i><code>Ansible Playbook</code>配置中心</h1>
+         </div>
+                <!-- /.col-lg-12 -->
+    </div>
+	<div class="row">
+                <div class="col-lg-12">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+ 						<i class="fa  fa-plus"></i> 添加剧本
+                        </div>
+                        <div class="panel-body">
+                            <div class="row">
+                                <div class="col-lg-6">
+                                <legend><i class="fa  fa-paper-plane"></i>Ansible PlayBook</legend>
+                                    <form  method="post">  {% csrf_token %}
+                                        <div class="form-group">
+                                            <label>剧本名称</label>
+                                            <input class="form-control" name="playbook_name" required>
+                                            <p class="help-block">例如：系统初始化</p>
+                                        </div>                                    
+										<div id="compile-editor"></div> 
+										<br>                                           
+                                        <button type="reset" class="btn btn-default">撤销</button>
+                                        <button type="button" class="btn btn-default" onclick="oBtAnsiblePlaybookOnline(this)">添加</button>
+                                    	
+                                </div>
+                                <!-- /.col-lg-6 (nested) -->
+                                <div class="col-lg-6">
+                                    <legend><i class="fa  fa-paper-plane-o"></i>目标服务器<i class="fa fa-info-circle" data-toggle="tooltip"  title="如果不配置，则所有人都能使用"></i></legend>
+                                     <div class="form-group">
+                                            <label>服务器选择<i class="fa fa-info-circle" data-toggle="tooltip"  title="根据不同场景选择服务器"></i></label>
+												<select class="form-control" name="server_model" id="server_model" onchange="javascript:oBtAnsibleServerl();">
+													<option value="service" name="server_model">业务类型</option>
+													<option value="group" name="server_model">使用部门</option>	
+													<option value="custom" name="server_model">自定义</option> 	
+												</select>
+                                        </div> 
+ 
+                                         <div  id="service_server" class="form-group">
+                                            <label>业务类型<i class="fa fa-info-circle" data-toggle="tooltip"  title="根据业务类型选择服务器"></i></label>
+		                                    <select class="form-control" name="ansible_service">
+		                                        {% for ds in serviceList %}
+		                                            <option name="playbook_service" value="{{ds.id}}">{{ds.service_name}}</option>
+		                                        {% endfor %}
+		                                    </select>
+                                        </div>  
+                                        
+                                         <div id="group_server" class="form-group" style="display:none;">
+                                            <label>服务器使用组<i class="fa fa-info-circle" data-toggle="tooltip"  title="根据服务器分配的用户组选择服务器"></i></label>
+		                                       <select class="form-control" name="ansible_group">
+		                                           	{% for ds in groupList %}
+		                                            	<option name="group" value="{{ds.id}}">{{ds.name}}</option>
+		                                           {% endfor %}
+		                                      </select>
+                                        </div>                                         
+                                        
+                                         <div id="custom_server" class="form-group" style="display:none;">
+                                            <label>勾选目标服务器<i class="fa fa-info-circle" data-toggle="tooltip"  title="自定选择服务器"></i></label>
+                                            <select multiple class="selectpicker" data-live-search="true" name="playbook_server" id="playbook_server">
+                                            	{% for ds in serverList %}
+                                            		<option name="playbook_server" value="{{ds.id}}">{{ds.ip}}</option>
+                                            	{% endfor %}
+                                            </select>
+                                        </div>                                          
+                                        
+                                        <div class="form-group">
+                                            <label>用户组<i class="fa fa-info-circle" data-toggle="tooltip"  title="授权给那些用户组能够使用"></i></label>
+                                            <select class="form-control" name="playbook_auth_group">
+                                            	<option name="playbook_auth_group" value="0">选择用户组</option>
+                                            	{% for ds in groupList %}
+                                            		<option name="playbook_auth_group" value="{{ds.id}}">{{ds.name}}</option>
+                                            	{% endfor %}
+                                            </select>
+                                        </div>                                                                              
+                                        <div class="form-group">
+                                            <label>用户<i class="fa fa-info-circle" data-toggle="tooltip"  title="授权给那些用户能够使用"></i></label>
+                                            <select class="form-control" name="playbook_auth_user">
+                                            	<option name="playbook_auth_user" value="0">选择用户</option>
+                                            	{% for ds in userList %}
+                                            		<option name="playbook_auth_user" value="{{ds.id}}">{{ds.username}}</option>
+                                            	{% endfor %}
+                                            </select>
+                                        </div>  
+                                        <div class="form-group">
+                                            <label>剧本外部变量<i class="fa fa-info-circle" data-toggle="tooltip"  title="值为json格式"></i></label>
+                                            <textarea class="form-control" rows="3" name="playbook_vars"></textarea>
+                                            <p class="help-block">
+												例如：{"user":"root"}
+                                            </p>
+                                        </div>                                        
+                                </div>
+                                <!-- /.col-lg-6 (nested) -->
+                               </form> 
+                            </div>
+                            <!-- /.row (nested) -->
+                        </div>
+                        <!-- /.panel-body -->
+                    </div>
+                    <!-- /.panel -->
+                </div>
+                <!-- /.col-lg-12 -->
+            </div>
+</div>
+
+<script type="text/javascript">
+	
+	$(function () { $("[data-toggle='tooltip']").tooltip(); });
+	
+	$(function () {
+ 		var editor = ace.edit("compile-editor");
+ 		require("ace/ext/old_ie");
+		var langTools = ace.require("ace/ext/language_tools");
+		editor.setTheme("ace/theme/monokai");
+		editor.getSession().setMode("ace/mode/yaml");
+		editor.setShowPrintMargin(false);
+		editor.setOptions({
+		    enableBasicAutocompletion: true,
+		    enableSnippets: true,
+		    enableLiveAutocompletion: true
+		}); 
+				 
+	});
+	
+	
+    function getMultiple(){
+        var select = document.getElementById("playbook_server");
+        var str = [];
+        for(i=0;i<select.length;i++){
+            if(select.options[i].selected){
+                str.push(select[i].value);
+            }
+        }
+        return str;
+    };
+    
+         
+	function oBtAnsiblePlaybookOnline(obt) {
+		var editor = ace.edit("compile-editor");
+	    var contents = editor.getSession().getValue(); 
+	    var playbook_name = document.getElementsByName("playbook_name")[0].value;
+	    if ( contents.length == 0 || playbook_name.length == 0 ){
+	    	window.wxc.xcConfirm("剧本名称或者内容不能为空", window.wxc.xcConfirm.typeEnum.error);
+	    	return false;
+	    };
+		$.ajax({
+			  type: 'POST',
+			  url: '/apps/playbook/online/',
+			  data: {
+				  "playbook_name":playbook_name,
+				  'server_model':document.getElementById("server_model").value,
+				  "playbook_vars":document.getElementsByName("playbook_auth_user")[0].value,
+				  "playbook_server":getMultiple(),
+				  "playbook_auth_group":document.getElementsByName("playbook_auth_group")[0].value,
+				  'playbook_auth_user':document.getElementsByName("playbook_auth_user")[0].value,
+				  'ansible_service':document.getElementsByName("ansible_service")[0].value,
+				  'ansible_group':document.getElementsByName("ansible_group")[0].value,
+				  "playbook_vars":document.getElementsByName("playbook_vars")[0].value,
+				  "playbook_content":contents
+			  },
+		      success:function(response){	
+	                if (response["code"]=="200"){ 
+	                	window.wxc.xcConfirm("添加成功", window.wxc.xcConfirm.typeEnum.success);
+	                	window.location.reload();
+	                }
+		        	else{
+		        		window.wxc.xcConfirm("添加失败：" + response["msg"], window.wxc.xcConfirm.typeEnum.error);
+		        	};	
+
+				},
+	          error:function(response){
+	          	window.wxc.xcConfirm("添加失败", window.wxc.xcConfirm.typeEnum.error);
+	          },							  
+			});
+	};	
+	function oBtAnsibleServerl(){
+		   var obj = document.getElementById("server_model"); 
+		   var index = obj.selectedIndex;
+		   var value = obj.options[index].value; 
+		   if (value=="group"){
+			   document.getElementById("group_server").style.display = "";
+			   document.getElementById("service_server").style.display = "none";
+			   document.getElementById("custom_server").style.display = "none";
+		   }
+		   else if (value=="custom"){
+			   document.getElementById("group_server").style.display = "none";
+			   document.getElementById("service_server").style.display = "none";
+			   document.getElementById("custom_server").style.display = "";
+		   }
+		   else {
+			   document.getElementById("group_server").style.display = "none";
+			   document.getElementById("service_server").style.display = "";
+			   document.getElementById("custom_server").style.display = "none"; 
+		   }	
+	}
+
+</script>
+
+{% endblock %}

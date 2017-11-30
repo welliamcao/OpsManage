@@ -35,7 +35,7 @@
                                 				{{ds.playbook_uuid}}
                                 			</td class="text-center">
                                 			<td class="text-center">
-                                				{{ds.playbook_desc}} 
+                                				{{ds.playbook_desc|default:""}} 
                                 			</td>
                                 			<td class="text-center">
                                 				<button type="button"  class="btn btn-default" data-toggle="modal" data-target="#myModal" onclick="getAnsiblePlayBookFile(this,{{ds.id}})"><i class="fa  fa-eye  "></i></button>
