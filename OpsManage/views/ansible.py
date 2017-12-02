@@ -58,7 +58,8 @@ def apps_model(request):
                 logId = AnsibleRecord.Model.insert(user=str(request.user),ans_model=model_name,ans_server=','.join(sList),ans_args=request.POST.get('ansible_agrs',None))
                 DsRedis.OpsAnsibleModel.delete(redisKey)
                 DsRedis.OpsAnsibleModel.lpush(redisKey, "[Start] Ansible Model: {model}  ARGS:{args}".format(model=model_name,args=request.POST.get('ansible_agrs',"None")))
-                ANS = ANSRunner(resource,redisKey,logId)
+                if request.POST.get('ansible_debug') == 'on':ANS = ANSRunner(resource,redisKey,logId,verbosity=4)
+                else:ANS = ANSRunner(resource,redisKey,logId)
                 ANS.run_model(host_list=sList,module_name=model_name,module_args=request.POST.get('ansible_agrs',""))
                 DsRedis.OpsAnsibleModel.lpush(redisKey, "[Done] Ansible Done.")
                 return JsonResponse({'msg':"操作成功","code":200,'data':[]})
@@ -272,7 +273,8 @@ def apps_playbook_run(request,pid):
             logId = AnsibleRecord.PlayBook.insert(user=str(request.user),ans_id=playbook.id,ans_name=playbook.playbook_name,
                                         ans_content="执行Ansible剧本",ans_server=','.join(sList))   
             #执行ansible playbook
-            ANS = ANSRunner(resource,redisKey=playbook.playbook_uuid,logId=logId)
+            if request.POST.get('ansible_debug') == 'on':ANS = ANSRunner(resource,redisKey=playbook.playbook_uuid,logId=logId,verbosity=4)
+            else:ANS = ANSRunner(resource,redisKey=playbook.playbook_uuid,logId=logId)                   
             ANS.run_playbook(host_list=sList, playbook_path=playbook_file,extra_vars=playbook_vars)
             #获取结果
             result = ANS.get_playbook_result()

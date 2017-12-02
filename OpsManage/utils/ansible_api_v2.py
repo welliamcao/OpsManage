@@ -14,6 +14,7 @@ from OpsManage.data.DsRedisOps import DsRedis
 from OpsManage.data.DsMySQL import AnsibleSaveResult
 
 
+
 class MyInventory(Inventory):  
     """ 
     this is my ansible inventory object. 
@@ -352,13 +353,13 @@ class ANSRunner(object):
         self.options = None  
         self.passwords = None  
         self.callback = None  
-        self.__initializeData()  
+        self.__initializeData(kwargs)  
         self.results_raw = {}  
         self.redisKey = redisKey
         self.logId = logId
          
   
-    def __initializeData(self):  
+    def __initializeData(self,kwargs):
         """ 初始化ansible """  
         Options = namedtuple('Options', ['connection','module_path', 'forks', 'timeout',  'remote_user',  
                 'ask_pass', 'private_key_file', 'ssh_common_args', 'ssh_extra_args', 'sftp_extra_args',  
@@ -368,9 +369,10 @@ class ANSRunner(object):
         self.variable_manager = VariableManager()  
         self.loader = DataLoader()  
         self.options = Options(connection='smart', module_path=None, forks=100, timeout=10,  
-                remote_user='root', ask_pass=False, private_key_file=None, ssh_common_args=None, ssh_extra_args=None,  
-                sftp_extra_args=None, scp_extra_args=None, become=None, become_method=None,  
-                become_user='root', ask_value_pass=False, verbosity=None, check=False, listhosts=False,  
+                remote_user='root', ask_pass=False, private_key_file=None, ssh_common_args=None, 
+                ssh_extra_args=None,sftp_extra_args=None, scp_extra_args=None, become=None,
+                become_method=None,become_user='root', ask_value_pass=False, 
+                verbosity=kwargs.get('verbosity',None),check=False, listhosts=False,  
                 listtasks=False, listtags=False, syntax=False)  
   
         self.passwords = dict(sshpass=None, becomepass=None)  

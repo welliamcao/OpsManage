@@ -32,7 +32,6 @@
 			                                <div class="col-lg-5">
 			                                <legend><i class="fa  fa-paper-plane"></i>Ansible服务器</legend>
 			                                    <form role="form" id="ansiblePlayBookRun" class="main form-horizontal" >{% csrf_token %}
-													<fieldset>	
 														<div class="form-group">
 															 <label class="col-sm-2 control-label">剧本名称</label>
 															 <div class="col-sm-6">											
@@ -77,8 +76,15 @@
 																{% endif %}
 															</div>
 														</div> 											
-														</fieldset>																																																					 											
-														</fieldset>
+														<div class="form-group">
+															 <label class="col-sm-2 control-label">Debug</label>
+															 <div class="col-sm-6">										
+																	<select class="form-control" name="ansible_debug">
+																		<option value="off" name="ansible_model">关闭</option>	
+																		<option value="on" name="ansible_model">开启</option> 	
+																	</select>
+															</div>
+														</div> 																																																				 											
 														<legend></legend>
 														<div class="form-group">
 															<label class="col-sm-3 control-label"></label>
