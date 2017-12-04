@@ -69,41 +69,17 @@
     <!-- Datetimepicker -->
     <link rel="stylesheet" href="/static/dist/css/bootstrap-datetimepicker.min.css" type="text/css"/>
     <script type="text/javascript" src="/static/js/bootstrap-datetimepicker.js"></script> 
-    
+    {% block ace-content %}
     <!-- ACE Editor -->   
 	<script src="http://cdn.bootcss.com/ace/1.2.4/ace.js"></script>
 	<script src="http://cdn.bootcss.com/ace/1.2.4/ext-language_tools.js"></script>
 	<script src="http://cdn.bootcss.com/ace/1.2.4/ext-old_ie.js"></script>
 	<script src="http://cdn.bootcss.com/ace/1.2.4/theme-monokai.js"></script> 	
-    
-<!--   	<link rel="stylesheet" href="/static/dist/css/jquery-ui.min.css">
-  	<script src="/static/dist/js/jquery-ui.min.js"></script> -->
-
+    {% endblock %}
+	
   	<!-- DataTables JavaScript -->
   	<link rel="stylesheet" href="/static/dist/css/jquery.dataTables.min.css">
   	<script src="/static/js/jquery.dataTables.min.js"></script>
-  	<style type="text/css">
-		pre {
-			overflow: auto;
-			white-space: normal;
-			white-space: pre-wrap;       /* css-3 */
-			white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
-			white-space: -pre-wrap;      /* Opera 4-6 */
-			white-space: -o-pre-wrap;    /* Opera 7 */
-			word-wrap: break-word;       /* Internet Explorer 5.5+ */
-			border:1px solid #ccc;
-			padding:5px;
-			margin:10px;
-			font-family: Consolas,monospace;
-			color:#ADFF2F;
-			background-color:#000000;
-		}  
-		#compile-editor {
-		    /* position: absolute; */
-		    width: 100%;
-		    height: 400px;
-		}		
-	</style>
 </head>
 
 <body>
