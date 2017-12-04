@@ -1,4 +1,18 @@
 {% extends 'index.html' %}
+{% block ace-content %}
+<!-- ACE Editor -->   
+<script src="http://cdn.bootcss.com/ace/1.2.4/ace.js"></script>
+<script src="http://cdn.bootcss.com/ace/1.2.4/ext-language_tools.js"></script>
+<script src="http://cdn.bootcss.com/ace/1.2.4/ext-old_ie.js"></script>
+<script src="http://cdn.bootcss.com/ace/1.2.4/theme-monokai.js"></script> 
+<style type="text/css">
+	#compile-editor {
+		/* position: absolute; */
+		width: 100%;
+	height: 400px;
+   }	
+</style>
+{% endblock %}
 {% block page-content %}
 <div id="page-wrapper">
     <div class="row">
@@ -23,7 +37,7 @@
                                             <input class="form-control" name="playbook_name" required>
                                             <p class="help-block">例如：系统初始化</p>
                                         </div>                                    
-										<div id="compile-editor"></div> 
+										<div id="compile-editor" class="ace_editor"></div> 
 										<br>                                           
                                         <button type="reset" class="btn btn-default">撤销</button>
                                         <button type="button" class="btn btn-default" onclick="oBtAnsiblePlaybookOnline(this)">添加</button>

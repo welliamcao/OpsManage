@@ -411,59 +411,9 @@
 
 
     <script type="text/javascript">
-    
+        
+	    
 
-	    
-	    
-		   function assetsUpdate(obj, id,ip,type){
-				var btnObj = $(obj);
-				var txt=  "是否确认更新？";
-				var option = {
-						title: "更新主机("+ip+")硬件信息",
-						btn: parseInt("0011",2),
-						onOk: function(){
-							$.ajax({
-								  type: 'POST',
-								  url: '/assets_facts/',
-								  data:{
-										"ip":ip,
-										"server_id":id,
-										"type":type
-									},
-							      success:function(response){			            
-						                if (response["code"]=="200"){ 
-						                	window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.success);
-
-						                }
-							        	else{
-							        		window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
-							        	}						                
-								},
-					            error:function(response){
-					            	window.wxc.xcConfirm("请求数据错误！", window.wxc.xcConfirm.typeEnum.error);
-					            },		
-								});
-						},
-						onCancel:function(){	
-						},
-						onClose:function(){
-						}
-					}			
-				window.wxc.xcConfirm(txt, "custom", option);
-			}	    
-	    
-        (function ($) {
-            $.fn.extend({
-                leanModal: function (options) {
-                    var defaults = { top: 100, overlay: 0.5, closeButton: null }; var overlay = $("<div id='lean_overlay'></div>"); $("body").append(overlay); options = $.extend(defaults, options); return this.each(function () {
-                        var o = options; $(this).click(function (e) {
-                            var modal_id = $('#pb'); $("#lean_overlay").click(function () { close_modal(modal_id) }); $(o.closeButton).click(function () { close_modal(modal_id) }); $('.pb-cl').click(function () { close_modal(modal_id) }); var modal_height = $(modal_id).outerHeight(); var modal_width = $(modal_id).outerWidth();
-                            $("#lean_overlay").css({ "display": "block", opacity: 0 }); $("#lean_overlay").fadeTo(200, o.overlay); $(modal_id).css({ "display": "block", "position": "fixed", "opacity": 0, "z-index": 11000, "left": 50 + "%", "margin-left": -(modal_width / 2) + "px", "top": o.top + "px" }); $(modal_id).fadeTo(200, 1); e.preventDefault()
-                        })
-                    }); function close_modal(modal_id) { $("#lean_overlay").fadeOut(200); $(modal_id).css({ "display": "none" }) }
-                }
-            })
-        })(jQuery);
 
         var curpage = 1;
         $(document).ready(function () {
