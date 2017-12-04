@@ -464,6 +464,7 @@ class Global_Config(models.Model):
     assets = models.SmallIntegerField(verbose_name='是否开启资产操作记录',blank=True,null=True)
     server = models.SmallIntegerField(verbose_name='是否开启服务器命令记录',blank=True,null=True)
     email = models.SmallIntegerField(verbose_name='是否开启邮件通知',blank=True,null=True)
+    webssh = models.SmallIntegerField(verbose_name='是否开启WebSSH',blank=True,null=True)
     class Meta:
         db_table = 'opsmanage_global_config'
     
@@ -502,3 +503,18 @@ class Ansible_CallBack_Model_Result(models.Model):
 class Ansible_CallBack_PlayBook_Result(models.Model):
     logId = models.ForeignKey('Log_Ansible_Playbook')
     content = models.TextField(verbose_name='输出内容',blank=True,null=True)
+    
+class User_Server(models.Model):
+    server_id = models.SmallIntegerField(verbose_name='服务器资产id')
+    user_id = models.SmallIntegerField(verbose_name='用户id')
+    class Meta:
+        db_table = 'opsmanage_user_server'
+        permissions = (
+            ("can_read_user_server", "读取用户服务器表权限"),
+            ("can_change_user_server", "更改用户服务器表权限"),
+            ("can_add_user_server", "添加用户服务器表权限"),
+            ("can_delete_user_server", "删除用户服务器表权限"),              
+        )
+        unique_together = (("server_id", "user_id"))
+        verbose_name = '用户服务器表'  
+        verbose_name_plural = '用户服务器表'

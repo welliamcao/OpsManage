@@ -1,6 +1,9 @@
-django==1.8.17
+Django==1.11.7
+asgiref==1.1.2
+asgi-redis==1.4.3
+channels==1.1.7
 Celery==3.1.20
-django-celery
+django-celery==3.2.2
 celery-with-redis
 djangorestframework==3.5.3
 paramiko

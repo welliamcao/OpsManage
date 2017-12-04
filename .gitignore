@@ -1,5 +1,6 @@
 *.pyc
 upload*
+media*
 .DS_Store
 .gitignore
 .settings

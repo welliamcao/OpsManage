@@ -45,6 +45,24 @@ DEBUG = True
 ALLOWED_HOSTS = ['*']
 
 
+MEDIA_ROOT = os.path.join(BASE_DIR,'media')
+MEDIA_URL = '/media/'
+# Channels settings
+CHANNEL_LAYERS = {
+    "default": {
+       "BACKEND": "asgi_redis.RedisChannelLayer",  # use redis backend
+       "CONFIG": {
+           "hosts": [("localhost", 6379)],  # set redis address
+           "channel_capacity": {
+                                   "http.request": 1000,
+                                   "websocket.send*": 10000,
+                                },
+           "capacity": 10000,           
+           },
+       "ROUTING": "OpsManage.routing.channel_routing",  # load routing from our routing.py file
+       },
+}
+
 # Application definition
 
 INSTALLED_APPS = (
@@ -56,7 +74,8 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'OpsManage',
     'rest_framework',
-    'djcelery'
+    'djcelery',
+    'channels',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -81,21 +100,22 @@ REST_FRAMEWORK = {
 
 ROOT_URLCONF = 'OpsManage.urls'
 
-# TEMPLATES = [
-#     {
-#         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-#         'DIRS': ["E:\\MyPros\\OpsManage\\OpsManage\\static\\"],
-#         'APP_DIRS': True,
-#         'OPTIONS': {
-#             'context_processors': [
-#                 'django.template.context_processors.debug',
-#                 'django.template.context_processors.request',
-#                 'django.contrib.auth.context_processors.auth',
-#                 'django.contrib.messages.context_processors.messages',
-#             ],
-#         },
-#     },
-# ]
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': ["/mnt/OpsManage/OpsManage/static/",'/mnt/OpsManage/OpsManage/templates/'],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+            ],
+        },
+    },
+]
+
 
 WSGI_APPLICATION = 'OpsManage.wsgi.application'
 
@@ -155,10 +175,10 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = (
      '/mnt/OpsManage/OpsManage/static/',
     )
-TEMPLATE_DIRS = (
-#     os.path.join(BASE_DIR,'mysite\templates'),
-    '/mnt/OpsManage/OpsManage/templates/',
-)
+# TEMPLATE_DIRS = (
+# #     os.path.join(BASE_DIR,'mysite\templates'),
+#     '/mnt/OpsManage/OpsManage/templates/',
+# )
 
 
 LOGIN_URL = '/login'

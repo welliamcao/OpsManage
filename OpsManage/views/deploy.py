@@ -2,8 +2,7 @@
 # _#_ coding:utf-8 _*_  
 import uuid
 from django.http import HttpResponseRedirect,JsonResponse
-from django.shortcuts import render_to_response
-from django.template import RequestContext
+from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from OpsManage.models import Server_Assets,Project_Config,Project_Number,Project_Order,\
     Log_Project_Config
@@ -25,9 +24,9 @@ def deploy_add(request):
     if request.method == "GET":
         serverList = Server_Assets.objects.all()
         groupList = Group.objects.all()
-        return render_to_response('deploy/deploy_add.html',{"user":request.user,"groupList":groupList,
+        return render(request,'deploy/deploy_add.html',{"user":request.user,"groupList":groupList,
                                                             "serverList":serverList},
-                                  context_instance=RequestContext(request))
+                                  )
     elif  request.method == "POST":
         serverList = Server_Assets.objects.all()
         ipList = request.POST.getlist('server') 
@@ -52,10 +51,10 @@ def deploy_add(request):
                                                     )
             recordProject.delay(project_user=str(request.user),project_id=project.id,project_name=project.project_name,project_content="添加项目")
         except Exception,e:
-            return render_to_response('deploy/deploy_add.html',{"user":request.user,
+            return render(request,'deploy/deploy_add.html',{"user":request.user,
                                                                 "serverList":serverList,
                                                                 "errorInfo":"部署服务器信息添加错误：%s" % str(e)},
-                                      context_instance=RequestContext(request))             
+                                      )             
         if ipList:
             for sid in ipList:
                 try:
@@ -65,10 +64,10 @@ def deploy_add(request):
                                                   project=project)
                 except Exception,e:
                     project.delete()
-                    return render_to_response('deploy/deploy_add.html',{"user":request.user,
+                    return render(request,'deploy/deploy_add.html',{"user":request.user,
                                                                         "serverList":serverList,
                                                                         "errorInfo":"目标服务器信息添加错误：%s" % str(e)},
-                                              context_instance=RequestContext(request))                     
+                                              )                     
           
         return HttpResponseRedirect('/deploy_add') 
     
@@ -80,19 +79,19 @@ def deploy_modf(request,pid):
         tagret_server = Project_Number.objects.filter(project=project)
         serverList = Server_Assets.objects.all()
     except:
-        return render_to_response('deploy/deploy_modf.html',{"user":request.user,
+        return render(request,'deploy/deploy_modf.html',{"user":request.user,
                                                          "errorInfo":"项目不存在，可能已经被删除."},
-                                context_instance=RequestContext(request))     
+                                )     
     if request.method == "GET": 
         groupList = Group.objects.all()
         server = [ s.server for s in tagret_server]
         for ds in serverList:
             if ds.ip in server:ds.count = 1
             else:ds.count = 0        
-        return render_to_response('deploy/deploy_modf.html',
+        return render(request,'deploy/deploy_modf.html',
                                   {"user":request.user,"project":project,"server":tagret_server,
                                    "serverList":serverList,"groupList":groupList},
-                                context_instance=RequestContext(request))         
+                                )         
     elif  request.method == "POST":
         ipList = request.POST.getlist('server',None)
         try:      
@@ -113,9 +112,9 @@ def deploy_modf(request,pid):
                                                     )
             recordProject.delay(project_user=str(request.user),project_id=pid,project_name=project.project_name,project_content="修改项目")
         except Exception,e:
-            return render_to_response('deploy/deploy_modf.html',
+            return render(request,'deploy/deploy_modf.html',
                                       {"user":request.user,"errorInfo":"更新失败："+str(e)},
-                                  context_instance=RequestContext(request)) 
+                                  ) 
         if ipList:
             tagret_server_list = [ s.server for s in tagret_server ]
             postServerList = []
@@ -134,10 +133,10 @@ def deploy_modf(request,pid):
                             print e
                             pass                                          
                 except Exception,e:
-                    return render_to_response('deploy/deploy_modf.html',{"user":request.user,
+                    return render(request,'deploy/deploy_modf.html',{"user":request.user,
                                                                         "serverList":serverList,
                                                                         "errorInfo":"目标服务器信息添加错误：%s" % str(e)},
-                                              context_instance=RequestContext(request)) 
+                                              ) 
             #清除目标主机 - 
             delList = list(set(tagret_server_list).difference(set(postServerList)))
             for ip in delList:
@@ -153,10 +152,10 @@ def deploy_list(request):
     uatProject = Project_Config.objects.filter(project_env="uat").count()
     qaProject = Project_Config.objects.filter(project_env="qa").count()
     sitProject = Project_Config.objects.filter(project_env="sit").count()
-    return render_to_response('deploy/deploy_list.html',{"user":request.user,"totalProject":deployList.count(),
+    return render(request,'deploy/deploy_list.html',{"user":request.user,"totalProject":deployList.count(),
                                                          "deployList":deployList,"uatProject":uatProject,
                                                          "qaProject":qaProject,"sitProject":sitProject},
-                              context_instance=RequestContext(request))  
+                              )  
     
 @login_required()
 @permission_required('OpsManage.can_change_project_config',login_url='/noperm/')
@@ -180,9 +179,9 @@ def deploy_version(request,pid):
         project = Project_Config.objects.select_related().get(id=pid)
         if project.project_repertory == 'git':version = GitTools()
     except:
-        return render_to_response('deploy/deploy_version.html',{"user":request.user,
+        return render(request,'deploy/deploy_version.html',{"user":request.user,
                                                          "errorInfo":"项目不存在，可能已经被删除."}, 
-                                  context_instance=RequestContext(request))      
+                                  )      
     if request.method == "POST":
         try:
             project = Project_Config.objects.get(id=pid)
@@ -218,19 +217,19 @@ def deploy_run(request,pid):
         if project.project_repertory == 'git':version = GitTools()
         elif project.project_repertory == 'svn':version = SvnTools()
     except:
-        return render_to_response('deploy/deploy_run.html',{"user":request.user,
+        return render(request,'deploy/deploy_run.html',{"user":request.user,
                                                          "errorInfo":"项目不存在，可能已经被删除."}, 
-                                  context_instance=RequestContext(request))     
+                                  )     
     if request.method == "GET":
         if project.project_model == 'branch':bList = version.branch(path=project.project_repo_dir) 
         elif project.project_model == 'tag':bList = version.tag(path=project.project_repo_dir) 
         #获取最新版本
         version.pull(path=project.project_repo_dir)        
         vList = version.log(path=project.project_repo_dir, number=50)
-        return render_to_response('deploy/deploy_run.html',{"user":request.user,
+        return render(request,'deploy/deploy_run.html',{"user":request.user,
                                                          "project":project,"serverList":serverList,
                                                          "bList":bList,"vList":vList}, 
-                                  context_instance=RequestContext(request)) 
+                                  ) 
         
     elif request.method == "POST":
         if request.POST.getlist('project_server',None):
@@ -385,9 +384,9 @@ def deploy_ask(request,pid):
         if project.project_repertory == 'git':version = GitTools()
         elif project.project_repertory == 'svn':version = SvnTools()
     except:
-        return render_to_response('deploy/deploy_ask.html',{"user":request.user,
+        return render(request,'deploy/deploy_ask.html',{"user":request.user,
                                                          "errorInfo":"项目不存在，可能已经被删除."}, 
-                                  context_instance=RequestContext(request))     
+                                  )     
     if request.method == "GET":
         vList = None
         version.pull(path=project.project_repo_dir)
@@ -399,9 +398,9 @@ def deploy_ask(request,pid):
             bList = version.tag(path=project.project_repo_dir) 
         audit_group = Group.objects.get(id=project.project_audit_group)
         userList = [ u.get('username') for u in audit_group.user_set.values()]
-        return render_to_response('deploy/deploy_ask.html',{"user":request.user,"project":project,
+        return render(request,'deploy/deploy_ask.html',{"user":request.user,"project":project,
                                                          "userList":userList,"bList":bList,"vList":vList}, 
-                                  context_instance=RequestContext(request))  
+                                  )  
     elif request.method == "POST":       
         try:      
             order = Project_Order.objects.create(
@@ -418,8 +417,8 @@ def deploy_ask(request,pid):
                                                     )
             sendEmail.delay(order_id=order.id,mask='【申请中】')
         except Exception,e:
-            return render_to_response('deploy/deploy_ask.html',{"user":request.user,"errorInfo":"项目部署申请失败：%s" % str(e)},
-                                      context_instance=RequestContext(request))   
+            return render(request,'deploy/deploy_ask.html',{"user":request.user,"errorInfo":"项目部署申请失败：%s" % str(e)},
+                                      )   
         return HttpResponseRedirect('/deploy_ask/{id}/'.format(id=pid))   
     
     
@@ -443,11 +442,11 @@ def deploy_order(request,page):
             orderList = paginator.page(paginator.num_pages)        
         for ds in deploy_project:
             ds['order_project'] = Project_Config.objects.get(id=ds.get('order_project')).project_name
-        return render_to_response('deploy/deploy_order.html',{"user":request.user,"orderList":orderList,
+        return render(request,'deploy/deploy_order.html',{"user":request.user,"orderList":orderList,
                                                               "totalOrder":totalOrder,"doneOrder":doneOrder,
                                                               "authOrder":authOrder,"rejectOrder":rejectOrder,
                                                               "deploy_nmuber":deploy_nmuber,"deploy_project":deploy_project},
-                                  context_instance=RequestContext(request)) 
+                                  ) 
     elif request.method == "POST" and request.user.has_perm('OpsManage.can_add_project_order'):  
         if request.POST.get('model') in ['disable','auth','finish']:
             try:     
@@ -476,11 +475,11 @@ def deploy_order_status(request,pid):
             serverList = Project_Number.objects.filter(project=order.order_project)
             if order.order_audit == str(request.user):order.order_perm = 'pass'
         except:
-            return render_to_response('deploy/deploy_ask.html',{"user":request.user,
+            return render(request,'deploy/deploy_ask.html',{"user":request.user,
                                                 "errorInfo":"工单不存在，可能已经被删除."}, 
-                                              context_instance=RequestContext(request))             
-        return render_to_response('deploy/deploy_order_status.html',{"user":request.user,"order":order,"serverList":serverList},
-                                  context_instance=RequestContext(request)) 
+                                              )             
+        return render(request,'deploy/deploy_order_status.html',{"user":request.user,"order":order,"serverList":serverList},
+                                  ) 
     
     
 @login_required()
@@ -488,7 +487,7 @@ def deploy_order_status(request,pid):
 def deploy_order_rollback(request,pid):
     if request.method == "GET":
         order= Project_Order.objects.get(id=pid)
-        return render_to_response('deploy/deploy_order_rollback.html',{"user":request.user,"order":order},context_instance=RequestContext(request)) 
+        return render(request,'deploy/deploy_order_rollback.html',{"user":request.user,"order":order},) 
     
     
 @login_required()
@@ -498,19 +497,19 @@ def deploy_manage(request,pid):
         if project.project_repertory == 'git':version = GitTools()
         elif project.project_repertory == 'svn':version = SvnTools()
     except:
-        return render_to_response('deploy/deploy_manage.html',{"user":request.user,
+        return render(request,'deploy/deploy_manage.html',{"user":request.user,
                                                          "errorInfo":"项目不存在，可能已经被删除."}, 
-                                  context_instance=RequestContext(request)) 
+                                  ) 
     if request.method == "GET":
         #获取最新版本
         version.pull(path=project.project_repo_dir)
         if project.project_model == 'branch':bList = version.branch(path=project.project_repo_dir) 
         elif project.project_model == 'tag':bList = version.tag(path=project.project_repo_dir) 
         vList = version.log(path=project.project_repo_dir, number=50)
-        return render_to_response('deploy/deploy_manage.html',{"user":request.user,
+        return render(request,'deploy/deploy_manage.html',{"user":request.user,
                                                          "project":project,
                                                          "bList":bList,"vList":vList}, 
-                                  context_instance=RequestContext(request))
+                                  )
         
 @login_required(login_url='/login')  
 def deploy_log(request,page):
@@ -523,6 +522,6 @@ def deploy_log(request,page):
             projectList = paginator.page(1)
         except EmptyPage:
             projectList = paginator.page(paginator.num_pages)        
-        return render_to_response('deploy/deploy_log.html',{"user":request.user,"projectList":projectList},
-                                  context_instance=RequestContext(request))    
+        return render(request,'deploy/deploy_log.html',{"user":request.user,"projectList":projectList},
+                                  )    
      

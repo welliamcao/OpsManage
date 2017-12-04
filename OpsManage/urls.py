@@ -16,9 +16,10 @@ Including another URLconf
 
 from django.conf.urls import url,include
 from django.contrib import admin
-from OpsManage.views import index,assets,cron,deploy,ansible,users
+from OpsManage.views import index,assets,cron,deploy,ansible,users,wssh
 from rest_framework.urlpatterns import format_suffix_patterns
-from OpsManage.restfull import assets_api,cron_api,deploy_api,ansible_api,users_api,logs_api
+from OpsManage.restfull import (assets_api,cron_api,deploy_api,
+                                ansible_api,users_api,logs_api)
 
 
 urlpatterns = [
@@ -71,6 +72,7 @@ urlpatterns = [
     url(r'^register/',users.register),
     url(r'^user/(?P<uid>[0-9]+)/$',users.user),
     url(r'^user/center/$',users.user_center),
+    url(r'^user/server/(?P<uid>[0-9]+)/$',users.user_server),
     url(r'^group/(?P<gid>[0-9]+)/$',users.group),
     url(r'^api/assets/$', assets_api.asset_list), 
     url(r'^api/assets/(?P<id>[0-9]+)/$', assets_api.asset_detail),
@@ -96,14 +98,15 @@ urlpatterns = [
     url(r'^api/deploy/(?P<id>[0-9]+)/$', deploy_api.deploy_detail),    
     url(r'^api/playbook/$', ansible_api.playbook_list),  
     url(r'^api/playbook/(?P<id>[0-9]+)/$', ansible_api.playbook_detail),
-    url('^api/order/(?P<username>.+)/$', deploy_api.OrderList.as_view()),
-    url('^api/logs/assets/(?P<id>[0-9]+)/$', assets_api.assetsLog_detail),
-    url('^api/logs/cron/(?P<id>[0-9]+)/$', cron_api.cronLogsdetail),
-    url('^api/logs/ansible/model/(?P<id>[0-9]+)/$', ansible_api.modelLogsdetail),
-    url('^api/logs/ansible/playbook/(?P<id>[0-9]+)/$', ansible_api.playbookLogsdetail),
-    url('^api/logs/deploy/(?P<id>[0-9]+)/$', deploy_api.deployLogs_detail),
-    url('^api/logs/search/model/$', logs_api.AnsibleModelLogsList),
-    url('^api/logs/search/playbook/$', logs_api.AnsiblePlayBookLogsList),
+    url(r'^api/order/(?P<username>.+)/$', deploy_api.OrderList.as_view()),
+    url(r'^api/logs/assets/(?P<id>[0-9]+)/$', assets_api.assetsLog_detail),
+    url(r'^api/logs/cron/(?P<id>[0-9]+)/$', cron_api.cronLogsdetail),
+    url(r'^api/logs/ansible/model/(?P<id>[0-9]+)/$', ansible_api.modelLogsdetail),
+    url(r'^api/logs/ansible/playbook/(?P<id>[0-9]+)/$', ansible_api.playbookLogsdetail),
+    url(r'^api/logs/deploy/(?P<id>[0-9]+)/$', deploy_api.deployLogs_detail),
+    url(r'^api/logs/search/model/$', logs_api.AnsibleModelLogsList),
+    url(r'^api/logs/search/playbook/$', logs_api.AnsiblePlayBookLogsList),
+    url(r'^webssh/(?P<sid>[0-9]+)/$',wssh.wssh),
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)

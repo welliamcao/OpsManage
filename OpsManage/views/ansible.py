@@ -2,8 +2,7 @@
 # _#_ coding:utf-8 _*_ 
 import uuid,os,json
 from django.http import HttpResponseRedirect,JsonResponse
-from django.shortcuts import render_to_response
-from django.template import RequestContext
+from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from OpsManage.models import Server_Assets
 from OpsManage.data.DsRedisOps import DsRedis
@@ -24,10 +23,9 @@ def apps_model(request):
         serverList = Server_Assets.objects.all()
         groupList = Group.objects.all()
         serviceList = Service_Assets.objects.all()
-        return render_to_response('apps/apps_model.html',{"user":request.user,"ans_uuid":uuid.uuid4(),
+        return render(request,'apps/apps_model.html',{"user":request.user,"ans_uuid":uuid.uuid4(),
                                                             "serverList":serverList,"groupList":groupList,
-                                                            "serviceList":serviceList},
-                                  context_instance=RequestContext(request))
+                                                            "serviceList":serviceList})
     elif  request.method == "POST" and request.user.has_perm('OpsManage.can_change_ansible_playbook'):
         resource = []
         sList = []
@@ -85,10 +83,10 @@ def apps_upload(request):
         groupList = Group.objects.all()
         userList = User.objects.all()
         serviceList = Service_Assets.objects.all()
-        return render_to_response('apps/apps_playbook_upload.html',{"user":request.user,"userList":userList,
+        return render(request,'apps/apps_playbook_upload.html',{"user":request.user,"userList":userList,
                                                             "serverList":serverList,"groupList":groupList,
                                                             "serviceList":serviceList},
-                                  context_instance=RequestContext(request))
+                                  )
     elif request.method == "POST":   
         sList = []
         if request.POST.get('server_model') in ['service','group','custom']:  
@@ -119,15 +117,15 @@ def apps_upload(request):
                                             playbook_type = 0,
                                             )
         except Exception,e:
-            return render_to_response('apps/apps_playbook_config.html',{"user":request.user,"errorInfo":"剧本添加错误：%s" % str(e)},
-                                    context_instance=RequestContext(request)) 
+            return render(request,'apps/apps_playbook_config.html',{"user":request.user,"errorInfo":"剧本添加错误：%s" % str(e)},
+                                    ) 
         for sip in sList:
             try:
                 Ansible_Playbook_Number.objects.create(playbook=playbook,playbook_server=sip)
             except Exception,e:
                 playbook.delete()                    
-                return render_to_response('apps/apps_playbook_config.html',{"user":request.user,"errorInfo":"目标服务器信息添加错误：%s" % str(e)},
-                                    context_instance=RequestContext(request))             
+                return render(request,'apps/apps_playbook_config.html',{"user":request.user,"errorInfo":"目标服务器信息添加错误：%s" % str(e)},
+                                    )             
         #操作日志异步记录
         AnsibleRecord.PlayBook.insert(user=str(request.user),ans_id=playbook.id,ans_name=playbook.playbook_name,ans_content="添加Ansible剧本",ans_server=','.join(sList))
         return HttpResponseRedirect('/apps/playbook/add') 
@@ -140,10 +138,10 @@ def apps_online(request):
         groupList = Group.objects.all()
         userList = User.objects.all()
         serviceList = Service_Assets.objects.all()
-        return render_to_response('apps/apps_playbook_online.html',{"user":request.user,"userList":userList,
+        return render(request,'apps/apps_playbook_online.html',{"user":request.user,"userList":userList,
                                                             "serverList":serverList,"groupList":groupList,
                                                             "serviceList":serviceList},
-                                  context_instance=RequestContext(request))
+                                  )
     elif request.method == "POST": 
         sList = []
         if request.POST.get('server_model') in ['service','group','custom']:  
@@ -209,8 +207,8 @@ def apps_list(request):
             if ds.playbook_auth_group in gList or ds.playbook_auth_user == uid:ds.runid = ds.id
             #如果剧本没有授权默认所有用户都可以使用
             elif ds.playbook_auth_group == 0 and ds.playbook_auth_user == 0:ds.runid = ds.id
-        return render_to_response('apps/apps_list.html',{"user":request.user,"playbookList":playbookList,},
-                                  context_instance=RequestContext(request))      
+        return render(request,'apps/apps_list.html',{"user":request.user,"playbookList":playbookList,},
+                                  )      
 
 @login_required()
 @permission_required('OpsManage.can_add_ansible_playbook',login_url='/noperm/')
@@ -238,13 +236,13 @@ def apps_playbook_run(request,pid):
         if numberList:serverList = []
         else:serverList = Server_Assets.objects.all()
     except:
-        return render_to_response('apps/apps_playbook.html',{"user":request.user,"ans_uuid":playbook.playbook_uuid,
+        return render(request,'apps/apps_playbook.html',{"user":request.user,"ans_uuid":playbook.playbook_uuid,
                                                          "errorInfo":"剧本不存在，可能已经被删除."}, 
-                                  context_instance=RequestContext(request))     
+                                  )     
     if request.method == "GET":
-        return render_to_response('apps/apps_playbook.html',{"user":request.user,"playbook":playbook,
+        return render(request,'apps/apps_playbook.html',{"user":request.user,"playbook":playbook,
                                                              "serverList":serverList,"numberList":numberList},
-                                  context_instance=RequestContext(request)) 
+                                  ) 
     elif request.method == "POST":
         if DsRedis.OpsAnsiblePlayBookLock.get(redisKey=playbook.playbook_uuid+'-locked') is None:#判断剧本是否有人在执行
             #加上剧本执行锁
@@ -313,9 +311,9 @@ def apps_playbook_modf(request,pid):
         playbook = Ansible_Playbook.objects.get(id=pid)
         numberList = Ansible_Playbook_Number.objects.filter(playbook=playbook)
     except:
-        return render_to_response('apps/apps_playbook_modf.html',{"user":request.user,
+        return render(request,'apps/apps_playbook_modf.html',{"user":request.user,
                                                          "errorInfo":"剧本不存在，可能已经被删除."}, 
-                                  context_instance=RequestContext(request))    
+                                  )    
     if request.method == "GET":
         numberList =[ s.playbook_server for s in numberList ]
         serverList = Server_Assets.objects.all()
@@ -333,10 +331,10 @@ def apps_playbook_modf(request,pid):
         groupList = Group.objects.all()
         userList = User.objects.all()
         serviceList = Service_Assets.objects.all()        
-        return render_to_response('apps/apps_playbook_modf.html',{"user":request.user,"userList":userList,
+        return render(request,'apps/apps_playbook_modf.html',{"user":request.user,"userList":userList,
                                                                   "playbook":playbook,"serverList":serverList,
                                                                   "groupList":groupList,"serviceList":serviceList},
-                                  context_instance=RequestContext(request))
+                                  )
     elif request.method == "POST":
         sList = []
         if request.POST.get('server_model') in ['service','group','custom']:  
@@ -370,8 +368,8 @@ def apps_playbook_modf(request,pid):
                                     playbook_auth_user = request.POST.get('playbook_auth_user',0),
                                     )
         except Exception,e:
-            return render_to_response('apps/apps_playbook_modf.html',{"user":request.user,"errorInfo":"剧本添加错误：%s" % str(e)},
-                                    context_instance=RequestContext(request)) 
+            return render(request,'apps/apps_playbook_modf.html',{"user":request.user,"errorInfo":"剧本添加错误：%s" % str(e)},
+                                    ) 
         if sList:
             tagret_server_list = [ s.playbook_server for s in numberList ]
             postServerList = []
@@ -382,9 +380,9 @@ def apps_playbook_modf(request,pid):
                         Ansible_Playbook_Number.objects.create(playbook=playbook,playbook_server=sip)                        
                 except Exception,e:
                     print e
-                    return render_to_response('apps/apps_playbook_modf.html',{"user":request.user,
+                    return render(request,'apps/apps_playbook_modf.html',{"user":request.user,
                                                                         "errorInfo":"目标服务器信息修改错误：%s" % str(e)},
-                                              context_instance=RequestContext(request)) 
+                                              ) 
             #清除目标主机 - 
             delList = list(set(tagret_server_list).difference(set(postServerList)))
             for ip in delList:
@@ -403,9 +401,9 @@ def apps_playbook_online_modf(request,pid):
         playbook = Ansible_Playbook.objects.get(id=pid)
         numberList = Ansible_Playbook_Number.objects.filter(playbook=playbook)
     except:
-        return render_to_response('apps/apps_playbook_modf.html',{"user":request.user,
+        return render(request,'apps/apps_playbook_modf.html',{"user":request.user,
                                                          "errorInfo":"剧本不存在，可能已经被删除."}, 
-                                  context_instance=RequestContext(request))    
+                                  )    
     if request.method == "POST":
         sList = []
         if request.POST.get('server_model') in ['service','group','custom']:  
@@ -450,9 +448,9 @@ def apps_playbook_online_modf(request,pid):
                         Ansible_Playbook_Number.objects.create(playbook=playbook,playbook_server=sip)                        
                 except Exception,e:
                     print e
-                    return render_to_response('apps/apps_playbook_modf.html',{"user":request.user,
+                    return render(request,'apps/apps_playbook_modf.html',{"user":request.user,
                                                                         "errorInfo":"目标服务器信息修改错误：%s" % str(e)},
-                                              context_instance=RequestContext(request)) 
+                                              ) 
             #清除目标主机 - 
             delList = list(set(tagret_server_list).difference(set(postServerList)))
             for ip in delList:
@@ -468,9 +466,9 @@ def ansible_log(request):
     if request.method == "GET":
         modelList = Log_Ansible_Model.objects.all().order_by('-id')[0:120]
         playbookList = Log_Ansible_Playbook.objects.all().order_by('-id')[0:120]
-        return render_to_response('apps/apps_log.html',{"user":request.user,"modelList":modelList,
+        return render(request,'apps/apps_log.html',{"user":request.user,"modelList":modelList,
                                                             "playbookList":playbookList},
-                                  context_instance=RequestContext(request))
+                                  )
         
 @login_required(login_url='/login')  
 def ansible_log_view(request,model,id):

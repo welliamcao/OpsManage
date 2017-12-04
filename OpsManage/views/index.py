@@ -3,12 +3,9 @@
 import random
 from OpsManage.utils import base
 from django.http import HttpResponseRedirect,JsonResponse
-from django.shortcuts import render_to_response
+from django.shortcuts import render
 from django.contrib import auth
-from django.template import RequestContext
 from django.contrib.auth.decorators import login_required
-from django.db.models import Q 
-from django.contrib.auth.models import User
 from OpsManage.models import (Global_Config,Email_Config,Assets,
                               Cron_Config,Project_Order,Log_Assets,
                               Project_Config,Ansible_Playbook)
@@ -70,12 +67,11 @@ def index(request):
                     'playbook':playbook,
                     'cron':cron
                     }
-    return render_to_response('index.html',{"user":request.user,"orderList":dataList,
+    return render(request,'index.html',{"user":request.user,"orderList":dataList,
                                             "userList":userList,"dateList":dateList,
                                             "monthDataList":monthDataList,"monthList":monthList,
                                             "allDeployList":allDeployList,"assetsLog":assetsLog,
-                                            "orderNotice":orderNotice,"projectTotal":projectTotal},
-                              context_instance=RequestContext(request))
+                                            "orderNotice":orderNotice,"projectTotal":projectTotal})
 
 def login(request):
     if request.session.get('username') is not None:
@@ -90,10 +86,9 @@ def login(request):
             return HttpResponseRedirect('/user/center/',{"user":request.user})
         else:
             if request.method == "POST":
-                return render_to_response('login.html',{"login_error_info":"用户名不错存在，或者密码错误！"},
-                                                        context_instance=RequestContext(request))  
+                return render(request,'login.html',{"login_error_info":"用户名不错存在，或者密码错误！"},)  
             else:
-                return render_to_response('login.html',context_instance=RequestContext(request)) 
+                return render(request,'login.html') 
             
             
 def logout(request):
@@ -101,7 +96,7 @@ def logout(request):
     return HttpResponseRedirect('/login')
 
 def noperm(request):
-    return render_to_response('noperm.html',{"user":request.user},context_instance=RequestContext(request)) 
+    return render(request,'noperm.html',{"user":request.user}) 
 
 @login_required(login_url='/login')
 @permission_required('OpsManage.can_change_global_config',login_url='/noperm/')
@@ -115,9 +110,8 @@ def config(request):
             email = Email_Config.objects.get(id=1)
         except:
             email =None
-        return render_to_response('config.html',{"user":request.user,"config":config,
-                                                 "email":email},
-                                  context_instance=RequestContext(request))
+        return render(request,'config.html',{"user":request.user,"config":config,
+                                                 "email":email})
     elif request.method == "POST":
         if request.POST.get('op') == "log":
             try:
@@ -132,7 +126,8 @@ def config(request):
                                                       project =  request.POST.get('project'),
                                                       assets =  request.POST.get('assets',0),
                                                       server =  request.POST.get('server',0),
-                                                      email =  request.POST.get('email',0),                                                     
+                                                      email =  request.POST.get('email',0),   
+                                                      webssh =  request.POST.get('webssh',0),                                                   
                                                     )
             else:
                 config = Global_Config.objects.create(
@@ -142,7 +137,8 @@ def config(request):
                                                       project =  request.POST.get('project'),
                                                       assets =  request.POST.get('assets'),
                                                       server =  request.POST.get('server'),
-                                                      email =  request.POST.get('email')
+                                                      email =  request.POST.get('email'),
+                                                      webssh =  request.POST.get('webssh',0)
                                                     )    
             return JsonResponse({'msg':'配置修改成功',"code":200,'data':[]})   
         elif request.POST.get('op') == "email":
@@ -170,5 +166,5 @@ def config(request):
                                             subject =  request.POST.get('subject',None),
                                             cc_user =  request.POST.get('cc_user',None), 
                                             )    
-            return JsonResponse({'msg':'配置修改成功',"code":200,'data':[]})  
+            return JsonResponse({'msg':'配置修改成功',"code":200,'data':[]}) 
         
