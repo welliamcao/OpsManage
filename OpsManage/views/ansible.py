@@ -117,18 +117,18 @@ def apps_upload(request):
                                             playbook_type = 0,
                                             )
         except Exception,e:
-            return render(request,'apps/apps_playbook_config.html',{"user":request.user,"errorInfo":"剧本添加错误：%s" % str(e)},
+            return render(request,'apps/apps_playbook_upload.html',{"user":request.user,"errorInfo":"剧本添加错误：%s" % str(e)},
                                     ) 
         for sip in sList:
             try:
                 Ansible_Playbook_Number.objects.create(playbook=playbook,playbook_server=sip)
             except Exception,e:
                 playbook.delete()                    
-                return render(request,'apps/apps_playbook_config.html',{"user":request.user,"errorInfo":"目标服务器信息添加错误：%s" % str(e)},
+                return render(request,'apps/apps_playbook_upload.html',{"user":request.user,"errorInfo":"目标服务器信息添加错误：%s" % str(e)},
                                     )             
         #操作日志异步记录
         AnsibleRecord.PlayBook.insert(user=str(request.user),ans_id=playbook.id,ans_name=playbook.playbook_name,ans_content="添加Ansible剧本",ans_server=','.join(sList))
-        return HttpResponseRedirect('/apps/playbook/add') 
+        return HttpResponseRedirect('/apps/playbook/upload/') 
     
 @login_required()
 @permission_required('OpsManage.can_add_ansible_playbook',login_url='/noperm/')

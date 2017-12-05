@@ -144,6 +144,7 @@ TEMPLATE_DIRS = (
 八、生成数据表与管理员账户
 ```
 # cd /mnt/OpsManage/
+# python manage.py makemigrations OpsManage
 # python manage.py migrate
 # python manage.py createsuperuser
 ```
