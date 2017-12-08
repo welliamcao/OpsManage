@@ -8,7 +8,7 @@
 <style type="text/css">
 	#compile-editor {
 		/* position: absolute; */
-		width: 100%;
+	width: 100%;
 	height: 400px;
    }	
 </style>
@@ -43,7 +43,7 @@
                                         {% else %}
 	                                        <div class="form-group">
 	                                            <label>描述<i class="fa fa-info-circle" data-toggle="tooltip"  title="功能描述"></i></label>
-	                                            <textarea class="form-control" rows="3" name="playbook_desc">{{playbook.playbook_desc}}</textarea>
+	                                            <textarea class="form-control" rows="3" name="playbook_desc">{{playbook.playbook_desc|default:""}}</textarea>
 	                                        </div>                                         
                                         {% endif %}
                                              

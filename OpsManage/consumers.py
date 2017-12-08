@@ -91,8 +91,6 @@ class webterminal(WebsocketConsumer):
                         return
                     
                     chan = self.ssh.invoke_shell(width=width, height=height,)
-                    
-                    #open a new threading to handle ssh to avoid global variable bug
                     sRbt=SshTerminalThread(self.message,chan)
                     sRbt.setDaemon = True
                     sRbt.start()     
