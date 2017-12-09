@@ -107,6 +107,8 @@
                                         <tr>
                                             <th>#</th>
                                             <th>机房名称</th>
+                                            <th>机房联系人</th>
+                                            <th>联系电话</th>
                                             <th class="right">操作</th>
                                         </tr>
                                     </thead>
@@ -115,8 +117,10 @@
 	                                        <tr>
 	                                            <td>{{ds.id}}</td>
 	                                            <td>{{ds.zone_name}}</td>
+	                                            <td>{{ds.zone_contact|default:""}}</td>
+	                                            <td>{{ds.zone_number|default:""}}</td>
 	                                            <td>
-	                                            	<button  type="button" class="btn btn-default" onclick="modfAssetsData(this,'zone',{{ds.id}})"><abbr title="编辑"><i class="glyphicon glyphicon-edit"></i></button>
+	                                            	<button  type="button" class="btn btn-default" data-toggle="modal" data-target="#modfZoneModal-{{ds.id}}"><abbr title="编辑"><i class="glyphicon glyphicon-edit"></i></button>
 	                                            	<button  type="button" class="btn btn-default" onclick="delAssetsData(this,'zone',{{ds.id}})"><abbr title="删除"><i class="glyphicon glyphicon-trash"></i></button>
 	                                            </td>
 	                                        </tr>
@@ -339,7 +343,19 @@
 						<div class="col-sm-6">
 							<input class="form-control" type="text" name="zone_name" />	
 						</div>											
-					</div>									
+					</div>	
+					<div class="form-group">
+						<label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>机房联系人</strong></label>																												
+						<div class="col-sm-6">
+							<input class="form-control" type="text" name="zone_contact" />	
+						</div>											
+					</div>	
+					<div class="form-group">
+						<label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>联系人号码</strong></label>																												
+						<div class="col-sm-6">
+							<input class="form-control" type="text" name="zone_number" />	
+						</div>											
+					</div>																	
 				</form>
 			</div>
 			<div class="modal-footer">
@@ -353,6 +369,51 @@
 	</div><!-- /.modal -->
 </div>
 
+{% for ds in baseAssets.zone %}
+	<div class="modal fade" id="modfZoneModal-{{ds.id}}" tabindex="-1" role="dialog" aria-labelledby="modfZoneModalLabel-{{ds.id}}" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+						&times;
+					</button>
+					<h4 class="modal-title" id="modfZoneModalLabel-{{ds.id}}">
+						机房信息
+					</h4>
+				</div>
+				<div class="modal-body">
+					<form class="form-horizontal" role="form" id="zone_assets_{{ds.id}}">
+						<div class="form-group">
+							<label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>机房名称</strong></label>																												
+							<div class="col-sm-6">
+								<input class="form-control" type="text" name="zone_name" value="{{ds.zone_name}}"/>	
+							</div>											
+						</div>	
+						<div class="form-group">
+							<label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>机房联系人</strong></label>																												
+							<div class="col-sm-6">
+								<input class="form-control" type="text" name="zone_contact" value="{{ds.zone_contact|default:""}}"/>	
+							</div>											
+						</div>	
+						<div class="form-group">
+							<label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>联系人号码</strong></label>																												
+							<div class="col-sm-6">
+								<input class="form-control" type="text" name="zone_number"  value="{{ds.zone_number|default:""}}"/>	
+							</div>											
+						</div>																	
+					</form>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">关闭
+					</button>
+					<button type="button" class="btn btn-primary" onclick="modfZoneAssetsData(this,{{ds.id}},'zone')">
+						添加
+					</button>
+				</div>
+			</div><!-- /.modal-content -->
+		</div><!-- /.modal -->
+	</div>
+{% endfor %}
 <div class="modal fade" id="myLineModal" tabindex="-1" role="dialog" aria-labelledby="myLineModalLabel" aria-hidden="true">
 	<div class="modal-dialog">
 		<div class="modal-content">
@@ -417,37 +478,6 @@
 	</div><!-- /.modal -->
 </div>
 
-<div class="modal fade" id="myStatusModal" tabindex="-1" role="dialog" aria-labelledby="myStatusModalLabel" aria-hidden="true">
-	<div class="modal-dialog">
-		<div class="modal-content">
-			<div class="modal-header">
-				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">
-					&times;
-				</button>
-				<h4 class="modal-title" id="myStatusModalLabel">
-					添加资产状态类型
-				</h4>
-			</div>
-			<div class="modal-body">
-				<form class="form-horizontal" role="form" id="status_assets">{% csrf_token %}
-					<div class="form-group">
-						<label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>资产状态</strong></label>																												
-						<div class="col-sm-6">
-							<input class="form-control" type="text" name="status_name" />	
-						</div>											
-					</div>									
-				</form>
-			</div>
-			<div class="modal-footer">
-				<button type="button" class="btn btn-default" data-dismiss="modal">关闭
-				</button>
-				<button type="button" class="btn btn-primary" onclick="addAssetsData(this,'status')" >
-					添加
-				</button>
-			</div>
-		</div><!-- /.modal-content -->
-	</div><!-- /.modal -->
-</div>
 
 
 
@@ -488,9 +518,11 @@
 				window.wxc.xcConfirm("请注意必填项不能为空~", window.wxc.xcConfirm.typeEnum.error);
 				return false;
 			}
+			else{
+				post_data[name] = value;
+			};
 			
 		};
-		post_data[name] = value;
 		$.ajax({
 			dataType: "JSON",
 			url:putUrl, //请求地址
@@ -499,17 +531,61 @@
 			success:function(response){
 				btnObj.removeAttr('disabled');
 				window.wxc.xcConfirm("资产添加成功", window.wxc.xcConfirm.typeEnum.success);
-				location.reload();
+ 				location.reload();
 				
 			},
 	    	error:function(response){
 	    		btnObj.removeAttr('disabled');
 	    		window.wxc.xcConfirm("资产添加失败", window.wxc.xcConfirm.typeEnum.error);
-	    		location.reload();
+/* 	    		location.reload(); */
 	    	}
 		})	
 	}	
 	
+	function modfZoneAssetsData(obj,id,op) {
+		var btnObj = $(obj);
+		btnObj.attr('disabled',true);
+		var post_data = {}; 
+		if (op=="service"){
+			var putUrl = '/api/service/'+id+'/';
+			var form = document.getElementById('service_assets_'+id);
+		}
+		else if (op=="zone"){
+			var putUrl = '/api/zone/'+id+'/';
+			var form = document.getElementById('zone_assets_'+id);
+		}					
+
+		for (var i = 0; i < form.length; ++i) {
+			var name = form[i].name;
+			var value = form[i].value;
+			post_data[name] = value;
+			if ( value.length == 0){
+				window.wxc.xcConfirm("请注意必填项不能为空~", window.wxc.xcConfirm.typeEnum.error);
+				return false;
+			}
+			else{
+				post_data[name] = value;
+			};			
+			
+		};
+		$.ajax({
+			dataType: "JSON",
+			url:putUrl, //请求地址
+			type:"PUT",  //提交类似
+			data:post_data, //提交参数
+			success:function(response){
+				btnObj.removeAttr('disabled');
+				window.wxc.xcConfirm("资产修改成功", window.wxc.xcConfirm.typeEnum.success);
+ 				location.reload();
+				
+			},
+	    	error:function(response){
+	    		btnObj.removeAttr('disabled');
+	    		window.wxc.xcConfirm("资产修改失败", window.wxc.xcConfirm.typeEnum.error);
+/* 	    		location.reload(); */
+	    	}
+		})	
+	}		
 	
 	function  modfAssetsData(obj,op,id){
 		var btnObj = $(obj);
@@ -528,11 +604,7 @@
 				else if (op=="group"){
 					var putUrl = '/api/group/'+ id +'/';
 					post_data['name'] = result;
-				}
-				else if (op=="zone"){
-					var putUrl = '/api/zone/'+ id +'/';
-					post_data['zone_name'] = result;
-				}		
+				}	
 				else if (op=="line"){
 					var putUrl = '/api/line/'+ id +'/';
 					post_data['line_name'] = result;

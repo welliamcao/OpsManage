@@ -8,6 +8,7 @@ sys.setdefaultencoding("utf-8")
 class Assets(models.Model):
     assets_type_choices = (
                           ('server',u'服务器'),
+                          ('vmser',u'虚拟机'),
                           ('switch',u'交换机'),
                           ('route',u'路由器'),
                           ('printer',u'打印机'),
@@ -18,10 +19,10 @@ class Assets(models.Model):
                           )
     assets_type = models.CharField(choices=assets_type_choices,max_length=100,default='server',verbose_name='资产类型')
     name = models.CharField(max_length=100,verbose_name='资产编号',unique=True)
-    sn =  models.CharField(max_length=100,verbose_name='设备序列号')
+    sn =  models.CharField(max_length=100,verbose_name='设备序列号',blank=True,null=True)
     buy_time = models.DateField(blank=True,null=True,verbose_name='购买时间')
     expire_date = models.DateField(u'过保修期',null=True, blank=True)
-    buy_user = models.CharField(max_length=100,blank=True,null=True,verbose_name='购买人')
+    buy_user = models.SmallIntegerField(blank=True,null=True,verbose_name='购买人')
     management_ip = models.GenericIPAddressField(u'管理IP',blank=True,null=True)
     manufacturer = models.CharField(max_length=100,blank=True,null=True,verbose_name='制造商')
     provider = models.CharField(max_length=100,blank=True,null=True,verbose_name='供货商')
@@ -185,6 +186,8 @@ class Service_Assets(models.Model):
 
 class Zone_Assets(models.Model):  
     zone_name = models.CharField(max_length=100,unique=True) 
+    zone_contact = models.CharField(max_length=100,blank=True,null=True,verbose_name='机房联系人')
+    zone_number = models.CharField(max_length=100,blank=True,null=True,verbose_name='联系人号码')
     '''自定义权限'''
     class Meta:
         db_table = 'opsmanage_zone_assets'

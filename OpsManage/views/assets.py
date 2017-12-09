@@ -7,7 +7,7 @@ from django.contrib.auth.decorators import login_required
 from OpsManage.models import *
 from django.db.models import Count
 from OpsManage.utils.ansible_api_v2 import ANSRunner
-from django.contrib.auth.models import Group
+from django.contrib.auth.models import Group,User
 from OpsManage.tasks import recordAssets
 from django.contrib.auth.decorators import permission_required
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
@@ -39,6 +39,7 @@ def getBaseAssets():
 @login_required(login_url='/login')
 @permission_required('OpsManage.can_read_assets',login_url='/noperm/') 
 def assets_config(request):
+    
     return render(request,'assets/assets_config.html',{"user":request.user,"baseAssets":getBaseAssets()},
                               )
     
@@ -46,12 +47,14 @@ def assets_config(request):
 @permission_required('OpsManage.can_add_assets',login_url='/noperm/') 
 def assets_add(request):
     if request.method == "GET":
-        return render(request,'assets/assets_add.html',{"user":request.user,"baseAssets":getBaseAssets()},
-                                  )      
+        userList = User.objects.all()
+        return render(request,'assets/assets_add.html',{"user":request.user,"baseAssets":getBaseAssets(),
+                                                        'userList':userList})      
     
 @login_required(login_url='/login')
 @permission_required('OpsManage.can_read_assets',login_url='/noperm/') 
 def assets_list(request):
+    userList = User.objects.all()
     assetsList = Assets.objects.all().order_by("-id") 
     assetOnline = Assets.objects.filter(status=0).count()
     assetOffline = Assets.objects.filter(status=1).count()
@@ -60,7 +63,8 @@ def assets_list(request):
     return render(request,'assets/assets_list.html',{"user":request.user,"totalAssets":assetsList.count(),
                                                          "assetOnline":assetOnline,"assetOffline":assetOffline,
                                                          "assetMaintain":assetMaintain,"baseAssets":getBaseAssets(),
-                                                         "assetsList":assetsList,"assetsNumber":assetsNumber},
+                                                         "assetsList":assetsList,"assetsNumber":assetsNumber,
+                                                         'userList':userList},
                               )
 
 @login_required(login_url='/login')
@@ -68,10 +72,11 @@ def assets_list(request):
 def assets_view(request,aid): 
     try:
         assets = Assets.objects.get(id=aid)
+        userList = User.objects.all()
     except:
         return render(request,'404.html',{"user":request.user},
                                 )  
-    if assets.assets_type == 'server':
+    if assets.assets_type in ['server','vmser']:
         try:
             asset_ram = assets.ram_assets_set.all()
         except:
@@ -88,7 +93,7 @@ def assets_view(request,aid):
         return render(request,'assets/assets_view.html',{"user":request.user,"asset_type":assets.assets_type,
                                                             "asset_main":assets,"asset_body":asset_body,
                                                             "asset_ram":asset_ram,"asset_disk":asset_disk,
-                                                            "baseAssets":getBaseAssets()},
+                                                            "baseAssets":getBaseAssets(),'userList':userList},
                             )   
     else:
         try:
@@ -98,7 +103,7 @@ def assets_view(request,aid):
                             )                 
         return render(request,'assets/assets_view.html',{"user":request.user,"asset_type":assets.assets_type,
                                                             "asset_main":assets,"asset_body":asset_body,
-                                                            "baseAssets":getBaseAssets()},
+                                                            "baseAssets":getBaseAssets(),'userList':userList},
                             )  
              
 @login_required(login_url='/login')
@@ -106,10 +111,11 @@ def assets_view(request,aid):
 def assets_modf(request,aid):  
     try:
         assets = Assets.objects.get(id=aid)
+        userList = User.objects.all()
     except:
         return render(request,'assets/assets_modf.html',{"user":request.user},
                                 )  
-    if assets.assets_type == 'server':
+    if assets.assets_type in ['server','vmser']:
         try:
             asset_ram = assets.ram_assets_set.all()
         except:
@@ -126,7 +132,7 @@ def assets_modf(request,aid):
         return render(request,'assets/assets_modf.html',{"user":request.user,"asset_type":assets.assets_type,
                                                             "asset_main":assets,"asset_body":asset_body,
                                                             "asset_ram":asset_ram,"asset_disk":asset_disk,
-                                                            "assets_data":getBaseAssets()},
+                                                            "assets_data":getBaseAssets(),'userList':userList},
                             )    
     else:     
         try:
@@ -136,7 +142,7 @@ def assets_modf(request,aid):
                                       )                                                 
         return render(request,'assets/assets_modf.html',{"user":request.user,"asset_type":assets.assets_type,
                                                             "asset_main":assets,"asset_body":asset_body,
-                                                            "assets_data":getBaseAssets()},
+                                                            "assets_data":getBaseAssets(),'userList':userList},
                             )  
         
 @login_required(login_url='/login')
@@ -370,7 +376,7 @@ def assets_search(request):
         modelList = [  m.model for m in Assets.objects.raw('SELECT id,model from opsmanage_assets WHERE model is not null  GROUP BY model')]
         providerList = [  m.provider for m in Assets.objects.raw('SELECT id,provider from opsmanage_assets WHERE provider is not null GROUP BY provider')]
         cpuList = [  a.cpu for a in Assets.objects.raw('SELECT id,cpu from opsmanage_server_assets WHERE cpu is not null GROUP BY cpu')]
-        buyUserList = [  m.buy_user for m in Assets.objects.raw('SELECT id,buy_user from opsmanage_assets WHERE buy_user is not null GROUP BY buy_user')]
+        buyUserList = User.objects.all()
         selinuxList = [  m.selinux for m in Assets.objects.raw('SELECT id,selinux from opsmanage_server_assets WHERE selinux is not null GROUP BY selinux')]
         systemList = [  m.system for m in Assets.objects.raw('SELECT id,system from opsmanage_server_assets WHERE system is not null GROUP BY system')]    
         kernelList = [  m.kernel for m in Assets.objects.raw('SELECT id,kernel from opsmanage_server_assets WHERE kernel is not null GROUP BY kernel')]   
@@ -473,6 +479,8 @@ def assets_search(request):
             if server:a = a.assets
             if a.assets_type == "server":
                 assets_type = '''<td class="text-center"><button  type="button" class="btn btn-default disabled">服务器</button></td>'''
+            elif a.assets_type == "vmser":
+                assets_type = '''<td class="text-center"><button  type="button" class="btn btn-default disabled">虚拟机</button></td>'''                   
             elif a.assets_type == "switch":
                 assets_type = '''<td class="text-center"><button  type="button" class="btn btn-default disabled">交换机</button></td>'''                                
             elif a.assets_type == "route":
@@ -487,24 +495,25 @@ def assets_search(request):
                 assets_type = '''<td class="text-center"><button  type="button" class="btn btn-default disabled">存储设备</button></td>'''
             elif a.assets_type == "wifi":
                 assets_type = '''<td class="text-center"><button  type="button" class="btn btn-default disabled">无线设备</button></td>''' 
-            management_ip = '''<td class="text-center">{ip}</td>'''.format(ip=a.management_ip)   
+            if a.management_ip:management_ip = '''<td class="text-center">{ip}</td>'''.format(ip=a.management_ip)   
+            else:management_ip = '''<td class="text-center">{ip}</td>'''.format(ip=a.server_assets.ip)  
             name = '''<td class="text-center">{name}</td>'''.format(name=a.name)      
             model = '''<td class="text-center">{model}</td>'''.format(model=a.model)                                        
             for s in baseAssets.get('service'):
                 if s.id == a.business:service = '''<td class="text-center"><button  type="button" class="btn btn-default disabled">{service}</button></td>'''.format(service=s.service_name)
-#                 else:service = '''<td class="text-center"><button  type="button" class="btn btn-default disabled">未知</button></td>'''
             if a.status == 0:status = '''<td class="text-center"><button  type="button" class="btn btn-outline btn-success">已上线</button></td>'''
             elif a.status == 1:status = '''<td class="text-center"><button  type="button" class="btn btn-outline btn-primary">已下线</button></td>'''
             elif a.status == 2:status = '''<td class="text-center"><button  type="button" class="btn btn-outline btn-warning">维修中</button></td>'''
             elif a.status == 3:status = '''<td class="text-center"><button  type="button" class="btn btn-outline btn-info">已入库</button></td>'''
             elif a.status == 4:status = '''<td class="text-center">button  type="button" class="btn btn-outline btn-default">未使用</button></td>'''
-            buy_user = '''<td class="text-center">{buy_user}</td>'''.format(buy_user=a.buy_user)
-            buy_time ='''<td class="text-center">{buy_time}</td>'''.format(buy_time=a.buy_time)
+            if a.buy_time:buy_time = '''<td class="text-center">{buy_time}</td>'''.format(buy_time=a.buy_time)
+            else:buy_time = '''<td class="text-center">{buy_time}</td>'''.format(buy_time=str(a.create_date)[0:10])
+            group ='''<td class="text-center">{groupname}</td>'''.format(groupname=Group.objects.get(id=a.group).name)
             for z in baseAssets.get('zone'):
                 if z.id == a.put_zone:put_zone = '''<td class="text-center">{zone_name}</td>'''.format(zone_name=z.zone_name)
 #                 else:put_zone = '''<td class="text-center">未知</td>'''
             try:
-                if a.assets_type == "server":
+                if a.assets_type in ["server","vmser"]:
                     assets_type_div = '''
                                         <div class="btn-group">                
                                            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
@@ -536,7 +545,7 @@ def assets_search(request):
                      <a href="/assets_mod/{id}" style="text-decoration:none;"><button  type="button" class="btn btn-default"><abbr title="修改资料"><i class="glyphicon glyphicon-edit"></button></i></abbr></a>
                      <button  type="button" class="btn btn-default" onclick="deleteAssets(this,{id})"><i class="glyphicon glyphicon-trash"></i></button>
                  </td>'''.format(id=a.id,assets_type_div=assets_type_div)
-            dataList.append([assets_type,management_ip,name,model,put_zone,buy_user,buy_time,service,status,opt])                                                                                                                                                                                          
+            dataList.append([assets_type,management_ip,name,model,put_zone,service,group,buy_time,status,opt])                                                                                                                                                                                          
         return JsonResponse({'msg':"数据查询成功","code":200,'data':dataList,'count':0})     
     
 @login_required(login_url='/login')  

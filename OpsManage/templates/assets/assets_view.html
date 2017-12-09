@@ -19,8 +19,10 @@
                                 <a href="#" class="list-group-item">
                                     <i class="fa fa-th-list fa-fw"></i> 设备类型
                                     <span class="pull-right text-muted small">
-                                     		{% if asset_main.assets_type == "server" %}
+                                     		 {% if asset_main.assets_type == "server" %}
 									         		<code>服务器</code>
+									         {% elif asset_main.assets_type == "vmser" %}
+									         		<code>虚拟机</code>
 									         {% elif asset_main.assets_type == "switch" %}
 									         		<code>交换机</code>							         				
 									         {% elif asset_main.assets_type == "route" %}
@@ -40,12 +42,12 @@
                                 </a>
                                 <a href="#" class="list-group-item">
                                     <i class="fa fa-heart fa-fw"></i> 资产编号
-                                    <span class="pull-right text-muted small"><em>{{ asset_main.name }}</em>
+                                    <span class="pull-right text-muted small"><em>{{ asset_main.name|default:"" }}</em>
                                     </span>
                                 </a>
                                 <a href="#" class="list-group-item">
                                     <i class="fa fa-envelope fa-fw"></i> 设备序列号
-                                    <span class="pull-right text-muted small"><em>{{ asset_main.sn }}</em>
+                                    <span class="pull-right text-muted small"><em>{{ asset_main.sn|default:"" }}</em>
                                     </span>
                                 </a>
                                 <a href="#" class="list-group-item">
@@ -60,27 +62,34 @@
                                 </a>
                                 <a href="#" class="list-group-item">
                                     <i class="fa  fa-users fa-fw"></i> 购买人
-                                    <span class="pull-right text-muted small"><em>{{ asset_main.buy_user }}</em>
+                                    <span class="pull-right text-muted small">
+                                    	<em>
+                                    		{% for user in userList %}
+												{% if asset_main.buy_user == user.id %}
+														{{user.username}}
+												{% endif %}   
+											{% endfor %}                                 		
+                                    	</em>
                                     </span>
                                 </a>
                                 <a href="#" class="list-group-item">
                                     <i class="glyphicon glyphicon-globe  "></i> 管理IP
-                                    <span class="pull-right text-muted small"><code>{{ asset_main.management_ip }}</code>
+                                    <span class="pull-right text-muted small"><code>{{ asset_main.management_ip|default:"" }}</code>
                                     </span>
                                 </a>
                                 <a href="#" class="list-group-item">
                                     <i class="fa fa-car fa-fw"></i>制造商
-                                    <span class="pull-right text-muted small"><em>{{ asset_main.manufacturer }}</em>
+                                    <span class="pull-right text-muted small"><em>{{ asset_main.manufacturer|default:"" }}</em>
                                     </span>
                                 </a>
                                 <a href="#" class="list-group-item">
                                     <i class="fa fa-shopping-cart fa-fw"></i>设备型号
-                                    <span class="pull-right text-muted small"><em>{{ asset_main.model }}</em>
+                                    <span class="pull-right text-muted small"><em>{{ asset_main.model|default:"" }}</em>
                                     </span>
                                 </a>                                
                                 <a href="#" class="list-group-item">
                                     <i class="fa fa-credit-card  fa-fw"></i> 供货商
-                                    <span class="pull-right text-muted small"><em>{{ asset_main.provider }}</em>
+                                    <span class="pull-right text-muted small"><em>{{ asset_main.provider|default:"" }}</em>
                                     </span>
                                 </a>
                                 <a href="#" class="list-group-item">
@@ -140,81 +149,81 @@
                            	 <i class="fa fa-table  fa-fw"></i> 硬件信息
                         </div>
                         <div class="panel-body">
-                        {% if asset_type == "server" %}
+                        {% if asset_type == "server" or asset_type == "vmser" %}
 							<div class="list-group">
                                 <a href="#" class="list-group-item">
                                     <i class="fa fa-globe fa-fw"></i> 服务器IP地址
-                                    <span class="pull-right text-muted small"><code>{{ asset_body.ip }}</code>
+                                    <span class="pull-right text-muted small"><code>{{ asset_body.ip|default:"" }}</code>
                                     </span>
                                 </a>
                                 <a href="#" class="list-group-item">
                                     <i class="fa fa-graduation-cap  fa-fw"></i> 主机名
-                                    <span class="pull-right text-muted small"><em>{{ asset_body.hostname }}</em>
+                                    <span class="pull-right text-muted small"><em>{{ asset_body.hostname|default:"" }}</em>
                                     </span>
                                 </a>
                                 <a href="#" class="list-group-item">
                                     <i class="fa fa-user-md   fa-fw"></i> 管理用户
-                                    <span class="pull-right text-muted small"><em>{{ asset_body.username }}</em>
+                                    <span class="pull-right text-muted small"><em>{{ asset_body.username|default:"" }}</em>
                                     </span>
                                 </a>
                                 <a href="#" class="list-group-item">
                                     <i class="fa fa-tasks fa-fw"></i> 端口
-                                    <span class="pull-right text-muted small"><em>{{ asset_body.port }}</em>
+                                    <span class="pull-right text-muted small"><em>{{ asset_body.port|default:"" }}</em>
                                     </span>
                                 </a>
                                 <a href="#" class="list-group-item">
                                     <i class="fa fa-upload fa-fw"></i> 出口线路
-                                    <span class="pull-right text-muted small"><em>{{ asset_body.line }}</em>
+                                    <span class="pull-right text-muted small"><em>{{ asset_body.line|default:"" }}</em>
                                     </span>
                                 </a>
                                 <a href="#" class="list-group-item">
                                     <i class="fa fa-bolt fa-fw"></i> CPU类型
-                                    <span class="pull-right text-muted small"><em>{{ asset_body.cpu }}</em>
+                                    <span class="pull-right text-muted small"><em>{{ asset_body.cpu|default:"" }}</em>
                                     </span>
                                 </a>
                                 <a href="#" class="list-group-item">
                                     <i class="fa fa-warning fa-fw"></i> 物理CPU个数
-                                    <span class="pull-right text-muted small"><em>{{ asset_body.cpu_number }}</em>
+                                    <span class="pull-right text-muted small"><em>{{ asset_body.cpu_number|default:"" }}</em>
                                     </span>
                                 </a>
                                 <a href="#" class="list-group-item">
                                     <i class="fa fa-shopping-cart fa-fw"></i> 逻辑CPU个数
-                                    <span class="pull-right text-muted small"><em>{{ asset_body.vcpu_number }}</em>
+                                    <span class="pull-right text-muted small"><em>{{ asset_body.vcpu_number|default:"" }}</em>
                                     </span>
                                 </a>
                                 <a href="#" class="list-group-item">
                                     <i class="fa fa-location-arrow fa-fw"></i> CPU核心数
-                                    <span class="pull-right text-muted small"><em>{{ asset_body.cpu_core }}</em>
+                                    <span class="pull-right text-muted small"><em>{{ asset_body.cpu_core|default:"" }}</em>
                                     </span>
                                 </a>
                                 <a href="#" class="list-group-item">
                                     <i class="fa fa-hdd-o fa-fw"></i> 磁盘总容量
-                                    <span class="pull-right text-muted small"><em>{{ asset_body.disk_total }}MB</em>
+                                    <span class="pull-right text-muted small"><em>{{ asset_body.disk_total|default:"" }}MB</em>
                                     </span>
                                 </a>
                                 <a href="#" class="list-group-item">
                                     <i class="fa fa-tachometer fa-fw"></i> 内存容量
-                                    <span class="pull-right text-muted small"><em>{{ asset_body.ram_total  }}MB</em>
+                                    <span class="pull-right text-muted small"><em>{{ asset_body.ram_total|default:""  }}MB</em>
                                     </span>
                                 </a>
                                 <a href="#" class="list-group-item">
                                     <i class="fa  fa-linux fa-fw"></i> 操作系统
-                                    <span class="pull-right text-muted small"><em>{{ asset_body.system }}</em>
+                                    <span class="pull-right text-muted small"><em>{{ asset_body.system|default:"" }}</em>
                                     </span>
                                 </a>
                                 <a href="#" class="list-group-item">
                                     <i class="fa fa-apple  fa-fw"></i> 内核版本
-                                    <span class="pull-right text-muted small"><em>{{ asset_body.kernel  }}</em>
+                                    <span class="pull-right text-muted small"><em>{{ asset_body.kernel|default:""  }}</em>
                                     </span>
                                 </a>
                                 <a href="#" class="list-group-item">
                                     <i class="fa fa-cog fa-fw"></i> Selinux状态
-                                    <span class="pull-right text-muted small"><em>{{ asset_body.selinux  }}</em>
+                                    <span class="pull-right text-muted small"><em>{{ asset_body.selinux|default:""  }}</em>
                                     </span>
                                 </a>
                                 <a href="#" class="list-group-item">
                                     <i class="fa fa-trophy fa-fw"></i> Swap容量
-                                    <span class="pull-right text-muted small"><em>{{ asset_body.swap  }}MB</em>
+                                    <span class="pull-right text-muted small"><em>{{ asset_body.swap|default:""  }}MB</em>
                                     </span>
                                 </a>                                                                                                                                                                                                
                             </div>    
@@ -222,37 +231,37 @@
 							<div class="list-group">
                                 <a href="#" class="list-group-item">
                                     <i class="fa fa-globe fa-fw"></i> IP地址
-                                    <span class="pull-right text-muted small"><code>{{ asset_body.ip }}</code>
+                                    <span class="pull-right text-muted small"><code>{{ asset_body.ip|default:"" }}</code>
                                     </span>
                                 </a>
                                 <a href="#" class="list-group-item">
                                     <i class="fa fa-lightbulb-o fa-fw"></i> CPU型号
-                                    <span class="pull-right text-muted small"><em>{{ asset_body.cpu }}</em>
+                                    <span class="pull-right text-muted small"><em>{{ asset_body.cpu|default:"" }}</em>
                                     </span>
                                 </a>
                                 <a href="#" class="list-group-item">
                                     <i class="fa fa-envelope fa-fw"></i> 内存大小
-                                    <span class="pull-right text-muted small"><em>{{ asset_body.stone }}</em>
+                                    <span class="pull-right text-muted small"><em>{{ asset_body.stone|default:"" }}</em>
                                     </span>
                                 </a>
                                 <a href="#" class="list-group-item">
                                     <i class="fa fa-tasks fa-fw"></i> 背板带宽
-                                    <span class="pull-right text-muted small"><em>{{ asset_body.bandwidth }}</em>
+                                    <span class="pull-right text-muted small"><em>{{ asset_body.bandwidth|default:"" }}</em>
                                     </span>
                                 </a>
                                 <a href="#" class="list-group-item">
                                     <i class="fa fa-upload fa-fw"></i> 端口个数
-                                    <span class="pull-right text-muted small"><em>{{ asset_body.port_number }}</em>
+                                    <span class="pull-right text-muted small"><em>{{ asset_body.port_number|default:"" }}</em>
                                     </span>
                                 </a>
                                 <a href="#" class="list-group-item">
                                     <i class="fa fa-bolt fa-fw"></i> 固件版本
-                                    <span class="pull-right text-muted small"><em>{{ asset_body.firmware }}</em>
+                                    <span class="pull-right text-muted small"><em>{{ asset_body.firmware|default:"" }}</em>
                                     </span>
                                 </a>
                                 <a href="#" class="list-group-item">
                                     <i class="fa fa-warning fa-fw"></i> 配置说明
-                                    <span class="pull-right text-muted small"><em>{{ asset_body.configure_detail }}</em>
+                                    <span class="pull-right text-muted small"><em>{{ asset_body.configure_detail|default:"" }}</em>
                                     </span>
                                 </a>                                                                                                                                                                                               
                             </div>                           	

@@ -25,7 +25,7 @@ class GroupSerializer(serializers.ModelSerializer):
 class ZoneSerializer(serializers.ModelSerializer):
     class Meta:
         model = Zone_Assets
-        fields = ('id','zone_name')         
+        fields = ('id','zone_name','zone_contact','zone_number')         
 
 class LineSerializer(serializers.ModelSerializer):
     class Meta:
@@ -57,6 +57,11 @@ class AssetsSerializer(serializers.ModelSerializer):
         fields = ('id','assets_type','name','sn','buy_time','expire_date',
                   'buy_user','management_ip','manufacturer','provider',
                   'model','status','put_zone','group','business')  
+        
+# class VmServerAssetsSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = Assets
+#         fields = ('id','assets_type','name','status','put_zone','group','business')         
 
 class AssetsLogsSerializer(serializers.ModelSerializer):
     class Meta:

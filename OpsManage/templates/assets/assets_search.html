@@ -30,6 +30,7 @@
 									 <select class="form-control" id="selAssetsType" >
 									 		<option selected="selected" value="">请选择一个类型</option>
 											<option value="server" name="assets_type">服务器</option>
+											<option value="vmser" name="assets_type">虚拟机</option>	
 											<option value="switch" name="assets_type">交换机</option>	
 											<option value="route" name="assets_type">路由器</option>	
 											<option value="printer" name="assets_type">打印机</option>	
@@ -119,7 +120,7 @@
 									 <select class="form-control" id="selBuyUser" >
 									 	<option selected="selected" value="">请选择一个类型</option>
 									 	{% for b in buyUserList %}
-									 		<option value="{{b}}" name="buy_user">{{b}}</option>
+									 		<option value="{{b.id}}" name="buy_user">{{b.username}}</option>
 									 	{% endfor %}										 				
 									</select>
 								</div>
@@ -372,29 +373,29 @@
 							<table   width="100%" class="table table-striped table-bordered table-hover dataTable no-footer" id="dataTables-Search">						
 	                                <thead>
 										  <tr>
-										       <th>资产类型</th>
-										       <th>管理IP</th>
-										       <th>资产编号</th>
-										       <th>设备型号</th>
-										       <th>放置区域</th>
-										       <th>购买人</th>
-										       <th>购买时间</th>
-										       <th>业务类型</th>
-										       <th>设备状态</th>
-										       <th>操作</th>
+										       <th class="text-center">资产类型</th>
+										       <th class="text-center">管理IP</th>
+										       <th class="text-center">资产编号</th>
+										       <th class="text-center">设备型号</th>
+										       <th class="text-center">放置区域</th>
+										       <th class="text-center">业务类型</th>
+										       <th class="text-center">使用组</th>
+										       <th class="text-center">购买时间</th>
+										       <th class="text-center">设备状态</th>
+										       <th class="text-center">操作</th>
 										    </tr>
 									        <tfoot>
 									            <tr>
-											       <th>资产类型</th>
-											       <th>管理IP</th>
-											       <th>资产编号</th>
-											       <th>设备型号</th>
-											       <th>放置区域</th>
-											       <th>购买人</th>
-											       <th>购买时间</th>
-											       <th>业务类型</th>
-											       <th>设备状态</th>
-											       <th>操作</th>
+											       <th class="text-center">资产类型</th>
+											       <th class="text-center">管理IP</th>
+											       <th class="text-center">资产编号</th>
+											       <th class="text-center">设备型号</th>
+											       <th class="text-center">放置区域</th>
+											       <th class="text-center">业务类型</th>
+											       <th class="text-center">使用组</th>
+											       <th class="text-center">购买时间</th>
+											       <th class="text-center">设备状态</th>
+											       <th class="text-center">操作</th>
 									            </tr>
 									        </tfoot>										    
 	                                </thead>
@@ -1005,7 +1006,73 @@
             $(obj).parent().remove();
             changepage(1);
         }
-        
+  
+ 	   function assetsUpdate(obj, id,ip,type){
+			var btnObj = $(obj);
+			var txt=  "是否确认更新？";
+			var option = {
+					title: "更新主机("+ip+")硬件信息",
+					btn: parseInt("0011",2),
+					onOk: function(){
+						$.ajax({
+							  type: 'POST',
+							  url: '/assets_facts/',
+							  data:{
+									"ip":ip,
+									"server_id":id,
+									"type":type
+								},
+						      success:function(response){			            
+					                if (response["code"]=="200"){ 
+					                	window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.success);
+
+					                }
+						        	else{
+						        		window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
+						        	}						                
+							},
+				            error:function(response){
+				            	window.wxc.xcConfirm("请求数据错误！", window.wxc.xcConfirm.typeEnum.error);
+				            },		
+							});
+					},
+					onCancel:function(){	
+					},
+					onClose:function(){
+					}
+				}			
+			window.wxc.xcConfirm(txt, "custom", option);
+		}        
+ 	   
+ 		function deleteAssets(obj,id){
+ 			var txt=  "是否确认删除？";
+ 			var btnObj = $(obj);
+ 			btnObj.attr('disabled',true);
+ 			var option = {
+ 				title: "删除当前资产",
+ 				btn: parseInt("0011",2),
+ 				onOk: function(){
+ 					$.ajax({
+ 						  type: 'DELETE',
+ 						  url: '/api/assets/'+id+'/',
+ 					      success:function(response){	
+ 					    	btnObj.removeAttr('disabled');
+ 				            window.wxc.xcConfirm("删除成功", window.wxc.xcConfirm.typeEnum.success);
+ 				            location.reload('/assets_list/');
+ 					      },
+ 			              error:function(response){
+ 			            	btnObj.removeAttr('disabled');
+ 			            	window.wxc.xcConfirm("删除失败！", window.wxc.xcConfirm.typeEnum.error);	
+ 			              }
+ 						});
+ 				},
+ 				onCancel:function(){	
+ 				},
+ 				onClose:function(){
+ 				}
+ 			}
+ 			window.wxc.xcConfirm(txt, "custom", option);			   
+ 		} 	   
 
 </script>
 

@@ -384,9 +384,9 @@
 									       <th class="text-center">资产编号</th>
 									       <th class="text-center">设备型号</th>
 									       <th class="text-center">放置区域</th>
-									       <th class="text-center">购买人</th>
-									       <th class="text-center">购买时间</th>
 									       <th class="text-center">业务类型</th>
+									       <th class="text-center">使用组</th>
+									       <th class="text-center">购买时间</th>									       
 									       <th class="text-center">设备状态</th>
 									       <th class="text-center">操作</th>
 									    </tr>
@@ -397,6 +397,8 @@
 									         <td class="text-center">	
 									         		{% if a.assets_type == "server" %}
 									         			<button  type="button" class="btn btn-default disabled">服务器</button>
+									         		{% elif a.assets_type == "vmser" %}
+									         			<button  type="button" class="btn btn-default disabled">虚拟机</button>	
 									         		{% elif a.assets_type == "switch" %}
 									         			<button  type="button" class="btn btn-default disabled">交换机</button>	
 									         		{% elif a.assets_type == "route" %}
@@ -413,9 +415,15 @@
 									         			<button  type="button" class="btn btn-default disabled">无线设备</button>									         													         												         												         											         												         			
 									         		{% endif %}
 									         </td>
-									         <td class="text-center">{{ a.management_ip }}</td>
+									         <td class="text-center">
+									         	{% if a.management_ip %}
+									         		{{ a.management_ip }}
+									         	{% else %}
+									         		{{ a.server_assets.ip }}
+									         	{% endif %}
+									         </td>
 									         <td class="text-center">{{ a.name }}</td>
-									         <td class="text-center">{{ a.model }}</td>
+									         <td class="text-center">{{ a.model|default:"无" }}</td>
 									         <td class="text-center">
 									         	{% for z in baseAssets.zone %}
 									         		{% if z.id == a.put_zone %}
@@ -423,14 +431,26 @@
 									         		{% endif %}
 									         	{% endfor %}
 									         </td>
-									         <td class="text-center">{{ a.buy_user }}</td>
-									         <td class="text-center">{{ a.buy_time|date:"Y/m/d" }}</td>
 									         <td class="text-center">
 									         	{% for s in baseAssets.service %}
 									         		{% if s.id == a.business %}
 									         			<button  type="button" class="btn btn-default disabled">{{ s.service_name }}</button>	
 									         		{% endif %}
 									         	{% endfor %}								         		
+									         </td>									         
+									         <td class="text-center">
+									         	{% for g in baseAssets.group %}
+									         		{% if g.id == a.put_zone %}
+									         			{{ g.name }}
+									         		{% endif %}
+									         	{% endfor %}
+									         </td>
+									         <td class="text-center">
+									         	{% if a.buy_time %}
+									         		{{ a.buy_time|date:"Y/m/d" }}
+									         	{% else %}
+									         		{{ a.create_date|date:"Y/m/d" }}
+									         	{% endif %}									         
 									         </td>
 									         <td class="text-center">
 									         		{% if a.status == 0 %}
@@ -447,7 +467,7 @@
 									         </td>	
 									         <td class="text-center">
 									         	<a href="/assets_view/{{a.id}}" style="text-decoration:none;"><button  type="button" class="btn btn-default"><abbr title="查看详细信息"><i class="glyphicon glyphicon-info-sign"></i></abbr></button></a>
-									         	{% if a.assets_type == "server" %}
+									         	{% if a.assets_type == "server" or a.assets_type == "vmser" %}
 												<div class="btn-group">				
 												   <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
 												   	   <font class="glyphicon glyphicon-refresh"></font>
@@ -552,6 +572,8 @@
 	           		{
 	           			{% if ds.assets_type == "server" %}
 	         				label: "服务器",
+			         	{% elif ds.assets_type == "vmser" %}
+               				label: "虚拟机",		         				
 	         			{% elif ds.assets_type == "switch" %}
 	           				label: "交换机",
 	         			{% elif ds.assets_type == "route" %}
@@ -604,6 +626,8 @@
 		         				label: "服务器",
 		         			{% elif ds.assets_type == "switch" %}
 	               				label: "交换机",
+			         		{% elif ds.assets_type == "vmser" %}
+	               				label: "虚拟机",	               				
 		         			{% elif ds.assets_type == "route" %}
 		         				label: "路由器",	
 		         			{% elif ds.assets_type == "printer" %}
