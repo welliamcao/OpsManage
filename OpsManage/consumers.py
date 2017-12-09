@@ -10,7 +10,7 @@ except ImportError:
 from OpsManage.interactive import interactive_shell,get_redis_instance,SshTerminalThread
 
 from django.core.exceptions import ObjectDoesNotExist
-from OpsManage.models import Assets,Global_Config,User_Server
+from OpsManage.models import Global_Config,User_Server,Server_Assets
 from django.contrib.auth.models import User
 from django.utils.timezone import now
 import os
@@ -72,21 +72,18 @@ class webterminal(WebsocketConsumer):
                     height = data[3]
                     self.ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
                     try:
-                        assets = Assets.objects.get(id=data[1])
-                        port = int(assets.server_assets.port)
-                        username = assets.server_assets.username
-                        password = assets.server_assets.passwd
+                        server = Server_Assets.objects.get(id=data[1])
                     except ObjectDoesNotExist:
                         self.message.reply_channel.send({"text":json.dumps(['stdout','\033[1;3;31mConnect to server! Server ip doesn\'t exist!\033[0m'])},immediately=True)
                         self.message.reply_channel.send({"accept":False})                        
                     try:
-                        self.ssh.connect(assets.server_assets.ip, port=port, username=username, password=password, timeout=3)
+                        self.ssh.connect(server.ip, port=int(server.port), username=server.username, password=server.passwd, timeout=3)
                     except socket.timeout:
                         self.message.reply_channel.send({"text":json.dumps(['stdout','\033[1;3;31mConnect to server time out\033[0m'])},immediately=True)
                         self.message.reply_channel.send({"accept":False})
                         return
                     except Exception, ex:
-                        self.message.reply_channel.send({"text":json.dumps(['stdout','\033[1;3;31mCan not connect to server\033[0m'])},immediately=True)
+                        self.message.reply_channel.send({"text":json.dumps(['stdout','\033[1;3;31m连接服务器失败: {ex}\033[0m'.format(ex=str(ex))])},immediately=True)
                         self.message.reply_channel.send({"accept":False})
                         return
                     
