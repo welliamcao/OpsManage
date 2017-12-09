@@ -176,6 +176,14 @@ numprocs=1
 # /usr/local/bin/supervisord -c /etc/supervisord.conf
 # supervisorctl status
 ```
+
+## 提供帮助
+
+如果您觉得OpsManage对您有所帮助，通过下列方式进行捐赠，谢谢！
+
+![image](https://github.com/welliamcao/OpsManage/blob/master/demo_imgs/donate.png)
+
+## 部分功能截图:
 Ansible部署功能：
 ![image](https://github.com/welliamcao/OpsManage/blob/master/demo_imgs/ansible.gif)
 
