@@ -538,7 +538,8 @@ def assets_batch(request):
     if request.method == "POST":
         fList = []
         sList = []
-        print request.POST
+        resource = []
+        serList = []
         if request.POST.get('model') == 'update':
             for ast in request.POST.getlist('assetsIds[]'):
                 try:
@@ -549,30 +550,31 @@ def assets_batch(request):
                 if assets.assets_type in ['vmser','server']:
                     try:
                         server_assets = Server_Assets.objects.get(assets=assets)
+
                     except Exception, ex:
                         fList.append(assets.management_ip)
                         continue
-                    if server_assets.keyfile == 1:resource = [{"hostname": server_assets.ip, "port": int(server_assets.port)}] 
-                    else:resource = [{"hostname": server_assets.ip, "port": server_assets.port,"username": server_assets.username, "password": server_assets.passwd}]                    
-                    ANS = ANSRunner(resource)
-                    ANS.run_model(host_list=[server_assets.ip],module_name='setup',module_args="")
-                    data = ANS.handle_cmdb_data(ANS.get_model_result())    
-                    if data:
-                        for ds in data:
-                            status = ds.get('status')
-                            if status == 0:
-                                try:
-                                    Server_Assets.objects.filter(id=int(ast)).update(cpu_number=ds.get('cpu_number'),kernel=ds.get('kernel'),
-                                                                                          selinux=ds.get('selinux'),hostname=ds.get('hostname'),
-                                                                                          system=ds.get('system'),cpu=ds.get('cpu'),
-                                                                                          disk_total=ds.get('disk_total'),cpu_core=ds.get('cpu_core'),
-                                                                                          swap=ds.get('swap'),ram_total=ds.get('ram_total'),
-                                                                                          vcpu_number=ds.get('vcpu_number')
-                                                                                          )
-                                    sList.append(server_assets.ip)
-                                except Exception:
-                                    fList.append(server_assets.ip)
-                            else:fList.append(server_assets.ip)
+                    serList.append(server_assets.ip)
+                    if server_assets.keyfile == 1:resource.append({"hostname": server_assets.ip, "port": int(server_assets.port)})
+                    else:resource.append({"hostname": server_assets.ip, "port": server_assets.port,"username": server_assets.username, "password": server_assets.passwd})                    
+            ANS = ANSRunner(resource)
+            ANS.run_model(host_list=serList,module_name='setup',module_args="")
+            data = ANS.handle_cmdb_data(ANS.get_model_result())    
+            if data:
+                for ds in data:
+                    status = ds.get('status')
+                    if status == 0:
+                        try:
+                            Server_Assets.objects.filter(ip=ds.get('ip')).update(cpu_number=ds.get('cpu_number'),kernel=ds.get('kernel'),
+                                                                                  selinux=ds.get('selinux'),hostname=ds.get('hostname'),
+                                                                                  system=ds.get('system'),cpu=ds.get('cpu'),
+                                                                                  disk_total=ds.get('disk_total'),cpu_core=ds.get('cpu_core'),
+                                                                                  swap=ds.get('swap'),ram_total=ds.get('ram_total'),
+                                                                                  vcpu_number=ds.get('vcpu_number')
+                                                                                  )
+                            sList.append(server_assets.ip)
+                        except Exception:
+                            fList.append(server_assets.ip)
                     else:fList.append(server_assets.ip)                                  
             if sList:
                 return JsonResponse({'msg':"数据更新成功","code":200,'data':{"success":sList,"failed":fList}}) 
