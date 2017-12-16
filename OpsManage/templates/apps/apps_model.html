@@ -89,7 +89,7 @@
 											<div class="form-group">
 												 <label class="col-sm-2 control-label">模块参数</label>
 												 <div class="col-sm-6">											
-													<input id="ansible_args" type="text"   class="form-control" placeholder="输入模块参数" name="ansible_agrs" value="">
+													<input id="ansible_args" type="text"   class="form-control" placeholder="输入模块参数" name="ansible_args" value="">
 												</div>
 											</div> 	
 											<div class="form-group">
@@ -213,7 +213,7 @@ function oBtAnsibleModel() {
 			var name = form[i].name;
 			var value = form[i].value;
 			var project = name.indexOf("ansible_model");
-			if ( project==0 && value.length==0 && name!="ansible_agrs"){
+			if ( project==0 && value.length==0 && name!="ansible_args"){
 				window.wxc.xcConfirm("请注意必填项不能为空~", window.wxc.xcConfirm.typeEnum.error);
 				btnObj.removeAttr('disabled');
 				return false;

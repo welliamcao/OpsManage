@@ -1,6 +1,6 @@
 #!/usr/bin/env python  
 # _#_ coding:utf-8 _*_  
-import os,xlrd,json
+import os,xlrd,time
 from django.http import JsonResponse
 from django.shortcuts import render,HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
@@ -274,95 +274,66 @@ def assets_import(request):
                 for i in range(1,net.nrows):
                     dataList.append(net.row_values(i))     
             except Exception,e:
-                print e
                 return []
             return dataList 
         dataList = getAssetsData(fname=filename)
         #获取服务器列表
-        for s in dataList:
+        for data in dataList:
+            assets = {
+                      'assets_type':data[0],
+                      'name':data[1],
+                      'sn':data[2],
+                      'buy_user':int(data[5]),
+                      'management_ip':data[6],
+                      'manufacturer':data[7],
+                      'model':data[8],
+                      'provider':data[9],
+                      'status':int(data[10]),
+                      'put_zone':int(data[11]),
+                      'group':int(data[12]),
+                      'business':int(data[13]),
+                      }
+            if data[3]:assets['buy_time'] = xlrd.xldate.xldate_as_datetime(data[3],0)
+            if data[4]:assets['expire_date'] = xlrd.xldate.xldate_as_datetime(data[4],0)
+            if assets.get('assets_type') in ['vmser','server']:
+                server_assets = {
+                          'ip':data[14],
+                          'keyfile':data[15],
+                          'username':data[16],
+                          'passwd':data[17],
+                          'hostname':data[18],
+                          'port':data[19],
+                          'raid':data[20],
+                          'line':data[21],
+                          } 
+            else:
+                net_assets = {
+                            'ip':data[14],
+                            'bandwidth':data[15],
+                            'port_number': data[16],
+                            'firmware':data[17],
+                            'cpu':data[18],
+                            'stone':data[19],
+                            'configure_detail': data[20]                              
+                              }                                                  
             try:
-                count = Assets.objects.filter(name=s[1]).count()
+                count = Assets.objects.filter(name=assets.get('name')).count()
+                print count,assets
                 if count == 1:
-                    assets = Assets.objects.get(name=s[1])
-                    Assets.objects.filter(name=s[1]).update(
-                                                            assets_type = s[0],
-                                                            sn = s[2],
-                                                            buy_time = xlrd.xldate.xldate_as_datetime(s[3],0),
-                                                            expire_date = xlrd.xldate.xldate_as_datetime(s[4],0),
-                                                            buy_user = s[5],
-                                                            management_ip = s[6],
-                                                            manufacturer = s[7],
-                                                            model = s[8],
-                                                            provider = s[9],
-                                                            status = s[10],
-                                                            put_zone = s[11],
-                                                            group = s[12],
-                                                            business = s[13]
-                                                            )
-                    if s[0] == 'server':
-                        Server_Assets.objects.filter(assets=assets).update(
-                                                                           ip = s[14],
-                                                                           keyfile = s[15],
-                                                                           username = s[16],
-                                                                           passwd = str(s[17]),
-                                                                           hostname = s[18],
-                                                                           port = s[19],
-                                                                           raid = s[20],
-                                                                           line = s[21],
-                                                                           )
-                    elif s[0] in ['switch','route','printer','scanner','firewall','storage','wifi']:
-                        Network_Assets.objects.filter(assets=assets).update(
-                                                                            ip = s[14],
-                                                                            bandwidth = s[15],
-                                                                            port_number = s[16],
-                                                                            firmware = s[17],
-                                                                            cpu = s[18],
-                                                                            stone = s[19],
-                                                                            configure_detail = s[20]
-                                                                            )
+                    assetsObj = Assets.objects.get(name=assets.get('name'))
+                    Assets.objects.filter(name=assets.get('name')).update(**assets)
+                    if assets.get('assets_type') in ['vmser','server']:
+                        Server_Assets.objects.filter(assets=assetsObj).update(**server_assets)
+                    elif assets.get('assets_type') in ['switch','route','printer','scanner','firewall','storage','wifi']:
+                        Network_Assets.objects.filter(assets=assetsObj).update(**net_assets)
                 else:
-                    assets = Assets.objects.create(
-                                                    assets_type = s[0],
-                                                    name = s[1],
-                                                    sn = s[2],
-                                                    buy_time = xlrd.xldate.xldate_as_datetime(s[3],0),
-                                                    expire_date = xlrd.xldate.xldate_as_datetime(s[4],0),
-                                                    buy_user = s[5],
-                                                    management_ip = s[6],
-                                                    manufacturer = s[7],
-                                                    model = s[8],
-                                                    provider = s[9],
-                                                    status = s[10],
-                                                    put_zone = s[11],
-                                                    group = s[12],
-                                                    business = s[13]
-                                                    )     
-                    if s[0] == 'server':
-                        Server_Assets.objects.create(
-                                                        assets=assets,
-                                                        ip = s[14],
-                                                        keyfile = s[15],
-                                                        username = s[16],
-                                                        passwd = str(s[17]),
-                                                        hostname = s[18],
-                                                        port = s[19],
-                                                        raid = s[20],
-                                                        line = s[21],
-                                                    )
-                    elif s[0] in ['switch','route','printer','scanner','firewall','storage','wifi']:
-                        Network_Assets.objects.create(
-                                                        assets=assets,
-                                                        ip = s[14],
-                                                        bandwidth = s[15],
-                                                        port_number = s[16],
-                                                        firmware = s[17],
-                                                        cpu = s[18],
-                                                        stone = s[19],
-                                                        configure_detail = s[20]
-                                                     )                                           
+                    assetsObj = Assets.objects.create(**assets)     
+                    if assets.get('assets_type') in ['vmser','server']:
+                        Server_Assets.objects.create(assets=assetsObj,**server_assets)
+                    elif assets.get('assets_type') in ['switch','route','printer','scanner','firewall','storage','wifi']:
+                        Network_Assets.objects.create(assets=assetsObj,**net_assets)                                           
             except Exception,e:
                 print e
-                pass
         return HttpResponseRedirect('/assets_list')
 
 

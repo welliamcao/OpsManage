@@ -53,12 +53,12 @@ def apps_model(request):
             else:model_name = request.POST.get('ansible_model',None)
             if len(sList) > 0:
                 redisKey = request.POST.get('ans_uuid')
-                logId = AnsibleRecord.Model.insert(user=str(request.user),ans_model=model_name,ans_server=','.join(sList),ans_args=request.POST.get('ansible_agrs',None))
+                logId = AnsibleRecord.Model.insert(user=str(request.user),ans_model=model_name,ans_server=','.join(sList),ans_args=request.POST.get('ansible_args',None))
                 DsRedis.OpsAnsibleModel.delete(redisKey)
-                DsRedis.OpsAnsibleModel.lpush(redisKey, "[Start] Ansible Model: {model}  ARGS:{args}".format(model=model_name,args=request.POST.get('ansible_agrs',"None")))
+                DsRedis.OpsAnsibleModel.lpush(redisKey, "[Start] Ansible Model: {model}  ARGS:{args}".format(model=model_name,args=request.POST.get('ansible_args',"None")))
                 if request.POST.get('ansible_debug') == 'on':ANS = ANSRunner(resource,redisKey,logId,verbosity=4)
                 else:ANS = ANSRunner(resource,redisKey,logId)
-                ANS.run_model(host_list=sList,module_name=model_name,module_args=request.POST.get('ansible_agrs',""))
+                ANS.run_model(host_list=sList,module_name=model_name,module_args=request.POST.get('ansible_args',""))
                 DsRedis.OpsAnsibleModel.lpush(redisKey, "[Done] Ansible Done.")
                 return JsonResponse({'msg':"操作成功","code":200,'data':[]})
             else:
