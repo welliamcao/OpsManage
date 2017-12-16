@@ -318,7 +318,6 @@ def assets_import(request):
                               }                                                  
             try:
                 count = Assets.objects.filter(name=assets.get('name')).count()
-                print count,assets
                 if count == 1:
                     assetsObj = Assets.objects.get(name=assets.get('name'))
                     Assets.objects.filter(name=assets.get('name')).update(**assets)
@@ -530,5 +529,81 @@ def assets_log(request,page):
             assetsList = paginator.page(1)
         except EmptyPage:
             assetsList = paginator.page(paginator.num_pages)        
-        return render(request,'assets/assets_log.html',{"user":request.user,"assetsList":assetsList},
-                                  )
+        return render(request,'assets/assets_log.html',{"user":request.user,"assetsList":assetsList})
+    
+    
+@login_required(login_url='/login')
+@permission_required('OpsManage.can_change_assets',login_url='/noperm/')
+def assets_batch(request):
+    if request.method == "POST":
+        fList = []
+        sList = []
+        print request.POST
+        if request.POST.get('model') == 'update':
+            for ast in request.POST.getlist('assetsIds[]'):
+                try:
+                    assets = Assets.objects.get(id=int(ast))
+                except Exception, ex:
+                    print ex
+                    continue
+                if assets.assets_type in ['vmser','server']:
+                    try:
+                        server_assets = Server_Assets.objects.get(assets=assets)
+                    except Exception, ex:
+                        fList.append(assets.management_ip)
+                        continue
+                    if server_assets.keyfile == 1:resource = [{"hostname": server_assets.ip, "port": int(server_assets.port)}] 
+                    else:resource = [{"hostname": server_assets.ip, "port": server_assets.port,"username": server_assets.username, "password": server_assets.passwd}]                    
+                    ANS = ANSRunner(resource)
+                    ANS.run_model(host_list=[server_assets.ip],module_name='setup',module_args="")
+                    data = ANS.handle_cmdb_data(ANS.get_model_result())    
+                    if data:
+                        for ds in data:
+                            status = ds.get('status')
+                            if status == 0:
+                                try:
+                                    Server_Assets.objects.filter(id=int(ast)).update(cpu_number=ds.get('cpu_number'),kernel=ds.get('kernel'),
+                                                                                          selinux=ds.get('selinux'),hostname=ds.get('hostname'),
+                                                                                          system=ds.get('system'),cpu=ds.get('cpu'),
+                                                                                          disk_total=ds.get('disk_total'),cpu_core=ds.get('cpu_core'),
+                                                                                          swap=ds.get('swap'),ram_total=ds.get('ram_total'),
+                                                                                          vcpu_number=ds.get('vcpu_number')
+                                                                                          )
+                                    sList.append(server_assets.ip)
+                                except Exception:
+                                    fList.append(server_assets.ip)
+                            else:fList.append(server_assets.ip)
+                    else:fList.append(server_assets.ip)                                  
+            if sList:
+                return JsonResponse({'msg':"数据更新成功","code":200,'data':{"success":sList,"failed":fList}}) 
+            else:return JsonResponse({'msg':"数据更新失败","code":500,'data':{"success":sList,"failed":fList}}) 
+            
+        elif request.POST.get('model') == 'delete':
+            for ast in request.POST.getlist('assetsIds[]'):
+                try:
+                    assets = Assets.objects.get(id=int(ast))
+                except Exception, ex:
+                    print ex
+                    continue
+                if assets.assets_type in ['vmser','server']:
+                    try:
+                        server_assets = Server_Assets.objects.get(assets=assets)
+                    except Exception, ex:
+                        fList.append(assets.management_ip)
+                        assets.delete() 
+                        continue   
+                    sList.append(server_assets.ip)
+                    server_assets.delete()                    
+                else:
+                    try:
+                        net_assets = Network_Assets.objects.get(assets=assets)
+                    except Exception, ex:
+                        fList.append(assets.management_ip)
+                        assets.delete() 
+                        continue  
+                    sList.append(assets.management_ip)
+                    net_assets.delete()                    
+                assets.delete()                                    
+            return JsonResponse({'msg':"数据更新成功","code":200,'data':{"success":sList,"failed":fList}}) 
+        else:
+            return JsonResponse({'msg':"操作失败","code":500,'data':"不支持的操作"})                 

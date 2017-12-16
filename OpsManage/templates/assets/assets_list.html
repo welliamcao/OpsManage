@@ -361,27 +361,21 @@
 	 		<div class="col-lg-12">
                     <div class="panel panel-default">
                         <div class="panel-heading">
+							    <div class="btn-group btn-group-xs pull-right">
+							    	<button type="button" class="btn btn-default"><a href="#" data-toggle="modal" data-target="#myAssetsImportModal"><i class="fa fa-pencil fa-fw"></i>批量导入</a></button>
+								    <button type="button" class="btn btn-default"><a href="/assets_search"><i class="fa fa-search fa-fw"></i>高级搜索</a></button>
+								    <button type="button" class="btn btn-default" onclick="updateAllAssets(this,'update')"><i class="fa fa-refresh fa-fw"></i>批量更新</button>
+								    <button type="button" class="btn btn-default" onclick="updateAllAssets(this,'delete')"><i class="fa fa-trash-o fa-fw"></i>批量删除</button>
+								</div>                         
                               <i class="fa fa-database"></i>资产明细
-	                            <div class="pull-right">
-	                                <div class="btn-group">
-	                                    <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">
-	                                        	更多操作
-	                                        <span class="caret"></span>
-	                                    </button>
-	                                    <ul class="dropdown-menu pull-right" role="menu">
-	                                        <li><a href="#" data-toggle="modal" data-target="#myAssetsImportModal"><i class="fa fa-pencil fa-fw"></i>批量导入</a>
-	                                        </li>
-	                                        <li><a href="/assets_search"><i class="fa fa-search fa-fw"></i>高级搜索</a>
-	                                        </li>
-	                                    </ul>
-	                                </div>
-	                            </div>                              
+                                                        
                         </div>
                         <!-- /.panel-heading -->
                         <div class="panel-body">
                             <table width="100%" class="table table-striped table-bordered table-hover" id="assetsListTable">
                                 <thead>
 									  <tr>
+									  	   <th class="text-center"><input type="checkbox" onclick="checkAllBox()"/>全选</th>
 									       <th class="text-center">资产类型</th>
 									       <th class="text-center">管理IP</th>
 									       <th class="text-center">资产编号</th>
@@ -397,6 +391,7 @@
                                 <tbody>
                                 	{% for a in  assetsList %}
 	                                    <tr class="odd gradeX">
+	                                    	 <td class="text-center"><input type="checkbox" value={{a.id}} name="ckbox"/></td>
 									         <td class="text-center">	
 									         		{% if a.assets_type == "server" %}
 									         			<button  type="button" class="btn btn-default disabled">服务器</button>
@@ -520,9 +515,7 @@
                     <!-- /.panel -->
                 </div>
 	 </div>
-</div>
-	
-
+	 
                             <div class="modal fade" id="myAssetsImportModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
                                 <div class="modal-dialog">
                                     <div class="modal-content">
@@ -549,9 +542,15 @@
                                 </div>
                                 <!-- /.modal-dialog -->
                             </div>
+	 
+</div>
+	
 
 
-    </div>
+
+
+
+
     <!-- /#wrapper -->
 	
 
@@ -563,6 +562,72 @@
 
 
 <script type="text/javascript"> 
+
+	var selectState = false;  
+	function checkAllBox(){ 
+	  	var qcheck=document.getElementsByName("ckbox");
+	  	for (var i = 0; i < qcheck.length; i++)  
+		  {  
+		    var checkbox = qcheck[i];  
+		    checkbox.checked = !selectState; 
+		  }  
+	  	selectState = !selectState; 
+	}  
+
+
+	function updateAllAssets(obj,model){
+		var btnObj = $(obj);
+		btnObj.attr('disabled',true);
+		var serverId = [];
+	  	var qcheck=document.getElementsByName("ckbox");
+	  	for (var i = 0; i < qcheck.length; i++)  
+		  {  
+	  		if(qcheck[i].checked==true){
+	  			serverId.push(qcheck[i].value);
+	  		}
+		  } 	
+	  	if (serverId.length > 0){
+			$.ajax({
+				  type: 'POST',
+				  url: '/assets/batch/',
+				  dataType:"json",
+				  data:{
+					  'assetsIds':serverId,
+					  'model':model
+				  },
+			      success:function(response){	
+			    	var sip = '';
+			    	var fip = '';
+			    	var modal = '';
+		    		for  (var i = 0; i < response['data']['success'].length; i++){
+		    			 sip += response['data']['success'][i] + '<br>'
+		    		}
+		    		for  (var i = 0; i < response['data']['failed'].length; i++){
+		    			 fip += response['data']['failed'][i] + '<br>'
+		    		}	
+		    		msg = '成功：'+ '<br>' + sip + '<br>' + '失败：'+ '<br>' + fip;	
+ 			    	if (response['code']==200){
+			    		window.wxc.xcConfirm(msg, window.wxc.xcConfirm.typeEnum.success);
+			    	}
+			    	else{
+			    		window.wxc.xcConfirm(msg, window.wxc.xcConfirm.typeEnum.error);
+			    	}
+				    btnObj.removeAttr('disabled');
+/* 	              	location.reload('/apps/');	 */			            
+			      },
+	              error:function(response){
+	            	btnObj.removeAttr('disabled');
+	            	window.wxc.xcConfirm("更新失败！", window.wxc.xcConfirm.typeEnum.error);	
+	              }
+				});			
+	  	}
+	  	else{
+	  		window.wxc.xcConfirm("至少选择一个资产~", window.wxc.xcConfirm.typeEnum.error);
+	  		btnObj.removeAttr('disabled');
+	  	}
+	}
+
+
 	$(document).ready(function() {
 	    $('#assetsListTable').DataTable({
 	        responsive: true

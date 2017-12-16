@@ -39,6 +39,7 @@ urlpatterns = [
     url(r'^assets_log/(?P<page>[0-9]+)/$',assets.assets_log),
     url(r'^assets_import/',assets.assets_import),
     url(r'^assets_search/',assets.assets_search),
+    url(r'^assets/batch/',assets.assets_batch),
     url(r'^cron_add',cron.cron_add),
     url(r'^cron_list/(?P<page>[0-9]+)/$',cron.cron_list),
     url(r'^cron_config',cron.cron_config),
