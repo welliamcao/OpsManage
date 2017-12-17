@@ -428,6 +428,27 @@ class Ansible_Playbook(models.Model):
         )
         verbose_name = 'Ansible剧本配置表'  
         verbose_name_plural = 'Ansible剧本配置表' 
+        
+        
+class Ansible_Script(models.Model): 
+    script_name = models.CharField(max_length=50,verbose_name='脚本名称',unique=True)
+    script_uuid = models.CharField(max_length=50,verbose_name='唯一id')
+    script_server = models.TextField(max_length=200,verbose_name='目标机器',blank=True,null=True)
+    script_file = models.FileField(upload_to = './upload/script/',verbose_name='脚本路径')
+    script_service = models.SmallIntegerField(verbose_name='授权业务',blank=True,null=True)
+    script_group = models.SmallIntegerField(verbose_name='授权组',blank=True,null=True)
+    class Meta:
+        db_table = 'opsmanage_ansible_script'
+        permissions = (
+            ("can_read_ansible_script", "读取Ansible脚本权限"),
+            ("can_change_ansible_script", "更改Ansible脚本权限"),
+            ("can_add_ansible_script", "添加Ansible脚本权限"),
+            ("can_delete_ansible_script", "删除Ansible脚本权限"),              
+        )
+        verbose_name = 'Ansible脚本配置表'  
+        verbose_name_plural = 'Ansible脚本配置表'         
+
+        
 
 class Log_Ansible_Playbook(models.Model): 
     ans_id = models.IntegerField(verbose_name='id',blank=True,null=True,default=None)

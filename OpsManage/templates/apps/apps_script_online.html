@@ -1,0 +1,298 @@
+{% extends 'index.html' %}
+{% block ace-content %}
+<!-- ACE Editor -->   
+<script src="http://cdn.bootcss.com/ace/1.2.4/ace.js"></script>
+<script src="http://cdn.bootcss.com/ace/1.2.4/ext-language_tools.js"></script>
+<script src="http://cdn.bootcss.com/ace/1.2.4/ext-old_ie.js"></script>
+<script src="http://cdn.bootcss.com/ace/1.2.4/theme-monokai.js"></script> 
+<style type="text/css">
+	#compile-editor {
+		/* position: absolute; */
+	width: 100%;
+	height: 400px;
+   }	
+</style>
+{% endblock %}
+{% block page-content %}
+<div id="page-wrapper">
+    <div class="row">
+         <div class="col-lg-12">
+              <h1 class="page-header"><i class="fa fa-gears"></i><code>Ansible</code>脚本管理</h1>
+         </div>
+                <!-- /.col-lg-12 -->
+    </div>
+	<div class="row">
+                <div class="col-lg-12">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+ 						<i class="fa    fa-gears"></i>脚本执行
+                        </div>
+                        <div class="panel-body">
+                            <div class="row">
+                                <div class="col-lg-6">
+                                <legend><i class="fa  fa-paper-plane"></i>Ansible服务器</legend>
+                                    <form  method="post" id="ansibleModelRun">  {% csrf_token %}
+                                        <div class="form-group">
+                                            <label>脚本名称</label>
+                                            <input class="form-control" name="script_name" id="script_name" required>
+                                            <p class="help-block">例如：系统检查</p>
+                                        </div>  
+										<div class="form-group" >			 		             
+											<label >动态主机</label>	
+											<select class="form-control" name="server_model" id="server_model" onchange="javascript:oBtAnsibleServerl();">
+												<option value="service" name="server_model">业务类型</option>
+												<option value="group" name="server_model">使用部门</option>	
+												<option value="custom" name="server_model">自定义</option> 	
+											</select>		
+										</div>	
+										<div id="service_server" class="form-group">
+											<label >业务类型</label>
+		                                    <select class="form-control" name="ansible_service"  id="ansible_service" required>
+		                                         {% for ds in serviceList %}
+		                                            <option name="service" value="{{ds.id}}">{{ds.service_name}}</option>
+		                                         {% endfor %}
+		                                    </select>
+										</div>												
+										<div id="group_server" class="form-group" style="display:none;">
+											<label>使用部门</label>
+		                                    <select class="form-control" name="script_auth_group"  id="script_auth_group" required>
+		                                           {% for ds in groupList %}
+		                                            	<option name="group" value="{{ds.id}}">{{ds.name}}</option>
+		                                           {% endfor %}
+		                                    </select>
+										</div>	
+																																														
+										<div id="custom_server" class="form-group" style="display:none;">
+											<label>服务器选择</label>
+		                                       <select multiple class="selectpicker" data-live-search="true" name="ansible_server"  id="ansible_server" required>
+		                                            {% for ds in serverList %}
+		                                            	<option name="server" value="{{ds.id}}">{{ds.ip}}</option>
+		                                            {% endfor %}
+		                                       </select>
+										</div>         
+										<div class="form-group" >			 		             
+											<label >语言类型: </label>	
+											<div class="btn-group btn-group-sm">
+												<button type="button" class="btn btn-default" onclick="setAceEditMode('sh')"><a>Shell</a></button>
+												<button type="button" class="btn btn-default" onclick="setAceEditMode('python')"><a>Python</a></button>
+												<button type="button" class="btn btn-default" onclick="setAceEditMode('perl')"><a>Perl</a></button>
+											</div>
+										</div>                                                                 
+										<div id="compile-editor" class="ace_editor"></div> 
+										<br>                          
+										<div class="form-group">
+											<label>Debug</label>									
+											<select class="form-control" name="ansible_debug" id="ansible_debug">
+												<option value="off" name="ansible_model">关闭</option>	
+												<option value="on" name="ansible_model">开启</option> 	
+											</select>
+										</div> 											                 
+		                                <input  type="hidden"   class="form-control" id="model" name="model" value="model">
+		                                <input  type="hidden"   class="form-control" id="ans_uuid" name="ans_uuid" value="{{ans_uuid}}">  
+                                        <button type="button" class="btn btn-default" onclick="saveAnsibleScript(this)">保存</button>
+                                        <button type="button" class="btn btn-default" onclick="runAnsibleModel(this)">运行</button>		                                   
+		                                                               	
+                                </div>                            
+                                <div class="col-lg-6">
+                                    <legend><i class="fa  fa-paper-plane-o"></i>执行结果</legend>
+									<pre>
+				                        <div id="result">
+				                        </div>
+				                    </pre>                                      
+                                <!-- /.col-lg-6 (nested) -->
+                            </div>
+                            <!-- /.row (nested) -->
+                        </div>
+                        <!-- /.panel-body -->
+                    </div>
+                    <!-- /.panel -->
+                </div>
+                <!-- /.col-lg-12 -->
+            </div>
+</div>
+
+<script type="text/javascript">
+
+function setAceEditMode(model) {
+	var editor = ace.edit("compile-editor");
+	require("ace/ext/old_ie");
+	var langTools = ace.require("ace/ext/language_tools");
+	editor.removeLines();
+	editor.setTheme("ace/theme/monokai");
+	if (model == 'sh'){
+		editor.insert("#!/bin/bash");
+	}
+	else if(model == 'python'){
+		editor.insert("#!/usr/bin/python");
+	}
+	else if(model == 'perl'){
+		editor.insert("#!/usr/bin/perl");
+	}
+	else{
+		editor.insert("#!/bin/bash");
+		var model = 'sh'
+	};
+	editor.getSession().setMode("ace/mode/" + model);
+	editor.setShowPrintMargin(false);
+	editor.setOptions({
+	    enableBasicAutocompletion: true,
+	    enableSnippets: true,
+	    enableLiveAutocompletion: true
+	}); 
+			 
+};
+
+setAceEditMode("sh");
+
+function oBtAnsibleServerl(){
+	   var obj = document.getElementById("server_model"); 
+	   var index = obj.selectedIndex;
+	   var value = obj.options[index].value; 
+	   if (value=="group"){
+		   document.getElementById("group_server").style.display = "";
+		   document.getElementById("service_server").style.display = "none";
+		   document.getElementById("custom_server").style.display = "none";
+	   }
+	   else if (value=="custom"){
+		   document.getElementById("group_server").style.display = "none";
+		   document.getElementById("service_server").style.display = "none";
+		   document.getElementById("custom_server").style.display = "";
+	   }
+	   else {
+		   document.getElementById("group_server").style.display = "none";
+		   document.getElementById("service_server").style.display = "";
+		   document.getElementById("custom_server").style.display = "none"; 
+	   }	
+}
+
+
+
+	
+		
+    
+	function runAnsibleModel(obj) {
+		var btnObj = $(obj);
+		btnObj.attr('disabled',true);
+		var form = document.getElementById('ansibleModelRun');
+		var editor = ace.edit("compile-editor");
+	    var contents = editor.getSession().getValue(); 
+	    if ( contents.length == 0){
+	    	window.wxc.xcConfirm("脚本内容不能为空", window.wxc.xcConfirm.typeEnum.error);
+	    	btnObj.removeAttr('disabled');
+	    	return false;
+	    };		
+		$("#result").html("服务器正在处理，请稍等。。。");
+		var ansible_server = new Array();
+		$("#ansible_server option:selected").each(function(){
+			ansible_server.push($(this).val());
+        });
+		/* 轮训获取结果 开始  */
+ 	   var interval = setInterval(function(){  
+	        $.ajax({  
+	            url : '/apps/run/',  
+	            type : 'post', 
+	            data:$('#ansibleModelRun').serialize(),
+	            success : function(result){
+	            	if (result["msg"] !== null ){
+	            		$("#result").append("<p>"+result["msg"]+"</p>"); 
+	            		if (result["msg"].indexOf("[Done]") == 0){
+	            			clearInterval(interval);
+	            			window.wxc.xcConfirm("Ansible执行完成", window.wxc.xcConfirm.typeEnum.success);
+	            			btnObj.removeAttr('disabled');
+	            		}
+	            	}
+	            },
+		    	error:function(response){
+		    		btnObj.removeAttr('disabled');
+		    		clearInterval(interval);
+		    	}	            
+	        });  
+	    },1000);  
+
+// 	    /* 轮训获取结果结束  */
+		$.ajax({
+			url:'/apps/script/online/', //请求地址
+			type:"POST",  //提交类似
+			data:{
+				'type':'run',
+				'script_name':document.getElementById("script_name").value,
+				'server_model':$('#server_model option:selected').val(),
+				'ansible_service':$('#ansible_service option:selected').val(),
+				'ansible_group':$('#script_auth_group option:selected').val(),
+				'model':document.getElementById("model").value,
+				'ans_uuid':document.getElementById("ans_uuid").value,
+				'script_file':contents,
+				'ansible_debug':document.getElementById("ansible_debug").value,
+				'ansible_server':ansible_server
+			},//$('#ansibleModelRun').serialize() + '&script_file=' + contents,  //不能是被脚本里面的&&符号
+			success:function(response){
+				btnObj.removeAttr('disabled');
+				if (response["code"] == "500"){
+					clearInterval(interval);
+					btnObj.removeAttr('disabled');
+					window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
+				}
+				
+			},
+	    	error:function(response){
+	    		btnObj.removeAttr('disabled');
+	    		window.wxc.xcConfirm("运行失败", window.wxc.xcConfirm.typeEnum.error);
+	    		clearInterval(interval);
+	    	}
+		})	
+	}	
+
+	function saveAnsibleScript(obj){
+		var btnObj = $(obj);
+		btnObj.attr('disabled',true);
+		var form = document.getElementById('ansibleModelRun');
+		var editor = ace.edit("compile-editor");
+	    var contents = editor.getSession().getValue(); 
+	    var script_name = document.getElementById("script_name").value;
+	    if ( contents.length == 0 || script_name.length == 0){
+	    	window.wxc.xcConfirm("脚本内容与名称不能为空", window.wxc.xcConfirm.typeEnum.error);
+	    	btnObj.removeAttr('disabled');
+	    	return false;
+	    };		
+		var ansible_server = new Array();
+		$("#ansible_server option:selected").each(function(){
+			ansible_server.push($(this).val());
+        });
+// 	    /* 轮训获取结果结束  */
+		$.ajax({
+			url:'/apps/script/online/', //请求地址
+			type:"POST",  //提交类似
+			data:{
+				'type':'save',
+				'script_name':document.getElementById("script_name").value,
+				'server_model':$('#server_model option:selected').val(),
+				'ansible_service':$('#ansible_service option:selected').val(),
+				'ansible_group':$('#script_auth_group option:selected').val(),
+				'model':document.getElementById("model").value,
+				'ans_uuid':document.getElementById("ans_uuid").value,
+				'script_file':contents,
+				'ansible_debug':document.getElementById("ansible_debug").value,
+				'ansible_server':ansible_server
+			},//$('#ansibleModelRun').serialize() + '&script_file=' + contents,  //不能是被脚本里面的&&符号
+			success:function(response){
+				btnObj.removeAttr('disabled');
+				if (response["code"] == "500"){
+					window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
+				}
+				else{
+					window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.success);					
+				}
+				
+			},
+	    	error:function(response){
+	    		btnObj.removeAttr('disabled');
+	    		window.wxc.xcConfirm("运行失败", window.wxc.xcConfirm.typeEnum.error);
+	    	}
+		})			
+	}
+{% if errorInfo %}
+	window.wxc.xcConfirm("{{errorInfo}}", window.wxc.xcConfirm.typeEnum.error);
+{% endif %}
+</script>
+
+{% endblock %}

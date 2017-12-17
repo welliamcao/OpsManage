@@ -11,7 +11,8 @@ from django.contrib.auth.models import User,Group
 from OpsManage.models import (Ansible_Playbook,Ansible_Playbook_Number,
                               Log_Ansible_Model,Log_Ansible_Playbook,
                               Ansible_CallBack_Model_Result,Service_Assets,
-                              Ansible_CallBack_PlayBook_Result,Assets)
+                              Ansible_CallBack_PlayBook_Result,Assets,
+                              Ansible_Script)
 from OpsManage.data.DsMySQL import AnsibleRecord
 from django.contrib.auth.decorators import permission_required
 
@@ -207,8 +208,7 @@ def apps_list(request):
             if ds.playbook_auth_group in gList or ds.playbook_auth_user == uid:ds.runid = ds.id
             #如果剧本没有授权默认所有用户都可以使用
             elif ds.playbook_auth_group == 0 and ds.playbook_auth_user == 0:ds.runid = ds.id
-        return render(request,'apps/apps_list.html',{"user":request.user,"playbookList":playbookList,},
-                                  )      
+        return render(request,'apps/apps_list.html',{"user":request.user,"playbookList":playbookList,})      
 
 @login_required()
 @permission_required('OpsManage.can_add_ansible_playbook',login_url='/noperm/')
@@ -492,3 +492,196 @@ def ansible_log_view(request,model,id):
             except Exception,e:
                 return JsonResponse({'msg':"查看失败","code":500,'data':e})               
         return JsonResponse({'msg':"操作成功","code":200,'data':result})
+    
+    
+@login_required()
+@permission_required('OpsManage.can_read_ansible_script',login_url='/noperm/')
+def apps_script_online(request):
+    if request.method == "GET":
+        serverList = Server_Assets.objects.all()
+        groupList = Group.objects.all()
+        serviceList = Service_Assets.objects.all()
+        return render(request,'apps/apps_script_online.html',{"user":request.user,"ans_uuid":uuid.uuid4(),
+                                                            "serverList":serverList,"groupList":groupList,
+                                                            "serviceList":serviceList})
+    elif  request.method == "POST" and request.user.has_perm('OpsManage.can_change_ansible_script'):
+        resource = []
+        sList = []
+        def saveScript(content,filePath):
+            with open(filePath, 'w') as f:
+                f.write(content) 
+            return filePath
+        if request.POST.get('server_model') in ['service','group','custom']:
+            if request.POST.get('server_model') == 'custom':
+                serverList = request.POST.getlist('ansible_server[]')
+                for server in serverList:
+                    server_assets = Server_Assets.objects.get(id=server)
+                    sList.append(server_assets.ip)
+                    if server_assets.keyfile == 1:resource.append({"hostname": server_assets.ip, "port": int(server_assets.port)})
+                    else:resource.append({"hostname": server_assets.ip, "port": int(server_assets.port),"username": server_assets.username,"password": server_assets.passwd})
+            elif request.POST.get('server_model') == 'group':
+                serverList = Assets.objects.filter(group=request.POST.get('ansible_group'))
+                for server in serverList:
+                    try:
+                        sList.append(server.server_assets.ip)
+                    except Exception, ex:
+                        print ex
+                        continue
+                    if server.server_assets.keyfile == 1:resource.append({"hostname": server.server_assets.ip, "port": int(server.server_assets.port)})
+                    else:resource.append({"hostname": server.server_assets.ip, "port": int(server.server_assets.port),"username": server.server_assets.username,"password": server.server_assets.passwd})  
+            elif request.POST.get('server_model') == 'service':
+                serverList = Assets.objects.filter(business=request.POST.get('ansible_service'))
+                for server in serverList:
+                    try:
+                        sList.append(server.server_assets.ip)
+                    except Exception, ex:
+                        print ex
+                        continue                   
+                    if server.server_assets.keyfile == 1:resource.append({"hostname": server.server_assets.ip, "port": int(server.server_assets.port)})
+                    else:resource.append({"hostname": server.server_assets.ip, "port": int(server.server_assets.port),"username": server.server_assets.username,"password": server.server_assets.passwd})   
+                                                        
+            if len(sList) > 0 and request.POST.get('type') == 'run' and request.POST.get('script_file'):
+                filePath = saveScript(content=request.POST.get('script_file'),filePath='/tmp/script-{ram}'.format(ram=uuid.uuid4().hex[0:8]))
+                redisKey = request.POST.get('ans_uuid')
+                logId = AnsibleRecord.Model.insert(user=str(request.user),ans_model='script',ans_server=','.join(sList),ans_args=filePath)
+                DsRedis.OpsAnsibleModel.delete(redisKey)
+                DsRedis.OpsAnsibleModel.lpush(redisKey, "[Start] Ansible Model: {model}  Script:{args}".format(model='script',args=filePath))
+                if request.POST.get('ansible_debug') == 'on':ANS = ANSRunner(resource,redisKey,logId,verbosity=4)
+                else:ANS = ANSRunner(resource,redisKey,logId)
+                ANS.run_model(host_list=sList,module_name='script',module_args=filePath)
+                DsRedis.OpsAnsibleModel.lpush(redisKey, "[Done] Ansible Done.")
+                try:
+                    os.remove(filePath)
+                except Exception, ex:
+                    print ex              
+                return JsonResponse({'msg':"操作成功","code":200,'data':[]})
+            elif request.POST.get('type') == 'save' and request.POST.get('script_file'):
+                fileName = '/upload/scripts/script-{ram}'.format(ram=uuid.uuid4().hex[0:8]) 
+                filePath = os.getcwd() + fileName
+                saveScript(content=request.POST.get('script_file'),filePath=filePath)
+                try:
+                    Ansible_Script.objects.create(
+                                                  script_name=request.POST.get('script_name'),
+                                                  script_uuid=request.POST.get('ans_uuid'),
+                                                  script_server=json.dumps(sList),
+                                                  script_group=request.POST.get('ansible_group'),
+                                                  script_file=fileName,
+                                                  script_service=request.POST.get('ansible_service')
+                                                  )
+                except Exception,ex:
+                    return JsonResponse({'msg':str(ex),"code":500,'data':[]})
+                return JsonResponse({'msg':"保存成功","code":200,'data':[]})
+            else:
+                return JsonResponse({'msg':"操作失败，未选择主机或者脚本内容为空,或者所选分组该没有成员","code":500,'data':[]})
+        else:
+            return JsonResponse({'msg':"操作失败，不支持的操作类型","code":500,'data':[]})
+
+@login_required()
+@permission_required('OpsManage.can_read_ansible_script',login_url='/noperm/')
+def apps_script_list(request):
+    if request.method == "GET":
+        scriptList = Ansible_Script.objects.all()
+        gList = []
+        for group in User.objects.get(username=request.user).groups.values():
+            gList.append(group.get('id'))        
+        for ds in scriptList:
+            #如果用户是超级管理员，设置runid等于项目id 
+            if request.user.is_superuser:ds.runid = ds.id
+            #如果用户在授权组或者是授权用户，设置runid等于项目id 
+            elif ds.script_group in gList:ds.runid = ds.id
+            #如果剧本没有授权默认所有用户都可以使用
+            elif ds.script_group == 0:ds.runid = ds.id
+            ds.script_server = json.loads(ds.script_server)
+        return render(request,'apps/apps_script_list.html',{"user":request.user,"scriptList":scriptList})
+    
+@login_required()
+@permission_required('OpsManage.can_read_ansible_script',login_url='/noperm/')
+def apps_script_file(request,pid):
+    try:
+        script = Ansible_Script.objects.get(id=pid)
+    except:
+        return JsonResponse({'msg':"脚本不存在，可能已经被删除.","code":200,'data':[]})  
+    if request.method == "POST":
+        script_file = os.getcwd()  + str(script.script_file)
+        if os.path.exists(script_file):
+            content = ''
+            with open(script_file,"r") as f:
+                for line in f.readlines(): 
+                    content =  content + line 
+            return JsonResponse({'msg':"脚本获取成功","code":200,'data':content})
+        else:return JsonResponse({'msg':"脚本不存在，可能已经被删除.","code":500,'data':[]})
+        
+@login_required()
+@permission_required('OpsManage.can_change_ansible_playbook',login_url='/noperm/')
+def apps_script_online_run(request,pid):
+    try:
+        script = Ansible_Script.objects.get(id=pid)
+        numberList = json.loads(script.script_server)
+    except:
+        return render(request,'apps/apps_script_modf.html',{"user":request.user,
+                                                         "errorInfo":"剧本不存在，可能已经被删除."}, 
+                                  ) 
+    def saveScript(content,filePath):
+        with open(filePath, 'w') as f:
+            f.write(content) 
+        return filePath         
+    if request.method == "GET":
+        serverList = Server_Assets.objects.all()
+        for ds in serverList:
+            if ds.ip in numberList:ds.count = 1
+            else:ds.count = 0
+        script_file = os.getcwd() + '/' + str(script.script_file)
+        if os.path.exists(script_file):
+            content = ''
+            with open(script_file,"r") as f:
+                for line in f.readlines(): 
+                    content =  content + line 
+            script.script_contents = content
+        groupList = Group.objects.all()
+        userList = User.objects.all()
+        serviceList = Service_Assets.objects.all()        
+        return render(request,'apps/apps_script_modf.html',{"user":request.user,"userList":userList,
+                                                                  "script":script,"serverList":serverList,
+                                                                  "groupList":groupList,"serviceList":serviceList},
+                                  )
+    elif request.method == "POST"and request.user.has_perm('OpsManage.can_change_ansible_script'):
+        resource = []
+        sList = []
+        if request.POST.get('server_model') in ['service','group','custom']:
+            if request.POST.get('server_model') == 'custom':
+                serverList = request.POST.getlist('ansible_server[]')
+                for server in serverList:
+                    server_assets = Server_Assets.objects.get(id=server)
+                    sList.append(server_assets.ip)
+                    if server_assets.keyfile == 1:resource.append({"hostname": server_assets.ip, "port": int(server_assets.port)})
+                    else:resource.append({"hostname": server_assets.ip, "port": int(server_assets.port),"username": server_assets.username,"password": server_assets.passwd})
+            elif request.POST.get('server_model') == 'group':
+                serverList = Assets.objects.filter(group=request.POST.get('ansible_group'))
+                for server in serverList:
+                    sList.append(server.server_assets.ip)
+                    if server.server_assets.keyfile == 1:resource.append({"hostname": server.server_assets.ip, "port": int(server.server_assets.port)})
+                    else:resource.append({"hostname": server.server_assets.ip, "port": int(server.server_assets.port),"username": server.server_assets.username,"password": server.server_assets.passwd})  
+            elif request.POST.get('server_model') == 'service':
+                serverList = Assets.objects.filter(business=request.POST.get('ansible_service'))
+                for server in serverList:
+                    try:
+                        sList.append(server.server_assets.ip)
+                    except Exception, ex:
+                        print ex
+                        continue
+                    if server.server_assets.keyfile == 1:resource.append({"hostname": server.server_assets.ip, "port": int(server.server_assets.port)})
+                    else:resource.append({"hostname": server.server_assets.ip, "port": int(server.server_assets.port),"username": server.server_assets.username,"password": server.server_assets.passwd})     
+            if request.POST.get('type') == 'save' and request.POST.get('script_file'): 
+                filePath = os.getcwd() + '/' + str(script.script_file)
+                saveScript(content=request.POST.get('script_file'),filePath=filePath)
+                try:
+                    Ansible_Script.objects.filter(id=pid).update(
+                                                  script_server=json.dumps(sList),
+                                                  script_group=request.POST.get('ansible_group'),
+                                                  script_service=request.POST.get('ansible_service')
+                                                  )
+                except Exception,ex:
+                    return JsonResponse({'msg':str(ex),"code":500,'data':[]})
+                return JsonResponse({'msg':"保存成功","code":200,'data':[]})    
+        else:
+            return JsonResponse({'msg':"操作失败，不支持的操作类型","code":500,'data':[]})    
