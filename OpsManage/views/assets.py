@@ -475,7 +475,7 @@ def assets_search(request):
             elif a.status == 1:status = '''<td class="text-center"><button  type="button" class="btn btn-outline btn-primary">已下线</button></td>'''
             elif a.status == 2:status = '''<td class="text-center"><button  type="button" class="btn btn-outline btn-warning">维修中</button></td>'''
             elif a.status == 3:status = '''<td class="text-center"><button  type="button" class="btn btn-outline btn-info">已入库</button></td>'''
-            elif a.status == 4:status = '''<td class="text-center">button  type="button" class="btn btn-outline btn-default">未使用</button></td>'''
+            elif a.status == 4:status = '''<td class="text-center"><button  type="button" class="btn btn-outline btn-default">未使用</button></td>'''
             if a.buy_time:buy_time = '''<td class="text-center">{buy_time}</td>'''.format(buy_time=a.buy_time)
             else:buy_time = '''<td class="text-center">{buy_time}</td>'''.format(buy_time=str(a.create_date)[0:10])
             group ='''<td class="text-center">{groupname}</td>'''.format(groupname=Group.objects.get(id=a.group).name)

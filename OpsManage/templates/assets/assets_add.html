@@ -69,7 +69,12 @@
 												 	<input  type="text"  name="asset_expire_date"  class="form-control form_datetime" data-date-format="yyyy-mm-dd" title="例如2016-01-01" required>
 												 </div>
 											</div>															
-														
+											<div class="form-group">
+												 <label class="col-sm-2 control-label">管理IP</label>
+												 <div class="col-sm-6">
+												 	<input type="text" class="form-control" name="asset_management_ip" placeholder="管理/预设IP" value="" pattern="^(\d+\.\d+\.\d+\.\d+|[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(/.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+/.?))$"  class="input-xlarge" />
+												 </div>
+											</div>															
 											<div class="form-group">
 												 <label class="col-sm-2 control-label">购买人</label>
 												 <div class="col-sm-6">
@@ -195,8 +200,6 @@
 													 	<input type="text" class="form-control" name="server_hostname" placeholder="Hostname"  class="input-xlarge" value="" />
 													 </div>
 												</div>																						
-												
-							
 											</div>
 											
 											<div class="form-group">
@@ -440,7 +443,7 @@
 		}
 	}
 	
-
+	var assets = ['asset_assets_type','asset_name','asset_sn','asset_buy_time','asset_buy_user','asset_management_ip','asset_manufacturer','asset_provider','asset_model','asset_status','asset_put_zone','asset_group','asset_business'];
 	function oBtAssetsType() {
 		   var obj = document.getElementById("assets_type_select"); 
 		   var index = obj.selectedIndex;
@@ -449,7 +452,7 @@
 			   document.getElementById("asset_net_chioce").style.display = "none";
 			   document.getElementById("asset_server_chioce").style.display = "";  
 			   document.getElementById("asset_vmserver_chioce").style.display = "";	
-			   assets = ['asset_assets_type','asset_name','asset_sn','asset_buy_time','asset_management_ip','asset_manufacturer','asset_provider','asset_model','asset_status','asset_put_zone','asset_group','asset_business'];
+			   assets = ['asset_assets_type','asset_name','asset_sn','asset_buy_time','asset_buy_user','asset_management_ip','asset_manufacturer','asset_provider','asset_model','asset_status','asset_put_zone','asset_group','asset_business'];
 		   }
 		   else if (value=="vmser"){
 			   document.getElementById("asset_server_chioce").style.display = "";  
@@ -461,7 +464,7 @@
 			   document.getElementById("asset_net_chioce").style.display = "";
 			   document.getElementById("asset_server_chioce").style.display = "none";	
 			   document.getElementById("asset_vmserver_chioce").style.display = "";	
-			   assets = ['asset_assets_type','asset_name','asset_sn','asset_buy_time','asset_management_ip','asset_manufacturer','asset_provider','asset_model','asset_status','asset_put_zone','asset_group','asset_business'];
+			   assets = ['asset_assets_type','asset_name','asset_sn','asset_buy_time','asset_buy_user','asset_management_ip','asset_manufacturer','asset_provider','asset_model','asset_status','asset_put_zone','asset_group','asset_business'];
 		   }
 	}
 
@@ -478,12 +481,12 @@
 	}	
 	
 	function addAssetsData(obj) {
+		console.log(assets);
 		var form = document.getElementById('addAssets');
 		for (var i = 0; i < form.length; ++i) {
 			var name = form[i].name;
 			var value = form[i].value;
 			var assetStart = name.indexOf("asset_");
-			console.log(assets.indexOf(name));
 			if (assetStart==0 && value.length == 0 && assets.indexOf(name)>=0 ){
 				window.wxc.xcConfirm("请注意必填项不能为空~", window.wxc.xcConfirm.typeEnum.error);
 				return false;
@@ -491,7 +494,6 @@
 			
 		};
 		var asset_data = getFormData(document.getElementById('addAssets'),''); 
-/* 		console.log(JSON.stringify(asset_data)); */
 		var btnObj = $(obj);
 		if (asset_data.assets.assets_type=="server" || asset_data.assets.assets_type=="vmser"){
 			var putUrl = '/api/server/';
@@ -511,7 +513,7 @@
 				window.wxc.xcConfirm("资产添加成功", window.wxc.xcConfirm.typeEnum.success);
 			},
 	    	error:function(response){
-	    		window.wxc.xcConfirm("资产添加失败："+response.toJSONString(), window.wxc.xcConfirm.typeEnum.error);
+	    		window.wxc.xcConfirm("资产添加失败：注意资产编号不要重复或者字段类型是否正确", window.wxc.xcConfirm.typeEnum.error);
 	    	}
 		})	
 	}	
