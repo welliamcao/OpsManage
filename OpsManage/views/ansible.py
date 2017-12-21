@@ -162,6 +162,7 @@ def apps_online(request):
             fileName = '/upload/playbook/online-{ram}.yaml'.format(ram=uuid.uuid4().hex[0:8]) 
             filePath = os.getcwd() + fileName
             if request.POST.get('playbook_content'):
+                if os.path.isdir(os.path.dirname(filePath)) is not True:os.makedirs(os.path.dirname(filePath))#判断文件存放的目录是否存在，不存在就创建
                 with open(filePath, 'w') as f:
                     f.write(request.POST.get('playbook_content')) 
             else:
@@ -508,6 +509,7 @@ def apps_script_online(request):
         resource = []
         sList = []
         def saveScript(content,filePath):
+            if os.path.isdir(os.path.dirname(filePath)) is not True:os.makedirs(os.path.dirname(filePath))#判断文件存放的目录是否存在，不存在就创建
             with open(filePath, 'w') as f:
                 f.write(content) 
             return filePath
@@ -622,6 +624,7 @@ def apps_script_online_run(request,pid):
                                                          "errorInfo":"剧本不存在，可能已经被删除."}, 
                                   ) 
     def saveScript(content,filePath):
+        if os.path.isdir(os.path.dirname(filePath)) is not True:os.makedirs(os.path.dirname(filePath))#判断文件存放的目录是否存在，不存在就创建
         with open(filePath, 'w') as f:
             f.write(content) 
         return filePath         

@@ -197,6 +197,10 @@ function oBtAnsibleModel() {
 		   document.getElementById("custom_model").style.display = "";  
 		   document.getElementById("ansible_args").value="";
 	   }
+	   else if(value=="ping"){
+		   document.getElementById("custom_model").style.display = "none";  
+		   document.getElementById("ansible_args").value="";
+	   }	   
 	   else {
 		   document.getElementById("ansible_args").value="";	 
 	   }
