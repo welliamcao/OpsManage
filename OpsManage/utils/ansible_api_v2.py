@@ -369,11 +369,11 @@ class ANSRunner(object):
         self.variable_manager = VariableManager()  
         self.loader = DataLoader()  
         self.options = Options(connection='smart', module_path=None, forks=100, timeout=10,  
-                remote_user='root', ask_pass=False, private_key_file=None, ssh_common_args=None, 
+                remote_user=kwargs.get('remote_user','root'), ask_pass=False, private_key_file=None, ssh_common_args=None, 
                 ssh_extra_args=None,sftp_extra_args=None, scp_extra_args=None, become=None,
-                become_method=None,become_user='root', ask_value_pass=False, 
-                verbosity=kwargs.get('verbosity',None),check=False, listhosts=False,  
-                listtasks=False, listtags=False, syntax=False)  
+                become_method=kwargs.get('become_method',None),become_user=kwargs.get('become_user','root'), 
+                verbosity=kwargs.get('verbosity',None),check=False, listhosts=False,
+                listtasks=False, listtags=False, syntax=False,ask_value_pass=False, )  
   
         self.passwords = dict(sshpass=None, becomepass=None)  
         self.inventory = MyInventory(self.resource, self.loader, self.variable_manager).inventory

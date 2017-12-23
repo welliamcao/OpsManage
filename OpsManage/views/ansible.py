@@ -390,8 +390,8 @@ def apps_playbook_modf(request,pid):
                 Ansible_Playbook_Number.objects.filter(playbook=playbook,playbook_server=ip).delete()  
         else:
             for server in numberList:
-                Ansible_Playbook_Number.objects.filter(playbook=playbook,playbook_server=server.playbook_server).delete()               
-        AnsibleRecord.PlayBook.insert(user=str(request.user),ans_id=playbook.id,ans_name=playbook.playbook_name,ans_content="修改Ansible剧本",ans_server=None)                             
+                Ansible_Playbook_Number.objects.filter(playbook=playbook,playbook_server=server.playbook_server).delete()           
+        AnsibleRecord.PlayBook.insert(user=str(request.user),ans_id=playbook.id,ans_name=playbook.playbook_name,ans_content="修改Ansible剧本",ans_server=','.join(sList))                             
         return HttpResponseRedirect('/apps/playbook/modf/{id}/'.format(id=pid)) 
 
 
@@ -448,7 +448,6 @@ def apps_playbook_online_modf(request,pid):
                     if sip not in tagret_server_list:   
                         Ansible_Playbook_Number.objects.create(playbook=playbook,playbook_server=sip)                        
                 except Exception,e:
-                    print e
                     return render(request,'apps/apps_playbook_modf.html',{"user":request.user,
                                                                         "errorInfo":"目标服务器信息修改错误：%s" % str(e)},
                                               ) 
@@ -459,7 +458,7 @@ def apps_playbook_online_modf(request,pid):
         else:
             for server in numberList:
                 Ansible_Playbook_Number.objects.filter(playbook=playbook,playbook_server=server.playbook_server).delete()               
-        AnsibleRecord.PlayBook.insert(user=str(request.user),ans_id=playbook.id,ans_name=playbook.playbook_name,ans_content="修改Ansible剧本",ans_server=None)                             
+        AnsibleRecord.PlayBook.insert(user=str(request.user),ans_id=playbook.id,ans_name=playbook.playbook_name,ans_content="修改Ansible剧本",ans_server=','.join(sList))                             
         return JsonResponse({'msg':"更新成功","code":200,'data':[]})
     
 @login_required(login_url='/login')  
