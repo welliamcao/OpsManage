@@ -186,7 +186,7 @@ function oBtAnsibleModel() {
 		   document.getElementById("custom_model").style.display = "none";
 	   }	
 	   else if (value=="synchronize"){
-		   document.getElementById("ansible_args").value="src=/root/a dest=/tmp/ compress=yes --exclude=.git";	
+		   document.getElementById("ansible_args").value='src=/root/a dest=/tmp/ compress=yes rsync_opts="--exclude=.git --exclude=static/image"';	
 		   document.getElementById("custom_model").style.display = "none";
 	   }		   
 	   else if (value=="get_url"){
