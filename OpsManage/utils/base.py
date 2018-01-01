@@ -86,4 +86,3 @@ def getDaysAgo(num):
     timeStamp = int(time.mktime(threeDayAgo .timetuple()))
     otherStyleTime = threeDayAgo .strftime("%Y%m%d")
     return otherStyleTime
-

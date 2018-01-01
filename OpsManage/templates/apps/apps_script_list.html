@@ -19,6 +19,7 @@
                             <table width="100%" class="table table-striped table-bordered table-hover" id="deployTableList">
                                 <thead>
                                     <tr>
+                                    	<th class="text-center">脚本Id</th>
                                     	<th class="text-center">脚本名称</th>
                                     	<th class="text-center">脚本uuid</th>
                                         <th class="text-center">脚本文件</th>
@@ -29,6 +30,7 @@
                                 <tbody>
                                 	{% for ds in scriptList %}
                                 		<tr class="odd gradeX">
+                                			<td class="text-center">{{ds.id}} </td>
                                 			<td class="text-center">{{ds.script_name}} </td>
                                 			<td class="text-center">
                                 				{{ds.script_uuid}}

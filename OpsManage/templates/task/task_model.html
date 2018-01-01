@@ -1,0 +1,961 @@
+{% extends 'index.html' %} {% block ace-content %} {% endblock %}
+{%block page-content %}
+<div id="page-wrapper">
+
+	<div class="row">
+		<div class="col-lg-12">
+			<h1 class="page-header">
+				<i class="fa fa-tasks"></i>&nbsp;
+				<code>Celery任务调度配置中心</code>
+			</h1>
+		</div>
+		<!-- /.col-lg-12 -->
+	</div>
+
+
+	<div class="row">
+			<div class="col-lg-6">
+				<div class="panel panel-default">
+					<div class="panel-heading"><i class="fa fa-history"></i> Crontab调度</div>
+					<div class="panel-body">
+						<div class="widget-toolbox padding-8 clearfix">
+
+							<button class="btn btn-xs btn-default pull-left"
+								class="btn btn-primary btn-lg" data-toggle="modal"
+								data-target="#addCrontabModal">
+								<i class="fa fa-plus"></i> <span class="bigger-110"></span>
+							</button>
+						</div>
+						<div>
+							<table class="table table-hover">
+								<thead>
+									<tr>
+										<th class="center">序号</th>
+										<th class="center">分</th>
+										<th class="hidden-xs center">时</th>
+										<th class="hidden-480 center">天</th>
+										<th class="center">周</th>
+										<th class="center">年</th>
+										<th class="center">操作</th>
+									</tr>
+								</thead>
+
+								<tbody>
+									{% for ds in crontabList %}
+									<tr>
+										<td class="center">{{ ds.id }}</td>
+										<td class="center"><a>{{ ds.minute }}</a></td>
+										<td class="hidden-xs center">{{ ds.hour }}</td>
+										<td class="center">{{ ds.day_of_week }}</td>
+										<td class="center">{{ ds.day_of_month }}</td>
+										<td class="center">{{ ds.month_of_year }}</td>
+										<td class="center">
+
+											<button class="btn btn-xs btn-default"
+												onclick="onBtnHandleCrontab(this,'{{ds.id}}','delCrontab')">
+												<i class="fa fa-trash-o"></i>
+											</button>
+										</td>
+									</tr>
+									{% endfor %}
+								</tbody>
+							</table>
+						</div>
+						<div class="hr "></div>
+
+						<div class="row">
+							<div class="col-sm-5 pull-right">
+								<h4 class="pull-right">
+									Total: <span class="red">{{ crontabList|length }}</span>
+								</h4>
+							</div>
+							<div class="col-sm-7 pull-left">汇总信息</div>
+						</div>
+					</div>
+					<div class="panel-footer"></div>
+				</div>
+			</div>
+			<div class="col-lg-6">
+				<div class="panel panel-default">
+					<div class="panel-heading"><i class="fa fa-clock-o"></i> Interval调度</div>
+					<div class="panel-body">
+						<div class="widget-toolbox padding-8 clearfix">
+							<button class="btn btn-xs btn-default pull-left"
+								class="btn btn-primary btn-lg" data-toggle="modal"
+								data-target="#addIntervalModal">
+								<i class="fa fa-plus"></i> <span class="bigger-110"></span>
+							</button>
+						</div>
+						<div>
+							<table class="table table-hover">
+								<thead>
+									<tr>
+										<th class="center">序号</th>
+										<th class="center">间隔</th>
+										<th class="center">类型</th>
+										<th class="center">操作</th>
+									</tr>
+								</thead>
+
+								<tbody>
+									{% for ds in intervalList %}
+									<tr>
+										<td class="center">{{ ds.id }}</td>
+										<td class="center"><a>{{ ds.every }}</a></td>
+										<td class="hidden-xs center">{{ ds.period }}</td>
+										<td class="center">
+
+											<button class="btn btn-xs btn-default"
+												onclick="onBtnHandleCrontab(this,'{{ds.id}}','delInterval')">
+												<i class="fa fa-trash-o"></i>
+											</button>
+										</td>
+									</tr>
+									{% endfor %}
+								</tbody>
+							</table>
+						</div>
+						<div class="hr "></div>
+
+						<div class="row">
+							<div class="col-sm-5 pull-right">
+								<h4 class="pull-right">
+									Total: <span class="red">{{ intervalList|length }}</span>
+								</h4>
+							</div>
+							<div class="col-sm-7 pull-left">汇总信息</div>
+						</div>
+					</div>
+					<div class="panel-footer"></div>
+				</div>
+			</div>
+	</div>
+	
+    <div class="row">
+         <div class="col-lg-12">
+             <div class="panel panel-default">
+                 <div class="panel-heading">
+                    <i class="fa fa-database"></i> 任务列表明细
+                 </div>
+                        <!-- /.panel-heading -->
+             <div class="panel-body">
+                  <table width="100%" class="table table-striped table-bordered table-hover" id="taskTableList">
+					<thead>
+						<tr>
+							<th>
+								<label>
+								<span class="lbl">任务名称</span>
+								</label>
+							</th>
+							<th>函数名</th>
+							<th class="text-center">参数</th>
+							<th>最后运行时间</th>			
+							<th class="text-center">
+								<i class="icon-time bigger-110"></i>
+								运行次数
+							</th>			
+							<th class="text-center">状态</th>			
+							<th class="text-center">操作</th>
+						</tr>
+					</thead>
+                    <tbody>
+						{% for ds in taskList %}
+							<tr>
+								<td>
+									<label>
+									<span class="lbl"></span>
+									</label>
+									<a href="#" data-toggle="modal"  data-target="#addTaskEditModal-{{ds.id}}">
+									{{ ds.name }}
+									</a>
+								</td>
+				
+								<td>
+									{{ ds.task }}									
+								</td>
+								<td class="text-center">
+									<button type="button" class="btn btn-default" title="参数"  
+											data-container="body" data-toggle="popover" data-placement="top" 
+											data-content="
+											{{ ds.kwargs }}
+											" data-html="true" id="taskArgs">
+										<i class="fa fa-search-plus"></i>  
+									</button> 									
+								</td>
+								<td>{{ ds.last_run_at|date:"Y/m/d H:i:s" }}
+								</td>
+								<td class="text-center">
+									<span class="badge badge-warning">
+									{{ ds.total_run_count }}
+									</span>
+								</td>
+								<td class="text-center">
+									{% if ds.enabled == 1 %}
+										<span class="label label-success arrowed">
+											激活
+										</span>													                   
+									{% else %}
+										<span class="label label-danger arrowed">
+											冻结
+										</span>							                   		 
+									{% endif %}																
+																			
+								</td>
+				
+								<td class="text-center">
+	
+									<div>																				
+										<div class="btn-group">	
+											<button type="button" class="btn btn-default" data-toggle="modal" data-target="#addTaskEditModal-{{ds.id}}">
+												<abbr title="編輯任務"><i class="fa fa-edit"></i>
+											</button>
+										</div>
+										<div class="btn-group">	
+											<button type="button" class="btn btn-default" onclick="delTask(this,{{ ds.id}},'{{ds.name}}','delTask')">
+												<abbr title="删除任务"><i class="fa fa-trash"></i>
+											</button>											
+										</div>
+									</div>  																			
+								</td>
+				
+							</tr>
+						{% endfor %}
+                  </tbody>
+                  </table>
+                            <!-- /.table-responsive -->
+                <div class="well">
+                    <a class="btn btn-default btn-lg btn-block" data-toggle="modal"  data-target="#addTaskModal"><i class="fa fa-plus-circle "></i>新建任务</a>
+                </div>
+              </div>
+                        <!-- /.panel-body -->
+           </div>
+                    <!-- /.panel -->
+       </div>
+    </div> 	
+	
+
+	{% for ds in taskList %}
+		<!-- TaskEdit模态框（Modal） -->
+		<div class="modal fade" id="addTaskEditModal-{{ds.id}}" tabindex="-1" role="dialog" aria-labelledby="addTaskEditModalLabel" aria-hidden="true">
+			<div class="modal-dialog" style="width:800px;">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+							&times;
+						</button>
+						<h4 class="modal-title" id="addTaskEditModalLabel">
+							编辑任务
+						</h4>
+					</div>
+					<div class="modal-body">
+						
+						<form class="form-horizontal" id="editTask-{{ds.id}}">
+														
+								<div class="form-group">
+										<label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>任务名*</strong></label>
+											<div class="col-sm-5">
+											<input class="form-control" type="text"   value="{{ds.name}}" placeholder="更新宿主机xxx" name="name" />																				
+										</div>
+								</div>
+
+								
+								<div class="form-group">
+										<label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>任务名*</strong></label>
+							
+											<div class="col-sm-5">
+											<input  type="text" class="form-control"   value="{{ds.task}}" placeholder="更新宿主机xxx" name="task" disabled/>																				
+										</div>
+								</div>
+																	
+
+								<div class="form-group">
+										<label class="col-sm-3 control-label no-padding-right" for="form-field-3"><strong>计划类型</strong></label>
+											<div class="col-sm-5">
+												<select name="crontab" class="form-control">
+													<option value="">选择一个计划任务</option>
+													{% for cron in crontabList %}
+														{% if ds.crontab_id == cron.id %}
+															<option selected="selected" value="{{cron.id}}">{{cron.minute}}&nbsp;{{cron.hour}}&nbsp;{{cron.day_of_week}}&nbsp;{{cron.day_of_month}}&nbsp;{{cron.month_of_year}}</option>
+														{% else %}
+															<option value="{{cron.id}}">{{cron.minute}}&nbsp;{{cron.hour}}&nbsp;{{cron.day_of_week}}&nbsp;{{cron.day_of_month}}&nbsp;{{cron.month_of_year}}</option>
+														{% endif %}
+													{% endfor %}																																								
+												</select>											
+											<div class="space-2"></div>									
+										</div>
+								</div>
+
+								
+								<div class="form-group">
+										<label class="col-sm-3 control-label no-padding-right" for="form-field-3"><strong>间隔类型</strong></label>
+											<div class="col-sm-5">
+												<select name="interval" class="form-control">
+													<option value="">选择一个间隔类型</option>
+													{% for inter in intervalList %}
+														{% if ds.interval_id == inter.id %}
+															<option   selected="selected" value="{{inter.id}}">{{inter.every}}&nbsp;{{inter.period}}</option>
+														{% else %}
+															<option value="{{inter.id}}">{{inter.every}}&nbsp;{{inter.period}}</option>
+														{% endif %}
+													{% endfor %}																																								
+												</select>											
+											<div class="space-2"></div>									
+										</div>
+								</div>
+
+								
+								<div class="form-group">
+										<label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>参数列表</strong></label>
+							
+											<div class="col-sm-5">
+												<input class="form-control" type="text"   value="{{ds.args}}" placeholder='["192.168.1.233"]' name="args" />																														
+										</div>
+								</div>							
+										
+								<div class="form-group">
+										<label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>参数字典</strong></label>							
+											<div class="col-sm-5">
+<!-- 											<input class="form-control" type="text"   value="{{ds.kwargs}}" placeholder='{"key":"value"}' name="kwargs" />	 -->
+											<textarea class="form-control" rows="10" name="kwargs" >{{ds.kwargs}}</textarea>																												
+										</div>
+								</div>
+								<div class="form-group">
+										<label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>队列</strong></label>
+							
+											<div class="col-sm-5">
+											{% if ds.queue %}
+												<input class="form-control" type="text"   value="{{ds.queue}}" placeholder="Queue Name" name="queue" />		
+											{% else %}	
+												<input class="form-control" type="text"   value="" placeholder="Queue Name" name="queue" />	
+											{% endif %}																			
+										</div>
+								</div>	
+								<div class="form-group">
+										<label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>过期时间</strong></label>							
+										<div class="col-sm-5">
+											{% if ds.expires %}
+												<input class="form-control" type="text"   value="{{ds.expires}}" placeholder="2017-01-10 00:00:01" name="expires" />		
+											{% else %}
+												<input class="form-control" type="text"   value="" placeholder="2017-01-10 00:00:01" name="expires" />
+											{% endif %}																			
+										</div>																				
+										
+								</div>	
+								<div class="form-group">
+										<label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>是否激活</strong></label>
+							
+
+										<div class="col-sm-5">
+											<select name="enabled" class="form-control">
+													{% if ds.enabled == 1 %}
+													<option selected="selected" value="1">激活</option>
+													<option value="0">冻结</option>
+													{% else %}
+													<option  value="1">激活</option>
+													<option selected="selected" value="0">冻结</option>
+													{% endif %}																																								
+											</select>																				
+										</div>																				
+										
+								</div>				
+																		
+						</form>	
+						
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">关闭
+						</button>
+						<button type="button" class="btn btn-primary" onclick="editTask(this,{{ds.id}},'editTask')">
+							保存
+						</button>
+					</div>
+				</div><!-- /.modal-content -->
+			</div><!-- /.modal -->
+		</div>
+	{% endfor %}	
+	
+<!-- Task模态框（Modal） -->
+	<div class="modal fade" id="addTaskModal" tabindex="-1" role="dialog" aria-labelledby="addTaskModalLabel" aria-hidden="true">
+		<div class="modal-dialog" style="width:800px;">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+						&times;
+					</button>
+					<h4 class="modal-title" id="addTaskModalLabel">
+						添加任务
+					</h4>
+				</div>
+				<div class="modal-body">
+					
+					<form class="form-horizontal" id="addTask">
+													
+							<div class="form-group">
+									<label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>任务名*</strong></label>
+						
+										<div class="col-sm-5">
+										<input class="form-control" type="text"   value="" placeholder="扩展k8s集群" name="name" />																				
+									</div>
+							</div>
+
+							<div class="form-group">
+									<label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>任务*</strong></label>
+						
+									<div class="col-sm-5">
+										<select name="task" class="form-control">
+											<option value="">选择一个任务</option>
+											{% for ds in regTaskList %}
+												<option value="{{ds}}">{{ds}}</option>
+											{% endfor %}																																								
+										</select>	
+									</div>
+							</div>	
+							<div class="form-group">
+									<label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>调度类型*</strong></label>
+						
+									<div class="col-sm-5">
+										<select id="schetype" onchange="javascript:oBtTaskTypeSelect();" class="form-control">
+											<option value="">选择一个类型</option>
+												<option value="select_crontab">Crontab</option>
+												<option value="select_nterval">Interval</option>																																								
+										</select>	
+									</div>																				
+									
+							</div>	
+							
+							<div class="form-group" style="display: none;" id="div_crontab">
+									<label class="col-sm-3 control-label no-padding-right" for="form-field-3"><strong>计划类型*</strong></label>
+										<div class="col-sm-5">
+											<select name="crontab" class="form-control">
+												<option value="">选择一个计划任务</option>
+												{% for ds in crontabList %}
+													<option value="{{ds.id}}">{{ds.minute}}&nbsp;{{ds.hour}}&nbsp;{{ds.day_of_week}}&nbsp;{{ds.day_of_month}}&nbsp;{{ds.month_of_year}}</option>
+												{% endfor %}																																								
+											</select>											
+										<div class="space-2"></div>									
+									</div>
+							</div>
+							
+							<div class="form-group" style="display: none;" id="div_interval">
+									<label class="col-sm-3 control-label no-padding-right" for="form-field-3"><strong>间隔类型*</strong></label>
+										<div class="col-sm-5">
+											<select name="interval" class="form-control">
+												<option value="">选择一个间隔类型</option>
+												{% for ds in intervalList %}
+													<option value="{{ds.id}}">{{ds.every}}&nbsp;{{ds.period}}</option>
+												{% endfor %}																																								
+											</select>											
+										<div class="space-2"></div>									
+									</div>
+							</div>
+							
+							<div class="form-group">
+									<label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>参数列表</strong></label>
+						
+										<div class="col-sm-5">
+										<input class="form-control" type="text"   value="" placeholder="['192.168.1.233']" name="args" />																				
+									</div>
+							</div>							
+									
+							<div class="form-group">
+									<label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>参数字典</strong></label>
+						
+										<div class="col-sm-5">
+<!-- 										<input class="form-control" type="text"   value="" placeholder="{'key':'value'}" name="kwargs" /> -->	
+										<textarea class="form-control" rows="10" name="kwargs" ></textarea>																			
+									</div>
+							</div>
+							<div class="form-group">
+									<label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>队列</strong></label>
+						
+										<div class="col-sm-5">
+										<input class="form-control" type="text"   value="" placeholder="Queue Name" name="queue" />																				
+									</div>
+							</div>	
+							<div class="form-group">
+									<label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>过期时间</strong></label>
+						
+
+									<div class="col-sm-5">
+										<input class="form-control" type="text"   value="" placeholder="2017-01-10 00:00:01" name="expires" />																				
+									</div>																				
+									
+							</div>	
+							<div class="form-group">
+									<label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>是否激活</strong></label>
+						
+
+									<div class="col-sm-5">
+										<select name="enabled" class="form-control">
+												<option selected="selected" value="1">激活</option>
+												<option value="0">冻结</option>																																								
+										</select>																				
+									</div>																				
+									
+							</div>				
+																	
+					</form>	
+					
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">关闭
+					</button>
+					<button type="button" class="btn btn-primary" onclick="addTask(this,'addTask')">
+						添加
+					</button>
+				</div>
+			</div><!-- /.modal-content -->
+		</div><!-- /.modal -->
+	</div>	
+	
+	<!-- Crontab模态框（Modal） -->
+	<div class="modal fade" id="addCrontabModal" tabindex="-1"
+		role="dialog" aria-labelledby="addCrontabModalLabel"
+		aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal"
+						aria-hidden="true">&times;</button>
+					<h4 class="modal-title" id="addCrontabModalLabel">添加Crontab调度
+					</h4>
+				</div>
+				<div class="modal-body">
+
+					<form class="form-horizontal" id="addCrontab">
+
+						<div class="form-group">
+							<label class="col-sm-3 control-label no-padding-right"
+								for="form-field-4"><strong>分</strong></label>
+
+							<div class="col-sm-3">
+								<input class="form-control" type="text" value="*/5"
+									placeholder="*/5" name="minute" />
+							</div>
+						</div>
+
+						<div class="form-group">
+							<label class="col-sm-3 control-label no-padding-right"
+								for="form-field-4"><strong>时</strong></label>
+
+							<div class="col-sm-3">
+								<input class="form-control" type="text" value="*" placeholder="*"
+									name="hour" />
+							</div>
+						</div>
+						<div class="form-group">
+							<label class="col-sm-3 control-label no-padding-right"
+								for="form-field-4"><strong>周</strong></label>
+
+							<div class="col-sm-3">
+								<input class="form-control" type="text" value="*" placeholder="*"
+									name="day_of_week" />
+							</div>
+						</div>
+						<div class="form-group">
+							<label class="col-sm-3 control-label no-padding-right"
+								for="form-field-4"><strong>月</strong></label>
+
+							<div class="col-sm-3">
+								<input class="form-control" type="text" value="*" placeholder="*"
+									name="day_of_month" />
+							</div>
+						</div>
+
+						<div class="form-group">
+							<label class="col-sm-3 control-label no-padding-right"
+								for="form-field-4"><strong>年</strong></label>
+
+							<div class="col-sm-3">
+								<input class="form-control" type="text" value="*" placeholder="*"
+									name="month_of_year" />
+							</div>
+						</div>
+
+					</form>
+
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">关闭
+					</button>
+					<button type="button" class="btn btn-primary"
+						onclick="addCrontab(this,'addCrontab')">添加</button>
+				</div>
+			</div>
+			<!-- /.modal-content -->
+		</div>
+		<!-- /.modal -->
+	</div>
+
+
+	<!-- Interval模态框（Modal） -->
+	<div class="modal fade" id="addIntervalModal" tabindex="-1"
+		role="dialog" aria-labelledby="addIntervalModalLabel"
+		aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal"
+						aria-hidden="true">&times;</button>
+					<h4 class="modal-title" id="addIntervalModalLabel">
+						添加Interval调度</h4>
+				</div>
+				<div class="modal-body">
+
+					<form class="form-horizontal" id="addInterval">
+
+						<div class="form-group">
+							<label class="col-sm-3 control-label no-padding-right"
+								for="form-field-4"><strong>间隔</strong></label>
+
+							<div class="col-sm-3">
+								<input class="form-control" type="text" value="5" placeholder="*"
+									name="every" />
+							</div>
+						</div>
+
+						<div class="form-group">
+							<label class="col-sm-3 control-label no-padding-right"
+								for="form-field-4"><strong>类型</strong></label>
+
+							<div class="col-sm-3">
+								<select name="period" class="form-control">
+									<option value="seconds" selected="selected">秒</option>
+									<option value="minutes">分钟</option>
+									<option value="hours">小时</option>
+									<option value="days">天</option>
+									<option value="microseconds">毫秒</option>
+								</select>
+							</div>
+						</div>
+
+
+					</form>
+
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">关闭
+					</button>
+					<button type="button" class="btn btn-primary"
+						onclick="addInterval(this,'addInterval')">添加</button>
+				</div>
+			</div>
+			<!-- /.modal-content -->
+		</div>
+		<!-- /.modal -->
+	</div>
+
+
+</div>
+
+
+
+<script type="text/javascript">
+	$(document).ready(function() {
+	    $('#taskTableList').DataTable();
+	} );  
+    $(function () { 
+    	$("[data-toggle='popover']").popover();
+    });	
+    
+    $(function () { 
+    	var kwargs = document.getElementsByName('kwargs');
+    	for (var i=0;i<kwargs.length;i++)
+    	{
+    		try
+    		  {
+    			var songResJson=JSON.parse(kwargs[i].value);
+    			kwargs[i].value = JSON.stringify(songResJson,null,2);
+    		  }
+    		catch(err)
+    		  {
+    			console.log(kwargs[i].value);
+    		  }
+         	
+    	}    	
+    });	
+	
+	function addCrontab(obj, op) {
+		var btnObj = $(obj);
+		btnObj.attr('disabled', true);
+		var server_data = {};
+		var required = [ 'minute', 'hour', "day_of_week", "day_of_month",
+				"month_of_year" ]; /* 必填项列表 */
+		var form = document.getElementById('addCrontab');
+		for (var i = 0; i < form.length; ++i) {
+			var name = form[i].name;
+			var value = form[i].value;
+			idx = $.inArray(name, required);
+			if (idx >= 0 && value.length == 0) {
+				window.wxc.xcConfirm("请注意必填项不能为空~",
+						window.wxc.xcConfirm.typeEnum.error);
+				btnObj.removeAttr('disabled');
+				return false;
+			}
+			;
+			if (value.length != 0 && name.length != 0) {
+				server_data[name] = value;
+			}
+			;
+		}
+		;
+		server_data['op'] = op
+		$.ajax({
+			dataType : "JSON",
+			url : '/task_model/', //请求地址
+			type : "POST", //提交类似
+			data : server_data, //提交参数
+			success : function(response) {
+				btnObj.removeAttr('disabled');
+				if (response["code"] == 200) {
+					window.wxc.xcConfirm(response["msg"],
+							window.wxc.xcConfirm.typeEnum.success);
+					location.reload();
+				} else {
+					window.wxc.xcConfirm(response["msg"],
+							window.wxc.xcConfirm.typeEnum.error);
+				}
+				
+			},
+			error : function(response) {
+				btnObj.removeAttr('disabled');
+				window.wxc.xcConfirm(response["data"],
+						window.wxc.xcConfirm.typeEnum.error);
+			}
+		});
+	}
+
+	function addInterval(obj, op) {
+		var btnObj = $(obj);
+		btnObj.attr('disabled', true);
+		var server_data = {};
+		var required = [ 'every' ]; /* 必填项列表 */
+		var form = document.getElementById('addInterval');
+		for (var i = 0; i < form.length; ++i) {
+			var name = form[i].name;
+			var value = form[i].value;
+			idx = $.inArray(name, required);
+			if (idx >= 0 && value.length == 0) {
+				window.wxc.xcConfirm("请注意必填项不能为空~",
+						window.wxc.xcConfirm.typeEnum.error);
+				btnObj.removeAttr('disabled');
+				return false;
+			}
+			;
+			if (value.length != 0 && name.length != 0) {
+				server_data[name] = value;
+			}
+			;
+		}
+		;
+		server_data['op'] = op
+		$.ajax({
+			dataType : "JSON",
+			url : '/task_model/', //请求地址
+			type : "POST", //提交类似
+			data : server_data, //提交参数
+			success : function(response) {
+				btnObj.removeAttr('disabled');
+				if (response["code"] == 200) {
+					window.wxc.xcConfirm(response["msg"],window.wxc.xcConfirm.typeEnum.success);
+					location.reload();
+				} else {
+					window.wxc.xcConfirm(response["msg"],
+							window.wxc.xcConfirm.typeEnum.error);
+				}
+				
+			},
+			error : function(response) {
+				btnObj.removeAttr('disabled');
+				window.wxc.xcConfirm(response["data"],
+						window.wxc.xcConfirm.typeEnum.error);
+			}
+		});
+	}
+
+	function onBtnHandleCrontab(obj, id, op) {
+		var btnObj = $(obj);
+		var txt = "是否确认删除？";
+		var option = {
+			title : "删除(" + id + ")",
+			btn : parseInt("0011", 2),
+			onOk : function() {
+				$.ajax({
+					type : 'POST',
+					url : '/task_model/',
+					data : {
+						"id" : id,
+						"op" : op,
+					},
+					success : function(response) {
+						if (response["code"] == "200") {
+							window.wxc.xcConfirm(response["msg"],window.wxc.xcConfirm.typeEnum.success);
+							location.reload();
+						} else {
+							window.wxc.xcConfirm(response["msg"],
+									window.wxc.xcConfirm.typeEnum.error);
+						}
+						
+					},
+					error : function(response) {
+						window.wxc.xcConfirm("操作失败",
+								window.wxc.xcConfirm.typeEnum.error);
+					},
+				});
+			},
+			onCancel : function() {
+			},
+			onClose : function() {
+			}
+		}
+		window.wxc.xcConfirm(txt, "custom", option);
+	}
+	
+	
+	function addTask(obj,op) {	
+		var btnObj = $(obj);
+		btnObj.attr('disabled',true);
+			var server_data = {};
+			var form = document.getElementById('addTask');
+			for (var i = 0; i < form.length; ++i) {
+				var name = form[i].name;
+				var value = form[i].value;	
+				idx = $.inArray(name, addTaskrequired);						
+				if (idx >= 0 && value.length == 0){
+					window.wxc.xcConfirm("请注意必填项不能为空~", window.wxc.xcConfirm.typeEnum.error);
+					btnObj.removeAttr('disabled');
+					return false;
+				};	
+				if (  value.length != 0 && name.length != 0 ){
+					server_data[name] = value;
+				};					
+			};				
+			server_data['op'] = op
+			$.ajax({
+				dataType: "JSON",
+				url:'/task_model/', //请求地址
+				type:"POST",  //提交类似
+				data:server_data,  //提交参数
+				success:function(response){
+					btnObj.removeAttr('disabled');
+					if (response["code"] == 200){
+						window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.success);
+						location.reload();
+					}
+					else {
+						window.wxc.xcConfirm(response["data"], window.wxc.xcConfirm.typeEnum.error);
+					}
+					
+				},
+		    	error:function(response){
+		    		btnObj.removeAttr('disabled');
+		    		window.wxc.xcConfirm(response["data"], window.wxc.xcConfirm.typeEnum.error);
+		    	}
+			});	
+		}
+	
+	function editTask(obj,id,op) {	
+		var btnObj = $(obj);
+		btnObj.attr('disabled',true);
+			var server_data = {};
+			var required = ['name','task'];
+			var form = document.getElementById('editTask-'+id);
+			for (var i = 0; i < form.length; ++i) {
+				var name = form[i].name;
+				var value = form[i].value;	
+				idx = $.inArray(name,required);						
+				if (idx >= 0 && value.length == 0){
+					window.wxc.xcConfirm("请注意必填项不能为空~", window.wxc.xcConfirm.typeEnum.error);
+					btnObj.removeAttr('disabled');
+					return false;
+				};	
+				if (  value.length != 0 && name.length != 0 ){
+					server_data[name] = value;
+				};					
+			};				
+			server_data['op'] = op;
+			server_data['id'] = id;
+			if (server_data.hasOwnProperty('crontab') && server_data.hasOwnProperty('interval')){
+				window.wxc.xcConfirm("间隔类型与计划类型不能同时作用于Task", window.wxc.xcConfirm.typeEnum.error);
+				btnObj.removeAttr('disabled');
+				return false;
+			}
+			$.ajax({
+				dataType: "JSON",
+				url:'/task_model/', //请求地址
+				type:"POST",  //提交类似
+				data:server_data,  //提交参数
+				success:function(response){
+					btnObj.removeAttr('disabled');
+					if (response["code"] == 200){
+						window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.success);
+						location.reload();
+					}
+					else {
+						window.wxc.xcConfirm(response["data"], window.wxc.xcConfirm.typeEnum.error);
+					}
+					
+				},
+		    	error:function(response){
+		    		btnObj.removeAttr('disabled');
+		    		window.wxc.xcConfirm(response["data"], window.wxc.xcConfirm.typeEnum.error);
+		    	}
+			});	
+		}
+	
+	
+	function delTask(obj,id,name,op){
+		var btnObj = $(obj);
+		var txt=  "是否确认删除？";	
+		var option = {
+				title: "删除("+name+")",
+				btn: parseInt("0011",2),
+				onOk: function(){
+					$.ajax({
+						  type: 'POST',
+						  url: '/task_model/',
+						  data:{
+								"id":id,
+								"op":op,
+							},
+					      success:function(response){			            
+				                if (response["code"]=="200"){ 
+				                	window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.success);
+				                	location.reload();
+				                }
+					        	else{
+					        		window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
+					        	}						                
+						},
+			            error:function(response){
+			            	window.wxc.xcConfirm("操作失败", window.wxc.xcConfirm.typeEnum.error);
+			            },		
+						});
+				},
+				onCancel:function(){	
+				},
+				onClose:function(){
+				}
+			}			
+		window.wxc.xcConfirm(txt, "custom", option);
+	}	
+	addTaskrequired = ['name','task']; /* 必填项列表 */
+	function oBtTaskTypeSelect() {
+		   var obj = document.getElementById("schetype"); 
+		   var index = obj.selectedIndex;
+		   var value = obj.options[index].value; 
+		   if (value=="select_crontab"){
+			   addTaskrequired = ['name','task',"crontab"]; /* 必填项列表 */
+			   document.getElementById("div_interval").style.display="none";
+			   document.getElementById("div_crontab").style.display="";
+		   }
+		   else if (value=="select_nterval"){
+			   addTaskrequired = ['name','task',"interval"]; /* 必填项列表 */
+			   document.getElementById("div_interval").style.display="";
+			   document.getElementById("div_crontab").style.display="none";
+		   }			   
+	   }
+	
+</script>
+
+{% endblock %}

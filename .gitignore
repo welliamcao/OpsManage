@@ -1,4 +1,5 @@
 *.pyc
+*.pyo
 upload*
 media*
 .DS_Store

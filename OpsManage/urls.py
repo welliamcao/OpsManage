@@ -16,7 +16,7 @@ Including another URLconf
 
 from django.conf.urls import url,include
 from django.contrib import admin
-from OpsManage.views import index,assets,cron,deploy,ansible,users,wssh
+from OpsManage.views import index,assets,cron,deploy,ansible,users,wssh,task
 from rest_framework.urlpatterns import format_suffix_patterns
 from OpsManage.restfull import (assets_api,cron_api,deploy_api,
                                 ansible_api,users_api,logs_api)
@@ -73,6 +73,9 @@ urlpatterns = [
     url(r'^apps/playbook/run/(?P<pid>[0-9]+)/$',ansible.apps_playbook_run),    
     url(r'^apps/playbook/modf/(?P<pid>[0-9]+)/$',ansible.apps_playbook_modf),   
     url(r'^apps/playbook/online/modf/(?P<pid>[0-9]+)/$',ansible.apps_playbook_online_modf),  
+    url(r'^task_model/$',task.task_model),
+    url(r'^task_view/$',task.task_view),
+    url(r'^task_search/$',task.task_search),
     url(r'^users/manage$',users.user_manage),
     url(r'^register/',users.register),
     url(r'^user/(?P<uid>[0-9]+)/$',users.user),

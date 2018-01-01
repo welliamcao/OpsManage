@@ -1006,73 +1006,7 @@
             $(obj).parent().remove();
             changepage(1);
         }
-  
- 	   function assetsUpdate(obj, id,ip,type){
-			var btnObj = $(obj);
-			var txt=  "是否确认更新？";
-			var option = {
-					title: "更新主机("+ip+")硬件信息",
-					btn: parseInt("0011",2),
-					onOk: function(){
-						$.ajax({
-							  type: 'POST',
-							  url: '/assets_facts/',
-							  data:{
-									"ip":ip,
-									"server_id":id,
-									"type":type
-								},
-						      success:function(response){			            
-					                if (response["code"]=="200"){ 
-					                	window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.success);
-
-					                }
-						        	else{
-						        		window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
-						        	}						                
-							},
-				            error:function(response){
-				            	window.wxc.xcConfirm("请求数据错误！", window.wxc.xcConfirm.typeEnum.error);
-				            },		
-							});
-					},
-					onCancel:function(){	
-					},
-					onClose:function(){
-					}
-				}			
-			window.wxc.xcConfirm(txt, "custom", option);
-		}        
- 	   
- 		function deleteAssets(obj,id){
- 			var txt=  "是否确认删除？";
- 			var btnObj = $(obj);
- 			btnObj.attr('disabled',true);
- 			var option = {
- 				title: "删除当前资产",
- 				btn: parseInt("0011",2),
- 				onOk: function(){
- 					$.ajax({
- 						  type: 'DELETE',
- 						  url: '/api/assets/'+id+'/',
- 					      success:function(response){	
- 					    	btnObj.removeAttr('disabled');
- 				            window.wxc.xcConfirm("删除成功", window.wxc.xcConfirm.typeEnum.success);
- 				            location.reload('/assets_list/');
- 					      },
- 			              error:function(response){
- 			            	btnObj.removeAttr('disabled');
- 			            	window.wxc.xcConfirm("删除失败！", window.wxc.xcConfirm.typeEnum.error);	
- 			              }
- 						});
- 				},
- 				onCancel:function(){	
- 				},
- 				onClose:function(){
- 				}
- 			}
- 			window.wxc.xcConfirm(txt, "custom", option);			   
- 		} 	   
+        
 
 </script>
 

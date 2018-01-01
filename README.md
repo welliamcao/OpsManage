@@ -151,7 +151,7 @@ TEMPLATE_DIRS = (
 九、启动部署平台
 ```
 # cd /mnt/OpsManage/
-# python manage.py runserver ip:8000
+# python manage.py runserver 0.0.0.0:8000
 ```
 十、配置证书认证
 ```
@@ -161,10 +161,11 @@ TEMPLATE_DIRS = (
 十一、配置Celery异步任务系统
 ```
 # echo_supervisord_conf > /etc/supervisord.conf
+# export PYTHONOPTIMIZE=1
 # vim /etc/supervisord.conf
 最后添加
 [program:celery-worker]
-command=/usr/bin/python manage.py celery worker --loglevel=info -E -c 2
+command=/usr/bin/python manage.py celery worker --loglevel=info -E
 directory=/mnt/OpsManage
 stdout_logfile=/var/log/celery-worker.log
 autostart=true
@@ -172,6 +173,28 @@ autorestart=true
 redirect_stderr=true
 stopsignal=QUIT
 numprocs=1
+
+[program:celery-beat]
+command=/usr/bin/python manage.py celery beat
+directory=/mnt/OpsManage
+stdout_logfile=/var/log/celery-beat.log
+autostart=true
+autorestart=true
+redirect_stderr=true
+stopsignal=QUIT
+numprocs=1
+
+[program:celery-cam]
+command=/usr/bin/python manage.py celerycam
+directory=/mnt/OpsManage
+stdout_logfile=/var/log/celery-celerycam.log
+autostart=true
+autorestart=true
+redirect_stderr=true
+stopsignal=QUIT
+numprocs=1
+
+
 启动celery
 # /usr/local/bin/supervisord -c /etc/supervisord.conf
 # supervisorctl status

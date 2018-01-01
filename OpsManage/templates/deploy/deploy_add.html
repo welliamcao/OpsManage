@@ -1,143 +1,153 @@
-{% extends 'index.html' %}
+{% extends 'index.html' %} 
 {% block page-content %}
 <div id="page-wrapper">
-    <div class="row">
-         <div class="col-lg-12">
-              <h1 class="page-header"><i class="fa  fa-wrench"></i> 项目配置中心</h1>
-         </div>
-                <!-- /.col-lg-12 -->
-    </div>
 	<div class="row">
-                <div class="col-lg-12">
-                    <div class="panel panel-default">
-                        <div class="panel-heading">
- 						<i class="fa  fa-plus"></i> 添加项目
-                        </div>
-                        <div class="panel-body">
-                            <div class="row">
-                                <div class="col-lg-6">
-                                <legend><i class="fa  fa-paper-plane"></i> 部署服务器</legend>
-                                    <form role="form" method="post">  {% csrf_token %}
-                                        <div class="form-group">
-                                            <label>项目名称</label>
-                                            <input class="form-control" name="project_name" required pattern="^\w+$" title="只支持英文格式">
-                                            <p class="help-block">例如：opsmanage</p>
-                                        </div>
-                                        <div class="form-group">
-                                            <label>项目环境</label>
-                                            <select class="form-control" name="project_env" id='env_type_select' onchange="javascript:oBtEnvType();" required>
-                                            	<option selected="selected" value="">请选择项目环境</option>
-                                            	<option value="sit" name="project_env">测试环境</option>
-                                            	<option value="qa" name="project_env">预生产环境</option>
-                                            	<option value="uat" name="project_env">生产环境</option>
-                                            </select>
-                                        </div>
-                                        <div class="form-group">
-                                            <label>编译命令<i class="fa fa-info-circle" data-toggle="tooltip"  title="如果不为空，在编译之后请手动把要部署的代码复制到{编译之后的代码目录+项目名称}的目录,例如：/data/webserver/project/project/ "></i></label>
-                                            <textarea class="form-control" rows="3" name="project_local_command"></textarea>
-                                        </div>
-                                        <div class="form-group">
-                                            <label>远程仓库类型</label>
-                                            <select class="form-control" name="project_repertory" id="repo_type_select" onchange="javascript:oBtRepoType();" required>
-                                            	<option selected="selected" value="">请选择仓库类型</option>
-                                            	<option value="git" name="project_repertory">Git</option>
-                                            	<option value="svn" name="project_repertory">Svn</option>
-                                            </select>
-                                        </div>                                               
-                                        <div class="form-group">
-                                            <label>仓库地址</label>
-                                            <input class="form-control" name="project_address" required>
-                                            <p class="help-block">例如：https://github.com/welliamcao/VManagePlatform.git</p>
-                                        </div>  
-	                                     <div class="form-group" style="display:none;" id="repo_type">
-	                                            <label>SVN账户/密码<i class="fa fa-info-circle" data-toggle="tooltip"  title="选择svn的账户密码"></i></label>
-												<div class="form-inline from-group">
-													<input type="text" class="form-control" name="project_repo_user" placeholder="请输入账户">
-													<input type="text" class="form-control" name="project_repo_passwd" placeholder="请输入密码">
-												</div>
-	                                     </div>                                          
-                                        <div class="form-group">
-                                            <label>分支/Tag上线<i class="fa fa-info-circle" data-toggle="tooltip"  title="选择用branch还是tag作为版本控制"></i></label>
-                                            <select class="form-control" name="project_model" required>
-                                            	<option selected="selected" value="">选择上线版本控制类型</option>
-                                            	<option value="branch" name="project_model">Branch</option>
-                                            	<option value="tag" name="project_model">Tag</option>
-                                            </select>
-                                        </div>                                         
-                                        <div class="form-group">
-                                            <label>排除文件<i class="fa fa-info-circle" data-toggle="tooltip"  title="项目目录的相对路径"></i></label>
-                                            <textarea class="form-control" rows="3" name="project_exclude"></textarea>
-                                            <p class="help-block">例如：.git,data/upload</p>
-                                        </div>                                          
-                                        <div class="form-group">
-                                            <label>源代码存放地址</label>
-                                            <input class="form-control" name="project_repo_dir" required pattern="^/.*/$" title="正确格式：/path/" >
-                                            <p class="help-block">例如：/data/source_code/project/</p>
-                                        </div>  
-                                        <div class="form-group">
-                                            <label>编译之后的代码目录<i class="fa fa-info-circle" data-toggle="tooltip"  title="真实被同步代码的目录"></i></label>
-                                            <input class="form-control" name="project_dir" required pattern="^/.*/$" title="正确格式：/path/">
-                                            <p class="help-block">例如：/data/webserver/project/</p>
-                                        </div>                                        
-                                        
-                                        <button type="reset" class="btn btn-default">撤销</button>
-                                        <button type="submit" class="btn btn-default">提交</button>
-                                    
-                                </div>
-                                <!-- /.col-lg-6 (nested) -->
-                                <div class="hr hr32 hr-dotted"></div>   
-                                <div class="col-lg-6">
-                                    <legend><i class="fa  fa-paper-plane-o"></i> 目标服务器</legend>
-                                     <div class="form-group">
-                                            <label>目标服务器</label>
-                                            <br>
-                                            <select multiple class="selectpicker" data-live-search="true" name="server" required>
-                                            	{% for ds in serverList %}
-                                            		<option name="server" value="{{ds.id}}">{{ds.ip}}</option>
-                                            	{% endfor %}
-                                            </select>
-                                        </div> 
-                                        <div class="form-group">
-                                            <label>用户<i class="fa fa-info-circle" data-toggle="tooltip"  title="部署服务跟目标服务器都需要创建该用户"></i></label>
-                                            <input class="form-control" name="project_user" required pattern="^\w+$" title="不要输入非法字符">
-                                            <p class="help-block">例如：www</p>
-                                        </div>                                                                              
-                                        <div class="form-group">
-                                            <label>部署目录</label>
-                                            <input class="form-control" name="dir" required pattern="^/.*/$" title="正确格式：/path/">
-                                            <p class="help-block">例如：/var/www/project/</p>
-                                        </div>  
-                                        <div class="form-group">
-                                            <label>部署之后执行的命令</label>
-                                            <textarea class="form-control" rows="3" name="project_remote_command"></textarea>
-                                            <p class="help-block">例如：service nginx restart && service httpd restart</p>
-                                        </div>                                        
-                                </div>
-                                <!-- /.col-lg-6 (nested) -->
-                                <div class="hr hr32 hr-dotted"></div>   
-                                <div class="col-lg-6" id="extConfig" style="display:none;">
-                                    <legend><i class="fa  fa-gears"></i> 扩展配置</legend>
-                                     <div class="form-group">
-                                            <label>部署授权组<i class="fa fa-info-circle" data-toggle="tooltip"  title="选择的用户组能够授权部署工单"></i></label>
-                                            <br>
-                                            <select class="form-control" name="project_audit_group">
-                                            	<option  name="project_audit_group" selected="selected" value="0">选择一个授权组</option>
-                                            	{% for ds in groupList %}
-                                            		<option  name="project_audit_group" value="{{ds.id}}">{{ds.name}}</option>
-                                            	{% endfor %}
-                                            </select>
-                                      </div>                                        
-                                </div>                                
-                               </form> 
-                            </div>
-                            <!-- /.row (nested) -->
-                        </div>
-                        <!-- /.panel-body -->
-                    </div>
-                    <!-- /.panel -->
-                </div>
-                <!-- /.col-lg-12 -->
-            </div>
+		<div class="col-lg-12">
+			<h1 class="page-header">
+				<i class="fa  fa-wrench"></i> 项目配置中心
+			</h1>
+		</div>
+		<!-- /.col-lg-12 -->
+	</div>
+	<div class="row">
+		<div class="col-lg-12">
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<i class="fa  fa-plus"></i> 添加项目
+				</div>
+				<div class="panel-body">
+					<div class="row">
+						<div class="col-lg-6">
+							<legend>
+								<i class="fa  fa-paper-plane"></i> 部署服务器
+							</legend>
+							<form role="form" method="post">
+								{% csrf_token %}
+								<div class="form-group">
+									<label>项目名称</label> 
+									<input class="form-control" name="project_name" required pattern="^\w+$" title="只支持英文格式">
+									<p class="help-block">例如：opsmanage</p>
+								</div>
+								<div class="form-group">
+									<label>项目环境</label> 
+									<select class="form-control" name="project_env" id='env_type_select' onchange="javascript:oBtEnvType();" required>
+										<option selected="selected" value="">请选择项目环境</option>
+										<option value="sit" name="project_env">测试环境</option>
+										<option value="qa" name="project_env">预生产环境</option>
+										<option value="uat" name="project_env">生产环境</option>
+									</select>
+								</div>
+								<div class="form-group">
+									<label>编译命令<i class="fa fa-info-circle" data-toggle="tooltip" title="如果不为空，在编译之后请手动把要部署的代码复制到{编译之后的代码目录+项目名称}的目录,例如：/data/webserver/project/project/ "></i></label>
+									<textarea class="form-control" rows="3" name="project_local_command"></textarea>
+								</div>
+								<div class="form-group">
+									<label>远程仓库类型</label> 
+									<select class="form-control" name="project_repertory" id="repo_type_select" onchange="javascript:oBtRepoType();" required>
+										<option selected="selected" value="">请选择仓库类型</option>
+										<option value="git" name="project_repertory">Git</option>
+										<option value="svn" name="project_repertory">Svn</option>
+									</select>
+								</div>
+								<div class="form-group">
+									<label>仓库地址</label> 
+									<input class="form-control" name="project_address" required>
+									<p class="help-block">例如：https://github.com/welliamcao/VManagePlatform.git</p>
+								</div>
+								<div class="form-group" style="display: none;" id="repo_type">
+									<label>SVN账户/密码<i class="fa fa-info-circle"
+										data-toggle="tooltip" title="选择svn的账户密码"></i></label>
+									<div class="form-inline from-group">
+										<input type="text" class="form-control"
+											name="project_repo_user" placeholder="请输入账户"> <input
+											type="text" class="form-control" name="project_repo_passwd"
+											placeholder="请输入密码">
+									</div>
+								</div>
+								<div class="form-group">
+									<label>分支/Tag上线<i class="fa fa-info-circle" data-toggle="tooltip" title="选择用branch还是tag作为版本控制"></i></label> 
+									<select class="form-control" name="project_model" required>
+										<option selected="selected" value="">选择上线版本控制类型</option>
+										<option value="branch" name="project_model">Branch</option>
+										<option value="tag" name="project_model">Tag</option>
+									</select>
+								</div>
+								<div class="form-group">
+									<label>排除文件<i class="fa fa-info-circle" data-toggle="tooltip" title="项目目录的相对路径"></i></label>
+									<textarea class="form-control" rows="3" name="project_exclude"></textarea>
+									<p class="help-block">例如：.git,data/upload</p>
+								</div>
+								<div class="form-group">
+									<label>源代码存放地址</label> 
+									<input class="form-control" name="project_repo_dir" required pattern="^/.*/$" title="正确格式：/path/">
+									<p class="help-block">例如：/data/source_code/project/</p>
+								</div>
+								<div class="form-group">
+									<label>编译之后的代码目录<i class="fa fa-info-circle" data-toggle="tooltip" title="真实被同步代码的目录"></i></label> 
+									<input class="form-control" name="project_dir" required pattern="^/.*/$" title="正确格式：/path/">
+									<p class="help-block">例如：/data/webserver/project/</p>
+								</div>
+
+								<button type="reset" class="btn btn-default">撤销</button>
+								<button type="submit" class="btn btn-default">提交</button>
+						</div>
+						<!-- /.col-lg-6 (nested) -->
+						<div class="hr hr32 hr-dotted"></div>
+						<div class="col-lg-6">
+							<legend>
+								<i class="fa  fa-paper-plane-o"></i> 目标服务器
+							</legend>
+							<div class="form-group">
+								<label>目标服务器</label> <br> 
+								<select multiple class="selectpicker" data-live-search="true" name="server" required> 
+									{% for ds in serverList %}
+										<option name="server" value="{{ds.id}}">{{ds.ip}}</option> 
+									{% endfor %}
+								</select>
+							</div>
+							<div class="form-group">
+								<label>用户<i class="fa fa-info-circle"
+									data-toggle="tooltip" title="部署服务跟目标服务器都需要创建该用户"></i></label> <input
+									class="form-control" name="project_user" required
+									pattern="^\w+$" title="不要输入非法字符">
+								<p class="help-block">例如：www</p>
+							</div>
+							<div class="form-group">
+								<label>部署目录</label> <input class="form-control" name="dir" required pattern="^/.*/$" title="正确格式：/path/">
+								<p class="help-block">例如：/var/www/project/</p>
+							</div>
+							<div class="form-group">
+								<label>部署之后执行的命令</label>
+								<textarea class="form-control" rows="3" name="project_remote_command"></textarea>
+								<p class="help-block">例如：service nginx restart && service httpd restart</p>
+							</div>
+						</div>
+						<!-- /.col-lg-6 (nested) -->
+						<div class="hr hr32 hr-dotted"></div>
+						<div class="col-lg-6" id="extConfig" style="display: none;">
+							<legend>
+								<i class="fa  fa-gears"></i> 扩展配置
+							</legend>
+							<div class="form-group">
+								<label>部署授权组<i class="fa fa-info-circle" data-toggle="tooltip" title="选择的用户组能够授权部署工单"></i></label> <br>
+								<select class="form-control" name="project_audit_group">
+									<option name="project_audit_group" selected="selected" value="0">选择一个授权组</option> 
+									{% for ds in groupList %}
+										<option name="project_audit_group" value="{{ds.id}}">{{ds.name}}</option>
+									{% endfor %}
+								</select>
+							</div>
+						</div>
+						</form>
+					</div>
+					<!-- /.row (nested) -->
+				</div>
+				<!-- /.panel-body -->
+			</div>
+			<!-- /.panel -->
+		</div>
+		<!-- /.col-lg-12 -->
+	</div>
 </div>
 
 <script type="text/javascript">

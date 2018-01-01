@@ -28,8 +28,7 @@ class MyInventory(Inventory):
                     "vars": {"var1": value1, "var2": value2, ...} 
                 } 
             } 
- 
-                     如果你只传入1个列表，这默认该列表内的所有主机属于my_group组,比如 
+                                         如果你只传入1个列表，这默认该列表内的所有主机属于my_group组,比如 
             [{"hostname": "10.0.0.0", "port": "22", "username": "test", "password": "pass"}, ...] 
         """  
         self.resource = resource  
@@ -117,8 +116,8 @@ class ModelResultsCollectorToSave(CallbackBase):
         for remove_key in ('changed', 'invocation'):
             if remove_key in result._result:
                 del result._result[remove_key] 
-        data = "{host} | UNREACHABLE! => {stdout}".format(host=result._host.get_name(),stdout=json.dumps(result._result,indent=4))        
-        DsRedis.OpsAnsibleModel.lpush(self.redisKey,data) 
+        data = "{host} | UNREACHABLE! => {stdout}".format(host=result._host.get_name(),stdout=json.dumps(result._result,indent=4))    
+        if self.redisKey:DsRedis.OpsAnsibleModel.lpush(self.redisKey,data) 
         if self.logId:AnsibleSaveResult.Model.insert(self.logId, data)
    
         
@@ -130,7 +129,7 @@ class ModelResultsCollectorToSave(CallbackBase):
             data = "{host} | SUCCESS | rc={rc} >> \n{stdout}".format(host=result._host.get_name(),rc=result._result.get('rc'),stdout=result._result.get('stdout'))
         else:
             data = "{host} | SUCCESS >> {stdout}".format(host=result._host.get_name(),stdout=json.dumps(result._result,indent=4))
-        DsRedis.OpsAnsibleModel.lpush(self.redisKey,data)
+        if self.redisKey:DsRedis.OpsAnsibleModel.lpush(self.redisKey,data)
         if self.logId:AnsibleSaveResult.Model.insert(self.logId, data)
   
     def v2_runner_on_failed(self, result,  *args, **kwargs):  
@@ -141,7 +140,7 @@ class ModelResultsCollectorToSave(CallbackBase):
             data = "{host} | FAILED | rc={rc} >> \n{stdout}".format(host=result._host.get_name(),rc=result._result.get('rc'),stdout=result._result.get('stdout'))
         else:
             data = "{host} | FAILED! => {stdout}".format(host=result._host.get_name(),stdout=json.dumps(result._result,indent=4))
-        DsRedis.OpsAnsibleModel.lpush(self.redisKey,data)
+        if self.redisKey:DsRedis.OpsAnsibleModel.lpush(self.redisKey,data)
         if self.logId:AnsibleSaveResult.Model.insert(self.logId, data)
 
 
@@ -174,7 +173,7 @@ class PlayBookResultsCollectorToSave(CallbackBase):
                 msg = "ok: [%s -> %s]" % (result._host.get_name(), delegated_vars['ansible_host'])
             else:
                 msg = "ok: [%s]" % result._host.get_name()  
-        DsRedis.OpsAnsiblePlayBook.lpush(self.redisKey,msg)
+        if self.redisKey:DsRedis.OpsAnsiblePlayBook.lpush(self.redisKey,msg)
         if self.logId:AnsibleSaveResult.PlayBook.insert(self.logId, msg)    
         
         
@@ -185,25 +184,25 @@ class PlayBookResultsCollectorToSave(CallbackBase):
             msg = "fatal: [{host} -> {delegated_vars}]: FAILED! => {msg}".format(host=result._host.get_name(),delegated_vars=delegated_vars['ansible_host'],msg=json.dumps(result._result))
         else: 
             msg = "fatal: [{host}]: FAILED! => {msg}".format(host=result._host.get_name(),msg=json.dumps(result._result))
-        DsRedis.OpsAnsiblePlayBook.lpush(self.redisKey,msg) 
+        if self.redisKey:DsRedis.OpsAnsiblePlayBook.lpush(self.redisKey,msg) 
         if self.logId:AnsibleSaveResult.PlayBook.insert(self.logId, msg)
         
     def v2_runner_on_unreachable(self, result):
         self.task_unreachable[result._host.get_name()] = result._result
         msg = "fatal: [{host}]: UNREACHABLE! => {msg}\n".format(host=result._host.get_name(),msg=json.dumps(result._result))        
-        DsRedis.OpsAnsiblePlayBook.lpush(self.redisKey,msg)  
+        if self.redisKey:DsRedis.OpsAnsiblePlayBook.lpush(self.redisKey,msg)  
         if self.logId:AnsibleSaveResult.PlayBook.insert(self.logId, msg)   
    
     def v2_runner_on_changed(self, result):
         self.task_changed[result._host.get_name()] = result._result
         msg = "changed: [{host}]\n".format(host=result._host.get_name())
-        DsRedis.OpsAnsiblePlayBook.lpush(self.redisKey,msg)
+        if self.redisKey:DsRedis.OpsAnsiblePlayBook.lpush(self.redisKey,msg)
         if self.logId:AnsibleSaveResult.PlayBook.insert(self.logId, msg)
         
     def v2_runner_on_skipped(self, result):
         self.task_ok[result._host.get_name()]  = result._result
         msg = "skipped: [{host}]\n".format(host=result._host.get_name())
-        DsRedis.OpsAnsiblePlayBook.lpush(self.redisKey,msg)
+        if self.redisKey:DsRedis.OpsAnsiblePlayBook.lpush(self.redisKey,msg)
         if self.logId:AnsibleSaveResult.PlayBook.insert(self.logId, msg)
 
     def v2_playbook_on_play_start(self, play):
@@ -213,13 +212,13 @@ class PlayBookResultsCollectorToSave(CallbackBase):
         else:
             msg = u"PLAY [%s] " % name
         if len(msg) < 80:msg = msg + '*'*(79-len(msg))
-        DsRedis.OpsAnsiblePlayBook.lpush(self.redisKey,msg)
+        if self.redisKey:DsRedis.OpsAnsiblePlayBook.lpush(self.redisKey,msg)
         if self.logId:AnsibleSaveResult.PlayBook.insert(self.logId, msg)
         
     def _print_task_banner(self, task):
         msg = "\nTASK [%s] " % (task.get_name().strip())
         if len(msg) < 80:msg = msg + '*'*(80-len(msg))
-        DsRedis.OpsAnsiblePlayBook.lpush(self.redisKey,msg)
+        if self.redisKey:DsRedis.OpsAnsiblePlayBook.lpush(self.redisKey,msg)
         if self.logId:AnsibleSaveResult.PlayBook.insert(self.logId, msg)
 #         args = ''
 #         if not task.no_log and C.DISPLAY_ARGS_TO_STDOUT:
@@ -233,17 +232,17 @@ class PlayBookResultsCollectorToSave(CallbackBase):
 
     def v2_playbook_on_cleanup_task_start(self, task):
         msg = "CLEANUP TASK [%s]" % task.get_name().strip()
-        DsRedis.OpsAnsiblePlayBook.lpush(self.redisKey,msg)
+        if self.redisKey:DsRedis.OpsAnsiblePlayBook.lpush(self.redisKey,msg)
         if self.logId:AnsibleSaveResult.PlayBook.insert(self.logId, msg)
 
     def v2_playbook_on_handler_task_start(self, task):
         msg = "RUNNING HANDLER [%s]" % task.get_name().strip()
-        DsRedis.OpsAnsiblePlayBook.lpush(self.redisKey,msg)
+        if self.redisKey:DsRedis.OpsAnsiblePlayBook.lpush(self.redisKey,msg)
         if self.logId:AnsibleSaveResult.PlayBook.insert(self.logId, msg)
         
     def v2_playbook_on_stats(self, stats):
         msg = "\nPLAY RECAP *********************************************************************"
-        DsRedis.OpsAnsiblePlayBook.lpush(self.redisKey,msg)
+        if self.redisKey:DsRedis.OpsAnsiblePlayBook.lpush(self.redisKey,msg)
         hosts = sorted(stats.processed.keys())
         for h in hosts:
             t = stats.summarize(h)
@@ -259,7 +258,7 @@ class PlayBookResultsCollectorToSave(CallbackBase):
                                                                                                               unreachable=t['unreachable'],
                                                                                                               skipped=t["skipped"],failed=t['failures']
                                                                                                               )
-            DsRedis.OpsAnsiblePlayBook.lpush(self.redisKey,msg)
+            if self.redisKey:DsRedis.OpsAnsiblePlayBook.lpush(self.redisKey,msg)
             if self.logId:AnsibleSaveResult.PlayBook.insert(self.logId, msg)
 
             
@@ -278,7 +277,7 @@ class PlayBookResultsCollectorToSave(CallbackBase):
         msg += " => (item=%s)" % (json.dumps(self._get_item(result._result)))
         if (self._display.verbosity > 0 or '_ansible_verbose_always' in result._result) and not '_ansible_verbose_override' in result._result:
             msg += " => %s" % json.dumps(result._result)
-        DsRedis.OpsAnsiblePlayBook.lpush(self.redisKey,msg)
+        if self.redisKey:DsRedis.OpsAnsiblePlayBook.lpush(self.redisKey,msg)
         if self.logId:AnsibleSaveResult.PlayBook.insert(self.logId, msg)
 
     def v2_runner_item_on_failed(self, result):
@@ -289,14 +288,14 @@ class PlayBookResultsCollectorToSave(CallbackBase):
         else:
             msg += "[%s]" % (result._host.get_name())
         msg = msg + " (item=%s) => %s\n" % (self._get_item(json.dumps(result._result)), json.dumps(result._result)),
-        DsRedis.OpsAnsiblePlayBook.lpush(self.redisKey,msg)
+        if self.redisKey:DsRedis.OpsAnsiblePlayBook.lpush(self.redisKey,msg)
         if self.logId:AnsibleSaveResult.PlayBook.insert(self.logId, msg)
 
     def v2_runner_item_on_skipped(self, result):
         msg = "skipping: [%s] => (item=%s) " % (result._host.get_name(), self._get_item(result._result))
         if (self._display.verbosity > 0 or '_ansible_verbose_always' in result._result) and not '_ansible_verbose_override' in result._result:
             msg += " => %s" % json.dumps(result._result)
-        DsRedis.OpsAnsiblePlayBook.lpush(self.redisKey,msg)
+        if self.redisKey:DsRedis.OpsAnsiblePlayBook.lpush(self.redisKey,msg)
         if self.logId:AnsibleSaveResult.PlayBook.insert(self.logId, msg)
 
     def v2_runner_retry(self, result):
@@ -304,7 +303,7 @@ class PlayBookResultsCollectorToSave(CallbackBase):
         msg = "FAILED - RETRYING: %s (%d retries left)." % (task_name, result._result['retries'] - result._result['attempts'])
         if (self._display.verbosity > 2 or '_ansible_verbose_always' in result._result) and not '_ansible_verbose_override' in result._result:
             msg += "Result was: %s" % json.dumps(result._result,indent=4)
-        DsRedis.OpsAnsiblePlayBook.lpush(self.redisKey,msg)
+        if self.redisKey:DsRedis.OpsAnsiblePlayBook.lpush(self.redisKey,msg)
         if self.logId:AnsibleSaveResult.PlayBook.insert(self.logId, msg)
 
 class PlayBookResultsCollector(CallbackBase):  
@@ -316,6 +315,7 @@ class PlayBookResultsCollector(CallbackBase):
         self.task_failed = {}  
         self.task_status = {} 
         self.task_unreachable = {}
+        self.task_changed = {}
 
     def v2_runner_on_ok(self, result, *args, **kwargs):
         self.task_ok[result._host.get_name()]  = result
@@ -328,6 +328,9 @@ class PlayBookResultsCollector(CallbackBase):
 
     def v2_runner_on_skipped(self, result):
         self.task_ok[result._host.get_name()]  = result
+
+    def v2_runner_on_changed(self, result):
+        self.task_changed[result._host.get_name()] = result
 
     def v2_playbook_on_stats(self, stats):
         hosts = sorted(stats.processed.keys())
@@ -357,7 +360,6 @@ class ANSRunner(object):
         self.results_raw = {}  
         self.redisKey = redisKey
         self.logId = logId
-         
   
     def __initializeData(self,kwargs):
         """ 初始化ansible """  
@@ -394,7 +396,7 @@ class ANSRunner(object):
          
         play = Play().load(play_source, variable_manager=self.variable_manager, loader=self.loader)  
         tqm = None  
-        if self.redisKey:self.callback = ModelResultsCollectorToSave(self.redisKey,self.logId)  
+        if self.redisKey or self.logId:self.callback = ModelResultsCollectorToSave(self.redisKey,self.logId)  
         else:self.callback = ModelResultsCollector()  
         try:  
             tqm = TaskQueueManager(  
@@ -408,20 +410,21 @@ class ANSRunner(object):
             constants.HOST_KEY_CHECKING = False #关闭第一次使用ansible连接客户端是输入命令
             tqm.run(play)  
         except Exception as err: 
-            DsRedis.OpsAnsibleModel.lpush(self.redisKey,data=err)
+            if self.redisKey:DsRedis.OpsAnsibleModel.lpush(self.redisKey,data=err)
             if self.logId:AnsibleSaveResult.Model.insert(self.logId, err)              
         finally:  
             if tqm is not None:  
                 tqm.cleanup()  
   
-    def run_playbook(self, host_list, playbook_path,extra_vars=None): 
+    def run_playbook(self, host_list, playbook_path,extra_vars=dict()): 
         """ 
         run ansible palybook 
         """         
         try: 
-            if self.redisKey:self.callback = PlayBookResultsCollectorToSave(self.redisKey,self.logId)  
+            if self.redisKey or self.logId:self.callback = PlayBookResultsCollectorToSave(self.redisKey,self.logId)  
             else:self.callback = PlayBookResultsCollector()  
-            if extra_vars:self.variable_manager.extra_vars = extra_vars 
+            extra_vars['host'] = ','.join(host_list)
+            self.variable_manager.extra_vars = extra_vars            
             executor = PlaybookExecutor(  
                 playbooks=[playbook_path], inventory=self.inventory, variable_manager=self.variable_manager, loader=self.loader,  
                 options=self.options, passwords=self.passwords,  
@@ -430,7 +433,8 @@ class ANSRunner(object):
             constants.HOST_KEY_CHECKING = False #关闭第一次使用ansible连接客户端是输入命令
             executor.run()  
         except Exception as err: 
-            DsRedis.OpsAnsibleModel.lpush(self.redisKey,data=err)
+            print err
+            if self.redisKey:DsRedis.OpsAnsibleModel.lpush(self.redisKey,data=err)
             if self.logId:AnsibleSaveResult.Model.insert(self.logId, err)            
             return False
             
