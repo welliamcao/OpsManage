@@ -360,7 +360,7 @@
 					onOk: function(){
 						$.ajax({
 							  type: 'POST',
-							  url: '/deploy_order/',
+							  url: '/deploy_order/' + id + '/',
 							  data: {
 								  "id":id,
 								  "model":model,
@@ -369,14 +369,16 @@
 						      success:function(response){			            
 					                if (response["code"]=="200"){ 
 					                	window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.success);
+					                	location.reload();
 					                }
 						        	else{
 						        		window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
-						        	}			                
+						        	}	
+					                
 							},
 				            error:function(response){
 				            	window.wxc.xcConfirm("请求数据错误！", window.wxc.xcConfirm.typeEnum.error);
-				            },							  
+				            },
 							});
 					},
 					onCancel:function(){	

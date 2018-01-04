@@ -215,12 +215,14 @@
                             </ul>
                             <!-- /.nav-second-level -->
                         </li>
+                        {% if user.is_superuser %}
 						<li><a href="#"><i class="fa fa-tasks fa-fw"></i> 任务调度<span
 								class="fa arrow"></span></a>
 							<ul class="nav nav-second-level">
 								<li><a href="/task_model/">调度类型</a></li>
 								<li><a href="/task_view/">运行日志</a></li>
-							</ul> <!-- /.nav-second-level --></li>                        
+							</ul> <!-- /.nav-second-level --></li>     
+						{% endif %}                   
                         <li>
                             <a href="/config"><i class="fa fa-wrench fa-fw"></i> 全局配置</a>
                         </li>                           
