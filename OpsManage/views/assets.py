@@ -258,6 +258,7 @@ def assets_import(request):
     if request.method == "POST":
         f = request.FILES.get('import_file')
         filename = os.path.join(os.getcwd() + '/upload/',f.name)
+        if os.path.isdir(os.path.dirname(filename)) is not True:os.makedirs(os.path.dirname(filename))
         fobj = open(filename,'wb')
         for chrunk in f.chunks():
             fobj.write(chrunk)

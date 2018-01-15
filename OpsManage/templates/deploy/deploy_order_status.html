@@ -265,7 +265,7 @@
 				onOk: function(){
 					$.ajax({
 						  type: 'POST',
-						  url: '/deploy_order/',
+						  url: '/deploy_order/1/',
 						  data: {
 							  "id":id,
 							  "model":model,
@@ -301,7 +301,7 @@
 					};
 					$.ajax({
 						  type: 'POST',
-						  url: '/deploy_order/',
+						  url: '/deploy_order/1/',
 						  data: {
 							  "model":model,
 							  'order_cancel':result,
@@ -333,7 +333,7 @@
 	function finishDeploy(obj){
 		$.ajax({
 		  type: 'POST',
-		  url: '/deploy_order/',
+		  url: '/deploy_order/1/',
 		  data: {
 			  "id":{{order.id}},
 			  "model":'finish',
@@ -393,7 +393,7 @@
 	            			if (noDeployServer.length == 0){
 	            				$.ajax({
 	            					  type: 'POST',
-	            					  url: '/deploy_order/',
+	            					  url: '/deploy_order/1/',
 	            					  data: {
 	            						  "id":{{order.id}},
 	            						  "model":'finish',
