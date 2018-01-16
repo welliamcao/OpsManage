@@ -13,7 +13,7 @@ https://docs.djangoproject.com/en/1.9/ref/settings/
 import os
 import djcelery
 from celery import  platforms
-
+from kombu import Queue,Exchange
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -21,10 +21,8 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 djcelery.setup_loader()
 BROKER_URL = 'redis://192.168.88.233:6379/4'
 CELERY_RESULT_BACKEND = 'djcelery.backends.database.DatabaseBackend'
-# CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TASK_SERIALIZER='pickle'
-# CELERY_RESULT_SERIALIZER='json'
 CELERY_ACCEPT_CONTENT = ['pickle','json']
 CELERYBEAT_SCHEDULER = 'djcelery.schedulers.DatabaseScheduler'
 CELERY_TASK_RESULT_EXPIRES = 60 * 60 * 24
@@ -32,6 +30,22 @@ CELERYD_MAX_TASKS_PER_CHILD = 40
 CELERY_TRACK_STARTED = True
 CELERY_TIMEZONE='Asia/Shanghai'
 platforms.C_FORCE_ROOT = True
+
+#celery route config
+CELERY_IMPORTS = ("OpsManage.tasks")
+CELERY_QUEUES = (
+    Queue('default',Exchange('default'),routing_key='default'),
+    Queue('ansible',Exchange('ansible'),routing_key='ansible'),
+)
+CELERY_ROUTES = {
+    'OpsManage.tasks.AnsibleScripts':{'queue':'ansible','routing_key':'ansible'},
+    'OpsManage.tasks.AnsiblePlayBook':{'queue':'ansible','routing_key':'ansible'},
+}
+CELERY_DEFAULT_QUEUE = 'default'
+CELERY_DEFAULT_EXCHANGE_TYPE = 'direct'
+CELERY_DEFAULT_ROUTING_KEY = 'default'
+
+
 
 REDSI_KWARGS_LPUSH = {"host":'192.168.88.233','port':6379,'db':3}
 REDSI_LPUSH_POOL = None

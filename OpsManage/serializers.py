@@ -153,4 +153,34 @@ class DeployOrderSerializer(serializers.ModelSerializer):
         fields = ('id','order_project','order_subject','order_content',
                   'order_branch','order_comid','order_tag','order_audit',
                   'order_status','order_level','order_cancel','create_time',
-                  'order_user')     
+                  'order_user')   
+        
+class InceptionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Inception_Server_Config
+        fields = ('id','db_name','db_host','db_user','db_passwd','db_port',
+                  'db_backup_host','db_backup_user','db_backup_port',
+                  'db_backup_passwd')   
+
+class AuditSqlOrderSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SQL_Audit_Order
+        fields = ('id','order_desc','order_status','order_cancel')         
+        
+class DataBaseServerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DataBase_Server_Config
+        fields = ('id','db_env','db_name','db_host','db_user',
+                  'db_passwd','db_port','db_mark','db_service',
+                  'db_group')  
+        
+        
+class CustomSQLSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Custom_High_Risk_SQL
+        fields = ('id','sql')
+        
+class HistroySQLSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SQL_Execute_Histroy
+        fields = ('id','exe_sql','exe_user','exec_status','exe_result')

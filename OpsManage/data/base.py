@@ -6,9 +6,14 @@
 '''
 import redis
 from django.conf import settings
+import MySQLdb  
+from MySQLdb.cursors import DictCursor  
+from DBUtils.PooledDB import PooledDB  
+
 
 class APBase(object):
     REDSI_POOL = 10000
+    _POOLS = dict()
     
     @staticmethod
     def getRedisConnection(db):
@@ -20,3 +25,101 @@ class APBase(object):
             pools = settings.REDSI_LPUSH_POOL  
         connection = redis.Redis(connection_pool=pools)
         return connection
+
+   
+class MySQLPool(APBase): 
+    def __init__(self,host,port,user,passwd,dbName,):
+        self.poolKeys = host+dbName+str(port)
+        if self.poolKeys not in MySQLPool._POOLS.keys():  
+            self._conn = self._getTupleConn(host,port,user,passwd,dbName)  
+            MySQLPool._POOLS[self.poolKeys] = self._conn
+        self._conn = MySQLPool._POOLS.get(self.poolKeys)
+        self._cursor = MySQLPool._POOLS.get(self.poolKeys).cursor()          
+ 
+    def _getDictConn(self,host,port,user,passwd,dbName):
+        '''返回字典类型结果集'''   
+        if APBase._POOLS.get(self.poolKeys) is None:
+            try:
+                pool = PooledDB(creator=MySQLdb, mincached=1 , maxcached=20 ,  
+                                      host=host , port=port , user=user , passwd=passwd ,  
+                                      db=dbName,use_unicode=False,charset='utf8',
+                                      cursorclass=DictCursor)  
+                APBase._POOLS[self.poolKeys] = pool   
+                return APBase._POOLS.get(self.poolKeys).connection()  
+            except Exception, ex:
+                return str(ex)
+            
+    def _getTupleConn(self,host,port,user,passwd,dbName):
+        '''返回列表类型结果集'''   
+        if APBase._POOLS.get(self.poolKeys) is None:
+            try:
+                pool = PooledDB(creator=MySQLdb, mincached=1 , maxcached=20 ,  
+                                      host=host , port=port , user=user , passwd=passwd ,  
+                                      db=dbName,use_unicode=False,charset='utf8')  
+                APBase._POOLS[self.poolKeys] = pool   
+                return APBase._POOLS.get(self.poolKeys).connection()  
+            except Exception, ex:
+                return str(ex)
+   
+    def queryAll(self,sql):  
+        try: 
+            count = self._cursor.execute(sql)   
+            result = self._cursor.fetchall()   
+            return (count,result)  
+        except Exception,ex:
+            return str(ex)
+
+   
+    def queryOne(self,sql):  
+        try: 
+            count = self._cursor.execute(sql)   
+            result = self._cursor.fetchone()   
+            return (count,result)  
+        except Exception,ex:
+            return str(ex)
+
+  
+   
+    def queryMany(self,sql,num,param=None):  
+        """ 
+        @summary: 执行查询，并取出num条结果 
+        @param sql:查询ＳＱＬ，如果有查询条件，请只指定条件列表，并将条件值使用参数[param]传递进来 
+        @param num:取得的结果条数 
+        @return: result list/boolean 查询到的结果集 
+        """  
+        try:
+            count = self._cursor.execute(sql,param)  
+            index = self._cursor.description
+            colName = []
+            for i in index:
+                colName.append(i[0])            
+            result = self._cursor.fetchmany(size=num) 
+            return (count,result,colName) 
+        except Exception,ex:
+            return str(ex)   
+    
+    def execute(self,sql,num=1000):
+        try:
+            count = self._cursor.execute(sql)
+            index = self._cursor.description
+            colName = []
+            if index:
+                for i in index:
+                    colName.append(i[0]) 
+            result = self._cursor.fetchmany(size=num)           
+            self._conn.commit()
+            return (count,result,colName) 
+        except Exception, ex:
+            return str(ex)
+
+
+   
+    def close(self,isEnd=1):  
+        """ 
+        @summary: 释放连接池资源 
+        """  
+        try:
+            self._cursor.close()  
+            self._conn.close() 
+        except:
+            pass

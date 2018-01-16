@@ -121,7 +121,7 @@
                             <a href="/"><i class="fa fa-dashboard fa-fw"></i> Dashboard</a>
                         </li>
                         <li>
-                            <a href="#"><i class="fa fa-database fa-fw"></i> 资产管理<span class="fa arrow"></span></a>
+                            <a href="#"><i class="fa  fa-bank fa-fw"></i> 资产管理<span class="fa arrow"></span></a>
                             <ul class="nav nav-second-level">
                                 <li>
                                     <a href="/assets_config">基础配置</a>
@@ -215,6 +215,19 @@
                             </ul>
                             <!-- /.nav-second-level -->
                         </li>
+						<li><a href="#"><i class="fa fa-database fa-fw"></i> 数据管理<span
+								class="fa arrow"></span></a>
+							<ul class="nav nav-second-level">
+								<li><a href="/db/config/">基础配置</a></li>
+								<li><a href="#">SQL管理<span class="fa arrow"></span></a>
+									<ul class="nav nav-third-level">
+										<li><a href="/apps/script/online/">上线申请</a></li>
+										<li><a href="/apps/script/list/">工单列表</a></li>
+									</ul>
+								</li>
+								<li><a href="/apps/model/">SQL优化</a></li>	
+								<li><a href="/apps/log/">操作日志</a></li>
+							</ul> <!-- /.nav-second-level --></li>	                        
                         {% if user.is_superuser %}
 						<li><a href="#"><i class="fa fa-tasks fa-fw"></i> 任务调度<span
 								class="fa arrow"></span></a>

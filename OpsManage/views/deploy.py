@@ -14,7 +14,7 @@ from OpsManage.utils.ansible_api_v2 import ANSRunner
 from django.contrib.auth.models import User,Group
 from django.db.models import Count
 from django.db.models import Q 
-from OpsManage.tasks import recordProject,sendEmail
+from OpsManage.tasks import recordProject,sendDeployEmail
 from django.contrib.auth.decorators import permission_required
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
@@ -415,7 +415,7 @@ def deploy_ask(request,pid):
                                                     order_comid = request.POST.get('order_comid',None),
                                                     order_tag  = request.POST.get('order_tag',None)
                                                     )
-            sendEmail.delay(order_id=order.id,mask='【申请中】')
+            sendDeployEmail.delay(order_id=order.id,mask='【申请中】')
         except Exception,e:
             return render(request,'deploy/deploy_ask.html',{"user":request.user,"errorInfo":"项目部署申请失败：%s" % str(e)},
                                       )   
@@ -455,11 +455,11 @@ def deploy_order(request,page):
                                 order_cancel = request.POST.get('order_cancel',None),
                             )
                 if request.POST.get('model') == 'auth':
-                    sendEmail.delay(order_id=request.POST.get('id'),mask='【已授权】')
+                    sendDeployEmail.delay(order_id=request.POST.get('id'),mask='【已授权】')
                 elif request.POST.get('model') == 'finish':
-                    sendEmail.delay(order_id=request.POST.get('id'),mask='【已部署】')
+                    sendDeployEmail.delay(order_id=request.POST.get('id'),mask='【已部署】')
                 elif request.POST.get('model') == 'disable':
-                    sendEmail.delay(order_id=request.POST.get('id'),mask='【已取消】')                   
+                    sendDeployEmail.delay(order_id=request.POST.get('id'),mask='【已取消】')                   
             except Exception,e:
                 return JsonResponse({'msg':"操作失败："+str(e),"code":500,'data':[]}) 
             return JsonResponse({'msg':"操作成功","code":200,'data':[]})                

@@ -31,9 +31,9 @@ def mkdir_p(path):
         else:
             raise # The original exception
         
-def interactive_shell(chan,channel,log_name=None,width=90,height=40):
+def interactive_shell(chan,channel,width=90,height=40):
     if has_termios:
-        posix_shell(chan,channel,log_name=log_name,width=width,height=height)
+        posix_shell(chan,channel,width=width,height=height)
     else:
         sys.exit(1)
        
@@ -43,7 +43,7 @@ class CustomeFloatEncoder(json.JSONEncoder):
             return format(obj, '.6f')
         return json.JSONEncoder.encode(self, obj)
 
-def posix_shell(chan,channel,log_name=None,width=90,height=40):
+def posix_shell(chan,channel,width=90,height=40):
     from OpsManage.asgi import channel_layer
     stdout = list()
     begin_time = time.time()
@@ -100,7 +100,7 @@ class SshTerminalThread(threading.Thread):
         first_flag = True
         while (not self._stop_event.is_set()):
             text = self.queue.get_message()
-            if text:           
+            if text:          
                 if isinstance(text['data'],(str,basestring,unicode)):
                     try:
                         data = ast.literal_eval(text['data'])
@@ -110,7 +110,6 @@ class SshTerminalThread(threading.Thread):
                     data = text['data']
                 if isinstance(data,(list,tuple)):
                     if data[0] == 'close':
-                        print 'close threading'
                         self.chan.close()
                         self.stop()
                     elif data[0] == 'set_size':
@@ -119,8 +118,8 @@ class SshTerminalThread(threading.Thread):
                     elif data[0] in ['stdin','stdout']:
                         self.chan.send(data[1])
                 elif isinstance(data,(int,long)):
-                    if data == 1 and first_flag:
-                        first_flag = False
+                    if data == 1 and first_flag:first_flag = False
+                    else:self.chan.send(str(data))
                 else:
                     try:
                         self.chan.send(str(data))

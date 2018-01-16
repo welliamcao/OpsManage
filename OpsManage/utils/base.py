@@ -10,6 +10,16 @@ from email.mime.application import MIMEApplication
 from email.mime.multipart import MIMEMultipart
 
 
+def file_iterator(file_name, chunk_size=512):
+    f = open(file_name, "rb")
+    while True:
+        c = f.read(chunk_size)
+        if c:
+            yield c
+        else:
+            break 
+    f.close()
+
 def sendEmail(e_from,e_to,e_host,e_passwd,e_sub="It's a test email.",e_content="test",cc_to=None,attachFile=None):
     msg = MIMEMultipart() 
     EmailContent = MIMEText(e_content,_subtype='html',_charset='utf-8')
@@ -86,3 +96,7 @@ def getDaysAgo(num):
     timeStamp = int(time.mktime(threeDayAgo .timetuple()))
     otherStyleTime = threeDayAgo .strftime("%Y%m%d")
     return otherStyleTime
+
+def getSQLAdvisor(host,port,user,passwd,dbname,sql):
+    cmd = """/usr/bin/sqladvisor -h {host}  -P {port}  -u {user} -p '{passwd}' -d {dbname} -q '{sql}' -v 1""".format(host=host,port=port,user=user,passwd=passwd,dbname=dbname,sql=sql)
+    return commands.getstatusoutput(cmd)

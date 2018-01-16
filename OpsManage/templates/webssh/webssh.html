@@ -67,10 +67,10 @@
             var ws = new WebSocket(ws_url);
             ws.onopen = function (event) {
                 term.resize(term.cols, term.rows);
-                ws.send(JSON.stringify(["id", id,term.cols, term.rows]));
+/*                 ws.send(JSON.stringify(["id", id,term.cols, term.rows]));  */
                 term.on('data', function (data) {
                     <!--console.log(data);-->
-                    ws.send(JSON.stringify(['stdin', data]));
+                     ws.send(JSON.stringify(['stdin', data])); 
                 });
 
                 term.on('title', function (title) {
@@ -92,8 +92,8 @@
         }
 
         var ws_scheme = window.location.protocol == "https:" ? "wss" : "ws";
-        var ws_path = ws_scheme + '://' + window.location.host + '/ws/?sid={{server.id}}';
-        make_terminal(document.getElementById('webssh_tt'), {rows: 40, cols: 140}, ws_path, '{{server.id}}');
+        var ws_path = ws_scheme + '://' + window.location.host + '/ws/webssh/{{server.id}}/';
+        make_terminal(document.getElementById('webssh_tt'), {rows: 30, cols: 140}, ws_path, '{{server.id}}');
     }); // end of document ready  
 </script>  
 
