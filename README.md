@@ -17,6 +17,9 @@
  * 部署平台及节点服务器：Rsync 3+
  * MySQL版本：5.1-5.6
 
+## OpsManage功能说明
+![image](https://github.com/welliamcao/OpsManage/blob/master/demo_imgs/opsmanage.png)
+
 ## 安装环境配置
 一、安装Python
 ```
@@ -164,15 +167,26 @@ TEMPLATE_DIRS = (
 # export PYTHONOPTIMIZE=1
 # vim /etc/supervisord.conf
 最后添加
-[program:celery-worker]
-command=/usr/bin/python manage.py celery worker --loglevel=info -E
+[program:celery-worker-default]
+command=/usr/bin/python manage.py celery worker --loglevel=info -E -Q default
 directory=/mnt/OpsManage
-stdout_logfile=/var/log/celery-worker.log
+stdout_logfile=/var/log/celery-worker-default.log
 autostart=true
 autorestart=true
 redirect_stderr=true
 stopsignal=QUIT
 numprocs=1
+
+[program:celery-worker-ansible]
+command=/usr/bin/python manage.py celery worker --loglevel=info -E -Q ansible
+directory=/mnt/OpsManage
+stdout_logfile=/var/log/celery-worker-ansible.log
+autostart=true
+autorestart=true
+redirect_stderr=true
+stopsignal=QUIT
+numprocs=1
+
 
 [program:celery-beat]
 command=/usr/bin/python manage.py celery beat
@@ -198,6 +212,11 @@ numprocs=1
 启动celery
 # /usr/local/bin/supervisord -c /etc/supervisord.conf
 # supervisorctl status
+```
+
+十二、SQL审核
+```
+自行安装Inception与SQLadvisor，SQLadvisor可执行文件请放在OpsManage服务器/usr/bin/sqladvisor路径
 ```
 
 ## 提供帮助
