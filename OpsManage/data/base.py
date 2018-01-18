@@ -13,7 +13,7 @@ from DBUtils.PooledDB import PooledDB
 
 class APBase(object):
     REDSI_POOL = 10000
-    _POOLS = dict()
+    MYSQL_POOLS = dict()
     
     @staticmethod
     def getRedisConnection(db):
@@ -30,38 +30,39 @@ class APBase(object):
 class MySQLPool(APBase): 
     def __init__(self,host,port,user,passwd,dbName,):
         self.poolKeys = host+dbName+str(port)
-        if self.poolKeys not in MySQLPool._POOLS.keys():  
+        if self.poolKeys not in MySQLPool.MYSQL_POOLS.keys():  
             self._conn = self._getTupleConn(host,port,user,passwd,dbName)  
-            MySQLPool._POOLS[self.poolKeys] = self._conn
-        self._conn = MySQLPool._POOLS.get(self.poolKeys)
-        self._cursor = MySQLPool._POOLS.get(self.poolKeys).cursor()          
+            MySQLPool.MYSQL_POOLS[self.poolKeys] = self._conn
+        self._conn = MySQLPool.MYSQL_POOLS.get(self.poolKeys)
+        if not isinstance(self._conn,str):self._cursor = self._conn.cursor()          
  
     def _getDictConn(self,host,port,user,passwd,dbName):
         '''返回字典类型结果集'''   
-        if APBase._POOLS.get(self.poolKeys) is None:
+        if APBase.MYSQL_POOLS.get(self.poolKeys) is None:
             try:
                 pool = PooledDB(creator=MySQLdb, mincached=1 , maxcached=20 ,  
                                       host=host , port=port , user=user , passwd=passwd ,  
                                       db=dbName,use_unicode=False,charset='utf8',
                                       cursorclass=DictCursor)  
-                APBase._POOLS[self.poolKeys] = pool   
-                return APBase._POOLS.get(self.poolKeys).connection()  
+                APBase.MYSQL_POOLS[self.poolKeys] = pool   
+                return APBase.MYSQL_POOLS.get(self.poolKeys).connection()  
             except Exception, ex:
                 return str(ex)
             
     def _getTupleConn(self,host,port,user,passwd,dbName):
         '''返回列表类型结果集'''   
-        if APBase._POOLS.get(self.poolKeys) is None:
+        if APBase.MYSQL_POOLS.get(self.poolKeys) is None:
             try:
                 pool = PooledDB(creator=MySQLdb, mincached=1 , maxcached=20 ,  
                                       host=host , port=port , user=user , passwd=passwd ,  
                                       db=dbName,use_unicode=False,charset='utf8')  
-                APBase._POOLS[self.poolKeys] = pool   
-                return APBase._POOLS.get(self.poolKeys).connection()  
+                APBase.MYSQL_POOLS[self.poolKeys] = pool   
+                return APBase.MYSQL_POOLS.get(self.poolKeys).connection()  
             except Exception, ex:
                 return str(ex)
    
-    def queryAll(self,sql):  
+    def queryAll(self,sql):
+        if isinstance(self._conn,str):return self._conn   
         try: 
             count = self._cursor.execute(sql)   
             result = self._cursor.fetchall()   
@@ -71,6 +72,7 @@ class MySQLPool(APBase):
 
    
     def queryOne(self,sql):  
+        if isinstance(self._conn,str):return self._conn 
         try: 
             count = self._cursor.execute(sql)   
             result = self._cursor.fetchone()   
@@ -80,7 +82,8 @@ class MySQLPool(APBase):
 
   
    
-    def queryMany(self,sql,num,param=None):  
+    def queryMany(self,sql,num,param=None):
+        if isinstance(self._conn,str):return self._conn   
         """ 
         @summary: 执行查询，并取出num条结果 
         @param sql:查询ＳＱＬ，如果有查询条件，请只指定条件列表，并将条件值使用参数[param]传递进来 
@@ -99,6 +102,7 @@ class MySQLPool(APBase):
             return str(ex)   
     
     def execute(self,sql,num=1000):
+        if isinstance(self._conn,str):return self._conn 
         try:
             count = self._cursor.execute(sql)
             index = self._cursor.description

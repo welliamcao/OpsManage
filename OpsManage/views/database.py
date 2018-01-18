@@ -568,7 +568,6 @@ def db_sql_logs(request,page):
 @login_required()
 def db_sql_dumps(request): 
     if request.method == "POST":#执行原生SQL  
-        print     request.POST
         try:
             dbServer = DataBase_Server_Config.objects.get(id=int(request.POST.get('dbId')))
         except Exception, ex:
