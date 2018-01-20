@@ -46,7 +46,7 @@
 				                                			<td class="text-center">{{ds.project_name}} </td>
 				                                			<td class="text-center">
 				                                			{% if ds.project_branch %}
-				                                				{{ds.project_branch|slice:":7" }} 			                                								                                			
+				                                				<a href="javascript:;" target="_blank" class="tooltip-test" data-toggle="tooltip" title="{{ds.project_branch}}">{{ds.project_branch|slice:":13" }}...</a>		                                								                                			
 				                                			{% endif %}
 				                                			</td>
 				                                			<td class="text-center">{{ds.project_content}} </td>

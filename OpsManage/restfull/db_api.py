@@ -9,7 +9,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from django.contrib.auth.decorators import permission_required
-from OpsManage.tasks import sendSqlEmail
+from OpsManage.tasks.sql import sendSqlEmail
 
 @api_view(['POST' ])
 @permission_required('OpsManage.can_add_database_server_config',raise_exception=True)

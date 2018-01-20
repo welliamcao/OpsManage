@@ -7,7 +7,7 @@ from django.contrib.auth.decorators import login_required
 from OpsManage.models import Cron_Config,Server_Assets
 from OpsManage.utils.ssh_tools import SSHManage
 from OpsManage.utils import base
-from OpsManage.tasks import recordCron
+from OpsManage.tasks.cron import recordCron
 from OpsManage.models import Log_Cron_Config
 from django.contrib.auth.decorators import permission_required
 from OpsManage.utils.ansible_api_v2 import ANSRunner

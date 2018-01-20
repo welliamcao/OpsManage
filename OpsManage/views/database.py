@@ -10,7 +10,7 @@ from OpsManage.models import (DataBase_Server_Config,Inception_Server_Config,
                               SQL_Audit_Order,SQL_Order_Execute_Result,
                               Custom_High_Risk_SQL,SQL_Audit_Control,
                               Service_Assets,Server_Assets,SQL_Execute_Histroy)
-from OpsManage.tasks import sendSqlEmail,recordSQL
+from OpsManage.tasks.sql import sendSqlEmail,recordSQL
 from django.contrib.auth.decorators import permission_required
 from OpsManage.utils.inception import Inception
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger

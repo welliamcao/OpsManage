@@ -14,7 +14,7 @@ from OpsManage.utils.ansible_api_v2 import ANSRunner
 from django.contrib.auth.models import User,Group
 from django.db.models import Count
 from django.db.models import Q 
-from OpsManage.tasks import recordProject,sendDeployEmail
+from OpsManage.tasks.deploy import recordProject,sendDeployEmail
 from django.contrib.auth.decorators import permission_required
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
@@ -279,11 +279,13 @@ def deploy_run(request,pid):
                     result = version.reset(path=project.project_repo_dir, commintId=request.POST.get('project_version'))
                     DsRedis.OpsDeploy.lpush(project.project_uuid, data="[Running] Git reset to {comid} info: {info}".format(comid=request.POST.get('project_version'),info=result[1])) 
                     trueDir = project.project_dir+project.project_env+'/'+ request.POST.get('project_version')  + '/'
+                    verName = bName + '_' + request.POST.get('project_version','未知')
                 elif project.project_model == 'tag':
                     bName = request.POST.get('project_branch')
                     result = version.checkOut(path=project.project_repo_dir, name=bName)
                     DsRedis.OpsDeploy.lpush(project.project_uuid, data="[Start] Switched to tag %s" % bName)
                     trueDir = project.project_dir+project.project_env+'/'+ bName + '/'
+                    verName = bName
                 #创建版本目录
                 base.mkdir(dirPath=trueDir)
                 DsRedis.OpsDeploy.lpush(project.project_uuid, data="[Running] Mkdir version dir: {dir} ".format(dir=trueDir))
@@ -364,7 +366,7 @@ def deploy_run(request,pid):
 #             if request.POST.get('project_version'):bName = request.POST.get('project_version') 
             recordProject.delay(project_user=str(request.user),project_id=project.id,
                                 project_name=project.project_name,project_content="部署项目",
-                                project_branch=bName)          
+                                project_branch=verName)          
             return JsonResponse({'msg':"项目部署成功","code":200,'data':tmpServer}) 
         else:
             return JsonResponse({'msg':"项目部署失败：{user}正在部署改项目，请稍后再提交部署。".format(user=DsRedis.OpsProject.get(redisKey=project.project_uuid+"-locked")),"code":500,'data':[]}) 

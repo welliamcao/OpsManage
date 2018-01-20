@@ -8,7 +8,7 @@ from OpsManage.models import *
 from django.db.models import Count
 from OpsManage.utils.ansible_api_v2 import ANSRunner
 from django.contrib.auth.models import Group,User
-from OpsManage.tasks import recordAssets
+from OpsManage.tasks.assets import recordAssets
 from django.contrib.auth.decorators import permission_required
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
