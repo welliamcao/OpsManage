@@ -44,22 +44,25 @@ class webterminal(WebsocketConsumer):
                 self.disconnect(message)      
             try:
                 if user.is_superuser:
-                    server = Server_Assets.objects.get(id=sid)
+                    server = Server_Assets.objects.get(id=sid)                  
                 else:
                     user_server = User_Server.objects.get(user_id=user.id,server_id=sid)
                     server = Server_Assets.objects.get(id=user_server.server_id) 
             except:
                 self.message.reply_channel.send({"text":json.dumps(['stdout','\033[1;3;31m"主机不存在或者已被删除"\\033[0m'])},immediately=True)
-                self.message.reply_channel.send({"accept":False})                                    
+                self.message.reply_channel.send({"accept":False})
+                self.disconnect(message)                                    
             try:
                 self.ssh.connect(server.ip, port=int(server.port), username=server.username, password=server.passwd, timeout=3)
             except socket.timeout:
                 self.message.reply_channel.send({"text":json.dumps(['stdout','\033[1;3;31mConnect to server time out\033[0m'])},immediately=True)
                 self.message.reply_channel.send({"accept":False})
+                self.disconnect(message) 
                 return
             except Exception, ex:
                 self.message.reply_channel.send({"text":json.dumps(['stdout','\033[1;3;31m连接服务器失败: {ex}\033[0m'.format(ex=str(ex))])},immediately=True)
                 self.message.reply_channel.send({"accept":False})
+                self.disconnect(message) 
                 return
             self.chan = self.ssh.invoke_shell(width=150, height=100)
             sRbt=SshTerminalThread(self.message,self.chan)
