@@ -32,16 +32,16 @@ CELERY_TIMEZONE='Asia/Shanghai'
 platforms.C_FORCE_ROOT = True
 
 #celery route config
-CELERY_IMPORTS = ("OpsManage.tasks.ansible","OpsManage.tasks.assets",
+CELERY_IMPORTS = ("OpsManage.tasks.assets","OpsManage.tasks.ansible",
                   "OpsManage.tasks.cron","OpsManage.tasks.deploy",
-                  "OpsManage.tasks.sql")
+                  "OpsManage.tasks.sql","OpsManage.tasks.sched")
 CELERY_QUEUES = (
     Queue('default',Exchange('default'),routing_key='default'),
-    Queue('ansible',Exchange('ansible'),routing_key='ansible'),
+    Queue('ansible',Exchange('ansible'),routing_key='ansible_#'),
 )
 CELERY_ROUTES = {
-    'OpsManage.tasks.ansible.AnsibleScripts':{'queue':'ansible','routing_key':'ansible'},
-    'OpsManage.tasks.ansible.AnsiblePlayBook':{'queue':'ansible','routing_key':'ansible'},
+    'OpsManage.tasks.ansible.AnsibleScripts':{'queue':'ansible','routing_key':'ansible_scripts'},
+    'OpsManage.tasks.ansible.AnsiblePlayBook':{'queue':'ansible','routing_key':'ansible_playbook'},
 }
 CELERY_DEFAULT_QUEUE = 'default'
 CELERY_DEFAULT_EXCHANGE_TYPE = 'direct'

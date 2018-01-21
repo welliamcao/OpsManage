@@ -100,3 +100,18 @@ def getDaysAgo(num):
 def getSQLAdvisor(host,port,user,passwd,dbname,sql):
     cmd = """/usr/bin/sqladvisor -h {host}  -P {port}  -u {user} -p '{passwd}' -d {dbname} -q '{sql}' -v 1""".format(host=host,port=port,user=user,passwd=passwd,dbname=dbname,sql=sql)
     return commands.getstatusoutput(cmd)
+
+def getDayAfter(num,ft=None):
+    #获取今天多少天以后的日期
+    if ft:
+        return time.strftime(ft ,time.localtime(time.time()+(num*86400)))
+    else:
+        return time.strftime('%Y-%m-%d' ,time.localtime(time.time()+(num*86400)))
+    
+def calcDays(startDate,endDate):
+    #对比两个日期的时间差
+    startDate=time.strptime(startDate,"%Y-%m-%d %H:%M:%S")
+    endDate=time.strptime(endDate,"%Y-%m-%d %H:%M:%S")
+    startDate=datetime(startDate[0],startDate[1],startDate[2],startDate[3],startDate[4],startDate[5])
+    endDate=datetime(endDate[0],endDate[1],endDate[2],endDate[3],endDate[4],endDate[5])
+    return (endDate-startDate).days

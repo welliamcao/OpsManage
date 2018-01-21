@@ -1,9 +1,8 @@
 #!/usr/bin/env python  
 # _#_ coding:utf-8 _*_ 
-import os
+import os,json
 from celery import task
-from OpsManage.models import (Log_Ansible_Model,Log_Ansible_Playbook,Global_Config,
-                              Ansible_Script,Ansible_Playbook,Server_Assets,
+from OpsManage.models import (Ansible_Script,Ansible_Playbook,Server_Assets,
                               Ansible_Playbook_Number)
 from OpsManage.data.DsMySQL import AnsibleRecord
 from OpsManage.utils.ansible_api_v2 import ANSRunner
@@ -28,7 +27,7 @@ def AnsibleScripts(**kw):
                     return ex
             else:
                 try:
-                    sList = list(script.script_server)
+                    sList = json.loads(script.script_server)
                 except Exception, ex:
                     return ex           
             if kw.has_key('logs'):
@@ -82,38 +81,5 @@ def AnsiblePlayBook(**kw):
             return ANS.get_playbook_result()
     except Exception,e:
         print e
-        return False    
+        return False       
     
-@task  
-def recordAnsibleModel(user,ans_model,ans_server,uuid,ans_args=None):
-    try:
-        config = Global_Config.objects.get(id=1)
-        if config.ansible_model == 1:
-            Log_Ansible_Model.objects.create(
-                                      ans_user = user,
-                                      ans_server = ans_server,
-                                      ans_args = ans_args,
-                                      ans_model = ans_model,
-                                      ans_uuid = uuid
-                                      )
-            return True
-    except Exception,e:
-        return False
-    
-@task  
-def recordAnsiblePlaybook(user,ans_id,ans_name,ans_content,uuid=None,ans_server=None):
-    try:
-        config = Global_Config.objects.get(id=1)
-        if config.ansible_playbook == 1:
-            Log_Ansible_Playbook.objects.create(
-                                      ans_user = user,
-                                      ans_server = ans_server,
-                                      ans_name = ans_name,
-                                      ans_id = ans_id,
-                                      ans_content = ans_content,
-                                      ans_uuid = uuid
-                                      )
-        return True
-    except Exception,e:
-        print e
-        return False    

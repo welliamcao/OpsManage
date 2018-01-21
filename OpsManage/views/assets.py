@@ -609,4 +609,5 @@ def assets_batch(request):
                 assets.delete()                                    
             return JsonResponse({'msg':"数据更新成功","code":200,'data':{"success":sList,"failed":fList}}) 
         else:
-            return JsonResponse({'msg':"操作失败","code":500,'data':"不支持的操作"})                 
+            return JsonResponse({'msg':"操作失败","code":500,'data':"不支持的操作"})    
+        

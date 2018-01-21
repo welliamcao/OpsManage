@@ -1,8 +1,10 @@
 #!/usr/bin/env python  
 # _#_ coding:utf-8 _*_ 
+import time
 from celery import task
-from OpsManage.models import Log_Assets,Global_Config
-
+from OpsManage.utils import base
+from OpsManage.models import Log_Assets,Global_Config,Assets,Email_Config
+from django.contrib.auth.models import User
 
 
 @task  
@@ -19,3 +21,6 @@ def recordAssets(user,content,type,id=None):
         return logs.id
     except Exception,e:
         return False
+    
+
+    

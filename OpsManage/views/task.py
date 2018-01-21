@@ -4,10 +4,11 @@ from django.http import JsonResponse
 from django.shortcuts import render
 from djcelery.models  import PeriodicTask,CrontabSchedule,WorkerState,TaskState,IntervalSchedule
 from django.contrib.auth.decorators import login_required
+from celery import task
 from celery.registry import tasks as cTasks
+from celery import registry
 from celery.five import keys, items
 from django.contrib.auth.decorators import permission_required
-from OpsManage.utils import base
 
 
 @login_required()
@@ -16,8 +17,10 @@ def task_model(request):
     if request.method == "GET":
         #获取注册的任务
         regTaskList = []
-        for task in  list(keys(cTasks)):
-            if task.startswith('OpsManage.tasks.Ansible'):regTaskList.append(task)
+        for task in list(keys(cTasks)):
+            print task
+            if task.startswith('OpsManage.tasks.ansible') or task.startswith('OpsManage.tasks.sched'):
+                regTaskList.append(task)
         try:
             crontabList = CrontabSchedule.objects.all().order_by("-id")
             intervalList = IntervalSchedule.objects.all().order_by("-id")
@@ -111,7 +114,7 @@ def task_view(request):
             workList = WorkerState.objects.all()
             regTaskList = []
             for task in  list(keys(cTasks)):
-                if task.startswith('OpsManage.tasks.Ansible'):
+                if task.startswith('OpsManage.tasks.ansible') or task.startswith('OpsManage.tasks.assets.sched'):
                     regTaskList.append(task)              
         except Exception, ex:
             print ex

@@ -55,7 +55,7 @@
 				                   		</div>
 				                   		<div class="col-lg-12">
 				                   			<br>
-				                            <table width="100%" class="table table-striped table-bordered table-hover" id="modelTableList">
+				                            <table width="100%" class="table table-striped table-bordered table-hover " id="modelTableList">
 				                                <thead>
 				                                    <tr>
 				                                    	<th class="text-center">#</th>
@@ -71,14 +71,16 @@
 				                                </thead>
 				                                <tbody>
 				                                	{% for ds in modelList %}
-				                                		<tr class="odd gradeX" id="modelLogs-{{ds.id}}">
+				                                		<tr  id="modelLogs-{{ds.id}}">
 				                                			<td class="text-center">
 				                                				 {{ forloop.counter }}
 				                                			</td>
 				                                			<td class="text-center">{{ds.ans_user}} </td>
 				                                			<td class="text-center">{{ds.ans_model}} </td>
 				                                			<td class="text-center">{{ds.ans_args}} </td>
-				                                			<td class="text-center">{{ds.ans_server}} </td>
+				                                			<td>
+				                                				{{ds.ans_server|default:""}}
+				                                			</td>
 				                                			<td class="text-center">{{ds.create_time|date:"Y/m/d H:i  "}} </td>				                                			
 					                                		<td class="text-center">
 																<a href="javascript:" onclick="getAnsibleResult(this,'model',{{ds.id}})">
@@ -228,7 +230,7 @@
 <script type="text/javascript">
 
 		$(".form_datetime").datetimepicker({format: 'yyyy-mm-dd hh:mm'});
-		
+
 		function searchModelLog() {
 			startTime = document.getElementById("modelLogStartTime").value;
 			endTime = document.getElementById("modelLogEndTime").value;
@@ -256,7 +258,7 @@
 	                    	var tableBody = '<tr class="odd gradeX" id="playbookLogs-' + response['data'][i].id + '">' +
 				                			'<td class="text-center">' + response['data'][i].ans_id + '</td>' + 
 				                			'<td class="text-center">' + response['data'][i].ans_user + '</td>' +
-				                			'<td class="text-center">' + response['data'][i].ans_namel + '</td>' +
+				                			'<td class="text-center">' + response['data'][i].ans_model + '</td>' +
 				                			'<td class="text-center">' + response['data'][i].ans_args + '</td>' +
 				                			'<td class="text-center">' + response['data'][i].ans_server + '</td>' +
 				                			'<td class="text-center">' + response['data'][i].create_time.replace("T",' ').replace(/-/g,'/').slice(0,16) + '</td>' +				                                			

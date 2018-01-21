@@ -9,3 +9,9 @@ django.setup()
 import django
 if django.VERSION >= (1, 7):#自动判断版本
     django.setup()
+from .ansible import  *
+from .assets import  *
+from .cron import  *
+from .deploy import  *
+from .sql import  *
+from .sched import  *
