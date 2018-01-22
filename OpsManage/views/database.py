@@ -29,7 +29,6 @@ def db_config(request):
         serviceList = Service_Assets.objects.all()
         serList = Server_Assets.objects.all()
         try:
-            incept = Inception_Server_Config.objects.get(id=1)
             config = SQL_Audit_Control.objects.get(id=1)
             gList = json.loads(config.audit_group)
             audit_group = []
@@ -37,9 +36,14 @@ def db_config(request):
                 audit_group.append(int(g))
             for g in groupList:
                 if g.id in audit_group:g.count = 1
-        except:
-            incept = None
+        except Exception,ex:
+            print ex
             config = None
+        try:
+            incept = Inception_Server_Config.objects.get(id=1)
+        except Exception, ex:
+            print ex
+            incept = None
         return render(request,'database/db_config.html',{"user":request.user,"incept":incept,
                                                         "dataBaseList":dataBaseList,"sqlList":sqlList,
                                                         "config":config,"groupList":groupList,
