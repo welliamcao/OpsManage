@@ -10,6 +10,8 @@ djangorestframework==3.5.3
 paramiko
 ansible==2.2.2
 supervisor
+mysql-replication
+pymysql
 redis
 MySQL-python
 DBUtils

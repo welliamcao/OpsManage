@@ -36,19 +36,19 @@ def apps_model(request):
                 for server in serverList:
                     server_assets = Server_Assets.objects.get(id=server)
                     sList.append(server_assets.ip)
-                    if server_assets.keyfile == 1:resource.append({"hostname": server_assets.ip, "port": int(server_assets.port)})
+                    if server_assets.keyfile == 1:resource.append({"hostname": server_assets.ip, "port": int(server_assets.port),"username": server_assets.username})
                     else:resource.append({"hostname": server_assets.ip, "port": int(server_assets.port),"username": server_assets.username,"password": server_assets.passwd})
             elif request.POST.get('server_model') == 'group':
                 serverList = Assets.objects.filter(group=request.POST.get('ansible_group'))
                 for server in serverList:
                     sList.append(server.server_assets.ip)
-                    if server.server_assets.keyfile == 1:resource.append({"hostname": server.server_assets.ip, "port": int(server.server_assets.port)})
+                    if server.server_assets.keyfile == 1:resource.append({"hostname": server.server_assets.ip, "port": int(server.server_assets.port),"username": server.server_assets.username})
                     else:resource.append({"hostname": server.server_assets.ip, "port": int(server.server_assets.port),"username": server.server_assets.username,"password": server.server_assets.passwd})  
             elif request.POST.get('server_model') == 'service':
                 serverList = Assets.objects.filter(business=request.POST.get('ansible_service'))
                 for server in serverList:
                     sList.append(server.server_assets.ip)
-                    if server.server_assets.keyfile == 1:resource.append({"hostname": server.server_assets.ip, "port": int(server.server_assets.port)})
+                    if server.server_assets.keyfile == 1:resource.append({"hostname": server.server_assets.ip, "port": int(server.server_assets.port),"username": server.server_assets.username})
                     else:resource.append({"hostname": server.server_assets.ip, "port": int(server.server_assets.port),"username": server.server_assets.username,"password": server.server_assets.passwd})                                       
             if len(request.POST.get('custom_model')) > 0:model_name = request.POST.get('custom_model')
             else:model_name = request.POST.get('ansible_model',None)
@@ -258,7 +258,7 @@ def apps_playbook_run(request,pid):
             for server in serverList:
                 server_assets = Server_Assets.objects.get(ip=server)
                 sList.append(server_assets.ip)
-                if server_assets.keyfile == 1:resource.append({"hostname": server_assets.ip, "port": int(server_assets.port)})
+                if server_assets.keyfile == 1:resource.append({"hostname": server_assets.ip, "port": int(server_assets.port),"username": server_assets.username})
                 else:resource.append({"hostname": server_assets.ip, "port": int(server_assets.port),"username": server_assets.username,"password": server_assets.passwd})
             if playbook.playbook_vars:playbook_vars = playbook.playbook_vars
             else:playbook_vars = request.POST.get('playbook_vars')
@@ -518,7 +518,7 @@ def apps_script_online(request):
                 for server in serverList:
                     server_assets = Server_Assets.objects.get(id=server)
                     sList.append(server_assets.ip)
-                    if server_assets.keyfile == 1:resource.append({"hostname": server_assets.ip, "port": int(server_assets.port)})
+                    if server_assets.keyfile == 1:resource.append({"hostname": server_assets.ip, "port": int(server_assets.port),"username": server_assets.username})
                     else:resource.append({"hostname": server_assets.ip, "port": int(server_assets.port),"username": server_assets.username,"password": server_assets.passwd})
             elif request.POST.get('server_model') == 'group':
                 serverList = Assets.objects.filter(group=request.POST.get('ansible_group'))
@@ -528,7 +528,7 @@ def apps_script_online(request):
                     except Exception, ex:
                         print ex
                         continue
-                    if server.server_assets.keyfile == 1:resource.append({"hostname": server.server_assets.ip, "port": int(server.server_assets.port)})
+                    if server.server_assets.keyfile == 1:resource.append({"hostname": server.server_assets.ip, "port": int(server.server_assets.port),"username": server.server_assets.username})
                     else:resource.append({"hostname": server.server_assets.ip, "port": int(server.server_assets.port),"username": server.server_assets.username,"password": server.server_assets.passwd})  
             elif request.POST.get('server_model') == 'service':
                 serverList = Assets.objects.filter(business=request.POST.get('ansible_service'))
@@ -538,7 +538,7 @@ def apps_script_online(request):
                     except Exception, ex:
                         print ex
                         continue                   
-                    if server.server_assets.keyfile == 1:resource.append({"hostname": server.server_assets.ip, "port": int(server.server_assets.port)})
+                    if server.server_assets.keyfile == 1:resource.append({"hostname": server.server_assets.ip, "port": int(server.server_assets.port),"username": server.server_assets.username})
                     else:resource.append({"hostname": server.server_assets.ip, "port": int(server.server_assets.port),"username": server.server_assets.username,"password": server.server_assets.passwd})   
                                                         
             if len(sList) > 0 and request.POST.get('type') == 'run' and request.POST.get('script_file'):
@@ -655,13 +655,13 @@ def apps_script_online_run(request,pid):
                 for server in serverList:
                     server_assets = Server_Assets.objects.get(id=server)
                     sList.append(server_assets.ip)
-                    if server_assets.keyfile == 1:resource.append({"hostname": server_assets.ip, "port": int(server_assets.port)})
+                    if server_assets.keyfile == 1:resource.append({"hostname": server_assets.ip, "port": int(server_assets.port),"username": server_assets.username})
                     else:resource.append({"hostname": server_assets.ip, "port": int(server_assets.port),"username": server_assets.username,"password": server_assets.passwd})
             elif request.POST.get('server_model') == 'group':
                 serverList = Assets.objects.filter(group=request.POST.get('ansible_group'))
                 for server in serverList:
                     sList.append(server.server_assets.ip)
-                    if server.server_assets.keyfile == 1:resource.append({"hostname": server.server_assets.ip, "port": int(server.server_assets.port)})
+                    if server.server_assets.keyfile == 1:resource.append({"hostname": server.server_assets.ip, "port": int(server.server_assets.port),"username": server.server_assets.username})
                     else:resource.append({"hostname": server.server_assets.ip, "port": int(server.server_assets.port),"username": server.server_assets.username,"password": server.server_assets.passwd})  
             elif request.POST.get('server_model') == 'service':
                 serverList = Assets.objects.filter(business=request.POST.get('ansible_service'))
@@ -671,7 +671,7 @@ def apps_script_online_run(request,pid):
                     except Exception, ex:
                         print ex
                         continue
-                    if server.server_assets.keyfile == 1:resource.append({"hostname": server.server_assets.ip, "port": int(server.server_assets.port)})
+                    if server.server_assets.keyfile == 1:resource.append({"hostname": server.server_assets.ip, "port": int(server.server_assets.port),"username": server.server_assets.username})
                     else:resource.append({"hostname": server.server_assets.ip, "port": int(server.server_assets.port),"username": server.server_assets.username,"password": server.server_assets.passwd})     
             if request.POST.get('type') == 'save' and request.POST.get('script_file'): 
                 filePath = os.getcwd() + '/' + str(script.script_file)

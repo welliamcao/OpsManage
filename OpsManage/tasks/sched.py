@@ -69,7 +69,7 @@ def updateAssets():
                 print ex
                 continue
             sList.append(server_assets.ip)
-            if server_assets.keyfile == 1:resource.append({"hostname": server_assets.ip, "port": int(server_assets.port)})
+            if server_assets.keyfile == 1:resource.append({"hostname": server_assets.ip, "port": int(server_assets.port),"username": server_assets.username})
             else:resource.append({"hostname": server_assets.ip, "port": server_assets.port,"username": server_assets.username, "password": server_assets.passwd})  
     ANS = ANSRunner(resource)
     ANS.run_model(host_list=sList,module_name='setup',module_args="")

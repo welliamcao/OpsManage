@@ -37,7 +37,7 @@ def AnsibleScripts(**kw):
                     server_assets = Server_Assets.objects.get(ip=sip)
                 except Exception, ex:
                     continue
-                if server_assets.keyfile == 1:resource.append({"hostname": server_assets.ip, "port": int(server_assets.port)})
+                if server_assets.keyfile == 1:resource.append({"hostname": server_assets.ip, "port": int(server_assets.port),"username": server_assets.username})
                 else:resource.append({"hostname": server_assets.ip, "port": int(server_assets.port),"username": server_assets.username,"password": server_assets.passwd})         
             ANS = ANSRunner(resource,redisKey=None,logId=logId)
             ANS.run_model(host_list=sList,module_name='script',module_args=filePath)
@@ -74,7 +74,7 @@ def AnsiblePlayBook(**kw):
                     server_assets = Server_Assets.objects.get(ip=sip)
                 except Exception, ex:
                     continue
-                if server_assets.keyfile == 1:resource.append({"hostname": server_assets.ip, "port": int(server_assets.port)})
+                if server_assets.keyfile == 1:resource.append({"hostname": server_assets.ip, "port": int(server_assets.port),"username": server_assets.username})
                 else:resource.append({"hostname": server_assets.ip, "port": int(server_assets.port),"username": server_assets.username,"password": server_assets.passwd})         
             ANS = ANSRunner(resource,redisKey=None,logId=logId)
             ANS.run_playbook(host_list=sList, playbook_path=filePath)

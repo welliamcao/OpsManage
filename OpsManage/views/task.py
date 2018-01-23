@@ -18,7 +18,6 @@ def task_model(request):
         #获取注册的任务
         regTaskList = []
         for task in list(keys(cTasks)):
-            print task
             if task.startswith('OpsManage.tasks.ansible') or task.startswith('OpsManage.tasks.sched'):
                 regTaskList.append(task)
         try:
@@ -110,7 +109,6 @@ def task_model(request):
 def task_view(request):  
     if request.method == "GET":          
         try:       
-            
             workList = WorkerState.objects.all()
             regTaskList = []
             for task in  list(keys(cTasks)):
