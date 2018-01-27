@@ -4,14 +4,16 @@ import uuid
 from django.http import HttpResponseRedirect,JsonResponse
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
-from OpsManage.models import Server_Assets,Project_Config,Project_Number,Project_Order,\
-    Log_Project_Config
+from OpsManage.models import (Project_Assets,Server_Assets,Project_Config,
+                            Project_Number,Project_Order,Log_Project_Config,
+                            Service_Assets,Assets)
 from OpsManage.utils.git import GitTools
 from OpsManage.utils.svn import SvnTools
 from OpsManage.utils import base
 from OpsManage.data.DsRedisOps import DsRedis
 from OpsManage.utils.ansible_api_v2 import ANSRunner
 from django.contrib.auth.models import User,Group
+from OpsManage.views.assets import getBaseAssets
 from django.db.models import Count
 from django.db.models import Q 
 from OpsManage.tasks.deploy import recordProject,sendDeployEmail
@@ -25,14 +27,18 @@ def deploy_add(request):
         serverList = Server_Assets.objects.all()
         groupList = Group.objects.all()
         return render(request,'deploy/deploy_add.html',{"user":request.user,"groupList":groupList,
-                                                            "serverList":serverList},
-                                  )
+                                                        "serverList":serverList,'baseAssets':getBaseAssets()})
     elif  request.method == "POST":
         serverList = Server_Assets.objects.all()
         ipList = request.POST.getlist('server') 
+        try:
+            proAssets = Project_Assets.objects.get(id=request.POST.get('project_id'))
+        except Exception, ex:
+            return render(request,'deploy/deploy_add.html',{"user":request.user,"errorInfo":"部署服务器信息添加错误：%s" % str(ex)},)             
         try:    
             project = Project_Config.objects.create(
-                                                    project_name = request.POST.get('project_name'),
+                                                    project = proAssets,
+                                                    project_service = request.POST.get('project_service'),
                                                     project_env = request.POST.get('project_env'), 
                                                     project_repertory = request.POST.get('project_repertory'), 
                                                     project_address = request.POST.get('project_address'),
@@ -49,12 +55,10 @@ def deploy_add(request):
                                                     project_repo_passwd = request.POST.get('project_repo_passwd'),
                                                     project_audit_group = request.POST.get('project_audit_group',None),
                                                     )
-            recordProject.delay(project_user=str(request.user),project_id=project.id,project_name=project.project_name,project_content="添加项目")
+            recordProject.delay(project_user=str(request.user),project_id=project.id,project_name=proAssets.project_name,project_content="添加项目")
         except Exception,e:
             return render(request,'deploy/deploy_add.html',{"user":request.user,
-                                                                "serverList":serverList,
-                                                                "errorInfo":"部署服务器信息添加错误：%s" % str(e)},
-                                      )             
+                                                            "serverList":serverList,"errorInfo":"部署服务器信息添加错误：%s" % str(e)},)             
         if ipList:
             for sid in ipList:
                 try:
@@ -77,12 +81,13 @@ def deploy_modf(request,pid):
     try:
         project = Project_Config.objects.select_related().get(id=pid)
         tagret_server = Project_Number.objects.filter(project=project)
-        serverList = Server_Assets.objects.all()
+        serverList = [ s.server_assets for s in Assets.objects.filter(project=project.project.id) ]
     except:
         return render(request,'deploy/deploy_modf.html',{"user":request.user,
                                                          "errorInfo":"项目不存在，可能已经被删除."},
                                 )     
     if request.method == "GET": 
+        serviceList = Service_Assets.objects.filter(project=project.project)
         groupList = Group.objects.all()
         server = [ s.server for s in tagret_server]
         for ds in serverList:
@@ -90,14 +95,14 @@ def deploy_modf(request,pid):
             else:ds.count = 0        
         return render(request,'deploy/deploy_modf.html',
                                   {"user":request.user,"project":project,"server":tagret_server,
-                                   "serverList":serverList,"groupList":groupList},
+                                   "serverList":serverList,"groupList":groupList,"serviceList":serviceList},
                                 )         
     elif  request.method == "POST":
         ipList = request.POST.getlist('server',None)
         try:      
             Project_Config.objects.filter(id=pid).update(
-                                                    project_name = request.POST.get('project_name'),
                                                     project_env = request.POST.get('project_env'),  
+                                                    project_service = request.POST.get('project_service'),
                                                     project_repertory = request.POST.get('project_repertory'), 
                                                     project_address = request.POST.get('project_address'),
                                                     project_repo_dir = request.POST.get('project_repo_dir'),
@@ -110,7 +115,7 @@ def deploy_modf(request,pid):
                                                     project_repo_user = request.POST.get('project_repo_user'),
                                                     project_repo_passwd = request.POST.get('project_repo_passwd'),                                                    
                                                     )
-            recordProject.delay(project_user=str(request.user),project_id=pid,project_name=project.project_name,project_content="修改项目")
+            recordProject.delay(project_user=str(request.user),project_id=pid,project_name=project.project.project_name,project_content="修改项目")
         except Exception,e:
             return render(request,'deploy/deploy_modf.html',
                                       {"user":request.user,"errorInfo":"更新失败："+str(e)},
@@ -170,7 +175,7 @@ def deploy_init(request,pid):
         if result[0] > 0:return  JsonResponse({'msg':result[1],"code":500,'data':[]})
         else:
             Project_Config.objects.filter(id=pid).update(project_status = 1)  
-            recordProject.delay(project_user=str(request.user),project_id=project.id,project_name=project.project_name,project_content="初始化项目")              
+            recordProject.delay(project_user=str(request.user),project_id=project.id,project_name=project.project.project_name,project_content="初始化项目")              
             return JsonResponse({'msg':"初始化成功","code":200,'data':[]})
         
 @login_required()
@@ -256,7 +261,7 @@ def deploy_run(request,pid):
                 base.mkdir(dirPath=trueDir)
                 DsRedis.OpsDeploy.lpush(project.project_uuid, data="[Running] Mkdir version dir: {dir} ".format(dir=trueDir))
                 #创建快捷方式
-                softdir = project.project_dir+project.project_name+'/'
+                softdir = project.project_dir+project.project.project_name+'/'
                 result = base.lns(spath=trueDir, dpath=softdir.rstrip('/'))
                 DsRedis.OpsDeploy.lpush(project.project_uuid, data="[Running] Make softlink cmd:  ln -s  {sdir} {ddir} info: {info}".format(sdir=trueDir,ddir=softdir,info=result[1]))
                 if result[0] > 0:return JsonResponse({'msg':result[1],"code":500,'data':[]})    
@@ -290,7 +295,7 @@ def deploy_run(request,pid):
                 base.mkdir(dirPath=trueDir)
                 DsRedis.OpsDeploy.lpush(project.project_uuid, data="[Running] Mkdir version dir: {dir} ".format(dir=trueDir))
                 #创建快捷方式
-                softdir = project.project_dir+project.project_name+'/'
+                softdir = project.project_dir+project.project.project_name+'/'
                 result = base.lns(spath=trueDir, dpath=softdir.rstrip('/'))
                 DsRedis.OpsDeploy.lpush(project.project_uuid, data="[Running] Make softlink cmd:  ln -s  {sdir} {ddir} info: {info}".format(sdir=trueDir,ddir=softdir,info=result[1]))
                 if result[0] > 0:return JsonResponse({'msg':result[1],"code":500,'data':[]})                   
@@ -365,7 +370,7 @@ def deploy_run(request,pid):
             #异步记入操作日志
 #             if request.POST.get('project_version'):bName = request.POST.get('project_version') 
             recordProject.delay(project_user=str(request.user),project_id=project.id,
-                                project_name=project.project_name,project_content="部署项目",
+                                project_name=project.project.project_name,project_content="部署项目",
                                 project_branch=verName)          
             return JsonResponse({'msg':"项目部署成功","code":200,'data':tmpServer}) 
         else:
@@ -443,7 +448,7 @@ def deploy_order(request,page):
         except EmptyPage:
             orderList = paginator.page(paginator.num_pages)        
         for ds in deploy_project:
-            ds['order_project'] = Project_Config.objects.get(id=ds.get('order_project')).project_name
+            ds['order_project'] = Project_Config.objects.get(id=ds.get('order_project')).project.project_name
         return render(request,'deploy/deploy_order.html',{"user":request.user,"orderList":orderList,
                                                               "totalOrder":totalOrder,"doneOrder":doneOrder,
                                                               "authOrder":authOrder,"rejectOrder":rejectOrder,

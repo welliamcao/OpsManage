@@ -62,12 +62,20 @@
 									<i class="fa  fa-paper-plane-o"></i> 数据库选择
 								</legend>
 								<div class="form-group">
+									<label>环境类型</label> <br> 
+									<input type="text" class="form-control" id="db_env" name="db_env" value="{% if order.order_db.db_env == 'test' %}测试环境{%else%}生产环境{%endif%}" disabled> </input>						
+								</div>								
+								<div class="form-group">
+									<label>所属项目</label> <br> 
+									<input type="text" class="form-control" id="db_project" name="db_project" value="{{order.order_db.db_service.project.project_name}}" disabled> </input>						
+								</div>								
+								<div class="form-group">
 									<label>业务类型</label> <br> 
-									<input type="text" class="form-control" id="db_service" name="db_service" value="{{order.order_db.db_service}}" disabled> </input>						
+									<input type="text" class="form-control" id="db_service" name="db_service" value="{{order.order_db.db_service.service_name}}" disabled> </input>						
 								</div>									
 								<div class="form-group">
 									<label>数据库</label> <br> 
-									<input type="text" class="form-control" id="order_db" name="order_db" value="{{order.order_db.db_name}}({{order.order_db.db_host}})" disabled> </input>								
+									<input type="text" class="form-control" id="order_db" name="order_db" value="{{order.order_db.db_name}}({{order.order_db.db_host}})-{{order.order_db.db_mark|default:""}}" disabled> </input>								
 								</div>									
 <!-- 								<div class="form-group">
 									<label>数据库</label> <br> 
@@ -245,10 +253,14 @@
 									{% else %}	   
 									<input type="text" class="form-control" id="order_env" name="db_env" value="正式" disabled> </input>	
 									{% endif %}							
-								</div>										
+								</div>		
+								<div class="form-group">
+									<label>所属项目</label> <br> 
+									<input type="text" class="form-control" id="db_project" name="db_project" value="{{order.order_db.db_service.project.project_name}}" disabled> </input>						
+								</div>																	
 								<div class="form-group">
 									<label>业务类型</label> <br> 
-									<input type="text" class="form-control" id="db_service" name="db_service" value="{{order.order_db.db_service}}" disabled> </input>						
+									<input type="text" class="form-control" id="db_service" name="db_service" value="{{order.order_db.db_service.service_name}}" disabled> </input>						
 								</div>									
 								<div class="form-group">
 									<label>数据库</label> <br> 
@@ -522,8 +534,20 @@
 								<form role="form" method="post" id="audit_sql_order">
 									{% csrf_token %}
 								<div class="form-group">
+									<label>环境类型</label> <br> 
+									{% if ds.db_env == 'test' %}
+									<input type="text" class="form-control" id="order_env" name="db_env" value="测试" disabled> </input>	
+									{% else %}	   
+									<input type="text" class="form-control" id="order_env" name="db_env" value="正式" disabled> </input>	
+									{% endif %}							
+								</div>										
+								<div class="form-group">
+									<label>所属项目</label> <br> 
+									<input type="text" class="form-control" id="db_project" name="db_project" value="{{order.order_db.db_service.project.project_name}}" disabled> </input>						
+								</div>										
+								<div class="form-group">
 									<label>业务类型</label> <br> 
-									<input type="text" class="form-control" id="db_service" name="db_service" value="{{order.order_db.db_service}}" disabled> </input>						
+									<input type="text" class="form-control" id="db_service" name="db_service" value="{{order.order_db.db_service.service_name}}" disabled> </input>						
 								</div>									
 								<div class="form-group">
 									<label>数据库</label> <br> 

@@ -20,9 +20,21 @@
                                     <form role="form" method="post">  {% csrf_token %}
                                         <div class="form-group">
                                             <label>项目名称</label>
-                                            <input class="form-control" name="project_name" value="{{project.project_name}}" required>
+                                            <input class="form-control" name="project_name" value="{{project.project.project_name}}" disabled>
                                             <p class="help-block">例如：opsmanage.</p>
                                         </div>
+										<div class="form-group">
+											 <label>业务类型</label>
+											 <select class="form-control" name="project_service" id="project_service" onchange="javascript:oBtServiceSelect();" required>
+											 		{% for ds in serviceList %}
+											 			{% if ds.id == project.project_service %}
+											   				<option selected="selected" value="{{ds.id}}">{{ds.service_name}}</option>	
+											   			{% else %}
+											   				<option  value="{{ds.id}}">{{ds.service_name}}</option>
+											   			{% endif %}
+											   		{% endfor %}							   							
+											</select>
+										</div>                                        
                                         <div class="form-group">
                                             <label>项目环境</label>
                                             <select class="form-control" name="project_env" id='env_type_select' onchange="javascript:oBtEnvType();" required>
@@ -125,7 +137,7 @@
                                      <div class="form-group">
                                             <label>目标服务器</label>
                                             <br>
-                                            <select multiple class="selectpicker" data-live-search="true" name="server" required>
+                                            <select multiple class="form-control"  data-live-search="true" name="server" id="server" required>
                                             	{% for ds in serverList %}
                                             		{% if ds.count == 1 %}
                                             			<option name="server" selected="selected"  value="{{ds.id}}">{{ds.ip}}</option>
@@ -204,6 +216,38 @@ $(function () { $("[data-toggle='tooltip']").tooltip(); });
 {% if errorInfo %}
 	window.wxc.xcConfirm("{{errorInfo}}", window.wxc.xcConfirm.typeEnum.error);
 {% endif %}
+
+function oBtServiceSelect(){
+	   $('#server').removeAttr("disabled");
+	   var obj = document.getElementById("project_service"); 
+	   var index = obj.selectedIndex;
+	   var sId = obj.options[index].value; 
+	   if ( sId  > 0){	 
+			$.ajax({
+				dataType: "JSON",
+				url:'/assets_server/', //请求地址
+				type:"POST",  //提交类似
+				data:{
+					"service_id":sId
+				},
+				success:function(response){
+					var binlogHtml = '<select multiple class="form-control"  name="server" id="server"  required>'
+					var selectHtml = '';
+					for (var i=0; i <response["data"].length; i++){
+						 selectHtml += '<option name="server" value="'+ response["data"][i]["id"] +'">' + response["data"][i]["ip"] + '</option>' 
+					};                        
+					binlogHtml =  binlogHtml + selectHtml + '</select>';
+					document.getElementById("server").innerHTML= binlogHtml;	
+						
+				},
+			});	
+	   }
+	   else{
+		   $('#server option:selected').empty();
+		   $('#server').attr("disabled",true);
+	   }
+
+}
 
 function oBtEnvType() {
 	   var obj = document.getElementById("env_type_select"); 

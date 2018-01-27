@@ -446,7 +446,7 @@
 				</h4>
 			</div>
 			<div class="modal-body">
-				<form role="form" method="post" id="addDatabase" class="main form-horizontal" >{% csrf_token %}			
+				<form role="form" method="post" id="addDatabase" class="main form-horizontal" >{% csrf_token %}	
 					<div class="form-group" >
 						 <label class="col-sm-3 control-label"><i class="fa fa-shield  "></i> 环境类型</label>
 						 <div class="col-sm-6">
@@ -455,28 +455,36 @@
 									<option value="prod" name="db_env">生产</option>					
 								</select>						 	
 						 </div>
-					</div>				
+					</div>						
+					<div class="form-group">
+						 <label class="col-sm-3 control-label"><i class="fa fa-gears"></i>所属项目</label>
+						 <div class="col-sm-6">
+						   <select class="form-control" name="db_project" id="db_project"  onchange="javascript:oBtProjectSelect();">
+						   		<option selected="selected" value="">请选择一个类型</option>
+									{% for s in projectList %}
+										<option value="{{s.id}}" name="db_project">{{s.project_name}}</option>
+									{% endfor %}								   							
+							</select>
+						 </div>
+					</div>	
+					<div class="form-group">
+						 <label class="col-sm-3 control-label"><i class="fa fa-bank"></i>业务类型</label>
+						 <div class="col-sm-6">
+							<select class="form-control" name="db_service" id="db_service" onchange="javascript:oBtServiceSelect();">
+							   		<option selected="selected" value="">请选择一个类型</option>								   							
+							</select>
+						 </div>
+					</div>										
 					<div class="form-group" >
 						 <label class="col-sm-3 control-label"><i class="fa fa-globe"></i>  数据库IP</label>
 						 <div class="col-sm-6">
 <!-- 						 	<input class="form-control" type="text" value="" placeholder="不能为空" name="db_host" /> -->
-						   <select class="form-control" name="db_host"  >
+						   <select class="form-control" name="db_host" id="db_host" >
 						   		<option selected="selected" value="">请选择一个类型</option>
 									{% for s in serList %}
 										<option value="{{s.ip}}" name="db_host">{{s.ip}}</option>
 									{% endfor %}								   							
 							</select>						 	
-						 </div>
-					</div>
-					<div class="form-group">
-						 <label class="col-sm-3 control-label"><i class="fa fa-gears"></i>业务类型</label>
-						 <div class="col-sm-6">
-						   <select class="form-control" name="db_service"  >
-						   		<option selected="selected" value="">请选择一个类型</option>
-									{% for s in serviceList %}
-										<option value="{{s.id}}" name="db_service">{{s.service_name}}</option>
-									{% endfor %}								   							
-							</select>
 						 </div>
 					</div>
 					<div class="form-group">
@@ -555,7 +563,7 @@
 							 <div class="col-sm-6">
 								   <select class="form-control" name="db_env">
 								   		{% if ds.db_env == 'test' %}
-								   			<option value="test" name="db_env" selected="selected">测试</option>
+								   			<option value="test" name="db_env" >测试</option>
 											<option value="prod" name="db_env">生产</option>
 										{% else %}
 											<option value="test" name="db_env">测试</option>
@@ -563,39 +571,52 @@
 										{% endif %}					
 									</select>						 	
 							 </div>
-						</div>				
-
+						</div>	
+						<div class="form-group">
+							 <label class="col-sm-3 control-label"><i class="fa fa-gears"></i>所属项目</label>
+							 <div class="col-sm-6">
+							   <select class="form-control" name="db_project"  id="db_project_{{ds.id}}"  onchange="javascript:oBtProjectModfSelect({{ds.id}});">
+							   		<option  value="">请选择一个类型</option>
+										{% for s in projectList %}
+											{% if s.id == ds.db_project %}
+												<option selected="selected" value="{{s.id}}" name="db_project">{{s.project_name}}</option>
+											{% else %}
+												<option value="{{s.id}}" name="db_project">{{s.project_name}}</option>
+											{% endif %}
+										{% endfor %}								   							
+								</select>								
+							 </div>
+						</div>
+						<div class="form-group">
+							 <label class="col-sm-3 control-label"><i class="fa fa-bank"></i>业务类型</label>
+							 <div class="col-sm-6">
+							   <select class="form-control" name="db_service" id="db_service_{{ds.id}}"  onchange="javascript:oBtServiceModfSelect({{ds.id}});">
+							   		<option  value="">请选择一个类型</option>
+										{% for s in serviceList %}
+											{% if s.id == ds.db_service %}
+												<option selected="selected" value="{{s.id}}" name="db_service">{{s.service_name}}</option>
+											{% elif s.project.id == ds.db_project %}
+												<option value="{{s.id}}" name="db_service">{{s.service_name}}</option>
+											{% endif %}
+										{% endfor %}								   							
+								</select>
+							 </div>
+						</div>					
 						<div class="form-group" >
 							 <label class="col-sm-3 control-label"><i class="fa fa-globe"></i>  数据库IP</label>
 							 <div class="col-sm-6">
-							   <select class="form-control" name="db_host"  >
+							   <select class="form-control" name="db_host" id="db_host_{{ds.id}}">
 							   		<option  value="">请选择一个类型</option>
 										{% for s in serList %}
 											{% if s.ip == ds.db_host %}
 												<option selected="selected" value="{{s.ip}}" name="db_host">{{s.ip}}</option>
-											{% else %}
-												<option value="{{s.ip}}" name="db_host">{{s.ip}}</option>
 											{% endif %}
 										{% endfor %}								   							
 								</select>						 	
 							 </div>
 						</div>
 						
-						<div class="form-group">
-							 <label class="col-sm-3 control-label"><i class="fa fa-gears"></i>业务类型</label>
-							 <div class="col-sm-6">
-							   <select class="form-control" name="db_service"  >
-							   		<option  value="">请选择一个类型</option>
-										{% for s in serviceList %}
-											{% if s.id == ds.db_service %}
-												<option selected="selected" value="{{s.id}}" name="db_service">{{s.service_name}}</option>
-											{% else %}
-												<option value="{{s.id}}" name="db_service">{{s.service_name}}</option>
-											{% endif %}
-										{% endfor %}								   							
-								</select>
-							 </div>
-						</div>
+
 						<div class="form-group">
 							 <label class="col-sm-3 control-label"><i class="fa  fa-group"></i>使用组</label>
 							 <div class="col-sm-6">
@@ -941,6 +962,127 @@
 /* 	    		location.reload(); */
 	    	}
 		})	
+	}	
+	
+	
+	function oBtProjectSelect(){
+		   $('#db_service').removeAttr("disabled");
+		   var obj = document.getElementById("db_project"); 
+		   var index = obj.selectedIndex;
+		   var projectId = obj.options[index].value; 
+		   if ( projectId > 0){	 
+				$.ajax({
+					dataType: "JSON",
+					url:'/api/project/'+ projectId + '/', //请求地址
+					type:"GET",  //提交类似
+					success:function(response){
+						var binlogHtml = '<select class="form-control" name="db_service" id="db_service" onchange="javascript:oBtServiceSelect();" required><option selected="selected" name="db_service" value="">请选择业务类型</option>'
+						var selectHtml = '';
+						for (var i=0; i <response["service_assets"].length; i++){
+							 selectHtml += '<option name="db_service" value="'+ response["service_assets"][i]["id"] +'">' + response["service_assets"][i]["service_name"] + '</option>' 
+						};                        
+						binlogHtml =  binlogHtml + selectHtml + '</select>';
+						document.getElementById("db_service").innerHTML= binlogHtml;	
+							
+					},
+				});	
+		   }
+		   else{
+			   $('#db_service').attr("disabled",true);
+		   }
+
+	}
+
+	function oBtServiceSelect(){
+	 	   $('#db_host').removeAttr("disabled");
+		   var obj = document.getElementById("db_service"); 
+		   var index = obj.selectedIndex;
+		   var sId = obj.options[index].value; 
+		   if ( sId  > 0){	 
+				$.ajax({
+					dataType: "JSON",
+					url:'/assets_server/', //请求地址
+					type:"POST",  //提交类似
+					data:{
+						"service_id":sId
+					},
+					success:function(response){
+						var binlogHtml = '<select multiple class="form-control"  name="db_host" id="db_host"  required>'
+						var selectHtml = '';
+						for (var i=0; i <response["data"].length; i++){
+							 selectHtml += '<option name="db_host" value="'+ response["data"][i]["ip"] +'">' + response["data"][i]["ip"] + '</option>' 
+						};                        
+						binlogHtml =  binlogHtml + selectHtml + '</select>';
+						document.getElementById("db_host").innerHTML= binlogHtml;	
+							
+					},
+				});	
+		   }
+		   else{
+			   $('#db_host option:selected').empty();
+			   $('#db_host').attr("disabled",true);
+		   }
+
+	}	
+	
+	function oBtProjectModfSelect(id){
+		   $('#db_service_'+id).removeAttr("disabled");
+		   var obj = document.getElementById("db_project_"+id); 
+		   var index = obj.selectedIndex;
+		   var projectId = obj.options[index].value; 
+		   if ( projectId > 0){	 
+				$.ajax({
+					dataType: "JSON",
+					url:'/api/project/'+ projectId + '/', //请求地址
+					type:"GET",  //提交类似
+					success:function(response){
+						var binlogHtml = '<select class="form-control" name="db_service" id="db_service_'+ id + '" onchange="javascript:oBtServiceSelect();" required><option selected="selected" name="db_service" value="">请选择业务类型</option>'
+						var selectHtml = '';
+						for (var i=0; i <response["service_assets"].length; i++){
+							 selectHtml += '<option name="db_service" value="'+ response["service_assets"][i]["id"] +'">' + response["service_assets"][i]["service_name"] + '</option>' 
+						};                        
+						binlogHtml =  binlogHtml + selectHtml + '</select>';
+						document.getElementById("db_service_"+id).innerHTML= binlogHtml;	
+							
+					},
+				});	
+		   }
+		   else{
+			   $('#db_service').attr("disabled",true);
+		   }
+
+	}
+
+	function oBtServiceModfSelect(id){
+	 	   $('#db_host_'+id).removeAttr("disabled");
+		   var obj = document.getElementById("db_service_"+id); 
+		   var index = obj.selectedIndex;
+		   var sId = obj.options[index].value; 
+		   if ( sId  > 0){	 
+				$.ajax({
+					dataType: "JSON",
+					url:'/assets_server/', //请求地址
+					type:"POST",  //提交类似
+					data:{
+						"service_id":sId
+					},
+					success:function(response){
+						var binlogHtml = '<select multiple class="form-control"  name="db_host" id="db_host_'+ id + '" required>'
+						var selectHtml = '';
+						for (var i=0; i <response["data"].length; i++){
+							 selectHtml += '<option name="db_host" value="'+ response["data"][i]["ip"] +'">' + response["data"][i]["ip"] + '</option>' 
+						};                        
+						binlogHtml =  binlogHtml + selectHtml + '</select>';
+						document.getElementById("db_host_"+id).innerHTML= binlogHtml;	
+							
+					},
+				});	
+		   }
+		   else{
+			   $('#db_host_'+ id + 'option:selected').empty();
+			   $('#db_host_'+ id).attr("disabled",true);
+		   }
+
 	}	
 	
 </script>

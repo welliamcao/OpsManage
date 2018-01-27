@@ -38,7 +38,7 @@
 				                                    	<th class="text-center">执行结果</th>
 														<th class="text-center">执行时间</th>
 														<th class="text-center">失败原因</th>
-				                                        {% if perms.opsmanage_sql_execute_histroy.can_delete_sql_execute_histroy %}
+				                                        {% if perms.OpsManage.can_delete_sql_execute_histroy %}
 				                                        	<th class="text-center">操作</th>
 				                                        {% endif %}														
 				                                    </tr>
@@ -74,7 +74,7 @@
 				                                				<a href="javascript:;" target="_blank" class="tooltip-test" data-toggle="tooltip" title="{{ds.exe_result}}">{{ds.exe_result|default:""|slice:":10"}}</a>
 				                                				
 				                                			</td>
-				                                			{% if perms.opsmanage_sql_execute_histroy.can_delete_sql_execute_histroy %}
+				                                			{% if perms.OpsManage.can_delete_sql_execute_histroy %}
 					                                			<td class="text-center">
 					                                				<a href="javascript:" onclick="deleteSQLogs(this,{{ds.id}})">
 						                                				<button class="btn btn-danger btn-xs">					                                					

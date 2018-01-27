@@ -34,7 +34,7 @@
 				                                    	<th class="text-center">操作用户</th>
 				                                        <th class="text-center">操作内容</th>
 				                                        <th class="text-center">操作时间</th>
-				                                        {% if perms.opsmanage_log_assets.delete_log_assets %}
+				                                        {% if perms.OpsManage.delete_log_assets %}
 				                                        	<th class="text-center">操作</th>
 				                                        {% endif %}
 				                                    </tr>
@@ -52,7 +52,7 @@
 				                                			<td class="text-center">{{ds.assets_user}} </td>
 				                                			<td class="text-center">{{ds.assets_content}} </td>
 				                                			<td class="text-center">{{ds.create_time|date:"Y/m/d H:i  "}}</td>
-				                                			{% if perms.opsmanage_log_assets.delete_log_assets %}
+				                                			{% if perms.OpsManage.delete_log_assets %}
 					                                			<td class="text-center">
 					                                				<a href="javascript:" onclick="deleteAssetsLogs(this,{{ds.id}})">
 						                                				<button class="btn btn-danger btn-xs">					                                					

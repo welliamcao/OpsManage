@@ -81,9 +81,9 @@
 									 	<option selected="selected" value="">请选择一个类型</option>
 									 	{% for ds in dataBaseList %}
                                 			{% if ds.db_env == 'test' %}
-                                				<option value="{{ds.id}}" name="order_db">测试环境 - {{ds.db_host}} - {{ds.db_name}}</option>
+                                				<option value="{{ds.id}}" name="order_db">测试环境 -{{ds.db_name}}({{ds.db_host}})</option>
                                 			{% else %}	                     				
-                                				<option value="{{ds.id}}" name="order_db">生产环境 - {{ds.db_host}} - {{ds.db_name}}</option>
+                                				<option value="{{ds.id}}" name="order_db">生产环境 -{{ds.db_name}}({{ds.db_host}})</option>
                                 			{% endif %}									 	
 									 		
 									 	{% endfor %}																

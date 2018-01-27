@@ -11,6 +11,48 @@ from rest_framework.decorators import api_view
 from OpsManage.tasks.assets import recordAssets
 from django.contrib.auth.decorators import permission_required
 
+
+@api_view(['GET', 'POST' ])
+@permission_required('OpsManage.can_add_project_assets',raise_exception=True)
+def project_list(request,format=None):  
+    if request.method == 'GET':     
+        snippets = Project_Assets.objects.all()
+        serializer = ProjectSerializer(snippets, many=True)
+        return Response(serializer.data)     
+    elif request.method == 'POST':
+        serializer = ProjectSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save() 
+            recordAssets.delay(user=str(request.user),content="添加项目名称：{service_name}".format(project_name=request.data.get("project_name")),type="project",id=serializer.data.get('id'))
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET', 'PUT', 'DELETE'])
+def project_detail(request, id,format=None):  
+    try:
+        snippet = Project_Assets.objects.get(id=id)
+    except Project_Assets.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+ 
+    if request.method == 'GET':
+        serializer = ProjectSerializer(snippet)
+        return Response(serializer.data)
+ 
+    elif request.method == 'PUT'and request.user.has_perm('OpsManage.can_change_rroject_Assets'):
+        serializer = ProjectSerializer(snippet, data=request.data)
+        old_name = snippet.project_name
+        if serializer.is_valid():
+            serializer.save()
+            recordAssets.delay(user=str(request.user),content="修改项目为：{old_name} -> {project_name}".format(old_name=old_name,project_name=request.data.get("project_name")),type="project",id=id)
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+     
+    elif request.method == 'DELETE' and request.user.has_perm('OpsManage.can_delete_rroject_Assets'):
+        if not request.user.has_perm('OpsManage.can_delete_rroject_Assets'):
+            return Response(status=status.HTTP_403_FORBIDDEN)
+        snippet.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)   
+
 @api_view(['GET', 'POST' ])
 @permission_required('OpsManage.can_add_service_assets',raise_exception=True)
 def service_list(request,format=None):
@@ -22,12 +64,24 @@ def service_list(request,format=None):
         serializer = ServiceSerializer(snippets, many=True)
         return Response(serializer.data)     
     elif request.method == 'POST':
-        serializer = ServiceSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            recordAssets.delay(user=str(request.user),content="添加业务类型名称：{service_name}".format(service_name=request.data.get("service_name")),type="service",id=serializer.data.get('id'))  
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        del request.data['project_name']
+        try:
+            service = Service_Assets.objects.create(**request.data)
+        except Exception, ex:
+            return Response({"msg":str(ex)}, status=status.HTTP_400_BAD_REQUEST)      
+        try:  
+            snippet = Service_Assets.objects.get(id=service.id)
+            serializer = ServiceSerializer(snippet)
+            recordAssets.delay(user=str(request.user),content="添加业务类型名称：{service_name}".format(service_name=request.data.get("service_name")),type="service",id=serializer.data.get('id'))
+        except Exception, ex:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)  
+        return Response(serializer.data)        
+#         serializer = ServiceSerializer(data=request.data)
+#         if serializer.is_valid():
+#             serializer.save()
+# #             recordAssets.delay(user=str(request.user),content="添加业务类型名称：{service_name}".format(service_name=request.data.get("service_name")),type="service",id=serializer.data.get('id'))  
+#             return Response(serializer.data, status=status.HTTP_201_CREATED)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET', 'PUT', 'DELETE'])
 @permission_required('OpsManage.can_change_service_assets',raise_exception=True)
@@ -281,50 +335,7 @@ def raid_detail(request, id,format=None):
         snippet.delete()
         recordAssets.delay(user=str(request.user),content="删除Raid类型：{raid_name}".format(raid_name=snippet.raid_name),type="raid",id=id) 
         return Response(status=status.HTTP_204_NO_CONTENT)  
-    
-# @api_view(['GET', 'POST' ])
-# def status_list(request,format=None):
-#     """
-#     List all order, or create a server assets order.
-#     """
-#     if request.method == 'GET':      
-#         snippets = Assets_Satus.objects.all()
-#         serializer = AssetStatusSerializer(snippets, many=True)
-#         return Response(serializer.data)     
-#     elif request.method == 'POST':
-#         serializer = AssetStatusSerializer(data=request.data)
-#         if serializer.is_valid():
-#             serializer.save()
-#             return Response(serializer.data, status=status.HTTP_201_CREATED)
-#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-# 
-# @api_view(['GET', 'PUT', 'DELETE'])
-# def status_detail(request, id,format=None):
-#     """
-#     Retrieve, update or delete a server assets instance.
-#     """
-#     try:
-#         snippet = Assets_Satus.objects.get(id=id)
-#     except Assets_Satus.DoesNotExist:
-#         return Response(status=status.HTTP_404_NOT_FOUND)
-#  
-#     if request.method == 'GET':
-#         serializer = AssetStatusSerializer(snippet)
-#         return Response(serializer.data)
-#  
-#     elif request.method == 'PUT':
-#         serializer = AssetStatusSerializer(snippet, data=request.data)
-#         if serializer.is_valid():
-#             serializer.save()
-#             return Response(serializer.data)
-#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-#      
-#     elif request.method == 'DELETE':
-#         if not request.user.has_perm('OpsManage.delete_assets_status'):
-#             return Response(status=status.HTTP_403_FORBIDDEN)
-#         snippet.delete()
-#         return Response(status=status.HTTP_204_NO_CONTENT)      
-           
+                
 
 @api_view(['GET', 'POST' ])
 @permission_required('OpsManage.can_add_assets',raise_exception=True)

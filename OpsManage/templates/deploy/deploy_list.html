@@ -122,7 +122,7 @@
                                 <tbody>
                                 	{% for ds in deployList %}
                                 		<tr class="odd gradeX">
-                                			<td>{{ds.project_name}} </td>
+                                			<td>{{ds.project.project_name}} </td>
                                 			<td>
                                 				{% if ds.project_env == 'sit' %}
                                 					<button  type="button" class="btn btn-default disabled">测试环境</button>
@@ -155,7 +155,7 @@
                                 			</td>
                                 			<td>
                                 				{% if ds.project_status == 0 %}
-                                					<button  type="button" class="btn btn-outline btn-warning" onclick="initProject(this,'{{ds.project_name}}',{{ds.id}})">未初始化</button>
+                                					<button  type="button" class="btn btn-outline btn-warning" onclick="initProject(this,'{{ds.project.project_name}}',{{ds.id}})">未初始化</button>
                                 				{% else %}
                                 					<button  type="button" class="btn btn-outline btn-success">已初始化</button>
                                 				{% endif %}

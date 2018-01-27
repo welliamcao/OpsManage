@@ -11,11 +11,23 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ('id','last_login','is_superuser','username',
                   'first_name','last_name','email','is_staff',
                   'is_active','date_joined')
+ 
 
 class ServiceSerializer(serializers.ModelSerializer):
+    project_name = serializers.CharField(source='project.project_name', read_only=True)
+    project_id = serializers.IntegerField(source='project.id', read_only=True)
     class Meta:
         model = Service_Assets
-        fields = ('id','service_name')
+        fields = ('id','service_name','project_name','project_id')
+           
+
+
+class ProjectSerializer(serializers.ModelSerializer):
+    service_assets = ServiceSerializer(many=True, read_only=True,required=False)
+    class Meta:
+        model = Project_Assets
+        fields = ('id','project_name','service_assets')   
+                  
 
 class GroupSerializer(serializers.ModelSerializer):
     class Meta:
@@ -56,12 +68,8 @@ class AssetsSerializer(serializers.ModelSerializer):
         model = Assets
         fields = ('id','assets_type','name','sn','buy_time','expire_date',
                   'buy_user','management_ip','manufacturer','provider',
-                  'model','status','put_zone','group','business')  
-        
-# class VmServerAssetsSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = Assets
-#         fields = ('id','assets_type','name','status','put_zone','group','business')         
+                  'model','status','put_zone','group','business','project')  
+                
 
 class AssetsLogsSerializer(serializers.ModelSerializer):
     class Meta:
@@ -172,7 +180,7 @@ class DataBaseServerSerializer(serializers.ModelSerializer):
         model = DataBase_Server_Config
         fields = ('id','db_env','db_name','db_host','db_user',
                   'db_passwd','db_port','db_mark','db_service',
-                  'db_group')  
+                  'db_group','db_project')  
         
         
 class CustomSQLSerializer(serializers.ModelSerializer):

@@ -218,12 +218,12 @@
 				      </div>
 				      <div class="col-xs-6 col-sm-3">
 							<div class="form-group">
-								<label class="col-sm-3 control-label">Selinux:</label>
+								<label class="col-sm-3 control-label">所属项目:</label>
 								<div class="col-sm-8">
-									 <select class="form-control" id="selSelinux" >
+									 <select class="form-control" id="selProject" >
 									 	<option selected="selected" value="">请选择一个类型</option>
-									 	{% for b in selinuxList %}
-									 		<option value="{{b}}" name="selinux">{{b}}</option>
+									 	{% for b in baseAssets.project %}
+									 		<option value="{{b.id}}" name="project">{{b.project_name}}</option>
 									 	{% endfor %}				
 									</select>
 								</div>
@@ -920,20 +920,20 @@
                     changepage(1);
                 }
             })   
-			//selinux状态
-            $('#selSelinux').change(function () {
-                if ($('#selSelinux').val() != "") {
-                    $("#hdnSelinux").val($('#selSelinux').val());
-                    var span = "<span class='label label-success' id='spanSelinux'>" + $("#selSelinux").find("option:selected").text()
-                    + " <img alt='' src='/static/img/close.png' onclick='removeself(this)' /><input name='selinux' type='hidden' value='"
-                    + $('#selSelinux').val() + "' /></span> &nbsp;";
+			//所属项目
+            $('#selProject').change(function () {
+                if ($('#selProject').val() != "") {
+                    $("#hdnProject").val($('#selProject').val());
+                    var span = "<span class='label label-success' id='spanSelinux'>" + $("#selProject").find("option:selected").text()
+                    + " <img alt='' src='/static/img/close.png' onclick='removeself(this)' /><input name='project' type='hidden' value='"
+                    + $('#selProject').val() + "' /></span> &nbsp;";
                     if ($("#spanSelinux").length == 0) {
                         $('#divSelectedType').append(span);
                     }
                     else {
-                        $("#spanSelinux").html($("#selSelinux").find("option:selected").text()
-                         + " <img alt='' src='/static/img/close.png' onclick='removeself(this)' /><input name='selinux' type='hidden' value='"
-                         + $('#selSelinux').val() + "' /></span> &nbsp;");
+                        $("#spanSelinux").html($("#selProject").find("option:selected").text()
+                         + " <img alt='' src='/static/img/close.png' onclick='removeself(this)' /><input name='project' type='hidden' value='"
+                         + $('#selProject').val() + "' /></span> &nbsp;");
                     }
                     changepage(1);
                 }

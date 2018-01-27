@@ -52,9 +52,9 @@
 												</button> 
                                 			</td>
                                 			<td class="text-center">
-												{% if ds.runid  %}
+												{% if ds.runid or user.is_superuser %}
 													<a href="/apps/playbook/modf/{{ds.id}}"><button  type="button" class="btn btn-default"><abbr title="修改资料"><i class="glyphicon glyphicon-edit"></i></button></a>
-													<a href="/apps/playbook/run/{{ds.runid}}"><button  type="button" class="btn btn-default"><abbr title="运行剧本"><i class="fa fa-play-circle-o"></i></button></a> 
+													<a href="/apps/playbook/run/{{ds.id}}"><button  type="button" class="btn btn-default"><abbr title="运行剧本"><i class="fa fa-play-circle-o"></i></button></a> 
 													<button  type="button" class="btn btn-default" onclick="deletePlayBook(this,{{ds.id}})"><abbr title="删除"><i class="glyphicon glyphicon-trash"></i></button>    
 												{% else %}
 													<button  type="button" class="btn btn-default" disabled><abbr title="修改资料"><i class="glyphicon glyphicon-edit"></i></button>

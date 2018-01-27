@@ -9,7 +9,8 @@ from django.contrib.auth.decorators import login_required
 from OpsManage.models import (DataBase_Server_Config,Inception_Server_Config,
                               SQL_Audit_Order,SQL_Order_Execute_Result,
                               Custom_High_Risk_SQL,SQL_Audit_Control,
-                              Service_Assets,Server_Assets,SQL_Execute_Histroy)
+                              Service_Assets,Server_Assets,SQL_Execute_Histroy,
+                              Project_Assets)
 from OpsManage.tasks.sql import sendSqlEmail,recordSQL
 from django.contrib.auth.decorators import permission_required
 from OpsManage.utils.inception import Inception
@@ -28,6 +29,7 @@ def db_config(request):
         dataBaseList = DataBase_Server_Config.objects.all()
         serviceList = Service_Assets.objects.all()
         serList = Server_Assets.objects.all()
+        projectList = Project_Assets.objects.all()
         try:
             config = SQL_Audit_Control.objects.get(id=1)
             gList = json.loads(config.audit_group)
@@ -47,7 +49,8 @@ def db_config(request):
         return render(request,'database/db_config.html',{"user":request.user,"incept":incept,
                                                         "dataBaseList":dataBaseList,"sqlList":sqlList,
                                                         "config":config,"groupList":groupList,
-                                                        "serviceList":serviceList,"serList":serList}
+                                                        "serviceList":serviceList,"serList":serList,
+                                                        "projectList":projectList}
                       )
         
 
@@ -69,9 +72,11 @@ def db_sqlorder_audit(request):
             userList = User.objects.filter(groups__in=audit_group)    
             dataBaseList = DataBase_Server_Config.objects.all()
             serviceList = Service_Assets.objects.all()
+            projectList = Project_Assets.objects.all()
         except Exception, ex:
             print ex
-        return render(request,'database/db_sqlorder_audit.html',{"user":request.user,"dataBaseList":dataBaseList,"userList":userList,"serviceList":serviceList})
+        return render(request,'database/db_sqlorder_audit.html',{"user":request.user,"dataBaseList":dataBaseList,"userList":userList,
+                                                                 "serviceList":serviceList,"projectList":projectList})
     elif request.method == "POST":
         if request.POST.get('type') == 'audit':
             dbId = request.POST.get('order_db')
@@ -174,7 +179,7 @@ def db_sqlorder_run(request,id):
                    port=order.order_db.db_port
                    )   
         try:
-            order.order_db.db_service = Service_Assets.objects.get(id=order.order_db.db_service).service_name
+            order.order_db.db_service = Service_Assets.objects.get(id=order.order_db.db_service)
         except Exception, ex:
             order.order_db.db_service = '未知'
         if order.order_status in [2,3,7]:       
@@ -440,7 +445,8 @@ def db_ops(request):
     if request.method == "GET":
         dataBaseList = DataBase_Server_Config.objects.all()
         serviceList = Service_Assets.objects.all()
-        return render(request,'database/db_ops.html',{"user":request.user,"dataBaseList":dataBaseList,"serviceList":serviceList}) 
+        projectList = Project_Assets.objects.all()
+        return render(request,'database/db_ops.html',{"user":request.user,"dataBaseList":dataBaseList,"serviceList":serviceList,"projectList":projectList}) 
     
     elif request.method == "POST" and request.POST.get('model') == 'binlog':#通过获取数据库的binlog版本
         try:
@@ -464,6 +470,7 @@ def db_ops(request):
             data['id'] = ds.id
             data['db_name'] = ds.db_name
             data['db_host'] = ds.db_host
+            data['db_mark'] = ds.db_mark
             dataList.append(data)
         return JsonResponse({'msg':"数据查询成功","code":200,'data':dataList})
     

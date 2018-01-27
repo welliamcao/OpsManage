@@ -414,6 +414,7 @@
 									       <th class="text-center">资产编号</th>
 									       <th class="text-center">设备型号</th>
 									       <th class="text-center">放置区域</th>
+									       <th class="text-center">所属项目</th>
 									       <th class="text-center">业务类型</th>
 									       <th class="text-center">使用组</th>
 									       <th class="text-center">购买时间</th>									       
@@ -462,6 +463,13 @@
 									         		{% endif %}
 									         	{% endfor %}
 									         </td>
+									         <td class="text-center">
+									         	{% for s in baseAssets.project %}
+									         		{% if s.id == a.project %}
+									         			<button  type="button" class="btn btn-default disabled">{{ s.project_name }}</button>	
+									         		{% endif %}
+									         	{% endfor %}								         		
+									         </td>									         
 									         <td class="text-center">
 									         	{% for s in baseAssets.service %}
 									         		{% if s.id == a.business %}

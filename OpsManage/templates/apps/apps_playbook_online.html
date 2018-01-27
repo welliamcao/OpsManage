@@ -36,33 +36,51 @@
                                             <label>剧本名称</label>
                                             <input class="form-control" name="playbook_name" required>
                                             <p class="help-block">例如：系统初始化</p>
-                                        </div>                                    
-										<div id="compile-editor" class="ace_editor"></div> 
+                                        </div>  
+                                        <div class="form-group">
+                                            <label>描述<i class="fa fa-info-circle" data-toggle="tooltip"  title="功能描述"></i></label>
+                                            <textarea class="form-control" rows="3" id="playbook_desc"></textarea>
+                                            <p class="help-block">例如：用于初始化系统内核参数，关闭不必要的服务</p>
+                                        </div>  
+                                        <div class="form-group">         
+	                                        <label>剧本内容<i class="fa fa-info-circle" data-toggle="tooltip"  title="输入yaml格式数据"></i></label>                                                                
+											<div id="compile-editor" class="ace_editor"></div> 
+										</div>
 										<br>                                           
                                         <button type="reset" class="btn btn-default">撤销</button>
-                                        <button type="button" class="btn btn-default" onclick="oBtAnsiblePlaybookOnline(this)">添加</button>
+                                        <button type="button" class="btn btn-default" {% if perms.OpsManage.can_add_ansible_playbook %}onclick="oBtAnsiblePlaybookOnline(this)"{% else %} disabled  {% endif %}>添加</button>
                                     	
                                 </div>
                                 <!-- /.col-lg-6 (nested) -->
                                 <div class="col-lg-6">
                                     <legend><i class="fa  fa-paper-plane-o"></i>目标服务器<i class="fa fa-info-circle" data-toggle="tooltip"  title="如果不配置，则所有人都能使用"></i></legend>
-                                     <div class="form-group">
-                                            <label>服务器选择<i class="fa fa-info-circle" data-toggle="tooltip"  title="根据不同场景选择服务器"></i></label>
-												<select class="form-control" name="server_model" id="server_model" onchange="javascript:oBtAnsibleServerl();">
-													<option value="service" name="server_model">业务类型</option>
-													<option value="group" name="server_model">使用部门</option>	
-													<option value="custom" name="server_model">自定义</option> 	
-												</select>
-                                        </div> 
+										<div class="form-group" >			 		             
+											<label>动态主机<i class="fa fa-info-circle" data-toggle="tooltip"  title="根据不同场景选择服务器"></i></label>	
+											<select class="form-control" name="server_model" id="server_model" onchange="javascript:oBtAnsibleServerl();">
+												<option name="server_model" value="" selected="selected">请选择一个类型</option>
+												<option value="service" name="server_model">项目类型</option>
+												<option value="group" name="server_model">使用部门</option>
+												<option value="custom" name="server_model">自定义</option> 	
+											</select>		
+										</div>
  
-                                         <div  id="service_server" class="form-group">
-                                            <label>业务类型<i class="fa fa-info-circle" data-toggle="tooltip"  title="根据业务类型选择服务器"></i></label>
-		                                    <select class="form-control" name="ansible_service">
-		                                        {% for ds in serviceList %}
-		                                            <option name="playbook_service" value="{{ds.id}}">{{ds.service_name}}</option>
-		                                        {% endfor %}
-		                                    </select>
-                                        </div>  
+										<div id='project_server'  style="display:none;">
+											<div class="form-group">
+												 <label>所属项目</label>
+		                                            <select class="form-control" name="ansible_project"  id="ansible_project" onchange="javascript:oBtProjectSelect();" required>
+		                                            	<option name="project" value="" selected="selected">请选择一个项目</option>
+		                                            	{% for ds in projectList %}
+		                                            		<option name="project" value="{{ds.id}}">{{ds.project_name}}</option>
+		                                            	{% endfor %}
+		                                            </select>
+											</div>										
+											<div class="form-group">
+												 <label>业务类型</label>
+		                                         <select class="form-control" name="ansible_service"  id="ansible_service" required>
+		                                            	<option name="service" value="">选择一个业务类型</option>
+		                                         </select>
+											</div>	
+										</div>	  
                                         
                                          <div id="group_server" class="form-group" style="display:none;">
                                             <label>服务器使用组<i class="fa fa-info-circle" data-toggle="tooltip"  title="根据服务器分配的用户组选择服务器"></i></label>
@@ -167,6 +185,7 @@
 			  data: {
 				  "playbook_name":playbook_name,
 				  'server_model':document.getElementById("server_model").value,
+				  "playbook_desc":document.getElementById("playbook_desc").value,
 				  "playbook_vars":document.getElementsByName("playbook_auth_user")[0].value,
 				  "playbook_server":getMultiple(),
 				  "playbook_auth_group":document.getElementsByName("playbook_auth_group")[0].value,
@@ -197,19 +216,52 @@
 		   var value = obj.options[index].value; 
 		   if (value=="group"){
 			   document.getElementById("group_server").style.display = "";
-			   document.getElementById("service_server").style.display = "none";
 			   document.getElementById("custom_server").style.display = "none";
+			   document.getElementById("project_server").style.display = "none";
 		   }
 		   else if (value=="custom"){
 			   document.getElementById("group_server").style.display = "none";
-			   document.getElementById("service_server").style.display = "none";
 			   document.getElementById("custom_server").style.display = "";
+			   document.getElementById("project_server").style.display = "none";
 		   }
+		   else if (value=="service"){
+			   document.getElementById("group_server").style.display = "none";
+			   document.getElementById("custom_server").style.display = "none";
+			   document.getElementById("project_server").style.display = "";
+		   }	   
 		   else {
 			   document.getElementById("group_server").style.display = "none";
-			   document.getElementById("service_server").style.display = "";
 			   document.getElementById("custom_server").style.display = "none"; 
+			   document.getElementById("project_server").style.display = "none";
 		   }	
+	}
+
+	function oBtProjectSelect(){
+		   $('#ansible_service').removeAttr("disabled");
+		   var obj = document.getElementById("ansible_project"); 
+		   var index = obj.selectedIndex;
+		   var projectId = obj.options[index].value; 
+		   if ( projectId > 0){	 
+				$.ajax({
+					dataType: "JSON",
+					url:'/api/project/'+ projectId + '/', //请求地址
+					type:"GET",  //提交类似
+					success:function(response){
+						var binlogHtml = '<select class="form-control" name="ansible_service" id="ansible_service" onchange="javascript:oBtServiceSelect();" required><option selected="selected" name="ansible_service" value="">请选择业务类型</option>'
+						var selectHtml = '';
+						for (var i=0; i <response["service_assets"].length; i++){
+							 selectHtml += '<option name="ansible_service" value="'+ response["service_assets"][i]["id"] +'">' + response["service_assets"][i]["service_name"] + '</option>' 
+						};                        
+						binlogHtml =  binlogHtml + selectHtml + '</select>';
+						document.getElementById("ansible_service").innerHTML= binlogHtml;	
+							
+					},
+				});	
+		   }
+		   else{
+			   $('#ansible_service').attr("disabled",true);
+		   }
+
 	}
 
 </script>

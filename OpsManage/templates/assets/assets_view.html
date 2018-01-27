@@ -130,7 +130,17 @@
                                     </span>
                                 </a> 
                                 <a href="#" class="list-group-item">
-                                    <i class="fa fa-sitemap fa-fw"></i> 业务类型
+                                    <i class="fa fa-sitemap fa-fw"></i> 所属项目
+                                    <span class="pull-right text-muted small">
+                                    {% for s in baseAssets.project %}
+                                    	{% if s.id == asset_main.project %}
+                                    		<em>{{ s.project_name }}</em>
+                                    	{% endif %}
+                                    {% endfor %}                                     
+                                    </span>
+                                </a>                                 
+                                <a href="#" class="list-group-item">
+                                    <i class="fa fa-check fa-fw"></i> 业务类型
                                     <span class="pull-right text-muted small">
                                     {% for s in baseAssets.service %}
                                     	{% if s.id == asset_main.business %}
@@ -173,7 +183,13 @@
                                 </a>
                                 <a href="#" class="list-group-item">
                                     <i class="fa fa-upload fa-fw"></i> 出口线路
-                                    <span class="pull-right text-muted small"><em>{{ asset_body.line|default:"" }}</em>
+                                    <span class="pull-right text-muted small">
+                                    {% for s in baseAssets.line %}
+                                    	{% if s.id == asset_body.line %}
+                                    		<em>{{ s.line_name }}</em>
+                                    	{% endif %}
+                                    {% endfor %}                                    
+
                                     </span>
                                 </a>
                                 <a href="#" class="list-group-item">

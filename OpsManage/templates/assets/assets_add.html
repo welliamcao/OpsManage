@@ -146,15 +146,24 @@
 													</select>
 												 </div>
 											</div>																	
+
+											<div class="form-group">
+												 <label class="col-sm-2 control-label">所属项目</label>
+												 <div class="col-sm-6">
+												   <select class="form-control" name="asset_project"  id="asset_project" onchange="javascript:oBtProjectSelect();">
+												   		<option selected="selected" value="">请选择一个类型</option>
+															{% for p in baseAssets.project %}
+																<option value="{{p.id}}" name="asset_project">{{p.project_name}}</option>
+															{% endfor %}								   							
+													</select>
+												 </div>
+											</div>
 														
 											<div class="form-group">
 												 <label class="col-sm-2 control-label">业务类型</label>
 												 <div class="col-sm-6">
-												   <select class="form-control" name="asset_business"  >
-												   		<option selected="selected" value="">请选择一个类型</option>
-															{% for s in baseAssets.service %}
-																<option value="{{s.id}}" name="asset_business">{{s.service_name}}</option>
-															{% endfor %}								   							
+												   <select class="form-control" name="asset_business" id="asset_business" >
+												   		<option selected="selected" value="">请选择一个类型</option>								   							
 													</select>
 												 </div>
 											</div>		
@@ -389,6 +398,30 @@
 
 <script type="text/javascript"> 
 	$(function () { $("[data-toggle='tooltip']").tooltip(); });
+	
+	function oBtProjectSelect(){
+		   $('#asset_business option:selected').empty();
+		   var dbId = $('#asset_project option:selected').val();
+		   if ( dbId.length > 0){	 
+				$.ajax({
+					dataType: "JSON",
+					url:'/api/project/'+ dbId + '/', //请求地址
+					type:"GET",  //提交类似
+					success:function(response){
+						var binlogHtml = '<select class="form-control" name="asset_business" id="asset_business" >'
+						var selectHtml = '';
+						for (var i=0; i <response["service_assets"].length; i++){
+							 selectHtml += '<option name="asset_business" value="'+ response["service_assets"][i]["id"] +'">' + response["service_assets"][i]["service_name"] + '</option>' 
+						};                        
+						binlogHtml =  binlogHtml + selectHtml + '</select>';
+						document.getElementById("asset_business").innerHTML= binlogHtml;	
+							
+					},
+				});	
+		   };
+	
+	}	
+	
 	function getFormData (form, filler) {
 		var assets = {};
 		var server = {};
@@ -443,7 +476,7 @@
 		}
 	}
 	
-	var assets = ['asset_assets_type','asset_name','asset_sn','asset_buy_time','asset_buy_user','asset_management_ip','asset_manufacturer','asset_provider','asset_model','asset_status','asset_put_zone','asset_group','asset_business'];
+	var assets = ['asset_assets_type','asset_name','asset_sn','asset_buy_time','asset_buy_user','asset_management_ip','asset_manufacturer','asset_provider','asset_model','asset_status','asset_put_zone','asset_group','asset_business','asset_project'];
 	function oBtAssetsType() {
 		   var obj = document.getElementById("assets_type_select"); 
 		   var index = obj.selectedIndex;
@@ -452,7 +485,7 @@
 			   document.getElementById("asset_net_chioce").style.display = "none";
 			   document.getElementById("asset_server_chioce").style.display = "";  
 			   document.getElementById("asset_vmserver_chioce").style.display = "";	
-			   assets = ['asset_assets_type','asset_name','asset_sn','asset_buy_time','asset_buy_user','asset_management_ip','asset_manufacturer','asset_provider','asset_model','asset_status','asset_put_zone','asset_group','asset_business'];
+			   assets = ['asset_assets_type','asset_name','asset_sn','asset_buy_time','asset_buy_user','asset_management_ip','asset_manufacturer','asset_provider','asset_model','asset_status','asset_put_zone','asset_group','asset_business','asset_project'];
 		   }
 		   else if (value=="vmser"){
 			   document.getElementById("asset_server_chioce").style.display = "";  
@@ -464,7 +497,7 @@
 			   document.getElementById("asset_net_chioce").style.display = "";
 			   document.getElementById("asset_server_chioce").style.display = "none";	
 			   document.getElementById("asset_vmserver_chioce").style.display = "";	
-			   assets = ['asset_assets_type','asset_name','asset_sn','asset_buy_time','asset_buy_user','asset_management_ip','asset_manufacturer','asset_provider','asset_model','asset_status','asset_put_zone','asset_group','asset_business'];
+			   assets = ['asset_assets_type','asset_name','asset_sn','asset_buy_time','asset_buy_user','asset_management_ip','asset_manufacturer','asset_provider','asset_model','asset_status','asset_put_zone','asset_group','asset_business','asset_project'];
 		   }
 	}
 

@@ -66,8 +66,23 @@
 									<option name="ops_env" value="test" >测试</option>
 									<option name="ops_env" value="prod" >生产</option>
 								</select>		
-							</div>                                     	 
+							</div>    
 							<div class="form-group" >			 		             
+								<label >所属项目</label>	
+								<select class="form-control"  name="ops_project" id="ops_project" onchange="javascript:oBtProjectSelect();">
+									<option name="ops_project" value="" selected="selected">选择一个项目</option>
+									{% for ds in projectList %}
+										<option value="{{ds.id}}" name="ops_project">{{ds.project_name}}</option>
+									{% endfor %}
+								</select>		
+							</div> 
+							<div class="form-group">
+								<label >业务类型</label>
+								<select class="form-control" name="ops_service" id="ops_service" onchange="javascript:oBtServiceSelect();">
+									   <option selected="selected" value="">请选择一个类型</option>								   							
+								</select>
+							</div>								 							                                 	 
+<!-- 							<div class="form-group" >			 		             
 								<label >业务类型</label>	
 								<select class="form-control"  name="ops_service" id="ops_service" onchange="javascript:oBtServiceSelect();">
 									<option name="ops_service" value="" selected="selected">选择一个数据库进行操作</option>
@@ -75,7 +90,7 @@
 										<option value="{{ds.id}}" name="ops_service">{{ds.service_name}}</option>
 									{% endfor %}
 								</select>		
-							</div>                                    
+							</div>   -->                                  
 							<div class="form-group" >			 		             
 								<label >数据库</label>	
 								<select class="form-control"  name="order_db" id="order_db">
@@ -150,11 +165,74 @@
 {% endif %}
 
 	function oBtEnvSelect(){
-		$('#ops_binlog option:selected').empty();
 		$('#order_db option:selected').empty();
 		$("#ops_service").val("");
 	}
-	function oBtServiceSelect(){		
+	
+	function oBtProjectSelect(){
+		   $('#ops_service').removeAttr("disabled");
+		   var obj = document.getElementById("ops_project"); 
+		   var index = obj.selectedIndex;
+		   var projectId = obj.options[index].value; 
+		   if ( projectId > 0){	 
+				$.ajax({
+					dataType: "JSON",
+					url:'/api/project/'+ projectId + '/', //请求地址
+					type:"GET",  //提交类似
+					success:function(response){
+						var binlogHtml = '<select class="form-control" name="ops_service" id="ops_service" onchange="javascript:oBtServiceSelect();" required><option selected="selected" name="ops_service" value="">请选择业务类型</option>'
+						var selectHtml = '';
+						for (var i=0; i <response["service_assets"].length; i++){
+							 selectHtml += '<option name="ops_service" value="'+ response["service_assets"][i]["id"] +'">' + response["service_assets"][i]["service_name"] + '</option>' 
+						};                        
+						binlogHtml =  binlogHtml + selectHtml + '</select>';
+						document.getElementById("ops_service").innerHTML= binlogHtml;	
+							
+					},
+				});	
+		   }
+		   else{
+			   $('#ops_service').attr("disabled",true);
+		   }
+
+	}
+	
+	function oBtServiceSelect(){
+	 	   $('#order_db').removeAttr("disabled");
+		   var obj = document.getElementById("ops_service"); 
+		   var env = $('#ops_env option:selected').val();	
+		   var index = obj.selectedIndex;
+		   var sId = obj.options[index].value; 
+		   if ( sId  > 0){	 
+				$.ajax({
+					dataType: "JSON",
+					url:'/db/ops/', //请求地址
+					type:"POST",  //提交类似
+					data:{
+						'model':'querydb',
+						'db_service':sId,
+						'db_env':env,
+					},  //提交参数
+					success:function(response){
+						var dbHtml = '<select class="form-control"  name="ops_db" id="order_db" onchange="javascript:oBtDbsSelect();"><option name="order_db" value="" selected="selected">选择一个数据库进行操作</option>'
+						var selectHtml = '';
+						for (var i=0; i <response["data"].length; i++){
+							 selectHtml += '<option name="order_db" value="'+ response["data"][i]['id'] +'">' + response["data"][i]['db_name'] +  '(' + response["data"][i]['db_host'] + ')' +  '-(' + response["data"][i]['db_mark'] + ')' + '</option>' 
+						};                        
+						dbHtml =  dbHtml + selectHtml + '</select>';
+						document.getElementById("order_db").innerHTML= dbHtml;
+							
+					},
+				});	
+		   }
+		   else{
+			   $('#order_db option:selected').empty();
+			   $('#order_db').attr("disabled",true);
+		   }
+
+	}	
+	
+/* 	function oBtServiceSelect(){		
 		var service = $('#ops_service option:selected').val();
 		var env = $('#ops_env option:selected').val();	
 		if (service >= 1){
@@ -180,7 +258,7 @@
 				},
 			});			   	
 		}
-	}
+	} */
 
 	function setAceEditMode(model) {
 		var editor = ace.edit("compile-editor");

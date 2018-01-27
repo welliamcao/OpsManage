@@ -31,6 +31,7 @@ class Assets(models.Model):
     put_zone = models.SmallIntegerField(blank=True,null=True,verbose_name='放置区域')
     group = models.SmallIntegerField(blank=True,null=True,verbose_name='使用组')
     business = models.SmallIntegerField(blank=True,null=True,verbose_name='业务类型')
+    project = models.SmallIntegerField(blank=True,null=True,verbose_name='项目类型')
     create_date = models.DateTimeField(auto_now_add=True)
     update_date = models.DateTimeField(auto_now_add=True)
     class Meta:
@@ -166,12 +167,26 @@ class NetworkCard_Assets(models.Model):
         verbose_name = '网卡资产表'  
         verbose_name_plural = '网卡资产表'         
         
-
+class Project_Assets(models.Model):
+    '''项目资产表'''
+    project_name = models.CharField(max_length=100,unique=True) 
+    class Meta:
+        db_table = 'opsmanage_project_assets'
+        permissions = (
+            ("can_read_project_assets", "读取项目资产权限"),
+            ("can_change_project_assets", "更改项目资产权限"),
+            ("can_add_project_assets", "添加项目资产权限"),
+            ("can_delete_project_assets", "删除项目资产权限"),              
+        )  
+        verbose_name = '项目资产表'  
+        verbose_name_plural = '项目资产表' 
               
     
 class Service_Assets(models.Model):
     '''业务分组表'''
-    service_name = models.CharField(max_length=100,unique=True) 
+    project = models.ForeignKey('Project_Assets',related_name='service_assets', on_delete=models.CASCADE)
+    service_name = models.CharField(max_length=100) 
+    
     class Meta:
         db_table = 'opsmanage_service_assets'
         permissions = (
@@ -180,6 +195,7 @@ class Service_Assets(models.Model):
             ("can_add_service_assets", "添加业务资产权限"),
             ("can_delete_service_assets", "删除业务资产权限"),              
         )  
+        unique_together = (("project", "service_name"))
         verbose_name = '业务分组表'  
         verbose_name_plural = '业务分组表'  
                   
@@ -248,9 +264,10 @@ class Project_Config(models.Model):
     deploy_model_choices =  (
                           ('branch',u'branch'),
                           ('tag',u'tag'),
-                          )   
+                          )  
+    project = models.ForeignKey('Project_Assets',related_name='project_config', on_delete=models.CASCADE) 
     project_env = models.CharField(max_length=50,verbose_name='项目环境',default=None) 
-    project_name = models.CharField(max_length=100,verbose_name='项目名称',default=None)    
+    project_service = models.SmallIntegerField(verbose_name='业务类型')
     project_local_command = models.TextField(blank=True,null=True,verbose_name='部署服务器要执行的命令',default=None)
     project_repo_dir = models.CharField(max_length=100,verbose_name='本地仓库目录',default=None)
     project_dir = models.CharField(max_length=100,verbose_name='代码目录',default=None)
@@ -274,7 +291,7 @@ class Project_Config(models.Model):
             ("can_add_project_config", "添加项目权限"),
             ("can_delete_project_config", "删除项目权限"),               
         )
-        unique_together = (("project_env", "project_name"))
+        unique_together = (("project_env", "project"))
         verbose_name = '项目管理表'  
         verbose_name_plural = '项目管理表'  
 
@@ -397,7 +414,7 @@ class Log_Ansible_Model(models.Model):
             ("can_read_log_ansible_model", "读取Ansible模块执行记录权限"),
             ("can_change_log_ansible_model", "更改Ansible模块执行记录权限"),
             ("can_add_log_ansible_model", "添加Ansible模块执行记录权限"),
-            ("can_delete_log_ansible_model", "删除Ansible模块执行记录权限"),            
+            ("can_delete_log_ansible_model", "删除Ansible模块执行记录权限"),         
         )
         verbose_name = 'Ansible模块执行记录表'  
         verbose_name_plural = 'Ansible模块执行记录表' 
@@ -424,7 +441,8 @@ class Ansible_Playbook(models.Model):
             ("can_read_ansible_playbook", "读取Ansible剧本权限"),
             ("can_change_ansible_playbook", "更改Ansible剧本权限"),
             ("can_add_ansible_playbook", "添加Ansible剧本权限"),
-            ("can_delete_ansible_playbook", "删除Ansible剧本权限"),              
+            ("can_delete_ansible_playbook", "删除Ansible剧本权限"),        
+            ("can_exec_ansible_playbook", "执行Ansible剧本权限"),       
         )
         verbose_name = 'Ansible剧本配置表'  
         verbose_name_plural = 'Ansible剧本配置表' 
@@ -437,13 +455,17 @@ class Ansible_Script(models.Model):
     script_file = models.FileField(upload_to = './upload/script/',verbose_name='脚本路径')
     script_service = models.SmallIntegerField(verbose_name='授权业务',blank=True,null=True)
     script_group = models.SmallIntegerField(verbose_name='授权组',blank=True,null=True)
+    script_type = models.CharField(max_length=10,verbose_name='脚本类型',blank=True,null=True)
     class Meta:
         db_table = 'opsmanage_ansible_script'
         permissions = (
             ("can_read_ansible_script", "读取Ansible脚本权限"),
             ("can_change_ansible_script", "更改Ansible脚本权限"),
             ("can_add_ansible_script", "添加Ansible脚本权限"),
-            ("can_delete_ansible_script", "删除Ansible脚本权限"),              
+            ("can_delete_ansible_script", "删除Ansible脚本权限"),   
+            ("can_exec_ansible_script", "执行Ansible脚本权限"),    
+            ("can_exec_ansible_model", "执行Ansible模块权限"),      
+            ("can_read_ansible_model", "读取Ansible模块权限"),   
         )
         verbose_name = 'Ansible脚本配置表'  
         verbose_name_plural = 'Ansible脚本配置表'         
@@ -578,8 +600,9 @@ class DataBase_Server_Config(models.Model):
     db_user = models.CharField(max_length=100,verbose_name='用户')
     db_passwd = models.CharField(max_length=100,verbose_name='密码')
     db_port = models.SmallIntegerField(verbose_name='端口')
-    db_group = models.SmallIntegerField(verbose_name='业务类型')
-    db_service = models.SmallIntegerField(verbose_name='使用组')
+    db_group = models.SmallIntegerField(verbose_name='使用组')
+    db_service = models.SmallIntegerField(verbose_name='业务类型')
+    db_project = models.SmallIntegerField(verbose_name='所属项目')
     db_mark =  models.CharField(max_length=100,verbose_name='标识',blank=True,null=True)
     class Meta:
         db_table = 'opsmanage_database_server_config'
