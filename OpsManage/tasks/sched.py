@@ -1,8 +1,9 @@
 #!/usr/bin/env python  
 # _#_ coding:utf-8 _*_ 
+import MySQLdb
 from celery import task
 from OpsManage.utils import base
-from OpsManage.models import Assets,Email_Config,Server_Assets
+from OpsManage.models import Assets,Email_Config,Server_Assets,DataBase_Server_Config
 from django.contrib.auth.models import User
 from OpsManage.utils.ansible_api_v2 import ANSRunner
 
@@ -89,3 +90,27 @@ def updateAssets():
                     sList.append(server_assets.ip)
                 except Exception, ex:
                     print ex 
+                    
+                    
+@task 
+def orderSql(**kw):
+    if kw.has_key('sql') and kw.has_key('dbId'):
+        try:
+            db = DataBase_Server_Config.objects.get(id=kw.get('dbId'))
+        except Exception, ex:
+            return ex
+        try:
+            conn = MySQLdb.connect(host=db.db_host,user=db.db_user,passwd=db.db_passwd,db=db.db_name,port=int(db.db_port))
+            cur = conn.cursor()
+            ret = cur.execute(kw.get('sql'))
+            conn.commit()
+            cur.close()
+            conn.close()            
+            return {"status":'success','data':ret}
+        except MySQLdb.Error,e:
+            conn.rollback()
+            cur.close()
+            conn.close() 
+            return {"status":'error',"errinfo":"Mysql Error %d: %s" % (e.args[0], e.args[1])}      
+    else:
+        return "参数不对"    

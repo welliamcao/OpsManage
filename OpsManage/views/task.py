@@ -112,7 +112,7 @@ def task_view(request):
             workList = WorkerState.objects.all()
             regTaskList = []
             for task in  list(keys(cTasks)):
-                if task.startswith('OpsManage.tasks.ansible') or task.startswith('OpsManage.tasks.assets.sched'):
+                if task.startswith('OpsManage.tasks.ansible') or task.startswith('OpsManage.tasks.sched'):
                     regTaskList.append(task)              
         except Exception, ex:
             print ex
