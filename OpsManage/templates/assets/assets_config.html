@@ -151,7 +151,7 @@
                 <!-- /.col-lg-6 -->                
             </div>
 			<div class="row">
-                <div class="col-lg-4">
+                <div class="col-lg-5">
                     <div class="panel panel-default">
                         <div class="panel-heading">
                             	<i class="fa  fa-bank"></i> 机房信息
@@ -167,6 +167,7 @@
                                         <tr>
                                             <th>#</th>
                                             <th>机房名称</th>
+                                            <th>机房网段</th>
                                             <th>机房联系人</th>
                                             <th>联系电话</th>
                                             <th class="right">操作</th>
@@ -177,6 +178,7 @@
 	                                        <tr>
 	                                            <td>{{ds.id}}</td>
 	                                            <td>{{ds.zone_name}}</td>
+	                                            <td>{{ds.zone_network|default:""}}</td>
 	                                            <td>{{ds.zone_contact|default:""}}</td>
 	                                            <td>{{ds.zone_number|default:""}}</td>
 	                                            <td>
@@ -234,7 +236,7 @@
                     <!-- /.panel -->
                 </div>
                 <!-- /.col-lg-6 -->
-                <div class="col-lg-4">
+                <div class="col-lg-3">
                     <div class="panel panel-default">
                         <div class="panel-heading">
                             	<i class="glyphicon glyphicon-hdd  "></i> Raid类型
@@ -403,6 +405,12 @@
 						</div>											
 					</div>	
 					<div class="form-group">
+						<label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>机房网段</strong></label>																												
+						<div class="col-sm-6">
+							<input class="form-control" type="text" name="zone_network" />	
+						</div>											
+					</div>						
+					<div class="form-group">
 						<label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>机房联系人</strong></label>																												
 						<div class="col-sm-6">
 							<input class="form-control" type="text" name="zone_contact" />	
@@ -413,7 +421,7 @@
 						<div class="col-sm-6">
 							<input class="form-control" type="text" name="zone_number" />	
 						</div>											
-					</div>																	
+					</div>																				
 				</form>
 			</div>
 			<div class="modal-footer">
@@ -447,6 +455,12 @@
 								<input class="form-control" type="text" name="zone_name" value="{{ds.zone_name}}"/>	
 							</div>											
 						</div>	
+						<div class="form-group">
+							<label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>机房网段</strong></label>																												
+							<div class="col-sm-6">
+								<input class="form-control" type="text" name="zone_network" value="{{ds.zone_network|default:""}}"/>	
+							</div>											
+						</div>							
 						<div class="form-group">
 							<label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>机房联系人</strong></label>																												
 							<div class="col-sm-6">

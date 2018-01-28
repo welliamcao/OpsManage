@@ -203,7 +203,7 @@ def zone_list(request,format=None):
         serializer = ZoneSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            recordAssets.delay(user=str(request.user),content="添加出口线路：{zone_name}".format(zone_name=request.data.get("zone_name")),type="zone",id=serializer.data.get('id'))  
+            recordAssets.delay(user=str(request.user),content="添加机房资产：{zone_name}".format(zone_name=request.data.get("zone_name")),type="zone",id=serializer.data.get('id'))  
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -227,7 +227,7 @@ def zone_detail(request, id,format=None):
         serializer = ZoneSerializer(snippet, data=request.data)
         if serializer.is_valid():
             serializer.save()
-            recordAssets.delay(user=str(request.user),content="修改出口线路类型：{old_name} -> {zone_name}".format(old_name=old_name,zone_name=request.data.get("zone_name")),type="zone",id=id) 
+            recordAssets.delay(user=str(request.user),content="修改机房资产：{old_name} -> {zone_name}".format(old_name=old_name,zone_name=request.data.get("zone_name")),type="zone",id=id) 
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
      
@@ -235,7 +235,7 @@ def zone_detail(request, id,format=None):
         if not request.user.has_perm('OpsManage.can_delete_zone_assets'):
             return Response(status=status.HTTP_403_FORBIDDEN)
         snippet.delete()
-        recordAssets.delay(user=str(request.user),content="删除出口线路：{zone_name}".format(zone_name=snippet.zone_name),type="zone",id=id) 
+        recordAssets.delay(user=str(request.user),content="删除机房资产：{zone_name}".format(zone_name=snippet.zone_name),type="zone",id=id) 
         return Response(status=status.HTTP_204_NO_CONTENT)   
     
 @api_view(['GET', 'POST' ])

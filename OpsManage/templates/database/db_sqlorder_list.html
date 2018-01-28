@@ -124,6 +124,7 @@
                                         <th class="text-center">数据库信息</th>
                                         <th class="text-center">SQL内容</th>
                                         <th class="text-center">执行人</th>
+                                        <th class="text-center">发布时间</th>
                                         <th class="text-center">工单状态</th>
                                         <th class="text-center">操作</th>
                                     </tr>
@@ -150,6 +151,7 @@
                                 				<a href="/db/sql/order/run/{{ds.id}}/" target="_blank" class="tooltip-test" data-toggle="tooltip" title="{{ds.order_sql}}">{{ds.order_sql|slice:":40" }}...</a>
                                 			</td>
                                 			<th class="text-center">{{ds.order_executor}}</th>
+                                			<th class="text-center">{{ds.create_time|date:"Y/m/d H:i  "}}</th>
                                 			<td class="text-center">
                                 				{% if ds.order_status == 1 %}
                                 					<span class="label label-info">待授权</span>

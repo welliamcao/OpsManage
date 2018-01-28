@@ -204,6 +204,7 @@ class Zone_Assets(models.Model):
     zone_name = models.CharField(max_length=100,unique=True) 
     zone_contact = models.CharField(max_length=100,blank=True,null=True,verbose_name='机房联系人')
     zone_number = models.CharField(max_length=100,blank=True,null=True,verbose_name='联系人号码')
+    zone_network = models.CharField(max_length=100,blank=True,null=True,verbose_name='机房网段')
     '''自定义权限'''
     class Meta:
         db_table = 'opsmanage_zone_assets'

@@ -399,7 +399,8 @@ def db_sqlorder_search(request):
             order_sql = """<td class="text-center"> 
                             <a href="/db/sql/order/run/{ds_id}/" target="_blank" class="tooltip-test" data-toggle="tooltip" title="{order_sql}">{ds_order_sql}...</a>
                         </td>""".format(ds_id=ds.id,order_sql=ds.order_sql,ds_order_sql=ds.order_sql[0:10])            
-            order_executor = '''<td class="text-center">{order_executor}</td>'''.format(order_executor=User.objects.get(id=ds.order_executor).username)                      
+            order_executor = '''<td class="text-center">{order_executor}</td>'''.format(order_executor=User.objects.get(id=ds.order_executor).username)
+            order_createTime = '''<td class="text-center">{order_createTime}</td>'''.format(order_createTime=ds.create_time)                      
             if ds.order_status == 1:span = '<span class="label label-info">待授权</span>'
             elif ds.order_status == 2:span = '<span class="label label-success">已执行</span>'
             elif ds.order_status == 3:span = '<span class="label label-danger">已回滚</span>'  
@@ -436,7 +437,7 @@ def db_sqlorder_search(request):
                     buttonTag2 = """<button  type="button" class="btn btn-default disabled"><abbr title="取消"><i class="fa fa-times "></i></button>"""
                 buttons = aTag + buttonTag1 + buttonTag2
             order_op = '''<td class="text-center">{buttons}</td>'''.format(buttons=buttons)
-            dataList.append([order_id ,order_apply,order_env,order_db,order_sql,order_executor,order_status,order_op])
+            dataList.append([order_id ,order_apply,order_env,order_db,order_sql,order_executor,order_createTime,order_status,order_op])
         return JsonResponse({'msg':"数据查询成功","code":200,'data':dataList,'count':0})  
         
 @login_required()

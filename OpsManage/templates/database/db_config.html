@@ -481,9 +481,9 @@
 <!-- 						 	<input class="form-control" type="text" value="" placeholder="不能为空" name="db_host" /> -->
 						   <select class="form-control" name="db_host" id="db_host" >
 						   		<option selected="selected" value="">请选择一个类型</option>
-									{% for s in serList %}
+<!-- 									{% for s in serList %}
 										<option value="{{s.ip}}" name="db_host">{{s.ip}}</option>
-									{% endfor %}								   							
+									{% endfor %}	 -->							   							
 							</select>						 	
 						 </div>
 					</div>
@@ -997,14 +997,15 @@
 	 	   $('#db_host').removeAttr("disabled");
 		   var obj = document.getElementById("db_service"); 
 		   var index = obj.selectedIndex;
-		   var sId = obj.options[index].value; 
-		   if ( sId  > 0){	 
+		   var id = obj.options[index].value; 
+		   if ( id  > 0){	 
 				$.ajax({
 					dataType: "JSON",
 					url:'/assets_server/', //请求地址
 					type:"POST",  //提交类似
 					data:{
-						"service_id":sId
+						"id":id,
+						"query":'service'
 					},
 					success:function(response){
 						var binlogHtml = '<select multiple class="form-control"  name="db_host" id="db_host"  required>'
@@ -1057,14 +1058,15 @@
 	 	   $('#db_host_'+id).removeAttr("disabled");
 		   var obj = document.getElementById("db_service_"+id); 
 		   var index = obj.selectedIndex;
-		   var sId = obj.options[index].value; 
-		   if ( sId  > 0){	 
+		   var id = obj.options[index].value; 
+		   if ( id  > 0){	 
 				$.ajax({
 					dataType: "JSON",
 					url:'/assets_server/', //请求地址
 					type:"POST",  //提交类似
 					data:{
-						"service_id":sId
+						"id":id,
+						"query":'service'
 					},
 					success:function(response){
 						var binlogHtml = '<select multiple class="form-control"  name="db_host" id="db_host_'+ id + '" required>'

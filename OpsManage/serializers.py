@@ -37,7 +37,7 @@ class GroupSerializer(serializers.ModelSerializer):
 class ZoneSerializer(serializers.ModelSerializer):
     class Meta:
         model = Zone_Assets
-        fields = ('id','zone_name','zone_contact','zone_number')         
+        fields = ('id','zone_name','zone_network','zone_contact','zone_number')         
 
 class LineSerializer(serializers.ModelSerializer):
     class Meta:
