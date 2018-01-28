@@ -148,6 +148,7 @@ def apps_online(request):
                                   )
     elif request.method == "POST": 
         sList = []
+        playbook_server_value = None
         if request.POST.get('server_model') in ['service','group','custom']:  
             if request.POST.get('server_model') == 'custom':
                 for sid in request.POST.getlist('playbook_server[]'):
@@ -162,14 +163,14 @@ def apps_online(request):
                 serverList = Assets.objects.filter(business=request.POST.get('ansible_service'))
                 sList = [  s.server_assets.ip for s in serverList ]   
                 playbook_server_value = request.POST.get('ansible_service')   
-            fileName = '/upload/playbook/online-{ram}.yaml'.format(ram=uuid.uuid4().hex[0:8]) 
-            filePath = os.getcwd() + fileName
-            if request.POST.get('playbook_content'):
-                if os.path.isdir(os.path.dirname(filePath)) is not True:os.makedirs(os.path.dirname(filePath))#判断文件存放的目录是否存在，不存在就创建
-                with open(filePath, 'w') as f:
-                    f.write(request.POST.get('playbook_content')) 
-            else:
-                return JsonResponse({'msg':"文件内容不能为空","code":500,'data':[]})           
+        fileName = '/upload/playbook/online-{ram}.yaml'.format(ram=uuid.uuid4().hex[0:8]) 
+        filePath = os.getcwd() + fileName
+        if request.POST.get('playbook_content'):
+            if os.path.isdir(os.path.dirname(filePath)) is not True:os.makedirs(os.path.dirname(filePath))#判断文件存放的目录是否存在，不存在就创建
+            with open(filePath, 'w') as f:
+                f.write(request.POST.get('playbook_content')) 
+        else:
+            return JsonResponse({'msg':"文件内容不能为空","code":500,'data':[]})           
         try:      
             playbook = Ansible_Playbook.objects.create(
                                             playbook_name = request.POST.get('playbook_name'),
@@ -347,6 +348,7 @@ def apps_playbook_modf(request,pid):
                                   )
     elif request.method == "POST":
         sList = []
+        playbook_server_value = None
         if request.POST.get('server_model') in ['service','group','custom']:  
             if request.POST.get('server_model') == 'custom':
                 if playbook.playbook_type == 1:serverList = request.POST.getlist('playbook_server[]')
@@ -354,7 +356,6 @@ def apps_playbook_modf(request,pid):
                 for sid in serverList:
                     server = Server_Assets.objects.get(id=sid)
                     sList.append(server.ip)
-                playbook_server_value = None
             elif request.POST.get('server_model') == 'group':
                 serverList = Assets.objects.filter(group=request.POST.get('ansible_group'))
                 sList = [  s.server_assets.ip for s in serverList ]
@@ -415,13 +416,13 @@ def apps_playbook_online_modf(request,pid):
                                                          "errorInfo":"剧本不存在，可能已经被删除."}, 
                                   )    
     if request.method == "POST":
+        playbook_server_value = None
         sList = []
         if request.POST.get('server_model') in ['service','group','custom']:  
             if request.POST.get('server_model') == 'custom':
                 for sid in request.POST.getlist('playbook_server[]'):
                     server = Server_Assets.objects.get(id=sid)
                     sList.append(server.ip)
-                playbook_server_value = None
             elif request.POST.get('server_model') == 'group':
                 serverList = Assets.objects.filter(group=request.POST.get('ansible_group'))
                 sList = [  s.server_assets.ip for s in serverList ]
