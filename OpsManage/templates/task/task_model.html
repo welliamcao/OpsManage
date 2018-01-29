@@ -334,7 +334,7 @@
 										<label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>过期时间</strong></label>							
 										<div class="col-sm-5">
 											{% if ds.expires %}
-												<input class="form-control form_datetime" data-date-format="yyyy-mm-dd hh:ii" type="text" type="text"   value="{{ds.expires|date:"Y/m/d H:i:s  "}}" placeholder="2017-01-10 00:00:01" name="expires" />		
+												<input class="form-control form_datetime" data-date-format="yyyy-mm-dd hh:ii" type="text" type="text"   value="{{ds.expires|date:"Y/m/d H:i:s"}}" placeholder="2017-01-10 00:00:01" name="expires" />		
 											{% else %}
 												<input class="form-control form_datetime" data-date-format="yyyy-mm-dd hh:ii" type="text" type="text"   value="" placeholder="2017-01-10 00:00:01" name="expires" />
 											{% endif %}																			
