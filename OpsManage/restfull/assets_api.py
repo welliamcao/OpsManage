@@ -23,7 +23,7 @@ def project_list(request,format=None):
         serializer = ProjectSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save() 
-            recordAssets.delay(user=str(request.user),content="添加项目名称：{service_name}".format(project_name=request.data.get("project_name")),type="project",id=serializer.data.get('id'))
+            recordAssets.delay(user=str(request.user),content="添加项目名称：{project_name}".format(project_name=request.data.get("project_name")),type="project",id=serializer.data.get('id'))
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
