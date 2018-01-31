@@ -12,7 +12,7 @@
                 <div class="col-lg-4">
                     <div class="panel panel-default">
                         <div class="panel-heading">
-                           	 <i class="fa fa-table  fa-fw"></i> 总资产
+                           	 <i class="fa fa-institution    fa-fw"></i> 总资产
                         </div>
                         <div class="panel-body">
 							<div class="list-group">
@@ -153,7 +153,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-lg-6">
+                <div class="col-lg-4">
                     <div class="panel panel-default">
                         <div class="panel-heading">
                            	 <i class="fa fa-table  fa-fw"></i> 硬件信息
@@ -284,7 +284,45 @@
                          {% endif %}                    
                         </div>
                     </div>
-                </div>                
+                </div>    
+                <div class="col-lg-4">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <i class="fa fa-keyboard-o  fa-fw"></i> 网卡信息
+                        </div>
+                        <div class="panel-body">
+                            <div class="table-responsive">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>网卡名称</th>
+                                            <th>IP地址</th>
+                                            <th>Mac地址</th>
+                                            <th>网卡类型</th>
+                                            <th>MTU</th>
+                                            <th>状态</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    	{% for ds in asset_nks %}
+                                        <tr>
+                                            <td>{{ds.device}}</td>
+                                            <td>{{ds.address}}</td>
+                                            <td>{{ds.macaddress}}</td>
+                                            <td>{{ds.module}}</td>
+                                            <td>{{ds.mtu}}</td>
+                                            <td>{% if ds.active == 1 %}<button type="button" class="btn btn-success btn-xs">on</button> {% else %} <button type="button" class="btn btn-danger btn-xs">down</button> {% endif %}</td>
+                                            
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="panel-footer">
+                        </div>
+                    </div>
+                </div>                            
              </div>
             {% if asset_type == "server" %}
             <div class="row">

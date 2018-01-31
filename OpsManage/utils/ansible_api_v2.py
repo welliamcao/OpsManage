@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding=utf-8 -*-
-import json,sys,os
+import json,re
 from collections import namedtuple
 from ansible import constants
 from ansible.parsing.dataloader import DataLoader
@@ -373,7 +373,7 @@ class ANSRunner(object):
         self.options = Options(connection='smart', module_path=None, forks=100, timeout=10,  
                 remote_user=kwargs.get('remote_user','root'), ask_pass=False, private_key_file=None, ssh_common_args=None, 
                 ssh_extra_args=None,sftp_extra_args=None, scp_extra_args=None, become=None,
-                become_method=kwargs.get('become_method',None),become_user=kwargs.get('become_user','root'), 
+                become_method=kwargs.get('become_method','sudo'),become_user=kwargs.get('become_user','root'), 
                 verbosity=kwargs.get('verbosity',None),check=False, listhosts=False,
                 listtasks=False, listtags=False, syntax=False,ask_value_pass=False, )  
   
@@ -507,7 +507,23 @@ class ANSRunner(object):
                     else: 
                         cmdb_data['selinux'] = 'disabled'
                     cmdb_data['swap'] = int(data['ansible_swaptotal_mb']) 
+                    #获取网卡资源
+                    nks = []
+                    for nk in data.keys():
+                        if re.match(r"^ansible_(eth|bind|eno|ens|em)\d+?",nk):
+                            device = data.get(nk).get('device')
+                            try:
+                                address = data.get(nk).get('ipv4').get('address')
+                            except:
+                                address = 'unkown'
+                            macaddress = data.get(nk).get('macaddress')
+                            module = data.get(nk).get('module')
+                            mtu = data.get(nk).get('mtu')
+                            if data.get(nk).get('active'):active = 1
+                            else:active = 0
+                            nks.append({"device":device,"address":address,"macaddress":macaddress,"module":module,"mtu":mtu,"active":active})
                     cmdb_data['status'] = 0
+                    cmdb_data['nks'] = nks
                     data_list.append(cmdb_data)    
             elif  k == "unreachable":
                 for x,y in v.items():

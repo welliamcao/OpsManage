@@ -59,6 +59,8 @@ def assets_add(request):
 def assets_list(request):
     userList = User.objects.all()
     assetsList = Assets.objects.all().order_by("-id") 
+    for ds in assetsList:
+        ds.nks = ds.networkcard_assets_set.all() 
     assetOnline = Assets.objects.filter(status=0).count()
     assetOffline = Assets.objects.filter(status=1).count()
     assetMaintain = Assets.objects.filter(status=2).count()
@@ -89,6 +91,11 @@ def assets_view(request,aid):
         except:
             asset_disk = []
         try:
+            asset_nks = assets.networkcard_assets_set.all()
+        except Exception, ex:
+            asset_nks = [] 
+            print ex
+        try:
             asset_body = assets.server_assets                    
         except:
             return render(request,'assets/assets_view.html',{"user":request.user},
@@ -96,7 +103,8 @@ def assets_view(request,aid):
         return render(request,'assets/assets_view.html',{"user":request.user,"asset_type":assets.assets_type,
                                                             "asset_main":assets,"asset_body":asset_body,
                                                             "asset_ram":asset_ram,"asset_disk":asset_disk,
-                                                            "baseAssets":getBaseAssets(),'userList':userList},
+                                                            "baseAssets":getBaseAssets(),'userList':userList,
+                                                            "asset_nks":asset_nks},
                             )   
     else:
         try:
@@ -169,6 +177,7 @@ def assets_facts(request,args=None):
                     status = ds.get('status')
                     if status == 0:
                         try:
+                            assets = Assets.objects.get(id=server_assets.assets_id) 
                             Assets.objects.filter(id=server_assets.assets_id).update(sn=ds.get('serial'),model=ds.get('model'),
                                                                                      manufacturer=ds.get('manufacturer'))
                         except Exception,e:
@@ -185,6 +194,25 @@ def assets_facts(request,args=None):
                         except Exception,e:
                             print e
                             return JsonResponse({'msg':"数据更新失败-写入数据失败","code":400})
+                        for nk in ds.get('nks'):
+                            macaddress = nk.get('macaddress')
+                            count = NetworkCard_Assets.objects.filter(assets=assets,macaddress=macaddress).count()
+                            if count > 0:
+                                try:
+                                    NetworkCard_Assets.objects.filter(assets=assets,macaddress=macaddress).update(assets=assets,device=nk.get('device'),
+                                                                                                                       address=nk.get('address'),module=nk.get('module'),
+                                                                                                                       mtu=nk.get('mtu'),active=nk.get('active'))
+                                except Exception, ex:
+                                    print ex
+                            else:
+                                try:
+                                    NetworkCard_Assets.objects.create(assets=assets,device=nk.get('device'),
+                                                                  macaddress=nk.get('macaddress'),
+                                                                  address=nk.get('address'),module=nk.get('module'),
+                                                                  mtu=nk.get('mtu'),active=nk.get('active'))
+                                except Exception, ex:
+                                    print ex
+                            
                     else:
                         return JsonResponse({'msg':"数据更新失败-无法链接主机~","code":502})                    
                 return JsonResponse({'msg':"数据更新成功","code":200})
@@ -469,8 +497,29 @@ def assets_search(request):
                 assets_type = '''<td class="text-center"><button  type="button" class="btn btn-default disabled">存储设备</button></td>'''
             elif a.assets_type == "wifi":
                 assets_type = '''<td class="text-center"><button  type="button" class="btn btn-default disabled">无线设备</button></td>''' 
-            if a.management_ip:management_ip = '''<td class="text-center">{ip}</td>'''.format(ip=a.management_ip)   
-            else:management_ip = '''<td class="text-center">{ip}</td>'''.format(ip=a.server_assets.ip)  
+            print a.networkcard_assets_set.all()
+            nks = ''
+            if a.management_ip:
+                liTags = ''
+                for ns in a.networkcard_assets_set.all():
+                    if ns.address != 'unkown' and ns.address !=  a.management_ip:
+                        liTag = '''<li><span class="label label-success">内</span>:<code>{address}</code></li>'''.format(address=ns.address) 
+                        liTags = liTags + liTag
+                nks = '''<ul class="list-unstyled">
+                            <li><span class="label label-danger">外</span>:<code>{management_ip}</code></li>
+                            {liTags}
+                        </ul>'''.format(management_ip=a.management_ip,liTags=liTags)
+            elif a.server_assets.ip:
+                liTags = ''
+                for ns in a.networkcard_assets_set.all():
+                    if ns.address != 'unkown' and ns.address !=  a.server_assets.ip:
+                        liTag = '''<li><span class="label label-success">内</span>:<code>{address}</code></li>'''.format(address=ns.address) 
+                        liTags = liTags + liTag
+                nks = '''<ul class="list-unstyled">
+                            <li><span class="label label-danger">外</span>:<code>{server_ip}</code></li>
+                            {liTags}
+                        </ul>'''.format(server_ip=a.server_assets.ip,liTags=liTags)
+            management_ip = '''<td class="text-center">{ip}</td>'''.format(ip=nks)  
             name = '''<td class="text-center">{name}</td>'''.format(name=a.name)      
             model = '''<td class="text-center">{model}</td>'''.format(model=a.model)                                        
             for s in baseAssets.get('service'):
@@ -568,6 +617,7 @@ def assets_batch(request):
                 for ds in data:
                     status = ds.get('status')
                     if status == 0:
+                        assets = Server_Assets.objects.get(ip=ds.get('ip')).assets
                         try:
                             Server_Assets.objects.filter(ip=ds.get('ip')).update(cpu_number=ds.get('cpu_number'),kernel=ds.get('kernel'),
                                                                                   selinux=ds.get('selinux'),hostname=ds.get('hostname'),
@@ -579,6 +629,24 @@ def assets_batch(request):
                             sList.append(server_assets.ip)
                         except Exception:
                             fList.append(server_assets.ip)
+                        for nk in ds.get('nks'):
+                            macaddress = nk.get('macaddress')
+                            count = NetworkCard_Assets.objects.filter(assets=assets,macaddress=macaddress).count()
+                            if count > 0:
+                                try:
+                                    NetworkCard_Assets.objects.filter(assets=assets,macaddress=macaddress).update(assets=assets,device=nk.get('device'),
+                                                                                                                       address=nk.get('address'),module=nk.get('module'),
+                                                                                                                       mtu=nk.get('mtu'),active=nk.get('active'))
+                                except Exception, ex:
+                                    print ex
+                            else:
+                                try:
+                                    NetworkCard_Assets.objects.create(assets=assets,device=nk.get('device'),
+                                                                  macaddress=nk.get('macaddress'),
+                                                                  address=nk.get('address'),module=nk.get('module'),
+                                                                  mtu=nk.get('mtu'),active=nk.get('active'))
+                                except Exception, ex:
+                                    print ex                            
                     else:fList.append(server_assets.ip)                                  
             if sList:
                 return JsonResponse({'msg':"数据更新成功","code":200,'data':{"success":sList,"failed":fList}}) 

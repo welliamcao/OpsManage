@@ -3,7 +3,8 @@
 import MySQLdb
 from celery import task
 from OpsManage.utils import base
-from OpsManage.models import Assets,Email_Config,Server_Assets,DataBase_Server_Config
+from OpsManage.models import Assets,Email_Config,Server_Assets, \
+                             DataBase_Server_Config,NetworkCard_Assets
 from django.contrib.auth.models import User
 from OpsManage.utils.ansible_api_v2 import ANSRunner
 
@@ -80,6 +81,7 @@ def updateAssets():
             status = ds.get('status')
             if status == 0:
                 try:
+                    assets = Server_Assets.objects.get(ip=ds.get('ip')).assets
                     Server_Assets.objects.filter(ip=ds.get('ip')).update(cpu_number=ds.get('cpu_number'),kernel=ds.get('kernel'),
                                                                           selinux=ds.get('selinux'),hostname=ds.get('hostname'),
                                                                           system=ds.get('system'),cpu=ds.get('cpu'),
@@ -90,6 +92,24 @@ def updateAssets():
                     sList.append(server_assets.ip)
                 except Exception, ex:
                     print ex 
+                for nk in ds.get('nks'):
+                    macaddress = nk.get('macaddress')
+                    count = NetworkCard_Assets.objects.filter(assets=assets,macaddress=macaddress).count()
+                    if count > 0:
+                        try:
+                            NetworkCard_Assets.objects.filter(assets=assets,macaddress=macaddress).update(assets=assets,device=nk.get('device'),
+                                                                                                               address=nk.get('address'),module=nk.get('module'),
+                                                                                                               mtu=nk.get('mtu'),active=nk.get('active'))
+                        except Exception, ex:
+                            print ex
+                    else:
+                        try:
+                            NetworkCard_Assets.objects.create(assets=assets,device=nk.get('device'),
+                                                          macaddress=nk.get('macaddress'),
+                                                          address=nk.get('address'),module=nk.get('module'),
+                                                          mtu=nk.get('mtu'),active=nk.get('active'))
+                        except Exception, ex:
+                            print ex  
                     
                     
 @task 

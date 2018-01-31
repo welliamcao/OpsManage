@@ -447,11 +447,26 @@
 									         			<button  type="button" class="btn btn-default disabled">无线设备</button>									         													         												         												         											         												         			
 									         		{% endif %}
 									         </td>
-									         <td class="text-center">
+									         <td>
 									         	{% if a.management_ip %}
-									         		{{ a.management_ip }}
+													<ul class="list-unstyled">
+						                                <li><span class="label label-danger">外</span>:<code>{{ a.management_ip }}</code></li>
+						                                {% for ds in a.nks %}
+						                                	{% if ds.address != 'unkown' and ds.address !=  a.management_ip %}
+						                                		<li><span class="label label-success">内</span>:<code>{{ds.address}}</code></li>
+						                                	{% endif %}
+						                                {% endfor %}
+						                            </ul>									         			
+									         											         		
 									         	{% else %}
-									         		{{ a.server_assets.ip }}
+													<ul class="list-unstyled">
+						                                <li><span class="label label-danger">外</span>:<code>{{ a.server_assets.ip }}</code></li>
+						                                {% for ds in a.nks %}
+						                                	{% if ds.address != 'unkown' and ds.address !=  a.server_assets.ip %}
+						                                		<li><span class="label label-success">内</span>:<code>{{ds.address}}</code></li>
+						                                	{% endif %}
+						                                {% endfor %}
+						                            </ul>									         		
 									         	{% endif %}
 									         </td>
 									         <td class="text-center">{{ a.name }}</td>

@@ -149,23 +149,17 @@ class Ram_Assets(models.Model):
         
 class NetworkCard_Assets(models.Model):   
     assets = models.ForeignKey('Assets')
-    macaddress = models.CharField(u'MAC', max_length=64,unique=True)
-    ipaddress = models.GenericIPAddressField(u'IP', blank=True,null=True)
-    device_model = models.CharField(max_length=100,blank=True,null=True,verbose_name='网卡型号')
-    device_brand = models.CharField(max_length=100,blank=True,null=True,verbose_name='网卡生产商')
-    device_status = models.CharField(max_length=100,blank=True,null=True,verbose_name='网卡状态')
-    create_date = models.DateTimeField(auto_now_add=True)
-    update_date = models.DateTimeField(auto_now_add=True)    
+    device =  models.CharField(max_length=20,blank=True,null=True)
+    macaddress = models.CharField(u'MAC',max_length=64,blank=True,null=True)
+    address = models.GenericIPAddressField(u'IP', blank=True,null=True)
+    module = models.CharField(max_length=50,blank=True,null=True)
+    mtu = models.CharField(max_length=50,blank=True,null=True)
+    active = models.SmallIntegerField(blank=True,null=True,verbose_name='是否在线')
     class Meta:
         db_table = 'opsmanage_networkcard_assets'
-        permissions = (
-            ("can_read_networkcard_assets", "读取网卡资产权限"),
-            ("can_change_networkcard_assets", "更改网卡资产权限"),
-            ("can_add_networkcard_assets", "添加网卡资产权限"),
-            ("can_delete_networkcard_assets", "删除网卡资产权限"),             
-        ) 
-        verbose_name = '网卡资产表'  
-        verbose_name_plural = '网卡资产表'         
+        verbose_name = '服务器网卡资产表'  
+        verbose_name_plural = '服务器网卡资产表'  
+        unique_together = (("assets", "macaddress"))       
         
 class Project_Assets(models.Model):
     '''项目资产表'''
