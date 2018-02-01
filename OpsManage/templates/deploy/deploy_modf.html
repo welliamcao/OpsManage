@@ -25,7 +25,7 @@
                                         </div>
 										<div class="form-group">
 											 <label>业务类型</label>
-											 <select class="form-control" name="project_service" id="project_service" onchange="javascript:oBtServiceSelect();" required>
+											 <select class="form-control" name="project_service" id="project_service" onchange="javascript:oBtServiceSelect('service','server');" required>
 											 		{% for ds in serviceList %}
 											 			{% if ds.id == project.project_service %}
 											   				<option selected="selected" value="{{ds.id}}">{{ds.service_name}}</option>	
@@ -217,7 +217,7 @@ $(function () { $("[data-toggle='tooltip']").tooltip(); });
 	window.wxc.xcConfirm("{{errorInfo}}", window.wxc.xcConfirm.typeEnum.error);
 {% endif %}
 
-function oBtServiceSelect(){
+function oBtServiceSelect(model,ids){
 	   $('#server').removeAttr("disabled");
 	   var obj = document.getElementById("project_service"); 
 	   var index = obj.selectedIndex;
@@ -228,7 +228,8 @@ function oBtServiceSelect(){
 				url:'/assets_server/', //请求地址
 				type:"POST",  //提交类似
 				data:{
-					"service_id":sId
+					"query":model,
+					"id":sId
 				},
 				success:function(response){
 					var binlogHtml = '<select multiple class="form-control"  name="server" id="server"  required>'

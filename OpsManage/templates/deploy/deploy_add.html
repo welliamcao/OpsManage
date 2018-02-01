@@ -35,7 +35,7 @@
 								</div>
 								<div class="form-group">
 									 <label>业务类型</label>
-									 <select class="form-control" name="project_service" id="project_service" onchange="javascript:oBtServiceSelect();" required>
+									 <select class="form-control" name="project_service" id="project_service" onchange="javascript:oBtServiceSelect('service','server');" required>
 									   		<option selected="selected" value="">请选择一个类型</option>								   							
 									</select>
 								</div>								
@@ -195,7 +195,7 @@ function oBtProjectSelect(){
 
 }
 
-function oBtServiceSelect(){
+function oBtServiceSelect(model,ids){
  	   $('#server').removeAttr("disabled");
 	   var obj = document.getElementById("project_service"); 
 	   var index = obj.selectedIndex;
@@ -206,7 +206,8 @@ function oBtServiceSelect(){
 				url:'/assets_server/', //请求地址
 				type:"POST",  //提交类似
 				data:{
-					"service_id":sId
+					"query":model,
+					"id":sId
 				},
 				success:function(response){
 					var binlogHtml = '<select multiple class="form-control"  name="server" id="server"  required>'

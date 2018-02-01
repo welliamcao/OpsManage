@@ -497,7 +497,6 @@ def assets_search(request):
                 assets_type = '''<td class="text-center"><button  type="button" class="btn btn-default disabled">存储设备</button></td>'''
             elif a.assets_type == "wifi":
                 assets_type = '''<td class="text-center"><button  type="button" class="btn btn-default disabled">无线设备</button></td>''' 
-            print a.networkcard_assets_set.all()
             nks = ''
             if a.management_ip:
                 liTags = ''
