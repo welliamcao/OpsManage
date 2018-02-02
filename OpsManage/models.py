@@ -151,7 +151,7 @@ class NetworkCard_Assets(models.Model):
     assets = models.ForeignKey('Assets')
     device =  models.CharField(max_length=20,blank=True,null=True)
     macaddress = models.CharField(u'MAC',max_length=64,blank=True,null=True)
-    address = models.GenericIPAddressField(u'IP', blank=True,null=True)
+    ip = models.GenericIPAddressField(u'IP', blank=True,null=True)
     module = models.CharField(max_length=50,blank=True,null=True)
     mtu = models.CharField(max_length=50,blank=True,null=True)
     active = models.SmallIntegerField(blank=True,null=True,verbose_name='是否在线')

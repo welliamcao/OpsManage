@@ -165,7 +165,7 @@ def assets_facts(request,args=None):
         if genre == 'setup':
             try:
                 server_assets = Server_Assets.objects.get(id=request.POST.get('server_id'))
-                if server_assets.keyfile == 1:resource = [{"hostname": server_assets.ip, "port": int(server_assets.port)}] 
+                if server_assets.keyfile == 1:resource = [{"hostname": server_assets.ip, "port": int(server_assets.port),"username": server_assets.username}] 
                 else:resource = [{"hostname": server_assets.ip, "port": server_assets.port,"username": server_assets.username, "password": server_assets.passwd}]
             except Exception,e:
                 return  JsonResponse({'msg':"数据更新失败-查询不到该主机资料~","code":502})
@@ -200,7 +200,7 @@ def assets_facts(request,args=None):
                             if count > 0:
                                 try:
                                     NetworkCard_Assets.objects.filter(assets=assets,macaddress=macaddress).update(assets=assets,device=nk.get('device'),
-                                                                                                                       address=nk.get('address'),module=nk.get('module'),
+                                                                                                                       ip=nk.get('address'),module=nk.get('module'),
                                                                                                                        mtu=nk.get('mtu'),active=nk.get('active'))
                                 except Exception, ex:
                                     print ex
@@ -208,7 +208,7 @@ def assets_facts(request,args=None):
                                 try:
                                     NetworkCard_Assets.objects.create(assets=assets,device=nk.get('device'),
                                                                   macaddress=nk.get('macaddress'),
-                                                                  address=nk.get('address'),module=nk.get('module'),
+                                                                  ip=nk.get('address'),module=nk.get('module'),
                                                                   mtu=nk.get('mtu'),active=nk.get('active'))
                                 except Exception, ex:
                                     print ex
@@ -223,7 +223,7 @@ def assets_facts(request,args=None):
             try:
                 server_assets = Server_Assets.objects.get(id=server_id)
                 assets = Assets.objects.get(id=server_assets.assets_id)
-                if server_assets.keyfile == 1:resource = [{"hostname": server_assets.ip, "port": int(server_assets.port)}] 
+                if server_assets.keyfile == 1:resource = [{"hostname": server_assets.ip, "port": int(server_assets.port),"username": server_assets.username}] 
                 else:resource = [{"hostname": server_assets.ip, "port": server_assets.port,"username": server_assets.username, "password": server_assets.passwd}]
             except Exception,e:
                 return  JsonResponse({'msg':"数据更新失败-查询不到该主机资料~","code":502})
@@ -392,10 +392,11 @@ def assets_search(request):
     elif request.method == "POST":  
         AssetIntersection = list(set(request.POST.keys()).intersection(set(AssetFieldsList)))
         ServerAssetIntersection = list(set(request.POST.keys()).intersection(set(ServerAssetFieldsList)))
+        assetsList = []
         data = dict()
         #格式化查询条件
         for (k,v)  in request.POST.items() :
-            if v is not None and v != u'' :
+            if v is not None and v != u'':
                 data[k] = v 
         if list(set(['buy_time' , 'expire_date' , 'vcpu_number',
                      'cpu_core','cpu_number','ram_total',
@@ -456,29 +457,35 @@ def assets_search(request):
                 data['ram_total__lte'] = int(ram_total[1])
             except:
                 pass 
-        server = False                                                                               
-        if len(AssetIntersection) > 0 and len(ServerAssetIntersection) > 0:
-            assetsData = dict()
-            for a in AssetIntersection:
-                for k in data.keys():
-                    if k.find(a) != -1:
-                        assetsData[k] = data[k]
-                        data.pop(k)
-            serverList = [ a.assets_id for a in Server_Assets.objects.filter(**data) ]
-            assetsData['id__in'] = serverList
-            serverList = Assets.objects.filter(**assetsData)             
+            
 
-            
-        elif len(AssetIntersection) > 0 and len(ServerAssetIntersection) == 0:
-            serverList = Assets.objects.filter(**data) 
-            
-        elif len(AssetIntersection) == 0 and len(ServerAssetIntersection) > 0:
-            server = True
-            serverList = Server_Assets.objects.filter(**data) 
+        if data.has_key('ip'):
+            for ds in NetworkCard_Assets.objects.filter(ip=data.get('ip')):
+                if ds.assets not in assetsList:assetsList.append(ds.assets) 
+  
+        else:                                                     
+            if len(AssetIntersection) > 0 and len(ServerAssetIntersection) > 0:
+                assetsData = dict()
+                for a in AssetIntersection:
+                    for k in data.keys():
+                        if k.find(a) != -1:
+                            assetsData[k] = data[k]
+                            data.pop(k)
+                serverList = [ a.assets_id for a in Server_Assets.objects.filter(**data) ]
+                assetsData['id__in'] = serverList
+                assetsList.extend(Assets.objects.filter(**assetsData))             
+                
+            elif len(AssetIntersection) > 0 and len(ServerAssetIntersection) == 0:
+                assetsList.extend(Assets.objects.filter(**data)) 
+                
+            elif len(AssetIntersection) == 0 and len(ServerAssetIntersection) > 0:
+                for ds in Server_Assets.objects.filter(**data):
+                    if ds.assets not in assetsList:assetsList.append(ds.assets)
+                
         baseAssets = getBaseAssets()
         dataList = []
-        for a in serverList:
-            if server:a = a.assets
+        for a in assetsList:
+            assets_id = '''<td class="text-center"><input type="checkbox" value="{aid}" name="ckbox"/></td>'''.format(aid=a.id)
             if a.assets_type == "server":
                 assets_type = '''<td class="text-center"><button  type="button" class="btn btn-default disabled">服务器</button></td>'''
             elif a.assets_type == "vmser":
@@ -501,8 +508,8 @@ def assets_search(request):
             if a.management_ip:
                 liTags = ''
                 for ns in a.networkcard_assets_set.all():
-                    if ns.address != 'unkown' and ns.address !=  a.management_ip:
-                        liTag = '''<li><span class="label label-success">内</span>:<code>{address}</code></li>'''.format(address=ns.address) 
+                    if ns.ip != 'unkown' and ns.ip !=  a.management_ip:
+                        liTag = '''<li><span class="label label-success">内</span>:<code>{address}</code></li>'''.format(address=ns.ip) 
                         liTags = liTags + liTag
                 nks = '''<ul class="list-unstyled">
                             <li><span class="label label-danger">外</span>:<code>{management_ip}</code></li>
@@ -511,8 +518,8 @@ def assets_search(request):
             elif a.server_assets.ip:
                 liTags = ''
                 for ns in a.networkcard_assets_set.all():
-                    if ns.address != 'unkown' and ns.address !=  a.server_assets.ip:
-                        liTag = '''<li><span class="label label-success">内</span>:<code>{address}</code></li>'''.format(address=ns.address) 
+                    if ns.ip != 'unkown' and ns.ip !=  a.server_assets.ip:
+                        liTag = '''<li><span class="label label-success">内</span>:<code>{address}</code></li>'''.format(address=ns.ip) 
                         liTags = liTags + liTag
                 nks = '''<ul class="list-unstyled">
                             <li><span class="label label-danger">外</span>:<code>{server_ip}</code></li>
@@ -520,7 +527,9 @@ def assets_search(request):
                         </ul>'''.format(server_ip=a.server_assets.ip,liTags=liTags)
             management_ip = '''<td class="text-center">{ip}</td>'''.format(ip=nks)  
             name = '''<td class="text-center">{name}</td>'''.format(name=a.name)      
-            model = '''<td class="text-center">{model}</td>'''.format(model=a.model)                                        
+            model = '''<td class="text-center">{model}</td>'''.format(model=a.model)  
+            for p in baseAssets.get('project'):
+                if p.id == a.project:project = '''<td class="text-center">{project}</td>'''.format(project=p.project_name)                                      
             for s in baseAssets.get('service'):
                 if s.id == a.business:service = '''<td class="text-center"><button  type="button" class="btn btn-default disabled">{service}</button></td>'''.format(service=s.service_name)
             if a.status == 0:status = '''<td class="text-center"><button  type="button" class="btn btn-outline btn-success">已上线</button></td>'''
@@ -567,7 +576,7 @@ def assets_search(request):
                      <a href="/assets_mod/{id}" style="text-decoration:none;"><button  type="button" class="btn btn-default"><abbr title="修改资料"><i class="glyphicon glyphicon-edit"></button></i></abbr></a>
                      <button  type="button" class="btn btn-default" onclick="deleteAssets(this,{id})"><i class="glyphicon glyphicon-trash"></i></button>
                  </td>'''.format(id=a.id,assets_type_div=assets_type_div)
-            dataList.append([assets_type,management_ip,name,model,put_zone,service,group,buy_time,status,opt])                                                                                                                                                                                          
+            dataList.append([assets_id,assets_type,management_ip,name,model,put_zone,project,service,group,buy_time,status,opt])                                                                                                                                                                                          
         return JsonResponse({'msg':"数据查询成功","code":200,'data':dataList,'count':0})     
     
 @login_required(login_url='/login')  
@@ -634,7 +643,7 @@ def assets_batch(request):
                             if count > 0:
                                 try:
                                     NetworkCard_Assets.objects.filter(assets=assets,macaddress=macaddress).update(assets=assets,device=nk.get('device'),
-                                                                                                                       address=nk.get('address'),module=nk.get('module'),
+                                                                                                                       ip=nk.get('address'),module=nk.get('module'),
                                                                                                                        mtu=nk.get('mtu'),active=nk.get('active'))
                                 except Exception, ex:
                                     print ex
@@ -642,7 +651,7 @@ def assets_batch(request):
                                 try:
                                     NetworkCard_Assets.objects.create(assets=assets,device=nk.get('device'),
                                                                   macaddress=nk.get('macaddress'),
-                                                                  address=nk.get('address'),module=nk.get('module'),
+                                                                  ip=nk.get('address'),module=nk.get('module'),
                                                                   mtu=nk.get('mtu'),active=nk.get('active'))
                                 except Exception, ex:
                                     print ex                            

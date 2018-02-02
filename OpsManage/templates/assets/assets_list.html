@@ -390,6 +390,81 @@
                     <!-- /.panel -->
                 </div> 
      </div>
+     <div class="row">
+          <div class="col-lg-12">
+              <div class="panel panel-default">
+                  <div class="panel-heading">
+                      <i class="fa fa-keyboard-o  fa-fw"></i> 资产查询
+                  </div>
+                  <div class="panel-body">
+				      <div class="col-xs-6 col-sm-3">
+							<div class="form-group">
+								<label class="col-sm-3 control-label">设备状态:</label>
+								<div class="col-sm-8">
+									<select class="form-control"  id="selStatus"  >
+										<option selected="selected" value="">请选择一个类型</option>
+										<option value="0" name="status">已上线</option>	
+										<option value="1" name="status">已下线</option>	
+										<option value="2" name="status">维修中</option>	
+										<option value="3" name="status">已入库</option>	
+										<option value="4" name="status">未使用</option>				   		
+									</select>
+								</div>
+							</div>
+				      </div>                  
+				      <div class="col-xs-6 col-sm-3">
+							<div class="form-group">
+								<label class="col-sm-3 control-label">所属项目:</label>
+								<div class="col-sm-8">
+									 <select class="form-control" id="selProject" >
+									 	<option selected="selected" value="">请选择一个类型</option>
+									 	{% for b in baseAssets.project %}
+									 		<option value="{{b.id}}" name="project">{{b.project_name}}</option>
+									 	{% endfor %}				
+									</select>
+								</div>
+							</div>
+				      </div>                  
+				      <div class="col-xs-6 col-sm-3">
+							<div class="form-group">
+								<label class="col-sm-3 control-label">所属业务:</label>
+								<div class="col-sm-8">
+									 <select class="form-control" id="selBusiness" >
+									 	<option selected="selected" value="">请选择一个类型</option>
+									 	{% for s in baseAssets.service %}
+									 		<option value="{{s.id}}" name="business">{{s.service_name}}</option>
+									 	{% endfor %}										 					
+									</select> 
+								</div>
+							</div>
+				      </div>
+<!-- 				      <div class="col-xs-6 col-sm-3">
+							<div class="form-group">
+								<label class="col-sm-3 control-label">IP地址:</label>
+							<div class="input-group">
+								<input type="text" class="form-control">
+								<span class="input-group-btn">
+									<button class="btn btn-default" type="button">Search</button>
+								</span>
+							</div>								
+							</div>
+				      </div> -->		
+				      <div class="col-xs-6 col-sm-3">
+							<div class="form-group">
+								<label class="col-sm-3 control-label">IP地址:</label>
+								<div class="col-sm-8">
+									<input type="text" id="ip" class="form-control" value="">
+								</div>
+							</div>
+				      </div>				      		      				      
+                  </div>
+                  <div class="panel-footer">
+                  <div id="divSelectedType"></div>
+                  </div>
+              </div>
+          </div>      
+     </div>
+     
 	 <div class="row">
 	 		<div class="col-lg-12">
                     <div class="panel panel-default">
@@ -421,6 +496,22 @@
 									       <th class="text-center">设备状态</th>
 									       <th class="text-center">操作</th>
 									    </tr>
+								        <tfoot>
+								            <tr>
+								               <th class="text-center"></th>
+										       <th class="text-center">资产类型</th>
+										       <th class="text-center">管理IP</th>
+										       <th class="text-center">资产编号</th>
+										       <th class="text-center">设备型号</th>
+										       <th class="text-center">放置区域</th>
+										       <th class="text-center">所属项目</th>
+										       <th class="text-center">业务类型</th>
+										       <th class="text-center">使用组</th>
+										       <th class="text-center">购买时间</th>
+										       <th class="text-center">设备状态</th>
+										       <th class="text-center">操作</th>
+								            </tr>
+								        </tfoot>									    
                                 </thead>
                                 <tbody>
                                 	{% for a in  assetsList %}
@@ -452,8 +543,8 @@
 													<ul class="list-unstyled">
 						                                <li><span class="label label-danger">外</span>:<code>{{ a.management_ip }}</code></li>
 						                                {% for ds in a.nks %}
-						                                	{% if ds.address != 'unkown' and ds.address !=  a.management_ip %}
-						                                		<li><span class="label label-success">内</span>:<code>{{ds.address}}</code></li>
+						                                	{% if ds.ip != 'unkown' and ds.ip !=  a.management_ip %}
+						                                		<li><span class="label label-success">内</span>:<code>{{ds.ip}}</code></li>
 						                                	{% endif %}
 						                                {% endfor %}
 						                            </ul>									         			
@@ -462,8 +553,8 @@
 													<ul class="list-unstyled">
 						                                <li><span class="label label-danger">外</span>:<code>{{ a.server_assets.ip }}</code></li>
 						                                {% for ds in a.nks %}
-						                                	{% if ds.address != 'unkown' and ds.address !=  a.server_assets.ip %}
-						                                		<li><span class="label label-success">内</span>:<code>{{ds.address}}</code></li>
+						                                	{% if ds.ip != 'unkown' and ds.ip !=  a.server_assets.ip %}
+						                                		<li><span class="label label-success">内</span>:<code>{{ds.ip}}</code></li>
 						                                	{% endif %}
 						                                {% endfor %}
 						                            </ul>									         		
@@ -616,6 +707,138 @@
    	<!--   csrf -->
 	<script src="/static/js/csrf.js"></script>
 
+    <script type="text/javascript">
+        var curpage = 1;
+        $(document).ready(function () {       
+
+            //业务类型
+            $('#selBusiness').change(function () {
+                if ($('#selBusiness').val() != "") {
+                    $("#hdnBusiness").val($('#selBusiness').val());
+                    var span = "<span class='label label-success' id='spanBusiness'>" + $("#selBusiness").find("option:selected").text()
+                    + " <img alt='' src='/static/img/close.png' onclick='removeself(this)' /><input name='business' type='hidden' value='"
+                    + $('#selBusiness').val() + "' /></span> &nbsp;";
+                    if ($("#spanBusiness").length == 0) {
+                        $('#divSelectedType').append(span);
+                    }
+                    else {
+                        $("#spanBusiness").html($("#selBusiness").find("option:selected").text()
+                         + " <img alt='' src='/static/img/close.png' onclick='removeself(this)' /><input name='business' type='hidden' value='"
+                         + $('#selBusiness').val() + "' /></span> &nbsp;");
+                    }
+                    changepage(1);
+                }
+            })   
+            
+			//设备状态
+            $('#selStatus').change(function () {
+                if ($('#selStatus').val() != "") {
+                    $("#hdnStatus").val($('#selStatus').val());
+                    var span = "<span class='label label-success' id='spanStatus'>" + $("#selStatus").find("option:selected").text()
+                    + " <img alt='' src='/static/img/close.png' onclick='removeself(this)' /><input name='status' type='hidden' value='"
+                    + $('#selStatus').val() + "' /></span> &nbsp;";
+                    if ($("#spanStatus").length == 0) {
+                        $('#divSelectedType').append(span);
+                    }
+                    else {
+                        $("#spanStatus").html($("#selStatus").find("option:selected").text()
+                         + " <img alt='' src='/static/img/close.png' onclick='removeself(this)' /><input name='status' type='hidden' value='"
+                         + $('#selStatus').val() + "' /></span> &nbsp;");
+                    }
+                    changepage(1);
+                }
+            })  
+            //ip地址
+            $('#ip').change(function () {
+                if ($('#ip').val() != "") {
+                    var span = "<span class='label label-success' id='spanIp'>" + $("#ip").val()
+                    + " <img alt='' src='/static/img/close.png' onclick='removeself(this)' /><input name='ip' type='hidden' value='"
+                    + $('#ip').val() + "' /></span> &nbsp;";
+                    if ($("#spanIp").length == 0) {
+                        $('#divSelectedType').append(span);
+                    }
+                    else {
+                        $("#spanIp").html($("#ip").val()
+                         + " <img alt='' src='/static/img/close.png' onclick='removeself(this)' /><input name='ip' type='hidden' value='"
+                         + $('#ip').val() + "' /></span> &nbsp;");
+                    }
+                    changepage(1);
+                }
+            })             
+			//所属项目
+            $('#selProject').change(function () {
+                if ($('#selProject').val() != "") {
+                    $("#hdnProject").val($('#selProject').val());
+                    var span = "<span class='label label-success' id='spanSelinux'>" + $("#selProject").find("option:selected").text()
+                    + " <img alt='' src='/static/img/close.png' onclick='removeself(this)' /><input name='project' type='hidden' value='"
+                    + $('#selProject').val() + "' /></span> &nbsp;";
+                    if ($("#spanSelinux").length == 0) {
+                        $('#divSelectedType').append(span);
+                    }
+                    else {
+                        $("#spanSelinux").html($("#selProject").find("option:selected").text()
+                         + " <img alt='' src='/static/img/close.png' onclick='removeself(this)' /><input name='project' type='hidden' value='"
+                         + $('#selProject').val() + "' /></span> &nbsp;");
+                    }
+                    changepage(1);
+                }
+            })            
+            
+        })
+
+        function search_go() {
+            var parameter = {};
+            $("input[type='hidden']").each(function () {
+                var key = $(this).prop('name');
+                var value = $(this).val();
+                if (key != "csrfmiddlewaretoken"){
+                	parameter[key] = value;
+                }
+                
+            })
+
+            var count = 0;
+            for (var i in parameter) {
+                count += i;
+                break;
+            }
+            if (count == 0) {
+                return false;
+            }
+
+            $.post('/assets_search/', parameter, function (result) {
+                if (result["data"].length > 0) {
+/*                 	document.getElementById("div-search-result").style.display = ""; */
+						 var table = $('#assetsListTable').dataTable();
+						 oSettings = table.fnSettings();
+						 table.fnClearTable(this);
+						 for (var i=0; i<result["data"].length; i++)
+						 {
+						   table.oApi._fnAddData(oSettings, result["data"][i]);
+						 }
+						 oSettings.aiDisplay = oSettings.aiDisplayMaster.slice();
+						 table.fnDraw();                	               	
+                }
+                else{
+                	//没有数据就清空
+                	var table = $('#assetsListTable').dataTable();
+                	table.fnClearTable(this);
+                }
+            })
+        }
+
+        function changepage(pageindex) {
+            curpage = pageindex;
+            search_go();
+        }
+
+        function removeself(obj) {
+            $(obj).parent().remove();
+            changepage(1);
+        }
+        
+
+</script>
 
 <script type="text/javascript"> 
 

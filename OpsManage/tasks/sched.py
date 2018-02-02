@@ -98,7 +98,7 @@ def updateAssets():
                     if count > 0:
                         try:
                             NetworkCard_Assets.objects.filter(assets=assets,macaddress=macaddress).update(assets=assets,device=nk.get('device'),
-                                                                                                               address=nk.get('address'),module=nk.get('module'),
+                                                                                                               ip=nk.get('address'),module=nk.get('module'),
                                                                                                                mtu=nk.get('mtu'),active=nk.get('active'))
                         except Exception, ex:
                             print ex
@@ -106,7 +106,7 @@ def updateAssets():
                         try:
                             NetworkCard_Assets.objects.create(assets=assets,device=nk.get('device'),
                                                           macaddress=nk.get('macaddress'),
-                                                          address=nk.get('address'),module=nk.get('module'),
+                                                          ip=nk.get('address'),module=nk.get('module'),
                                                           mtu=nk.get('mtu'),active=nk.get('active'))
                         except Exception, ex:
                             print ex  
