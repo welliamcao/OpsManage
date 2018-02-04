@@ -42,7 +42,7 @@ def sendSqlNotice(order_id,mask):
         to_user = User.objects.get(id=order.order_executor)
     except Exception, ex:
         return ex
-    CGroups(User.objects.get(id=order.order_executor).username).send({'text': json.dumps({"title":"你有一条新的工单需要处理<br>","type":"info","messages":content})})
+    CGroups(User.objects.get(id=order.order_apply).username).send({'text': json.dumps({"title":"你有一条新的工单需要处理<br>","type":"info","messages":content})})
     if order.order_cancel:
         content += "撤销原因：<strong>{order_cancel}</strong>".format(order_cancel=order.order_cancel)
 
