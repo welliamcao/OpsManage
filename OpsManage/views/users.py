@@ -57,11 +57,12 @@ def user_center(request):
                     ser = Server_Assets.objects.get(id=s.server_id)
                     serverList.append(ser.assets)
         except:
-            pass        
+            config = None     
         orderList = Project_Order.objects.filter(Q(order_user=User.objects.get(username=request.user)) |
                                                 Q(order_audit=User.objects.get(username=request.user))).order_by("id")[0:150]       
         return render(request,'users/user_center.html',{"user":request.user,"orderList":orderList,
-                                                            "serverList":serverList,"baseAssets":baseAssets,}) 
+                                                        "serverList":serverList,"baseAssets":baseAssets,
+                                                        "config":config}) 
     if request.method == "POST":
         if request.POST.get('password') == request.POST.get('c_password'):
             try:

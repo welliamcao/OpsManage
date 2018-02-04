@@ -38,7 +38,7 @@ def project_detail(request, id,format=None):
         serializer = ProjectSerializer(snippet)
         return Response(serializer.data)
  
-    elif request.method == 'PUT'and request.user.has_perm('OpsManage.can_change_rroject_Assets'):
+    elif request.method == 'PUT' and request.user.has_perm('OpsManage.can_change_project_assets'):
         serializer = ProjectSerializer(snippet, data=request.data)
         old_name = snippet.project_name
         if serializer.is_valid():
@@ -47,7 +47,7 @@ def project_detail(request, id,format=None):
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
      
-    elif request.method == 'DELETE' and request.user.has_perm('OpsManage.can_delete_rroject_Assets'):
+    elif request.method == 'DELETE' and request.user.has_perm('OpsManage.can_delete_rroject_assets'):
         if not request.user.has_perm('OpsManage.can_delete_rroject_Assets'):
             return Response(status=status.HTTP_403_FORBIDDEN)
         snippet.delete()

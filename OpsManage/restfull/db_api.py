@@ -9,7 +9,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from django.contrib.auth.decorators import permission_required
-from OpsManage.tasks.sql import sendSqlEmail
+from OpsManage.tasks.sql import sendSqlNotice
 
 @api_view(['POST' ])
 @permission_required('OpsManage.can_add_database_server_config',raise_exception=True)
@@ -97,9 +97,9 @@ def sql_order_detail(request, id,format=None):
         return Response(status=status.HTTP_404_NOT_FOUND)
     if request.method == 'PUT':
         if int(request.data.get('order_status')) == 4:
-            sendSqlEmail.delay(id,mask='【已取消】')  
+            sendSqlNotice.delay(id,mask='【已取消】')  
         elif int(request.data.get('order_status')) == 6:
-            sendSqlEmail.delay(id,mask='【已授权】')  
+            sendSqlNotice.delay(id,mask='【已授权】')  
         serializer = AuditSqlOrderSerializer(snippet, data=request.data)
         if serializer.is_valid():
             serializer.save()

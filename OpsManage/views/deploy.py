@@ -1,6 +1,6 @@
 #!/usr/bin/env python  
 # _#_ coding:utf-8 _*_  
-import uuid
+import uuid,json
 from django.http import HttpResponseRedirect,JsonResponse
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
@@ -16,9 +16,10 @@ from django.contrib.auth.models import User,Group
 from OpsManage.views.assets import getBaseAssets
 from django.db.models import Count
 from django.db.models import Q 
-from OpsManage.tasks.deploy import recordProject,sendDeployEmail
+from OpsManage.tasks.deploy import recordProject,sendDeployNotice
 from django.contrib.auth.decorators import permission_required
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+
 
 @login_required()
 @permission_required('OpsManage.can_add_project_config',login_url='/noperm/')
@@ -422,7 +423,7 @@ def deploy_ask(request,pid):
                                                     order_comid = request.POST.get('order_comid',None),
                                                     order_tag  = request.POST.get('order_tag',None)
                                                     )
-            sendDeployEmail.delay(order_id=order.id,mask='【申请中】')
+            sendDeployNotice.delay(order_id=order.id,mask='【申请中】')
         except Exception,e:
             return render(request,'deploy/deploy_ask.html',{"user":request.user,"errorInfo":"项目部署申请失败：%s" % str(e)},
                                       )   
@@ -462,11 +463,11 @@ def deploy_order(request,page):
                                 order_cancel = request.POST.get('order_cancel',None),
                             )
                 if request.POST.get('model') == 'auth':
-                    sendDeployEmail.delay(order_id=request.POST.get('id'),mask='【已授权】')
+                    sendDeployNotice.delay(order_id=request.POST.get('id'),mask='【已授权】')
                 elif request.POST.get('model') == 'finish':
-                    sendDeployEmail.delay(order_id=request.POST.get('id'),mask='【已部署】')
+                    sendDeployNotice.delay(order_id=request.POST.get('id'),mask='【已部署】')
                 elif request.POST.get('model') == 'disable':
-                    sendDeployEmail.delay(order_id=request.POST.get('id'),mask='【已取消】')                   
+                    sendDeployNotice.delay(order_id=request.POST.get('id'),mask='【已取消】')                   
             except Exception,e:
                 return JsonResponse({'msg':"操作失败："+str(e),"code":500,'data':[]}) 
             return JsonResponse({'msg':"操作成功","code":200,'data':[]})                

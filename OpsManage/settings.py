@@ -41,6 +41,10 @@ CELERY_QUEUES = (
     Queue('ansible',Exchange('ansible'),routing_key='ansible_#'),
 )
 CELERY_ROUTES = {
+    'OpsManage.tasks.sql.*':{'queue':'default','routing_key':'default'},
+    'OpsManage.tasks.assets.*':{'queue':'default','routing_key':'default'},
+    'OpsManage.tasks.cron.*':{'queue':'default','routing_key':'default'},
+    'OpsManage.tasks.sched.*':{'queue':'default','routing_key':'default'},
     'OpsManage.tasks.ansible.AnsibleScripts':{'queue':'ansible','routing_key':'ansible_scripts'},
     'OpsManage.tasks.ansible.AnsiblePlayBook':{'queue':'ansible','routing_key':'ansible_playbook'},
 }

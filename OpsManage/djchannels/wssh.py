@@ -7,13 +7,10 @@ try:
     import simplejson as json
 except ImportError:
     import json
-from OpsManage.interactive import interactive_shell,get_redis_instance,SshTerminalThread
-
-from django.core.exceptions import ObjectDoesNotExist
+from OpsManage.utils.interactive import interactive_shell,get_redis_instance,SshTerminalThread
 from OpsManage.models import Global_Config,User_Server,Server_Assets
 from django.contrib.auth.models import User
-from django.utils.timezone import now
-import os
+
                 
 class webterminal(WebsocketConsumer):
     
@@ -30,8 +27,8 @@ class webterminal(WebsocketConsumer):
         except Exception,ex:
             webssh = 0
         if webssh != 1:
-            self.message.reply_channel.send({"text":json.dumps(['stdout','\033[1;3;31m请联系管理员开启WebSSH功能~\033[0m'])},immediately=True)  
-            self.message.reply_channel.send({"accept":False}) 
+            message.reply_channel.send({"text":json.dumps(['stdout','\033[1;3;31m请联系管理员开启WebSSH功能~\033[0m'])},immediately=True)  
+            message.reply_channel.send({"accept":False}) 
             self.disconnect(message)            
         if self.message.user:
             #获取用户信息
@@ -40,7 +37,7 @@ class webterminal(WebsocketConsumer):
             try:
                 sid = int(message['path'].strip('/').split('/')[-1])
             except Exception:
-                self.message.reply_channel.send({"text":json.dumps(['stdout','\033[1;3;31m"主机不存在或者已被删除"\033[0m'])},immediately=True)  
+                message.reply_channel.send({"text":json.dumps(['stdout','\033[1;3;31m"主机不存在或者已被删除"\033[0m'])},immediately=True)  
                 self.disconnect(message)      
             try:
                 if user.is_superuser:
@@ -49,19 +46,19 @@ class webterminal(WebsocketConsumer):
                     user_server = User_Server.objects.get(user_id=user.id,server_id=sid)
                     server = Server_Assets.objects.get(id=user_server.server_id) 
             except:
-                self.message.reply_channel.send({"text":json.dumps(['stdout','\033[1;3;31m"主机不存在或者已被删除"\\033[0m'])},immediately=True)
-                self.message.reply_channel.send({"accept":False})
+                message.reply_channel.send({"text":json.dumps(['stdout','\033[1;3;31m"主机不存在或者已被删除"\\033[0m'])},immediately=True)
+                message.reply_channel.send({"accept":False})
                 self.disconnect(message)                                    
             try:
                 self.ssh.connect(server.ip, port=int(server.port), username=server.username, password=server.passwd, timeout=3)
             except socket.timeout:
-                self.message.reply_channel.send({"text":json.dumps(['stdout','\033[1;3;31mConnect to server time out\033[0m'])},immediately=True)
-                self.message.reply_channel.send({"accept":False})
+                message.reply_channel.send({"text":json.dumps(['stdout','\033[1;3;31mConnect to server time out\033[0m'])},immediately=True)
+                message.reply_channel.send({"accept":False})
                 self.disconnect(message) 
                 return
             except Exception, ex:
-                self.message.reply_channel.send({"text":json.dumps(['stdout','\033[1;3;31m连接服务器失败: {ex}\033[0m'.format(ex=str(ex))])},immediately=True)
-                self.message.reply_channel.send({"accept":False})
+                message.reply_channel.send({"text":json.dumps(['stdout','\033[1;3;31m连接服务器失败: {ex}\033[0m'.format(ex=str(ex))])},immediately=True)
+                message.reply_channel.send({"accept":False})
                 self.disconnect(message) 
                 return
             self.chan = self.ssh.invoke_shell(width=150, height=100)
@@ -69,19 +66,19 @@ class webterminal(WebsocketConsumer):
             sRbt.setDaemon = True    
             if user.is_superuser and server:
                 sRbt.start()   
-                interactive_shell(self.chan,self.message.reply_channel.name)                
-                self.message.reply_channel.send({"accept": True})
+                interactive_shell(self.chan,message.reply_channel.name)                
+                message.reply_channel.send({"accept": True})
             elif server:
                 sRbt.start()   
-                interactive_shell(self.chan,self.message.reply_channel.name)  
-                self.message.reply_channel.send({"accept": True})                  
+                interactive_shell(self.chan,message.reply_channel.name)  
+                message.reply_channel.send({"accept": True})                  
         else:
             self.disconnect(message) 
         
         
     def disconnect(self, message,**kwargs):
         self.closessh()
-        self.message.reply_channel.send({"accept":False})
+        message.reply_channel.send({"accept":False})
         self.close()
     
     def queue(self):

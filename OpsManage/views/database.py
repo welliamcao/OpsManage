@@ -11,7 +11,7 @@ from OpsManage.models import (DataBase_Server_Config,Inception_Server_Config,
                               Custom_High_Risk_SQL,SQL_Audit_Control,
                               Service_Assets,Server_Assets,SQL_Execute_Histroy,
                               Project_Assets)
-from OpsManage.tasks.sql import sendSqlEmail,recordSQL
+from OpsManage.tasks.sql import sendSqlNotice,recordSQL
 from django.contrib.auth.decorators import permission_required
 from OpsManage.utils.inception import Inception
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
@@ -113,7 +113,7 @@ def db_sqlorder_audit(request):
                                                        order_status = order_status,
                                                        order_desc =  request.POST.get('order_desc')
                                                        )  
-                            sendSqlEmail.delay(order.id,mask)                          
+                            sendSqlNotice.delay(order.id,mask)                          
                         except Exception, ex:
                             return JsonResponse({'msg':str(ex),"code":500,'data':[]})
                         return JsonResponse({'msg':"审核成功，SQL已经提交","code":200,'data':sList})
@@ -252,12 +252,12 @@ def db_sqlorder_run(request,id):
                     if count > 0:
                         order.order_status = 7
                         order.save()      
-                        sendSqlEmail.delay(order.id,mask='【执行失败】')                   
+                        sendSqlNotice.delay(order.id,mask='【执行失败】')                   
                         return JsonResponse({'msg':"执行失败，请检查SQL语句","code":500,'data':sList})
                     else:
                         order.order_status = 2
                         order.save()
-                        sendSqlEmail.delay(order.id,mask='【已执行】') 
+                        sendSqlNotice.delay(order.id,mask='【已执行】') 
                         return JsonResponse({'msg':"SQL执行成功","code":200,'data':sList})
                 else:
                     return JsonResponse({'msg':result.get('errinfo'),"code":500,'data':[]}) 
@@ -294,7 +294,7 @@ def db_sqlorder_run(request,id):
                 if result.get('status') == 'success': 
                     order.order_status = 3
                     order.save()         
-                    sendSqlEmail.delay(order.id,mask='【已回滚】')           
+                    sendSqlNotice.delay(order.id,mask='【已回滚】')           
                     return JsonResponse({'msg':"SQL回滚成功","code":200,'data':[]})  
                 else:
                     return JsonResponse({'msg':"SQL回滚失败：" + result.get('errinfo'),"code":500,'data':[]})   

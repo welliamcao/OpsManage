@@ -1,4 +1,9 @@
 {% extends 'index.html' %}
+{% block ace-content %}
+<!-- bootstrap-notify -->   
+<script type="text/javascript" src="/static/dist/js/bootstrap-notify.js"></script>
+<script type="text/javascript" src="/static/js/reconnecting-websocket.js"></script>
+{% endblock %}
 {% block page-content %}
 <div id="page-wrapper">
     <div class="row">
@@ -57,7 +62,7 @@
 												         	{% endif %} 
 												         	</td> 
 				                                			<td class="text-center">
-				                                				{{ds.order_project.project_name}} 
+				                                				{{ds.order_project.project.project_name}} 
 				                                			</td>
 				                                			<td class="text-center">
 				                                				{% if ds.order_comid %}
@@ -424,5 +429,28 @@
 			}
 	   }	  
 </script>
-
+	{% if config.email == 1 %}
+	<audio id="notifySound"><source src="/static/misc/hx.mp3" type="audio/mp3"> </audio>
+	<script type="application/javascript">
+	    var ws_scheme = window.location.protocol == "https:" ? "wss" : "ws";
+	    var ws = new ReconnectingWebSocket(ws_scheme + '://' + window.location.host + "/ws/notice/{{user}}/",null, {debug: true, reconnectInterval: 3000} ); 
+	    ws.onmessage = function (message) {
+	        var data = JSON.parse(message.data);
+	        console.log(data)
+	        $('#notifySound')[0].play();
+			$.notify({
+				title: "<strong>"+ data['title'] +"</strong>",
+				message: data['messages']
+			},
+			{
+				type: data['type'],
+				url_target: '_blank',
+				delay: 3600000
+			});	
+	    }
+	    ws.onclose = function(){
+	        console.log('closed....');
+	    };
+	</script>
+	{% endif %}
 {% endblock %}
