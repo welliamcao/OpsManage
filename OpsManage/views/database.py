@@ -164,7 +164,8 @@ def db_sqlorder_run(request,id):
         if request.user.is_superuser:order = SQL_Audit_Order.objects.get(id=id)
         else:order = SQL_Audit_Order.objects.filter(Q(order_apply=request.user.id,id=id) | Q(order_executor=request.user.id,id=id))[0]
         incept = Inception_Server_Config.objects.get(id=1)
-        if request.user.id != order.order_executor:return HttpResponseRedirect('/noperm')
+        if request.user.id != order.order_executor:order.prem = 0
+        else:order.prem = 1
     except Exception,ex:
         print ex
         return render(request,'database/db_sqlorder_run.html',{"user":request.user,"errinfo":"工单不存在，或者您没有权限处理这个工单"}) 
@@ -209,7 +210,7 @@ def db_sqlorder_run(request,id):
         return render(request,'database/db_sqlorder_run.html',{"user":request.user,"order":order,"sqlResultList":sqlResultList,"rollBackSql":rollBackSql,"oscStatus":oscStatus}) 
     
     elif request.method == "POST":
-        if request.POST.get('type') == 'exec' and order.order_status == 6:
+        if request.POST.get('type') == 'exec' and order.order_status == 6 and order.prem == 1:
             try:
                 count = SQL_Order_Execute_Result.objects.filter(order=order).count() 
                 if count > 0:return JsonResponse({'msg':"该SQL已经被执行过，请勿重复执行","code":500,'data':[]})
@@ -265,7 +266,7 @@ def db_sqlorder_run(request,id):
             except Exception, ex:
                 return JsonResponse({'msg':str(ex),"code":200,'data':[]})  
             
-        elif  request.POST.get('type') == 'rollback' and order.order_status == 2: 
+        elif  request.POST.get('type') == 'rollback' and order.order_status == 2 and order.prem == 1: 
             rollBackSql = []  
             sqlResultList = SQL_Order_Execute_Result.objects.filter(order=order)
             for ds in sqlResultList:

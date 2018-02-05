@@ -14,7 +14,7 @@
 </style>
 {% endblock %}
 {%block page-content %}
-{% if order.order_status == 1 or order.order_status == 6 %}
+{% if order.order_status == 1 and order.prem == 1 or order.order_status == 6 and order.prem == 1  %}
 	<div id="page-wrapper">
 	
 		<div class="row">
@@ -220,7 +220,7 @@
 		
 	</script>
 <!-- 	回滚页面 -->
-{% elif order.order_status == 2 or order.order_status == 3 or order.order_status == 7 %}
+{% elif order.order_status == 2 and order.prem == 1 or order.order_status == 3 and order.prem == 1 or order.order_status == 7 and order.prem == 1 %}
 	<div id="page-wrapper">
 	
 		<div class="row">
