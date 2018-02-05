@@ -299,7 +299,16 @@ def deploy_run(request,pid):
                 softdir = project.project_dir+project.project.project_name+'/'
                 result = base.lns(spath=trueDir, dpath=softdir.rstrip('/'))
                 DsRedis.OpsDeploy.lpush(project.project_uuid, data="[Running] Make softlink cmd:  ln -s  {sdir} {ddir} info: {info}".format(sdir=trueDir,ddir=softdir,info=result[1]))
-                if result[0] > 0:return JsonResponse({'msg':result[1],"code":500,'data':[]})                   
+                if result[0] > 0:return JsonResponse({'msg':result[1],"code":500,'data':[]})      
+                #获取要排除的文件 
+                exclude = None
+                if project.project_exclude:
+                    try:
+                        exclude = ''
+                        for s in project.project_exclude.split(','):
+                            exclude =  '--exclude "{file}"'.format(file=s.replace('\r\n','').replace('\n','').strip()) + ' ' + exclude
+                    except Exception,e:
+                        return JsonResponse({'msg':str(e),"code":500,'data':[]})                             
                 #执行部署命令  - 编译型语言      
                 if project.project_local_command:
                     result =  base.cmds(cmds=project.project_local_command) 
@@ -307,15 +316,6 @@ def deploy_run(request,pid):
                     if result[0] > 0:return JsonResponse({'msg':result[1],"code":500,'data':[]})  
                 #非编译型语言
                 else:               
-                    #获取要排除的文件 
-                    exclude = None
-                    if project.project_exclude:
-                        try:
-                            exclude = ''
-                            for s in project.project_exclude.split(','):
-                                exclude =  '--exclude "{file}"'.format(file=s.replace('\r\n','').replace('\n','').strip()) + ' ' + exclude
-                        except Exception,e:
-                            return JsonResponse({'msg':str(e),"code":500,'data':[]})
                     #配置rsync同步文件到本地目录
                     result = base.rsync(sourceDir=project.project_repo_dir, destDir=trueDir,exclude=exclude)
                     DsRedis.OpsDeploy.lpush(project.project_uuid, data="[Running] Rsync {sDir} to {dDir} exclude {exclude}".format(sDir=project.project_repo_dir,dDir=trueDir,exclude=exclude))  

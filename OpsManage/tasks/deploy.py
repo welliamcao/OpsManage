@@ -35,13 +35,16 @@ def sendDeployNotice(order_id,mask):
     content = """<strong>申请人：</strong>{user}<br>                                          
             <strong>更新内容：</strong>{content}<br>
             <strong>工单地址：</strong><a href='{site}/deploy_order/status/{order_id}/'>点击查看工单详情</a><br>
-            <strong>授权人：</strong>{auth}<br>""".format(order_id=order_id,user=order.order_user,
-                                           site=config.site,auth=order.order_audit,
-                                           content=order.order_content)
-    CGroups(order.order_audit).send({'text': json.dumps({"title":"你有一条新的工单需要处理<br>","type":"info","messages":content})})
+            <strong>授权人：</strong>{auth}<br>
+            <strong>状态：</strong>{mask}<br>""".format(order_id=order_id,user=order.order_user,
+                                                     site=config.site,auth=order.order_audit,
+                                                     content=order.order_content,mask=mask)
+    if order.order_status == 2:to_user = order.order_audit
+    else: to_user = order.order_user
+    CGroups(to_user).send({'text': json.dumps({"title":"你有一条新的工单需要处理<br>","type":"info","messages":content})})
     if order.order_cancel:
         content += "撤销原因：<strong>{order_cancel}</strong>".format(order_cancel=order.order_cancel)
-    to_user = User.objects.get(username=order.order_audit).email
+    to_user = User.objects.get(username=to_user).email
     if config.subject:subject = "{sub} {oub} {mask}".format(sub=config.subject,oub=order.order_subject,mask=mask)
     else:subject = "{oub} {mask}".format(mask=mask,oub=order.order_subject)
     if config.cc_user:

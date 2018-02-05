@@ -813,7 +813,9 @@ pre {
 			$("#chatTalk").append(liHtml); 		    
 		    ws.send(JSON.stringify(sdata));
 	    })	
-	    
+	    ws.onclose = function(){
+	        console.log('closed....');
+	    };	    
 	    
 	    function CurentTime()  
 	    {   

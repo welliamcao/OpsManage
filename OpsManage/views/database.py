@@ -1,7 +1,7 @@
 #!/usr/bin/env python  
 # _#_ coding:utf-8 _*_  
 import json,re,csv
-from django.http import JsonResponse
+from django.http import JsonResponse,HttpResponseRedirect
 from django.shortcuts import render
 from django.contrib.auth.models import User,Group
 from django.db.models import Q 
@@ -164,6 +164,7 @@ def db_sqlorder_run(request,id):
         if request.user.is_superuser:order = SQL_Audit_Order.objects.get(id=id)
         else:order = SQL_Audit_Order.objects.filter(Q(order_apply=request.user.id,id=id) | Q(order_executor=request.user.id,id=id))[0]
         incept = Inception_Server_Config.objects.get(id=1)
+        if request.user.id != order.order_executor:return HttpResponseRedirect('/noperm')
     except Exception,ex:
         print ex
         return render(request,'database/db_sqlorder_run.html',{"user":request.user,"errinfo":"工单不存在，或者您没有权限处理这个工单"}) 
@@ -172,7 +173,7 @@ def db_sqlorder_run(request,id):
         sqlResultList = []
         rollBackSql = []
         order.order_apply = User.objects.get(id=order.order_apply).username
-        order.order_executor = User.objects.get(id=order.order_executor).username     
+        order.order_executor = User.objects.get(id=order.order_executor).username  
         inceptRbt = Inception(
                    host=incept.db_backup_host,name=order.order_db.db_name,
                    user=order.order_db.db_user,passwd=order.order_db.db_passwd,
