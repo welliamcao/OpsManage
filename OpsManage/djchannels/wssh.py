@@ -33,7 +33,8 @@ class webterminal(WebsocketConsumer):
         if self.message.user:
             #获取用户信息
             user = User.objects.get(username=self.message.user)  
-            self.ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())          
+            self.ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())      
+            self.ssh.load_system_host_keys()    
             try:
                 sid = int(message['path'].strip('/').split('/')[-1])
             except Exception:
@@ -50,7 +51,10 @@ class webterminal(WebsocketConsumer):
                 message.reply_channel.send({"accept":False})
                 self.disconnect(message)                                    
             try:
-                self.ssh.connect(server.ip, port=int(server.port), username=server.username, password=server.passwd, timeout=3)
+                if server.username == 'root':keyfile = "/root/.ssh/id_rsa"
+                else:keyfile = "/home/{user}/.ssh/id_rsa".format(user=server.username) 
+                pkey = paramiko.RSAKey.from_private_key_file(keyfile)                 
+                self.ssh.connect(server.ip, port=int(server.port), username=server.username, password=server.passwd, timeout=3, pkey=pkey)
             except socket.timeout:
                 message.reply_channel.send({"text":json.dumps(['stdout','\033[1;3;31mConnect to server time out\033[0m'])},immediately=True)
                 message.reply_channel.send({"accept":False})

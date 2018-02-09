@@ -53,8 +53,10 @@ class MyInventory(Inventory):
             hostip = host.get('ip', hostname)  
             hostport = host.get("port")  
             username = host.get("username")  
-            password = host.get("password")  
-            ssh_key = host.get("ssh_key")  
+            password = host.get("password")
+            if username == 'root':keyfile = "/root/.ssh/id_rsa"
+            else:keyfile = "/home/{user}/.ssh/id_rsa".format(user=username)  
+            ssh_key = host.get("ssh_key",keyfile)  
             my_host = Host(name=hostname, port=hostport)  
             my_host.set_variable('ansible_ssh_host', hostip)  
             my_host.set_variable('ansible_ssh_port', hostport)  
@@ -132,10 +134,10 @@ class ModelResultsCollectorToSave(CallbackBase):
         DsRedis.OpsAnsibleModel.lpush(self.redisKey,data)
         if self.logId:AnsibleSaveResult.Model.insert(self.logId, data)
   
-    def v2_runner_on_failed(self, result,  *args, **kwargs):  
+    def v2_runner_on_failed(self, result,  *args, **kwargs):   
         for remove_key in ('changed', 'invocation'):
             if remove_key in result._result:
-                del result._result[remove_key]         
+                del result._result[remove_key]
         if result._result.has_key('rc') and result._result.has_key('stdout'):
             data = "{host} | FAILED | rc={rc} >> \n{stdout}".format(host=result._host.get_name(),rc=result._result.get('rc'),stdout=result._result.get('stdout'))
         else:
@@ -158,47 +160,47 @@ class PlayBookResultsCollectorToSave(CallbackBase):
         self.redisKey = redisKey
         self.logId = logId
         
-    def v2_runner_on_ok(self, result, *args, **kwargs):
-        self.task_ok[result._host.get_name()]  = result._result
-        delegated_vars = result._result.get('_ansible_delegated_vars', None)
-        if result._task.action in ('include', 'include_role'):
-            return
-        elif result._result.get('changed', False):
-            if delegated_vars:
-                msg = "changed: [%s -> %s]" % (result._host.get_name(), delegated_vars['ansible_host'])
-            else:
-                msg = "changed: [%s]" % result._host.get_name()
-        else:
-            if delegated_vars:
-                msg = "ok: [%s -> %s]" % (result._host.get_name(), delegated_vars['ansible_host'])
-            else:
-                msg = "ok: [%s]" % result._host.get_name()  
-        DsRedis.OpsAnsiblePlayBook.lpush(self.redisKey,msg)
-        if self.logId:AnsibleSaveResult.PlayBook.insert(self.logId, msg)    
+#     def v2_runner_on_ok(self, result, *args, **kwargs):
+#         self.task_ok[result._host.get_name()]  = result._result
+#         delegated_vars = result._result.get('_ansible_delegated_vars', None)
+#         if result._task.action in ('include', 'include_role'):
+#             return
+#         elif result._result.get('changed', False):
+#             if delegated_vars:
+#                 msg = "changed: [%s -> %s]" % (result._host.get_name(), delegated_vars['ansible_host'])
+#             else:
+#                 msg = "changed: [%s]" % result._host.get_name()
+#         else:
+#             if delegated_vars:
+#                 msg = "ok: [%s -> %s]" % (result._host.get_name(), delegated_vars['ansible_host'])
+#             else:
+#                 msg = "ok: [%s]" % result._host.get_name()  
+#         DsRedis.OpsAnsiblePlayBook.lpush(self.redisKey,msg)
+#         if self.logId:AnsibleSaveResult.PlayBook.insert(self.logId, msg)    
         
         
-    def v2_runner_on_failed(self, result, *args, **kwargs):
-        delegated_vars = result._result.get('_ansible_delegated_vars', None)
-        self.task_failed[result._host.get_name()] = result._result
-        if delegated_vars:
-            msg = "fatal: [{host} -> {delegated_vars}]: FAILED! => {msg}".format(host=result._host.get_name(),delegated_vars=delegated_vars['ansible_host'],msg=json.dumps(result._result))
-        else: 
-            msg = "fatal: [{host}]: FAILED! => {msg}".format(host=result._host.get_name(),msg=json.dumps(result._result))
-        DsRedis.OpsAnsiblePlayBook.lpush(self.redisKey,msg) 
-        if self.logId:AnsibleSaveResult.PlayBook.insert(self.logId, msg)
+#     def v2_runner_on_failed(self, result, *args, **kwargs):
+#         delegated_vars = result._result.get('_ansible_delegated_vars', None)
+#         self.task_failed[result._host.get_name()] = result._result
+#         if delegated_vars:
+#             msg = "fatal: [{host} -> {delegated_vars}]: FAILED! => {msg}".format(host=result._host.get_name(),delegated_vars=delegated_vars['ansible_host'],msg=json.dumps(result._result))
+#         else: 
+#             msg = "fatal: [{host}]: FAILED! => {msg}".format(host=result._host.get_name(),msg=json.dumps(result._result))
+#         DsRedis.OpsAnsiblePlayBook.lpush(self.redisKey,msg) 
+#         if self.logId:AnsibleSaveResult.PlayBook.insert(self.logId, msg)
         
     def v2_runner_on_unreachable(self, result):
         self.task_unreachable[result._host.get_name()] = result._result
         msg = "fatal: [{host}]: UNREACHABLE! => {msg}\n".format(host=result._host.get_name(),msg=json.dumps(result._result))        
         DsRedis.OpsAnsiblePlayBook.lpush(self.redisKey,msg)  
         if self.logId:AnsibleSaveResult.PlayBook.insert(self.logId, msg)   
-   
+    
     def v2_runner_on_changed(self, result):
         self.task_changed[result._host.get_name()] = result._result
         msg = "changed: [{host}]\n".format(host=result._host.get_name())
         DsRedis.OpsAnsiblePlayBook.lpush(self.redisKey,msg)
         if self.logId:AnsibleSaveResult.PlayBook.insert(self.logId, msg)
-        
+         
     def v2_runner_on_skipped(self, result):
         self.task_ok[result._host.get_name()]  = result._result
         msg = "skipped: [{host}]\n".format(host=result._host.get_name())
@@ -220,12 +222,6 @@ class PlayBookResultsCollectorToSave(CallbackBase):
         if len(msg) < 80:msg = msg + '*'*(80-len(msg))
         DsRedis.OpsAnsiblePlayBook.lpush(self.redisKey,msg)
         if self.logId:AnsibleSaveResult.PlayBook.insert(self.logId, msg)
-#         args = ''
-#         if not task.no_log and C.DISPLAY_ARGS_TO_STDOUT:
-#             args = u', '.join(u'%s=%s' % a for a in task.args.items())
-#             args = u' %s' % args        
-#         print u"\nTASK [%s%s]" % (task.get_name().strip(), args)
-
 
     def v2_playbook_on_task_start(self, task, is_conditional):
         self._print_task_banner(task)
@@ -286,8 +282,8 @@ class PlayBookResultsCollectorToSave(CallbackBase):
         if delegated_vars:
             msg += "[%s -> %s]" % (result._host.get_name(), delegated_vars['ansible_host'])
         else:
-            msg += "[%s]" % (result._host.get_name())
-        msg = msg + " (item=%s) => %s\n" % (self._get_item(json.dumps(result._result)), json.dumps(result._result)),
+            msg += "[%s] => (item=%s) => %s" % (result._host.get_name(), result._result['item'], self._dump_results(result._result))
+        print msg
         DsRedis.OpsAnsiblePlayBook.lpush(self.redisKey,msg)
         if self.logId:AnsibleSaveResult.PlayBook.insert(self.logId, msg)
 
@@ -372,7 +368,7 @@ class ANSRunner(object):
         self.loader = DataLoader()  
         self.options = Options(connection='smart', module_path=None, forks=100, timeout=10,  
                 remote_user=kwargs.get('remote_user','root'), ask_pass=False, private_key_file=None, ssh_common_args=None, 
-                ssh_extra_args=None,sftp_extra_args=None, scp_extra_args=None, become=None,
+                ssh_extra_args=None,sftp_extra_args=None, scp_extra_args=None, become=True,
                 become_method=kwargs.get('become_method','sudo'),become_user=kwargs.get('become_user','root'), 
                 verbosity=kwargs.get('verbosity',None),check=False, listhosts=False,
                 listtasks=False, listtags=False, syntax=False,ask_value_pass=False, )  
@@ -431,6 +427,7 @@ class ANSRunner(object):
             )  
             executor._tqm._stdout_callback = self.callback  
             constants.HOST_KEY_CHECKING = False #关闭第一次使用ansible连接客户端是输入命令
+            constants.DEPRECATION_WARNINGS = False
             executor.run()  
         except Exception as err: 
             print err

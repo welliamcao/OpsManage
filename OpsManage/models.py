@@ -450,7 +450,7 @@ class Ansible_Script(models.Model):
     script_file = models.FileField(upload_to = './upload/script/',verbose_name='脚本路径')
     script_service = models.SmallIntegerField(verbose_name='授权业务',blank=True,null=True)
     script_group = models.SmallIntegerField(verbose_name='授权组',blank=True,null=True)
-    script_type = models.CharField(max_length=10,verbose_name='脚本类型',blank=True,null=True)
+    script_type = models.CharField(max_length=50,verbose_name='脚本类型',blank=True,null=True)
     class Meta:
         db_table = 'opsmanage_ansible_script'
         permissions = (

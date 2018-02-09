@@ -42,7 +42,7 @@
 											<label >动态主机</label>	
 											<select class="form-control" name="server_model" id="server_model" onchange="javascript:oBtAnsibleServerl();">
 												<option name="server_model" value="" >请选择一个类型</option>
-												{% if script.script_service == 'service' %}
+												{% if script.script_type == 'service' %}
 													<option value="service" selected="selected" name="server_model">项目类型</option>
 													<option value="group" name="server_model">使用部门</option>
 													<option value="custom" name="server_model">自定义</option> 													

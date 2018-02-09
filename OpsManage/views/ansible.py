@@ -582,11 +582,15 @@ def apps_script_online(request):
                 except:
                     service = None
                 try:
+                    group = int(request.POST.get('ansible_group'))
+                except:
+                    group = None
+                try:
                     Ansible_Script.objects.create(
                                                   script_name=request.POST.get('script_name'),
                                                   script_uuid=request.POST.get('ans_uuid'),
                                                   script_server=json.dumps(sList),
-                                                  script_group=request.POST.get('ansible_group'),
+                                                  script_group=group,
                                                   script_file=fileName,
                                                   script_service=service,
                                                   script_type=request.POST.get('server_model')
