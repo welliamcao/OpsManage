@@ -323,30 +323,31 @@ def assets_import(request):
                       'status':int(data[10]),
                       'put_zone':int(data[11]),
                       'group':int(data[12]),
-                      'business':int(data[13]),
+                      'project':int(data[13]),
+                      'business':int(data[14]),
                       }
             if data[3]:assets['buy_time'] = xlrd.xldate.xldate_as_datetime(data[3],0)
             if data[4]:assets['expire_date'] = xlrd.xldate.xldate_as_datetime(data[4],0)
             if assets.get('assets_type') in ['vmser','server']:
                 server_assets = {
-                          'ip':data[14],
-                          'keyfile':data[15],
-                          'username':data[16],
-                          'passwd':data[17],
-                          'hostname':data[18],
-                          'port':data[19],
-                          'raid':data[20],
-                          'line':data[21],
+                          'ip':data[15],
+                          'keyfile':data[16],
+                          'username':data[17],
+                          'passwd':data[18],
+                          'hostname':data[19],
+                          'port':data[20],
+                          'raid':data[21],
+                          'line':data[22],
                           } 
             else:
                 net_assets = {
-                            'ip':data[14],
-                            'bandwidth':data[15],
-                            'port_number': data[16],
-                            'firmware':data[17],
-                            'cpu':data[18],
-                            'stone':data[19],
-                            'configure_detail': data[20]                              
+                            'ip':data[15],
+                            'bandwidth':data[16],
+                            'port_number': data[17],
+                            'firmware':data[18],
+                            'cpu':data[19],
+                            'stone':data[20],
+                            'configure_detail': data[21]                              
                               }                                                  
             try:
                 count = Assets.objects.filter(name=assets.get('name')).count()
@@ -360,6 +361,7 @@ def assets_import(request):
                 else:
                     assetsObj = Assets.objects.create(**assets)     
                     if assets.get('assets_type') in ['vmser','server']:
+                        print server_assets
                         Server_Assets.objects.create(assets=assetsObj,**server_assets)
                     elif assets.get('assets_type') in ['switch','route','printer','scanner','firewall','storage','wifi']:
                         Network_Assets.objects.create(assets=assetsObj,**net_assets)                                           

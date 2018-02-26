@@ -16,3 +16,5 @@ redis
 MySQL-python
 DBUtils
 xlrd
+chardet
+requests
