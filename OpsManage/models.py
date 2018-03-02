@@ -476,6 +476,12 @@ class Log_Ansible_Playbook(models.Model):
     create_time = models.DateTimeField(auto_now_add=True,blank=True,null=True,verbose_name='执行时间')
     class Meta:
         db_table = 'opsmanage_log_ansible_playbook'
+        permissions = (
+            ("can_read_log_ansible_playbook", "读取Ansible剧本执行记录权限"),
+            ("can_change_log_ansible_playbook", "更改Ansible剧本执行记录权限"),
+            ("can_add_log_ansible_playbook", "添加Ansible剧本执行记录权限"),
+            ("can_delete_log_ansible_playbook", "删除Ansible剧本执行记录权限"),
+        )
         verbose_name = 'Ansible剧本操作记录表'  
         verbose_name_plural = 'Ansible剧本操作记录表' 
 
