@@ -37,7 +37,7 @@ def AnsiblePlayBookLogsList(request,format=None):
             serializer = AnsiblePlaybookLogsSerializer(snippets, many=True)
         except Exception, ex:
             return ex
-        if request.user.has_perm('delete_log_ansible_playbook'):
+        if request.user.has_perm('can_delete_log_ansible_playbook'):
             return Response({"data":serializer.data,"perm":1})
         else:
             return Response({"data":serializer.data,"perm":0})

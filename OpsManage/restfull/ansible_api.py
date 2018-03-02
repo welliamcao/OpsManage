@@ -71,7 +71,7 @@ def modelLogsdetail(request, id,format=None):
         return Response(status=status.HTTP_204_NO_CONTENT) 
     
 @api_view(['GET', 'PUT', 'DELETE'])
-@permission_required('OpsManage.delete_log_ansible_playbook',raise_exception=True)
+@permission_required('OpsManage.can_delete_log_ansible_playbook',raise_exception=True)
 def playbookLogsdetail(request, id,format=None):
     """
     Retrieve, update or delete a server assets instance.
@@ -86,7 +86,7 @@ def playbookLogsdetail(request, id,format=None):
         return Response(serializer.data)
      
     elif request.method == 'DELETE':
-        if not request.user.has_perm('OpsManage.delete_log_ansible_playbook'):
+        if not request.user.has_perm('OpsManage.can_delete_log_ansible_playbook'):
             return Response(status=status.HTTP_403_FORBIDDEN)
         snippet.delete()
         return Response(status=status.HTTP_204_NO_CONTENT) 

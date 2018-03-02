@@ -142,7 +142,7 @@
 				                                        <th class="text-center">剧本内容</th>
 				                                        <th class="text-center">服务器</th>
 				                                        <th class="text-center">操作时间</th>
-				                                        {% if perms.delete_log_ansible_playbook %}
+				                                        {% if perms.can_delete_log_ansible_playbook %}
 				                                        	<th class="text-center">操作</th>
 				                                        {% endif %}					                                        
 				                                    </tr>
@@ -169,7 +169,7 @@
 																		<i class="glyphicon glyphicon-zoom-in  bigger-110 icon-only"></i>
 																	</button>
 																</a>				                                							                                			
-					                                			{% if perms.delete_log_ansible_playbook %}
+					                                			{% if perms.can_delete_log_ansible_playbook %}
 					                                				<a href="javascript:" onclick="deleteAnsiblePlaybookLogs(this,{{ds.id}})">
 						                                				<button class="btn btn-danger btn-xs">					                                					
 																			<i class="glyphicon glyphicon-trash  bigger-110 icon-only"></i>
