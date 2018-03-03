@@ -7,6 +7,7 @@ Celery==3.1.20
 django-celery==3.2.2
 celery-with-redis
 djangorestframework==3.5.3
+djangorestframework-jwt==1.11.0
 paramiko
 ansible==2.2.2
 supervisor

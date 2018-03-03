@@ -1,0 +1,99 @@
+{% extends 'index.html' %}
+{% block ace-content %}
+<!-- bootstrap-notify -->   
+  <link rel="stylesheet" href="/static/dist/css/font-awesome.min.css">
+  <link rel="stylesheet" href="/static/dist/css/jquery.orgchart.css">
+  <style type="text/css">
+	#chart-container { text-align: left; }
+    .orgchart { background: #fff; }
+    .orgchart td.left, .orgchart td.right, .orgchart td.top { border-color: #aaa; }
+    .orgchart td>.down { background-color: #aaa; }
+    .orgchart .middle-level .title { background-color: #006699; }
+    .orgchart .middle-level .content { border-color: #006699; }
+    .orgchart .product-dept .title { background-color: #009933; }
+    .orgchart .product-dept .content { border-color: #009933; }
+    .orgchart .rd-dept .title { background-color: #993366; }
+    .orgchart .rd-dept .content { border-color: #993366; }
+    .orgchart .pipeline1 .title { background-color: #996633; }
+    .orgchart .pipeline1 .content { border-color: #996633; }
+    .orgchart .frontend1 .title { background-color: #cc0066; }
+    .orgchart .frontend1 .content { border-color: #cc0066; }
+  </style>
+{% endblock %}
+{% block page-content %}
+<div id="page-wrapper">
+    <div class="row">
+        <div class="col-lg-12">
+            <h1 class="page-header">项目<code>{{ project.project_name }}</code>资产组织图</h1>
+        </div>
+        <!-- /.col-lg-12 -->
+    </div>
+	<div class="row">
+          <div class="col-lg-4">
+              <div class="panel panel-default">
+                  <div class="panel-heading">
+                      	信息总览
+                  </div>
+                  <div class="panel-body">
+                            <h4><p class="fa fa-cogs"> {{ project.project_name }}</p></h4>
+                            <legend></legend> 
+                            <ol>
+                            	{% for ds in serviceList %}
+                            		<li><strong>{{ds.service_name}}</strong> </li>
+                            			{% for ser in ds.host %}
+                            				<ul>{% if ser.management_ip  %}{{ser.management_ip}} | {{ser.server_assets.system|default:"未知"}}{% else %}{{ser.server_assets.ip}} | {{ser.server_assets.system|default:"未知"}}{% endif %}</p></ul>
+                            			{% endfor %}
+                            	{% endfor %}
+                            </ol>
+                            <legend></legend> 
+                            <p class="text-right"><code>{{ project.project_name }}</code>项目：其下<code>{{serviceList|length}}</code>个应用, 总计使用<code>{{totalServer|default:"0"}}</code>服务器</p>                         
+                  </div>
+                  <!-- /.panel-body -->
+              </div>
+              <!-- /.panel -->
+          </div>
+         <div class="col-lg-8 row">
+			<div id="chart-container"></div>
+		</div>
+	</div>
+</div>
+{% if errorInfo %}
+	<script type="text/javascript"> 
+		window.wxc.xcConfirm("{{errorInfo}}", window.wxc.xcConfirm.typeEnum.error);
+	</script> 
+{% else %}
+  <script type="text/javascript" src="/static/js/jquery.orgchart.js"></script>
+  <script type="text/javascript" src="/static/js/html2canvas.min.js"></script>
+  <script type="text/javascript">
+    $(function() {
+    	
+    var datascource = {
+      'name': '{{ project.project_name }}',
+      'title': '{{ serviceList|length }} service',
+	  'className': 'product-dept',
+      'children': [
+                   {% for ds in serviceList %}
+                   { 'name': '{{ds.service_name}}', 'title': '{{ds.host|length}} host','className': 'middle-level',
+                	   
+             		  'children': [
+						{% for ser in ds.host %}
+                        	{ 'name': '{% if ser.management_ip  %}{{ser.management_ip}}{% else %}{{ser.server_assets.ip}}{% endif %}', 'title': '{{ser.server_assets.cpu_number|default:"1"}}U / {{ser.server_assets.ram_total}} / {{ser.server_assets.disk_total}}' },
+                        {% endfor %}
+                       ]              	   
+             		},                   
+                   {% endfor %}
+      ]
+    };
+
+    $('#chart-container').orgchart({
+      'data' : datascource,
+      'nodeContent': 'title',
+      'direction': 'l2r',
+      'exportButton': true,
+      'exportFilename': '{{ project.project_name }}'	  
+    });
+
+  });
+  </script>
+{% endif %}
+{% endblock %}

@@ -20,6 +20,7 @@ from OpsManage.views import (index,assets,cron,deploy,
                              ansible,users,wssh,task,
                              database)
 from rest_framework.urlpatterns import format_suffix_patterns
+from rest_framework_jwt.views import obtain_jwt_token
 from OpsManage.restfull import (assets_api,cron_api,deploy_api,
                                 ansible_api,users_api,logs_api,
                                 db_api)
@@ -28,6 +29,7 @@ from OpsManage.restfull import (assets_api,cron_api,deploy_api,
 urlpatterns = [
     url(r'^$',index.index),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+    url(r'^api/token/', obtain_jwt_token),
     url(r'^admin/', admin.site.urls),
     url(r'^login/',index.login),  
     url(r'^logout',index.logout), 
@@ -44,6 +46,7 @@ urlpatterns = [
     url(r'^assets_search/',assets.assets_search),
     url(r'^assets_server/',assets.assets_server),
     url(r'^assets/batch/',assets.assets_batch),
+    url(r'^assets/groups/(?P<id>[0-9]+)/$',assets.assets_groups),
     url(r'^cron_add',cron.cron_add),
     url(r'^cron_list/(?P<page>[0-9]+)/$',cron.cron_list),
     url(r'^cron_config',cron.cron_config),

@@ -24,7 +24,7 @@
                                         <tr>
                                             <th>#</th>
                                             <th class="right">项目名称</th>
-                                            <th class="right">操作</th>
+                                            <th class="text-center">操作</th>
                                         </tr>											    
 	                                </thead>
 	                                <tbody>
@@ -32,9 +32,10 @@
 	                                        <tr>
 	                                            <td>{{ds.id}}</td>
 	                                            <td>{{ds.project_name}}</td>
-	                                            <td class="right">
+	                                            <td class="text-center">
 	                                            	<button  type="button" class="btn btn-xs btn-default"  onclick="modfAssetsData(this,'project',{{ds.id}})"><abbr title="编辑"><i class="glyphicon glyphicon-edit"></i></button>
 	                                            	<button  type="button" class="btn btn-xs btn-default" onclick="delAssetsData(this,'project',{{ds.id}})"><abbr title="删除"><i class="glyphicon glyphicon-trash"></i></button>
+	                                            	<a href="/assets/groups/{{ds.id}}/" style="text-decoration:none;"><button  type="button" class="btn btn-xs btn-default"><abbr title="查看组织结构图"><i class="fa fa-users  "></i></button></a>
 	                                            </td>
 	                                        </tr>
                                         {% endfor %}
@@ -277,6 +278,7 @@
                 </div>               
             </div>            
 </div>
+
 
 <div class="modal fade" id="myProjectModal" tabindex="-1" role="dialog" aria-labelledby="myProjectModalLabel" aria-hidden="true">
 	<div class="modal-dialog">
@@ -549,7 +551,6 @@
 		</div><!-- /.modal-content -->
 	</div><!-- /.modal -->
 </div>
-
 
 
 
