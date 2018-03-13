@@ -596,11 +596,12 @@ class DataBase_Server_Config(models.Model):
                 ('prod',u'生产环境'),
                 )
     db_env = models.CharField(choices=env_type,max_length=10,verbose_name='环境类型',default=None)
-    db_name = models.CharField(max_length=100,verbose_name='数据库名')
+    db_type = models.CharField(max_length=10,verbose_name='数据库类型',default=None)
+    db_name = models.CharField(max_length=100,verbose_name='数据库名',blank=True,null=True)
     db_host = models.CharField(max_length=100,verbose_name='数据库地址')
     db_user = models.CharField(max_length=100,verbose_name='用户')
     db_passwd = models.CharField(max_length=100,verbose_name='密码')
-    db_port = models.SmallIntegerField(verbose_name='端口')
+    db_port = models.IntegerField(verbose_name='端口')
     db_group = models.SmallIntegerField(verbose_name='使用组')
     db_service = models.SmallIntegerField(verbose_name='业务类型')
     db_project = models.SmallIntegerField(verbose_name='所属项目')
@@ -613,9 +614,10 @@ class DataBase_Server_Config(models.Model):
             ("can_add_database_server_config", "添加数据库信息表权限"),
             ("can_delete_database_server_config", "删除数据库信息表权限"),              
         )
-        unique_together = (("db_name", "db_host","db_env"))
+        unique_together = (("db_port", "db_host","db_env"))
         verbose_name = '数据库信息表'  
         verbose_name_plural = '数据库信息表'
+  
 
     
 class SQL_Audit_Order(models.Model):

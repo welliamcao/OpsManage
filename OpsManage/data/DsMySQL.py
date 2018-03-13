@@ -62,4 +62,4 @@ class AnsibleRecord(object):
                                               )
             except Exception, ex:
                 print ex
-                return False        
+                return False  

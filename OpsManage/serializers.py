@@ -180,7 +180,7 @@ class DataBaseServerSerializer(serializers.ModelSerializer):
         model = DataBase_Server_Config
         fields = ('id','db_env','db_name','db_host','db_user',
                   'db_passwd','db_port','db_mark','db_service',
-                  'db_group','db_project')  
+                  'db_group','db_project','db_type')  
         
         
 class CustomSQLSerializer(serializers.ModelSerializer):

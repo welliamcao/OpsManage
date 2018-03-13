@@ -63,7 +63,7 @@
 									<div class="hr hr32 hr-dotted"></div>                                        
 									<div class="form-group">
 										<div class="col-md-offset-3 col-md-9">
-											<button class="btn btn-default" type="buttun" onclick="addInceptionSever(this)">
+											<button class="btn btn-default" type="button" onclick="addInceptionSever(this)">
 												<i class="fa fa-check"></i>
 																提交
 											</button>						
@@ -197,7 +197,7 @@
 									<div class="hr hr32 hr-dotted"></div>                                        
 									<div class="form-group">
 										<div class="col-md-offset-3 col-md-9">
-											<button class="btn btn-default" type="buttun" onclick="editAuditConfig(this)">
+											<button class="btn btn-default" type="button" onclick="editAuditConfig(this)">
 												<i class="fa fa-check"></i>
 																提交
 											</button>						
@@ -306,7 +306,7 @@
 												</th>
 					
 												<th class="text-center">端口</th>
-					
+												<th class="text-center">标签</th>
 												<th class="text-center">操作</th>
 											</tr>
 											
@@ -329,7 +329,7 @@
 												</th>
 					
 												<th class="text-center">端口</th>
-					
+												<th class="text-center">标签</th>
 												<th class="text-center">操作</th>
 									            </tr>
 									        </tfoot>										    
@@ -373,6 +373,9 @@
 		                                		<td class="text-center">
 		                                			{{ds.db_port}}
 		                                		</td>
+		                                		<td class="text-center">
+		                                			<span class="label label-success">{{ds.db_mark|default:"无"}}</span>
+		                                		</td>		                                		
 		                                		<td class="text-center">
 													<div>																				
 														<div class="btn-group">	
@@ -455,7 +458,8 @@
 									<option value="prod" name="db_env">生产</option>					
 								</select>						 	
 						 </div>
-					</div>						
+					</div>		
+					<input class="form-control"  type="hidden" value="mysql"  name="db_type" />				
 					<div class="form-group">
 						 <label class="col-sm-3 control-label"><i class="fa fa-gears"></i>所属项目</label>
 						 <div class="col-sm-6">
