@@ -431,12 +431,12 @@ def apps_playbook_online_modf(request,pid):
                 serverList = Assets.objects.filter(business=request.POST.get('ansible_service'))
                 sList = [  s.server_assets.ip for s in serverList ]   
                 playbook_server_value = request.POST.get('ansible_service')            
-            if request.POST.get('playbook_content'):
-                playbook_file = os.getcwd() + '/' + str(playbook.playbook_file)
-                with open(playbook_file, 'w') as f:
-                    f.write(request.POST.get('playbook_content')) 
-            else:
-                return JsonResponse({'msg':"文件内容不能为空","code":500,'data':[]})                               
+        if request.POST.get('playbook_content'):
+            playbook_file = os.getcwd() + '/' + str(playbook.playbook_file)
+            with open(playbook_file, 'w') as f:
+                f.write(request.POST.get('playbook_content')) 
+        else:
+            return JsonResponse({'msg':"文件内容不能为空","code":500,'data':[]})                               
         try:      
             Ansible_Playbook.objects.filter(id=pid).update(
                                     playbook_name = request.POST.get('playbook_name'),
