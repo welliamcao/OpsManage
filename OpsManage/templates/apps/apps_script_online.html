@@ -67,7 +67,7 @@
 										<div id="group_server" class="form-group" style="display:none;">
 											<label>使用部门</label>
 		                                    <select class="form-control" name="script_auth_group"  id="script_auth_group" onchange="javascript:oBtServiceSelect('group','script_auth_group');" required>
-		                                    	<option name="script_auth_group" value="" selected="selected">请选择使用组</option>
+		                                    	<option name="script_auth_group" value="0" selected="selected">请选择使用组</option>
 		                                           {% for ds in groupList %}
 		                                            	<option name="script_auth_group" value="{{ds.id}}">{{ds.name}}</option>
 		                                           {% endfor %}
@@ -299,7 +299,6 @@ function oBtServiceSelect(model,ids){
 		    	}	            
 	        });  
 	    },1000);  
-
 // 	    /* 轮训获取结果结束  */
 		$.ajax({
 			url:'/apps/script/online/', //请求地址

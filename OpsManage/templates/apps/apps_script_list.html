@@ -114,7 +114,7 @@
 			onOk: function(){
 				$.ajax({
 					  type: 'DELETE',
-					  url: '/api/playbook/'+id+'/',
+					  url: '/apps/script/file/'+id+'/',
 				      success:function(response){	
 				    	btnObj.removeAttr('disabled');
 	                	window.wxc.xcConfirm("删除成功！", window.wxc.xcConfirm.typeEnum.success);

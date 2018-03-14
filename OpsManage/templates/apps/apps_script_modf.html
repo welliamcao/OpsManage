@@ -54,6 +54,10 @@
 													<option value="service" name="server_model">项目类型</option>
 													<option value="group" name="server_model">使用部门</option>
 													<option value="custom" name="server_model" selected="selected">自定义</option> 
+												{% else %}
+													<option value="service" name="server_model">项目类型</option>
+													<option value="group" name="server_model">使用部门</option>
+													<option value="custom" name="server_model">自定义</option> 													
 												{% endif %}	
 													
 											</select>		
@@ -89,7 +93,7 @@
 										<div id="group_server" class="form-group" {% if script.script_type != 'group' %}style="display:none;"{% else %}style="display:"";"{% endif %}>
 											<label>使用部门</label>
 		                                    <select class="form-control" name="script_auth_group"  id="script_auth_group" onchange="javascript:oBtServiceSelect('group','script_auth_group');" required>
-		                                    		<option name="script_auth_group" value="" selected="selected">请选择使用组</option>
+		                                    		<option name="script_auth_group" value="0" selected="selected">请选择使用组</option>
 		                                           {% for ds in groupList %}
 		                                         	{% if script.script_group == ds.id %}
 		                                         		<option name="group" value="{{ds.id}}" selected="selected">{{ds.name}}</option>

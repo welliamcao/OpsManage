@@ -573,36 +573,34 @@ def apps_script_online(request):
                 except Exception, ex:
                     print ex              
                 return JsonResponse({'msg':"操作成功","code":200,'data':[]})
-            elif request.POST.get('type') == 'save' and request.POST.get('script_file'):
-                fileName = '/upload/scripts/script-{ram}'.format(ram=uuid.uuid4().hex[0:8]) 
-                filePath = os.getcwd() + fileName
-                saveScript(content=request.POST.get('script_file'),filePath=filePath)
-                try:
-                    service = int(request.POST.get('ansible_service'))
-                except:
-                    service = None
-                try:
-                    group = int(request.POST.get('ansible_group'))
-                except:
-                    group = None
-                try:
-                    Ansible_Script.objects.create(
-                                                  script_name=request.POST.get('script_name'),
-                                                  script_uuid=request.POST.get('ans_uuid'),
-                                                  script_server=json.dumps(sList),
-                                                  script_group=group,
-                                                  script_file=fileName,
-                                                  script_service=service,
-                                                  script_type=request.POST.get('server_model')
-                                                  )
-                except Exception,ex:
-                    print ex
-                    return JsonResponse({'msg':str(ex),"code":500,'data':[]})
-                return JsonResponse({'msg':"保存成功","code":200,'data':[]})
-            else:
-                return JsonResponse({'msg':"操作失败，未选择主机或者脚本内容为空,或者所选分组该没有成员","code":500,'data':[]})
+        if request.POST.get('type') == 'save' and request.POST.get('script_file'):
+            fileName = '/upload/scripts/script-{ram}'.format(ram=uuid.uuid4().hex[0:8]) 
+            filePath = os.getcwd() + fileName
+            saveScript(content=request.POST.get('script_file'),filePath=filePath)
+            try:
+                service = int(request.POST.get('ansible_service'))
+            except:
+                service = None
+            try:
+                group = int(request.POST.get('ansible_group'))
+            except:
+                group = None
+            try:
+                Ansible_Script.objects.create(
+                                              script_name=request.POST.get('script_name'),
+                                              script_uuid=request.POST.get('ans_uuid'),
+                                              script_server=json.dumps(sList),
+                                              script_group=group,
+                                              script_file=fileName,
+                                              script_service=service,
+                                              script_type=request.POST.get('server_model')
+                                              )
+            except Exception,ex:
+                print ex
+                return JsonResponse({'msg':str(ex),"code":500,'data':[]})
+            return JsonResponse({'msg':"保存成功","code":200,'data':[]})
         else:
-            return JsonResponse({'msg':"操作失败，不支持的操作类型","code":500,'data':[]})
+            return JsonResponse({'msg':"操作失败，未选择主机或者脚本内容为空,或者所选分组该没有成员","code":500,'data':[]})
 
 @login_required()
 @permission_required('OpsManage.can_read_ansible_script',login_url='/noperm/')
@@ -638,6 +636,12 @@ def apps_script_file(request,pid):
                     content =  content + line 
             return JsonResponse({'msg':"脚本获取成功","code":200,'data':content})
         else:return JsonResponse({'msg':"脚本不存在，可能已经被删除.","code":500,'data':[]})
+    elif request.method == "DELETE":
+        try:
+            script.delete()
+        except Ansible_Script.DoesNotExist:
+            return JsonResponse({'msg':"脚本不存在，可能已经被删除.","code":500,'data':[]})
+        return JsonResponse({'msg':"脚本删除成功","code":200,'data':[]})
         
 @login_required()
 @permission_required('OpsManage.can_read_ansible_script',login_url='/noperm/')
@@ -706,18 +710,22 @@ def apps_script_online_run(request,pid):
                         continue
                     if server.server_assets.keyfile == 1:resource.append({"hostname": server.server_assets.ip, "port": int(server.server_assets.port),"username": server.server_assets.username})
                     else:resource.append({"hostname": server.server_assets.ip, "port": int(server.server_assets.port),"username": server.server_assets.username,"password": server.server_assets.passwd})     
-            if request.POST.get('type') == 'save' and request.POST.get('script_file'): 
-                filePath = os.getcwd() + '/' + str(script.script_file)
-                saveScript(content=request.POST.get('script_file'),filePath=filePath)
-                try:
-                    Ansible_Script.objects.filter(id=pid).update(
-                                                  script_server=json.dumps(sList),
-                                                  script_group=request.POST.get('ansible_group'),
-                                                  script_service=request.POST.get('ansible_service'),
-                                                  script_type=request.POST.get('server_model')
-                                                  )
-                except Exception,ex:
-                    return JsonResponse({'msg':str(ex),"code":500,'data':[]})
-                return JsonResponse({'msg':"保存成功","code":200,'data':[]})    
+        if request.POST.get('type') == 'save' and request.POST.get('script_file'): 
+            filePath = os.getcwd() + '/' + str(script.script_file)
+            saveScript(content=request.POST.get('script_file'),filePath=filePath)
+            try:
+                if request.POST.get('ansible_group',0):
+                    print 'ok'
+                print request.POST.get('ansible_group',0).replace(' ','')
+                Ansible_Script.objects.filter(id=pid).update(
+                                              script_server=json.dumps(sList),
+                                              script_group=request.POST.get('ansible_group',0),
+                                              script_service=request.POST.get('ansible_service',0),
+                                              script_type=request.POST.get('server_model')
+                                              )
+            except Exception,ex:
+                print ex
+                return JsonResponse({'msg':str(ex),"code":500,'data':[]})
+            return JsonResponse({'msg':"保存成功","code":200,'data':[]})    
         else:
             return JsonResponse({'msg':"操作失败，不支持的操作类型，或者您没有权限执行","code":500,'data':[]})    

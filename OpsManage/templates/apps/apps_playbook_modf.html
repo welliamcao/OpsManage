@@ -74,7 +74,11 @@
 													{% elif playbook.playbook_server_model == 'custom' %}
 														<option value="service" name="server_model">业务类型</option>
 														<option value="group" name="server_model">使用部门</option>
-														<option value="custom" selected="selected" name="server_model">自定义</option> 																
+														<option value="custom" selected="selected" name="server_model">自定义</option> 		
+													{% else %}
+														<option value="service" name="server_model">业务类型</option>
+														<option value="group" name="server_model">使用部门</option>
+														<option value="custom" name="server_model">自定义</option> 																												
 													{% endif %}
 												</select>
                                         </div> 
