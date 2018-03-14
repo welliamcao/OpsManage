@@ -714,8 +714,6 @@ def apps_script_online_run(request,pid):
             filePath = os.getcwd() + '/' + str(script.script_file)
             saveScript(content=request.POST.get('script_file'),filePath=filePath)
             try:
-                if request.POST.get('ansible_group',0):
-                    print 'ok'
                 print request.POST.get('ansible_group',0).replace(' ','')
                 Ansible_Script.objects.filter(id=pid).update(
                                               script_server=json.dumps(sList),
