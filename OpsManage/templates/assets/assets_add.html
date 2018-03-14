@@ -1,4 +1,7 @@
 {% extends 'index.html' %}
+{% block ace-content %}
+<script type="text/javascript" src="/static/dist/js/bootstrap-notify.js"></script>
+{% endblock %}
 {% block page-content %}
 
 <div id="page-wrapper">
@@ -546,7 +549,15 @@
 				window.wxc.xcConfirm("资产添加成功", window.wxc.xcConfirm.typeEnum.success);
 			},
 	    	error:function(response){
-	    		window.wxc.xcConfirm("资产添加失败：注意资产编号不要重复或者字段类型是否正确", window.wxc.xcConfirm.typeEnum.error);
+/* 	    		window.wxc.xcConfirm("资产添加失败：注意资产编号不要重复或者字段类型是否正确", window.wxc.xcConfirm.typeEnum.error); */
+				$.notify({
+					title: "<strong>资产添加错误:</strong><br>",
+					message: response.responseText
+				},
+				{
+					type: 'danger',
+					delay: 3600000
+				});	
 	    	}
 		})	
 	}	

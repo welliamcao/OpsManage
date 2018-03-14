@@ -1,4 +1,7 @@
 {% extends 'index.html' %}
+{% block ace-content %}
+<script type="text/javascript" src="/static/dist/js/bootstrap-notify.js"></script>
+{% endblock %}
 {% block page-content %}
 <div id="page-wrapper">
             <div class="row">
@@ -524,7 +527,15 @@ function addAssetsData(obj) {
 			window.wxc.xcConfirm("资产修改成功", window.wxc.xcConfirm.typeEnum.success);
 		},
     	error:function(response){
-    		window.wxc.xcConfirm("资产添加失败："+response.toJSONString(), window.wxc.xcConfirm.typeEnum.error);
+/*     		window.wxc.xcConfirm("资产添加失败："+response.toJSONString(), window.wxc.xcConfirm.typeEnum.error); */
+			$.notify({
+				title: "<strong>资产修改错误:</strong><br>",
+				message: response.responseText
+			},
+			{
+				type: 'danger',
+				delay: 3600000
+			});	
     	}
 	})	
 }
