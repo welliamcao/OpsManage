@@ -334,6 +334,7 @@ def deploy_run(request,pid):
                 if server.keyfile == 1:
                     data['port'] = int(server.port)
                     data["hostname"] = server.ip
+                    data["username"] = server.username
                 else:
                     data["hostname"] = server.ip
                     data["port"] = int(server.port)

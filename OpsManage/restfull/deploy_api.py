@@ -23,14 +23,7 @@ def deploy_list(request,format=None):
         snippets = Project_Config.objects.all()
         serializer = ProjectConfigSerializer(snippets, many=True)
         return Response(serializer.data)  
-       
-#     elif request.method == 'POST':
-#         serializer = ProjectConfigSerializer(data=request.data)
-#         
-#         if serializer.is_valid():
-#             serializer.save()
-#             return Response(serializer.data, status=status.HTTP_201_CREATED)
-#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)  
+        
     
 @api_view(['GET', 'PUT', 'DELETE'])
 @permission_required('OpsManage.can_delete_project_config',raise_exception=True)
@@ -50,7 +43,7 @@ def deploy_detail(request, id,format=None):
     elif request.method == 'DELETE':
         if not request.user.has_perm('OpsManage.delete_project_config'):
             return Response(status=status.HTTP_403_FORBIDDEN)
-        recordProject.delay(project_user=str(request.user),project_id=id,project_name=snippet.project_name,project_content="删除项目")
+        recordProject.delay(project_user=str(request.user),project_id=id,project_name=snippet.project.project_name,project_content="删除项目")
         snippet.delete()
         return Response(status=status.HTTP_204_NO_CONTENT) 
     
