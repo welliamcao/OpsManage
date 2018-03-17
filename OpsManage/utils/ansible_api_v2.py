@@ -415,7 +415,7 @@ class ANSRunner(object):
     def run_playbook(self, host_list, playbook_path,extra_vars=dict()): 
         """ 
         run ansible palybook 
-        """         
+        """       
         try: 
             if self.redisKey or self.logId:self.callback = PlayBookResultsCollectorToSave(self.redisKey,self.logId)  
             else:self.callback = PlayBookResultsCollector()  
@@ -428,6 +428,7 @@ class ANSRunner(object):
             executor._tqm._stdout_callback = self.callback  
             constants.HOST_KEY_CHECKING = False #关闭第一次使用ansible连接客户端是输入命令
             constants.DEPRECATION_WARNINGS = False
+            constants.RETRY_FILES_ENABLED = False  
             executor.run()  
         except Exception as err: 
             print err
