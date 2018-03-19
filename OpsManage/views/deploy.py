@@ -250,12 +250,13 @@ def deploy_run(request,pid):
             DsRedis.OpsProject.set(redisKey=project.project_uuid+"-locked",value=request.user)
             DsRedis.OpsDeploy.delete(project.project_uuid)  
             if request.POST.get('project_model',None) == "rollback":
+                project_content = "回滚项目"
                 if project.project_model == 'branch':
-                    bName = request.POST.get('project_version') 
+                    verName = request.POST.get('project_version') 
                     trueDir = project.project_dir+project.project_env+'/'+ request.POST.get('project_version')  + '/'
                     DsRedis.OpsDeploy.lpush(project.project_uuid, data="[Start] Start Rollback branch:%s  vesion: %s" % (request.POST.get('project_branch'),request.POST.get('project_version')))
                 elif  project.project_model == 'tag':
-                    bName = request.POST.get('project_branch') 
+                    verName = request.POST.get('project_branch') 
                     trueDir = project.project_dir+project.project_env+'/'+ request.POST.get('project_branch') + '/'
                     DsRedis.OpsDeploy.lpush(project.project_uuid, data="[Start] Start Rollback tag:%s" % request.POST.get('project_branch'))
                 #创建版本目录
@@ -272,10 +273,11 @@ def deploy_run(request,pid):
                     try:
                         exclude = ''
                         for s in project.project_exclude.split(','):
-                            exclude =  '--exclude "{file}"'.format(file=s.replace('\r\n','').replace('\n','').strip()) + ' ' + exclude
+                            exclude =  "--exclude='{file}'".format(file=s.replace('\r\n','').replace('\n','').strip()) + ' ' + exclude
                     except Exception,e:
                         return JsonResponse({'msg':str(e),"code":500,'data':[]})                                 
             else:
+                project_content = "部署项目"
                 #判断版本上线类型再切换分支到指定的分支/Tag
                 if project.project_model == 'branch':
                     bName = request.POST.get('project_branch')
@@ -306,7 +308,7 @@ def deploy_run(request,pid):
                     try:
                         exclude = ''
                         for s in project.project_exclude.split(','):
-                            exclude =  '--exclude "{file}"'.format(file=s.replace('\r\n','').replace('\n','').strip()) + ' ' + exclude
+                            exclude =  "--exclude='{file}'".format(file=s.replace('\r\n','').replace('\n','').strip()) + ' ' + exclude
                     except Exception,e:
                         return JsonResponse({'msg':str(e),"code":500,'data':[]})                             
                 #执行部署命令  - 编译型语言      
@@ -372,7 +374,7 @@ def deploy_run(request,pid):
             #异步记入操作日志
 #             if request.POST.get('project_version'):bName = request.POST.get('project_version') 
             recordProject.delay(project_user=str(request.user),project_id=project.id,
-                                project_name=project.project.project_name,project_content="部署项目",
+                                project_name=project.project.project_name,project_content=project_content,
                                 project_branch=verName)          
             return JsonResponse({'msg':"项目部署成功","code":200,'data':tmpServer}) 
         else:
