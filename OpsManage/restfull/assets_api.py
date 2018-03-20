@@ -185,7 +185,7 @@ def group_detail(request, id,format=None):
         if not request.user.has_perm('Opsmanage.delete_group'):  
             return Response(status=status.HTTP_403_FORBIDDEN)
         snippet.delete()
-        recordAssets.delay(user=str(request.user),content="删除用户组：{group_name}".format(group_name=snippet.group_name),type="group",id=id)        
+        recordAssets.delay(user=str(request.user),content="删除用户组：{group_name}".format(group_name=snippet.name),type="group",id=id)        
         return Response(status=status.HTTP_204_NO_CONTENT)     
 
 @api_view(['GET', 'POST' ])
