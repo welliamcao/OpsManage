@@ -632,6 +632,7 @@
 			var value = form[i].value;
 			if ( value.length == 0){
 				window.wxc.xcConfirm("请注意必填项不能为空~", window.wxc.xcConfirm.typeEnum.error);
+				btnObj.removeAttr('disabled');
 				return false;
 			}
 			else{
@@ -676,6 +677,7 @@
 			post_data[name] = value;
 			if ( value.length == 0){
 				window.wxc.xcConfirm("请注意必填项不能为空~", window.wxc.xcConfirm.typeEnum.error);
+				btnObj.removeAttr('disabled');
 				return false;
 			}
 			else{
@@ -710,6 +712,7 @@
 			onOk:function(result){
 				if (result.length == 0){
 					/* 如果没有输入字符串则直接退出 */
+					btnObj.removeAttr('disabled');
 					return;
 				};
 				if (op=="service"){
