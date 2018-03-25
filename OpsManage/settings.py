@@ -1,3 +1,5 @@
+#!/usr/bin/env python  
+# _#_ coding:utf-8 _*_ 
 """
 Django settings for OpsManage project.
 
@@ -97,6 +99,8 @@ INSTALLED_APPS = (
     'rest_framework',
     'djcelery',
     'channels',
+    'elfinder',
+    'storages',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -175,5 +179,13 @@ STATICFILES_DIRS = (
      '/mnt/OpsManage/OpsManage/static/',
     )
 
+MEDIA_ROOT = os.path.join(BASE_DIR,'upload/')
+MEDIA_URL = '/upload/'
+SFTP_CONF = {
+             'port':22,
+             'username':'root',
+             'password':'welliam',
+             'timeout':30
+             }  #修改成能sftp登陆OpsManage的账户
 
 LOGIN_URL = '/login'

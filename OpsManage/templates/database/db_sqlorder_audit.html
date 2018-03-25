@@ -37,18 +37,29 @@
 							<legend>
 								<i class="fa  fa-paper-plane"></i> SQL信息
 							</legend>
-							<form role="form" method="post" id="audit_sql_order">
+							<form role="form" method="post" id="audit_sql_order" enctype="multipart/form-data">
 								{% csrf_token %}
 								<div class="form-group">
  									<label>用途<i class="fa fa-info-circle" data-toggle="tooltip" title="说明用途"></i></label>
 									<textarea class="form-control" rows="3" id="order_desc"></textarea>
 
 								</div>	
-								<div class="form-group">
+								<div class="form-group" >			 		             
+									<label >SQL类型: </label>	
+									<div class="btn-group btn-group-sm">
+										<button type="button" class="btn btn-default" onclick="setSQLMode('onlineSql')"><a>在线编写</a></button>
+										<button type="button" class="btn btn-default" onclick="setSQLMode('uploadSQL')"><a>上传SQL</a></button>
+									</div>
+								</div> 								
+								<div class="form-group" id="onlineSql">
 									<label>上线SQL<i class="fa fa-info-circle" data-toggle="tooltip" title="申请上线的SQL语句"></i></label>
 									<div id="compile-editor" class="ace_editor"></div>
 									<p class="help-block">例如：insert into tablename (xxx,xxx,xxx) values (xxx,xxx,xxx);</p>								
-								</div>						
+								</div>	
+								<div class="form-group" id="uploadSQL" style="display:none;">
+									<label>上传SQL<i class="fa fa-info-circle" data-toggle="tooltip" title="申请上线的SQL文件"></i></label>
+									<input type="file"  id="order_file"  value="" onchange="uploadSqlFile(this);"/>								
+								</div>														
 								<lable id="auditContol"><button type="button" class="btn btn-default" onclick="auditSqlOrder(this,'audit')" >审核</button></lable>
 								<button type="reset" class="btn btn-default">撤销</button>
 						</div>
@@ -82,35 +93,14 @@
 									   <option selected="selected" value="">请选择一个类型</option>								   							
 								</select>
 							</div>								 							                                 	 
-<!-- 							<div class="form-group" >			 		             
-								<label >业务类型</label>	
-								<select class="form-control"  name="ops_service" id="ops_service" onchange="javascript:oBtServiceSelect();">
-									<option name="ops_service" value="" selected="selected">选择一个数据库进行操作</option>
-									{% for ds in serviceList %}
-										<option value="{{ds.id}}" name="ops_service">{{ds.service_name}}</option>
-									{% endfor %}
-								</select>		
-							</div>   -->                                  
+                                
 							<div class="form-group" >			 		             
 								<label >数据库</label>	
 								<select class="form-control"  name="order_db" id="order_db">
 									<option name="order_db" value="" selected="selected">选择一个类型进行操作</option>
 								</select>		
 							</div>							
-							
-<!-- 							<div class="form-group">
-								<label>数据库</label> <br> 
-								<select class="form-control" data-live-search="true" id="order_db" name="order_db" required> 
-										<option name="order_db" value="">选择一个数据库</option> 
-									{% for ds in dataBaseList %}
-										{% if ds.db_env == 'test' %}
-											<option name="order_db" value="{{ds.id}}">测试环境  - {{ds.db_host}} - {{ds.db_name}}</option> 
-										{% else %}
-											<option name="order_db" value="{{ds.id}}">生产环境  - {{ds.db_host}} - {{ds.db_name}}</option> 
-										{% endif %}
-									{% endfor %}
-								</select>
-							</div>	 -->					
+											
 							<div class="form-group">
 								<label>执行人<i class="fa fa-info-circle"
 									data-toggle="tooltip" title="工单发送给谁执行"></i></label> 
@@ -164,9 +154,76 @@
 	window.wxc.xcConfirm("{{errinfo}}", window.wxc.xcConfirm.typeEnum.error);
 {% endif %}
 
+
+	function uploadSqlFile(target,id) { 
+		var isIE = /msie/i.test(navigator.userAgent) && !window.opera; 
+		var fileSize = 0; 
+		var filetypes =[".jpg",".sql",".txt"]; 
+		var filepath = target.value; 
+		var filemaxsize = 1024*10;//2M 
+		if(filepath){ 
+			var isnext = false; 
+			var fileend = filepath.substring(filepath.indexOf(".")); 
+			if(filetypes && filetypes.length>0){ 
+				for(var i =0; i<filetypes.length;i++){ 
+					if(filetypes[i]==fileend){ 
+						isnext = true; 
+						break; 
+					} 
+				} 
+			} 
+			if(!isnext){ 
+				alert("不接受此文件类型！"); 
+				target.value =""; 
+				return false; 
+			} 
+		}else{ 
+			return false; 
+		} 
+		if (isIE && !target.files) { 
+			var filePath = target.value; 
+			var fileSystem = new ActiveXObject("Scripting.FileSystemObject"); 
+			if(!fileSystem.FileExists(filePath)){ 
+				window.wxc.xcConfirm("附件不存在，请重新上传", window.wxc.xcConfirm.typeEnum.error);
+				return false; 
+			} 
+			var file = fileSystem.GetFile (filePath); 
+			fileSize = file.Size; 
+		} else { 
+			fileSize = target.files[0].size; 
+		} 
+	
+		var size = fileSize / 1024; 
+		if(size > filemaxsize){ 
+			window.wxc.xcConfirm("sql文件大小不能大于"+filemaxsize/1024+"M！", window.wxc.xcConfirm.typeEnum.error);
+			target.value =""; 
+			return false; 
+		} 
+		if(size <= 0){ 
+			window.wxc.xcConfirm("附件大小不能为0M！", window.wxc.xcConfirm.typeEnum.error);
+			target.value =""; 
+			return false; 
+		} 
+	} 
+
+
 	function oBtEnvSelect(){
 		$('#order_db option:selected').empty();
 		$("#ops_service").val("");
+	}
+	var order_type = 'online';
+	function setSQLMode(id){
+		if (id=='onlineSql'){
+			document.getElementById("onlineSql").style.display = "";
+			document.getElementById("uploadSQL").style.display = "none"; 
+			order_type = 'online';
+		}
+		else{
+			document.getElementById("onlineSql").style.display = "none";
+			document.getElementById("uploadSQL").style.display = ""; 	
+			order_type = 'file';
+		}
+		
 	}
 	
 	function oBtProjectSelect(){
@@ -232,33 +289,6 @@
 
 	}	
 	
-/* 	function oBtServiceSelect(){		
-		var service = $('#ops_service option:selected').val();
-		var env = $('#ops_env option:selected').val();	
-		if (service >= 1){
-			$.ajax({
-				dataType: "JSON",
-				url:'/db/ops/', //请求地址
-				type:"POST",  //提交类似
-				data:{
-					'model':'querydb',
-					'db_service':service,
-					'db_env':env,
-				},  //提交参数
-				success:function(response){
-					var dbHtml = '<select class="form-control"  name="ops_db" id="order_db" onchange="javascript:oBtDbsSelect();"><option name="order_db" value="" selected="selected">选择一个数据库进行操作</option>'
-					var selectHtml = '';
-					for (var i=0; i <response["data"].length; i++){
-						 selectHtml += '<option name="order_db" value="'+ response["data"][i]['id'] +'">' + response["data"][i]['db_name'] +  '(' + response["data"][i]['db_host'] + ')' + '</option>' 
-					};                        
-					dbHtml =  dbHtml + selectHtml + '</select>';
-					document.getElementById("order_db").innerHTML= dbHtml;
-					$('#ops_binlog option:selected').empty();
-						
-				},
-			});			   	
-		}
-	} */
 
 	function setAceEditMode(model) {
 		var editor = ace.edit("compile-editor");
@@ -301,52 +331,60 @@
 			};				
 			var editor = ace.edit("compile-editor");
 		    var order_sql = editor.getSession().getValue(); 
-		    if ( order_sql.length <= 5){
-		    	window.wxc.xcConfirm("请检查SQL语句完整~", window.wxc.xcConfirm.typeEnum.error);
+		    if  (order_sql.length <= 5 && order_type=='online'){
+		    	window.wxc.xcConfirm("请检查SQL文件是否为空~", window.wxc.xcConfirm.typeEnum.error);
 				btnObj.removeAttr('disabled');
 				return false;		    	
 		    };
+		    var formData = new FormData();
+		    if (order_type=='file'){
+		    	formData.append('order_file', $('#order_file')[0].files[0]);
+		    };
+		    formData.append('type','audit');
+		    formData.append('order_desc',$('#order_desc').val());
+		    formData.append('order_db',$('#order_db option:selected').val());
+		    formData.append('order_executor',$('#order_executor option:selected').val());
+		    formData.append('order_sql',order_sql);
+		    formData.append('order_type',order_type);
 			$.ajax({
-				dataType: "JSON",
+/* 				dataType: "JSON", */
 				url:'/db/sql/order/audit/', //请求地址
 				type:"POST",  //提交类似
-				data:{
-					'type':'audit',
-					'order_desc':$('#order_desc').val(),
-					'order_db':$('#order_db option:selected').val(),
-					'order_executor':$('#order_executor option:selected').val(),
-					'order_sql':order_sql,
-				},  //提交参数
+			    processData: false,
+			    contentType: false,				
+				data:formData,  //提交参数
 				success:function(response){
-					btnObj.removeAttr('disabled');
-					document.getElementById("auditResultDiv").style.display = ""; 
+					btnObj.removeAttr('disabled');				
 					if (response["code"] == 200){
 						window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.success);
 					}
 					else {
 						window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
+					};
+					if ( order_type=='online'){
+						document.getElementById("auditResultDiv").style.display = ""; 
+						var resultHTML =  '<table class="table table-hover" id="auditResult">' +
+	                    '<thead>' +
+	                        '<tr>' +
+	                            '<th>#</th>' +
+	                            '<th>SQL</th>' +
+	                            '<th>影响行</th>' +
+	                            '<th>错误原因</th>' +
+	                        '</tr>' +
+	                	'</thead>' +
+	                	'<tbody>'
+					     var trHtml = ''
+					     for (var i=0;i< response['data'].length;i++){
+					    	 trHtml +=   '<tr>' + 
+					                         '<td>'+ i +'</td>' + 
+					                         '<td>'+ response['data'][i]['sql'] +'</td>' + 
+					                         '<td>'+ response['data'][i]['row'] +'</td>' + 
+					                         '<td>'+ response['data'][i]['errmsg'] +'</td>' + 
+					                     '</tr>'
+					     }
+						resultHTML = resultHTML + trHtml + '</tbody></table>'
+						$('#auditResult').html(resultHTML);		
 					}
-					var resultHTML =  '<table class="table table-hover" id="auditResult">' +
-                    '<thead>' +
-                        '<tr>' +
-                            '<th>#</th>' +
-                            '<th>SQL</th>' +
-                            '<th>影响行</th>' +
-                            '<th>错误原因</th>' +
-                        '</tr>' +
-                	'</thead>' +
-                	'<tbody>'
-				     var trHtml = ''
-				     for (var i=0;i< response['data'].length;i++){
-				    	 trHtml +=   '<tr>' + 
-				                         '<td>'+ i +'</td>' + 
-				                         '<td>'+ response['data'][i]['sql'] +'</td>' + 
-				                         '<td>'+ response['data'][i]['row'] +'</td>' + 
-				                         '<td>'+ response['data'][i]['errmsg'] +'</td>' + 
-				                     '</tr>'
-				     }
-					resultHTML = resultHTML + trHtml + '</tbody></table>'
-					$('#auditResult').html(resultHTML);					
 				},
 		    	error:function(response){
 		    		btnObj.removeAttr('disabled');

@@ -18,14 +18,13 @@ from django.conf.urls import url,include
 from django.contrib import admin
 from OpsManage.views import (index,assets,cron,deploy,
                              ansible,users,wssh,task,
-                             database)
+                             database,elfinder)
+from OpsManage.views.elfinder import finder
 from rest_framework.urlpatterns import format_suffix_patterns
 from rest_framework_jwt.views import obtain_jwt_token
 from OpsManage.restfull import (assets_api,cron_api,deploy_api,
                                 ansible_api,users_api,logs_api,
                                 db_api)
-
-
 urlpatterns = [
     url(r'^$',index.index),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
@@ -141,7 +140,8 @@ urlpatterns = [
     url(r'^api/sql/order/(?P<id>[0-9]+)/$', db_api.sql_order_detail),
     url(r'^api/sql/custom/$', db_api.sql_custom_list),
     url(r'^api/sql/custom/(?P<id>[0-9]+)/$', db_api.sql_custom_detail),
-    url(r'^webssh/(?P<sid>[0-9]+)/$',wssh.wssh),
+    url(r'^roles/',elfinder.finder),
+    url(r'^elfinder/',include('elfinder.urls')),
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)

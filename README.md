@@ -55,6 +55,7 @@
 # tar -xzvf pip-1.5.5.tar.gz
 # cd pip-1.5.5/
 # python setup.py install
+# pip install -U pip 
 ```
 
 四、安装模块
@@ -63,7 +64,7 @@
 # git clone https://github.com/welliamcao/OpsManage.git
 # cd /mnt/OpsManage/
 # pip install -r requirements.txt  #注意，如果出现错误不要跳过，请根据错误信息尝试解决
-# easy_install paramiko
+# easy_install paramiko==2.4.1
 ```
 
 五、安装Redis
@@ -91,7 +92,6 @@ bind 你的服务器ip地址
 ```
 # vim /etc/my.cnf
 [mysqld]
-default-character-set = utf8
 character_set_server = utf8
 添加以上字段
 ```
@@ -142,6 +142,12 @@ TEMPLATE_DIRS = (
 #     os.path.join(BASE_DIR,'mysite\templates'),
     '/mnt/OpsManage/OpsManage/templates/',	#修改成自己的配置
 )
+SFTP_CONF = {
+             'port':22,
+             'username':'root',
+             'password':'welliam',
+             'timeout':30
+             }  #修改成自己的配置
 
 ```
 八、生成数据表与管理员账户
@@ -211,7 +217,7 @@ numprocs=1
 
 启动celery
 # /usr/local/bin/supervisord -c /etc/supervisord.conf
-# supervisorctl status
+# supervisorctl status #要检查是否都是running状态
 ```
 
 十二、SQL审核
