@@ -45,14 +45,14 @@
 											<div class="form-group">
 												 <label class="col-sm-2 control-label">月</label>
 												 <div class="col-sm-6">
-												 	<input type="text" class="form-control" name="cron_week" placeholder="*" value="{{ cron.cron_week|default:"" }}"  class="input-xlarge"  required  pattern="^(\*|[0-1]?[0-9]|\*\/[0-1]?[0-9])$"  title="正确格式：01 or * or */1"/>
+												 	<input type="text" class="form-control" name="cron_month" placeholder="*" value="{{ cron.cron_week|default:"" }}"  class="input-xlarge"  required  pattern="^(\*|[0-1]?[0-9]|\*\/[0-1]?[0-9])$"  title="正确格式：01 or * or */1"/>
 												 </div>
 											</div>															
 														
 											<div class="form-group">
 												 <label class="col-sm-2 control-label">周</label>
 												 <div class="col-sm-6">
-												 	<input type="text" class="form-control" name="cron_month" placeholder="0-7" value="{{ cron.cron_month|default:"" }}" class="input-xlarge"  required pattern="^(\*|[0-6]||[0-6]\*\/)$"  title="正确格式：01 or * or */1"/>
+												 	<input type="text" class="form-control" name="cron_week" placeholder="0-7" value="{{ cron.cron_month|default:"" }}" class="input-xlarge"  required pattern="^(\*|[0-6]||[0-6]\*\/)$"  title="正确格式：01 or * or */1"/>
 												 </div>
 											</div>	
 

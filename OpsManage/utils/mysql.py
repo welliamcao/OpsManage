@@ -4,7 +4,6 @@ import commands,os,sys
 
 def loads(host,user,passwd,port,dbname,sql):
     cmd = "mysql -h {host} -u {user} -p{passwd}  {dbname} -P {port} < {sql}".format(host=host,user=user,passwd=passwd,dbname=dbname,sql=sql,port=port)
-    print cmd
     return commands.getstatusoutput(cmd)    
 
 def dumps(host,user,passwd,port,dbname,sql,tables=None):
