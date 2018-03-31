@@ -78,7 +78,6 @@ def cron_add(request):
                                                                                                      )  
                 ANS.run_model(host_list=sList,module_name="cron",module_args=cron_args)   
                 result = ANS.handle_model_data(ANS.get_model_result(), 'cron',cron_args) 
-                print ANS.get_model_result()
             except Exception,e:
                 return render(request,'cron/cron_add.html',{"user":request.user,
                                                                    "serverList":serverList,
@@ -134,7 +133,6 @@ def cron_mod(request,cid):
                        cron_script_path=request.POST.get('cron_script_path',None),
                        cron_status=request.POST.get('cron_status'),
                                        )
-            print request.POST.get('cron_command')
             recordCron.delay(cron_user=str(request.user),cron_id=cid,cron_name=cron.cron_name,cron_content="修改计划任务",cron_server=cron.cron_server.ip)
         except Exception,e:
             return render(request,'cron/cron_modf.html',

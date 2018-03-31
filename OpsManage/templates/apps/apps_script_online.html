@@ -5,7 +5,9 @@
 <script src="http://cdn.bootcss.com/ace/1.2.4/ext-language_tools.js"></script>
 <script src="http://cdn.bootcss.com/ace/1.2.4/ext-old_ie.js"></script>
 <script src="http://cdn.bootcss.com/ace/1.2.4/theme-monokai.js"></script> 
-<script type="text/javascript" src="/static/dist/js/bootstrap-notify.js"></script>
+<link href="/static/dist/css/bootstrap-multiselect.css" rel="stylesheet">
+<script src="/static/dist/js/bootstrap-multiselect.js"></script>
+<script src="https://cdn.bootcss.com/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.js"></script>
 <style type="text/css">
 	#compile-editor {
 		/* position: absolute; */
@@ -76,7 +78,7 @@
 																																														
 										<div id="custom_server" class="form-group" style="display:none;">
 											<label>服务器选择</label>
-		                                       <select multiple class="selectpicker" data-live-search="true" name="ansible_server"  id="ansible_server" required>
+		                                       <select multiple  name="ansible_server"  id="ansible_server" required>
 		                                            {% for ds in serverList %}
 		                                            	<option name="server" value="{{ds.id}}">{{ds.ip}}</option>
 		                                            {% endfor %}
@@ -124,6 +126,15 @@
 </div>
 
 <script type="text/javascript">
+
+$(document).ready(function() {
+    $('#ansible_server').multiselect({
+        enableClickableOptGroups: true,
+        enableCollapsibleOptGroups: true,
+        includeSelectAllOption: true,
+       	enableFiltering: true,            
+    });
+});
 
 function setAceEditMode(model) {
 	var editor = ace.edit("compile-editor");

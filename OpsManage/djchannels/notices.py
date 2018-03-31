@@ -4,6 +4,7 @@ import json
 from channels.generic.websockets import WebsocketConsumer
 from channels import Group
 from django.contrib.auth.models import User
+from OpsManage.utils.logger import logger
 
 class WebNotice(WebsocketConsumer):
     
@@ -17,7 +18,7 @@ class WebNotice(WebsocketConsumer):
             username = message['path'].strip('/').split('/')[-1]
         except Exception, ex:
             message.reply_channel.send({"accept":False}) 
-            print ex        
+            logger.error(msg="webssh连接失败: {ex}".format(ex=str(ex)))     
         try:
             user = User.objects.get(username=self.message.user)  
         except Exception,ex:
@@ -33,6 +34,6 @@ class WebNotice(WebsocketConsumer):
         try:
             user = User.objects.get(username=self.message.user)
         except Exception,ex:
-            print ex
+            logger.error(msg="webssh获取用户[{user}]信息失败: {ex}".format(user=self.message.user,ex=str(ex)))
             pass
         Group(user.username).discard(message.reply_channel)    

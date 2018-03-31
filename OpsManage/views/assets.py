@@ -11,6 +11,7 @@ from django.contrib.auth.models import Group,User
 from OpsManage.tasks.assets import recordAssets
 from django.contrib.auth.decorators import permission_required
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from OpsManage.utils.logger import logger
 
 def getBaseAssets():
     try:
@@ -94,7 +95,7 @@ def assets_view(request,aid):
             asset_nks = assets.networkcard_assets_set.all()
         except Exception, ex:
             asset_nks = [] 
-            print ex
+            logger.warn(msg="获取网卡设备资产失败: {ex}".format(ex=str(ex)))
         try:
             asset_body = assets.server_assets                    
         except:
@@ -137,7 +138,8 @@ def assets_modf(request,aid):
             asset_disk = []
         try:
             asset_body = assets.server_assets                    
-        except:
+        except Exception ,ex:
+            logger.error(msg="修改资产失败: {ex}".format(ex=str(ex)))
             return render(request,'404.html',{"user":request.user},
                             )         
         return render(request,'assets/assets_modf.html',{"user":request.user,"asset_type":assets.assets_type,
@@ -167,7 +169,8 @@ def assets_facts(request,args=None):
                 server_assets = Server_Assets.objects.get(id=request.POST.get('server_id'))
                 if server_assets.keyfile == 1:resource = [{"hostname": server_assets.ip, "port": int(server_assets.port),"username": server_assets.username}] 
                 else:resource = [{"hostname": server_assets.ip, "port": server_assets.port,"username": server_assets.username, "password": server_assets.passwd}]
-            except Exception,e:
+            except Exception,ex:
+                logger.error(msg="更新资产失败: {ex}".format(ex=str(ex)))
                 return  JsonResponse({'msg':"数据更新失败-查询不到该主机资料~","code":502})
             ANS = ANSRunner(resource)
             ANS.run_model(host_list=[server_assets.ip],module_name='setup',module_args="")
@@ -180,7 +183,8 @@ def assets_facts(request,args=None):
                             assets = Assets.objects.get(id=server_assets.assets_id) 
                             Assets.objects.filter(id=server_assets.assets_id).update(sn=ds.get('serial'),model=ds.get('model'),
                                                                                      manufacturer=ds.get('manufacturer'))
-                        except Exception,e:
+                        except Exception, ex:
+                            logger.error(msg="获取服务器信息失败: {ex}".format(ex=str(ex)))
                             return  JsonResponse({'msg':"数据更新失败-查询不到该主机的资产信息","code":403})
                         try:
                             Server_Assets.objects.filter(id=server_id).update(cpu_number=ds.get('cpu_number'),kernel=ds.get('kernel'),
@@ -191,8 +195,8 @@ def assets_facts(request,args=None):
                                                                                   vcpu_number=ds.get('vcpu_number')
                                                                                   )
                             recordAssets.delay(user=str(request.user),content="修改服务器资产：{ip}".format(ip=server_assets.ip),type="server",id=server_assets.id)
-                        except Exception,e:
-                            print e
+                        except Exception, ex:
+                            logger.error(msg="更新服务器信息失败: {ex}".format(ex=str(ex)))
                             return JsonResponse({'msg':"数据更新失败-写入数据失败","code":400})
                         for nk in ds.get('nks'):
                             macaddress = nk.get('macaddress')
@@ -203,7 +207,7 @@ def assets_facts(request,args=None):
                                                                                                                        ip=nk.get('address'),module=nk.get('module'),
                                                                                                                        mtu=nk.get('mtu'),active=nk.get('active'))
                                 except Exception, ex:
-                                    print ex
+                                    logger.warn(msg="更新服务器网卡信息失败: {ex}".format(ex=str(ex)))
                             else:
                                 try:
                                     NetworkCard_Assets.objects.create(assets=assets,device=nk.get('device'),
@@ -211,7 +215,7 @@ def assets_facts(request,args=None):
                                                                   ip=nk.get('address'),module=nk.get('module'),
                                                                   mtu=nk.get('mtu'),active=nk.get('active'))
                                 except Exception, ex:
-                                    print ex
+                                    logger.warn(msg="写入服务器网卡信息失败: {ex}".format(ex=str(ex)))
                             
                     else:
                         return JsonResponse({'msg':"数据更新失败-无法链接主机~","code":502})                    
@@ -226,6 +230,7 @@ def assets_facts(request,args=None):
                 if server_assets.keyfile == 1:resource = [{"hostname": server_assets.ip, "port": int(server_assets.port),"username": server_assets.username}] 
                 else:resource = [{"hostname": server_assets.ip, "port": server_assets.port,"username": server_assets.username, "password": server_assets.passwd}]
             except Exception,e:
+                logger.error(msg="更新硬件信息失败: {ex}".format(ex=ex))
                 return  JsonResponse({'msg':"数据更新失败-查询不到该主机资料~","code":502})
             ANS = ANSRunner(resource)
             ANS.run_model(host_list=[server_assets.ip],module_name='crawHw',module_args="")
@@ -242,7 +247,7 @@ def assets_facts(request,args=None):
                                                             device_status="Online"
                                                             )
         
-                                except Exception,e:
+                                except Exception, ex:
                                     return JsonResponse({'msg':"数据更新失败-写入数据失败","code":400})                        
                             else:
                                 try:
@@ -349,24 +354,31 @@ def assets_import(request):
                             'stone':data[20],
                             'configure_detail': data[21]                              
                               }                                                  
-            try:
-                count = Assets.objects.filter(name=assets.get('name')).count()
-                if count == 1:
-                    assetsObj = Assets.objects.get(name=assets.get('name'))
-                    Assets.objects.filter(name=assets.get('name')).update(**assets)
+            count = Assets.objects.filter(name=assets.get('name')).count()
+            if count == 1:
+                assetsObj = Assets.objects.get(name=assets.get('name'))
+                Assets.objects.filter(name=assets.get('name')).update(**assets)
+                try:
                     if assets.get('assets_type') in ['vmser','server']:
                         Server_Assets.objects.filter(assets=assetsObj).update(**server_assets)
                     elif assets.get('assets_type') in ['switch','route','printer','scanner','firewall','storage','wifi']:
                         Network_Assets.objects.filter(assets=assetsObj).update(**net_assets)
-                else:
-                    assetsObj = Assets.objects.create(**assets)     
-                    if assets.get('assets_type') in ['vmser','server']:
-                        print server_assets
-                        Server_Assets.objects.create(assets=assetsObj,**server_assets)
-                    elif assets.get('assets_type') in ['switch','route','printer','scanner','firewall','storage','wifi']:
-                        Network_Assets.objects.create(assets=assetsObj,**net_assets)                                           
-            except Exception,e:
-                print e
+                except  Exception,ex:
+                    print ex
+            else:
+                try:
+                    assetsObj = Assets.objects.create(**assets)   
+                except Exception, ex:
+                    logger.warn(msg="批量写入资产失败: {ex}".format(ex=str(ex)))
+                if assetsObj:
+                    try:  
+                        if assets.get('assets_type') in ['vmser','server']:
+                            Server_Assets.objects.create(assets=assetsObj,**server_assets)
+                        elif assets.get('assets_type') in ['switch','route','printer','scanner','firewall','storage','wifi']:
+                            Network_Assets.objects.create(assets=assetsObj,**net_assets)                          
+                    except Exception, ex:
+                        logger.warn(msg="批量更新资产失败: {ex}".format(ex=str(ex)))
+                        assetsObj.delete()
         return HttpResponseRedirect('/assets_list')
 
 
@@ -608,13 +620,13 @@ def assets_batch(request):
                 try:
                     assets = Assets.objects.get(id=int(ast))
                 except Exception, ex:
-                    print ex
+                    logger.warn(msg="批量更新获取资产失败: {ex}".format(ex=str(ex)))
                     continue
                 if assets.assets_type in ['vmser','server']:
                     try:
                         server_assets = Server_Assets.objects.get(assets=assets)
-
                     except Exception, ex:
+                        logger.warn(msg="批量更新获取服务器资产失败: {ex}".format(ex=str(ex)))
                         fList.append(assets.management_ip)
                         continue
                     serList.append(server_assets.ip)
@@ -648,7 +660,7 @@ def assets_batch(request):
                                                                                                                        ip=nk.get('address'),module=nk.get('module'),
                                                                                                                        mtu=nk.get('mtu'),active=nk.get('active'))
                                 except Exception, ex:
-                                    print ex
+                                    logger.warn(msg="批量更新更新服务器网卡资产失败: {ex}".format(ex=str(ex)))
                             else:
                                 try:
                                     NetworkCard_Assets.objects.create(assets=assets,device=nk.get('device'),
@@ -656,7 +668,7 @@ def assets_batch(request):
                                                                   ip=nk.get('address'),module=nk.get('module'),
                                                                   mtu=nk.get('mtu'),active=nk.get('active'))
                                 except Exception, ex:
-                                    print ex                            
+                                    logger.warn(msg="批量更新写入服务器网卡资产失败: {ex}".format(ex=str(ex)))                         
                     else:fList.append(server_assets.ip)                                  
             if sList:
                 return JsonResponse({'msg':"数据更新成功","code":200,'data':{"success":sList,"failed":fList}}) 

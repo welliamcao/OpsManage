@@ -15,6 +15,7 @@ from OpsManage.models import (Ansible_Playbook,Ansible_Playbook_Number,
                               Ansible_Script,Project_Assets)
 from OpsManage.data.DsMySQL import AnsibleRecord
 from django.contrib.auth.decorators import permission_required
+from OpsManage.utils.logger import logger
 
 
 @login_required()
@@ -40,13 +41,13 @@ def apps_model(request):
                     if server_assets.keyfile == 1:resource.append({"hostname": server_assets.ip, "port": int(server_assets.port),"username": server_assets.username})
                     else:resource.append({"hostname": server_assets.ip, "port": int(server_assets.port),"username": server_assets.username,"password": server_assets.passwd})
             elif request.POST.get('server_model') == 'group':
-                serverList = Assets.objects.filter(group=request.POST.get('ansible_group'))
+                serverList = Assets.objects.filter(group=request.POST.get('ansible_group'),assets_type__in=["server","vmser"])
                 for server in serverList:
                     sList.append(server.server_assets.ip)
                     if server.server_assets.keyfile == 1:resource.append({"hostname": server.server_assets.ip, "port": int(server.server_assets.port),"username": server.server_assets.username})
                     else:resource.append({"hostname": server.server_assets.ip, "port": int(server.server_assets.port),"username": server.server_assets.username,"password": server.server_assets.passwd})  
             elif request.POST.get('server_model') == 'service':
-                serverList = Assets.objects.filter(business=request.POST.get('ansible_service'))
+                serverList = Assets.objects.filter(business=request.POST.get('ansible_service'),assets_type__in=["server","vmser"])
                 for server in serverList:
                     sList.append(server.server_assets.ip)
                     if server.server_assets.keyfile == 1:resource.append({"hostname": server.server_assets.ip, "port": int(server.server_assets.port),"username": server.server_assets.username})
@@ -119,15 +120,17 @@ def apps_upload(request):
                                             playbook_auth_user = request.POST.get('playbook_auth_user',0),
                                             playbook_type = 0,
                                             )
-        except Exception,e:
-            return render(request,'apps/apps_playbook_upload.html',{"user":request.user,"errorInfo":"剧本添加错误：%s" % str(e)},
+        except Exception, ex:
+            logger.error(msg="添加playboo失败: {ex}".format(ex=str(ex)))
+            return render(request,'apps/apps_playbook_upload.html',{"user":request.user,"errorInfo":"剧本添加错误：%s" % str(ex)},
                                     ) 
         for sip in sList:
             try:
                 Ansible_Playbook_Number.objects.create(playbook=playbook,playbook_server=sip)
-            except Exception,e:
+            except Exception,ex:
+                logger.error(msg="添加playboo目标主机失败: {ex}".format(ex=str(ex)))
                 playbook.delete()                    
-                return render(request,'apps/apps_playbook_upload.html',{"user":request.user,"errorInfo":"目标服务器信息添加错误：%s" % str(e)},
+                return render(request,'apps/apps_playbook_upload.html',{"user":request.user,"errorInfo":"目标服务器信息添加错误：%s" % str(ex)},
                                     )             
         #操作日志异步记录
         AnsibleRecord.PlayBook.insert(user=str(request.user),ans_id=playbook.id,ans_name=playbook.playbook_name,ans_content="添加Ansible剧本",ans_server=','.join(sList))
@@ -163,8 +166,8 @@ def apps_online(request):
                 serverList = Assets.objects.filter(business=request.POST.get('ansible_service'))
                 sList = [  s.server_assets.ip for s in serverList ]   
                 playbook_server_value = request.POST.get('ansible_service')   
-        fileName = '/upload/playbook/online-{ram}.yaml'.format(ram=uuid.uuid4().hex[0:8]) 
-        filePath = os.getcwd() + fileName
+        fileName = 'playbook/online-{ram}.yaml'.format(ram=uuid.uuid4().hex[0:8]) 
+        filePath = os.getcwd() + '/upload/' + fileName
         if request.POST.get('playbook_content'):
             if os.path.isdir(os.path.dirname(filePath)) is not True:os.makedirs(os.path.dirname(filePath))#判断文件存放的目录是否存在，不存在就创建
             with open(filePath, 'w') as f:
@@ -185,13 +188,14 @@ def apps_online(request):
                                             playbook_type = 1
                                             )
         except Exception, ex:
+            logger.error(msg="添加在线playbook失败: {ex}".format(ex=str(ex)))
             return JsonResponse({'msg':str(ex),"code":500,'data':[]}) 
         for sip in sList:
             try:
                 Ansible_Playbook_Number.objects.create(playbook=playbook,playbook_server=sip)
             except Exception, ex:
                 playbook.delete()                    
-                print ex
+                logger.error(msg="添加在线playbook目标失败: {ex}".format(ex=str(ex)))
         #操作日志异步记录
         AnsibleRecord.PlayBook.insert(user=str(request.user),ans_id=playbook.id,ans_name=playbook.playbook_name,ans_content="添加Ansible剧本",ans_server=','.join(sList))
         return JsonResponse({'msg':None,"code":200,'data':[]})      
@@ -223,7 +227,7 @@ def apps_playbook_file(request,pid):
     except:
         return JsonResponse({'msg':"剧本不存在，可能已经被删除.","code":200,'data':[]})  
     if request.method == "POST":
-        playbook_file = os.getcwd() + '/' + str(playbook.playbook_file)
+        playbook_file = os.getcwd() + '/upload/' + str(playbook.playbook_file)
         if os.path.exists(playbook_file):
             content = ''
             with open(playbook_file,"r") as f:
@@ -244,6 +248,7 @@ def apps_playbook_run(request,pid):
         return render(request,'apps/apps_playbook.html',{"user":request.user,"ans_uuid":playbook.playbook_uuid,
                                                          "errorInfo":"剧本不存在，可能已经被删除."}, 
                                   )     
+      
     if request.method == "GET":
         return render(request,'apps/apps_playbook.html',{"user":request.user,"playbook":playbook,
                                                              "serverList":serverList,"numberList":numberList},
@@ -254,7 +259,7 @@ def apps_playbook_run(request,pid):
             DsRedis.OpsAnsiblePlayBookLock.set(redisKey=playbook.playbook_uuid+'-locked',value=request.user)
             #删除旧的执行消息
             DsRedis.OpsAnsiblePlayBook.delete(playbook.playbook_uuid)            
-            playbook_file = os.getcwd() + '/' + str(playbook.playbook_file)
+            playbook_file = os.getcwd() + '/upload/' + str(playbook.playbook_file)
             sList = []
             resource = []
             if numberList:serverList = [ s.playbook_server for s in numberList ]
@@ -327,7 +332,7 @@ def apps_playbook_modf(request,pid):
             if ds.ip in numberList:ds.count = 1
             else:ds.count = 0
         if playbook.playbook_type == 1:
-            playbook_file = os.getcwd() + '/' + str(playbook.playbook_file)
+            playbook_file = os.getcwd() + '/upload/' + str(playbook.playbook_file)
             if os.path.exists(playbook_file):
                 content = ''
                 with open(playbook_file,"r") as f:
@@ -365,7 +370,7 @@ def apps_playbook_modf(request,pid):
                 sList = [  s.server_assets.ip for s in serverList ]   
                 playbook_server_value = request.POST.get('ansible_service')      
             if playbook.playbook_type == 1:
-                playbook_file = os.getcwd() + '/' + str(playbook.playbook_file)
+                playbook_file = os.getcwd() + '/upload/' + str(playbook.playbook_file)
                 with open(playbook_file, 'w') as f:
                     f.write(request.POST.get('playbook_content'))                 
         try:      
@@ -378,8 +383,9 @@ def apps_playbook_modf(request,pid):
                                     playbook_auth_group = request.POST.get('playbook_auth_group',0),
                                     playbook_auth_user = request.POST.get('playbook_auth_user',0),
                                     )
-        except Exception,e:
-            return render(request,'apps/apps_playbook_modf.html',{"user":request.user,"errorInfo":"剧本添加错误：%s" % str(e)},
+        except Exception,ex:
+            logger.error(msg="修改playbook失败: {ex}".format(ex=str(ex)))
+            return render(request,'apps/apps_playbook_modf.html',{"user":request.user,"errorInfo":"剧本添加错误：%s" % str(ex)},
                                     ) 
         if sList:
             tagret_server_list = [ s.playbook_server for s in numberList ]
@@ -389,10 +395,10 @@ def apps_playbook_modf(request,pid):
                     postServerList.append(sip) 
                     if sip not in tagret_server_list:   
                         Ansible_Playbook_Number.objects.create(playbook=playbook,playbook_server=sip)                        
-                except Exception,e:
-                    print e
+                except Exception,ex:
+                    logger.error(msg="修改playbook目标服务器失败: {ex}".format(ex=str(ex)))
                     return render(request,'apps/apps_playbook_modf.html',{"user":request.user,
-                                                                        "errorInfo":"目标服务器信息修改错误：%s" % str(e)},
+                                                                        "errorInfo":"目标服务器信息修改错误：%s" % str(ex)},
                                               ) 
             #清除目标主机 - 
             delList = list(set(tagret_server_list).difference(set(postServerList)))
@@ -432,7 +438,7 @@ def apps_playbook_online_modf(request,pid):
                 sList = [  s.server_assets.ip for s in serverList ]   
                 playbook_server_value = request.POST.get('ansible_service')            
         if request.POST.get('playbook_content'):
-            playbook_file = os.getcwd() + '/' + str(playbook.playbook_file)
+            playbook_file = os.getcwd() + '/upload/' + str(playbook.playbook_file)
             with open(playbook_file, 'w') as f:
                 f.write(request.POST.get('playbook_content')) 
         else:
@@ -448,6 +454,7 @@ def apps_playbook_online_modf(request,pid):
                                     playbook_auth_user = request.POST.get('playbook_auth_user',0),
                                     )
         except Exception, ex:
+            logger.error(msg="修改playbook目标失败: {ex}".format(ex=str(ex)))
             return JsonResponse({'msg':str(ex),"code":500,'data':[]})     
         if sList:
             tagret_server_list = [ s.playbook_server for s in numberList ]
@@ -490,8 +497,8 @@ def ansible_log_view(request,model,id):
                 for ds in Ansible_CallBack_Model_Result.objects.filter(logId=logId):
                     result += ds.content
                     result += '\n'
-            except Exception,e:
-                return JsonResponse({'msg':"查看失败","code":500,'data':e})
+            except Exception,ex:
+                return JsonResponse({'msg':"查看失败","code":500,'data':ex})
         elif model == 'playbook':
             try:
                 result = ''
@@ -499,8 +506,8 @@ def ansible_log_view(request,model,id):
                 for ds in Ansible_CallBack_PlayBook_Result.objects.filter(logId=logId):
                     result += ds.content
                     result += '\n'                
-            except Exception,e:
-                return JsonResponse({'msg':"查看失败","code":500,'data':e})               
+            except Exception,ex:
+                return JsonResponse({'msg':"查看失败","code":500,'data':ex})               
         return JsonResponse({'msg':"操作成功","code":200,'data':result})
     
     
@@ -533,7 +540,7 @@ def apps_script_online(request):
                     else:resource.append({"hostname": server_assets.ip, "port": int(server_assets.port),"username": server_assets.username,"password": server_assets.passwd})
             elif request.POST.get('server_model') == 'group':
                 try:
-                    serverList = Assets.objects.filter(group=request.POST.get('ansible_group',0))
+                    serverList = Assets.objects.filter(group=request.POST.get('ansible_group',0),assets_type__in=["server","vmser"])
                 except:
                     serverList = []                
                 for server in serverList:
@@ -546,7 +553,7 @@ def apps_script_online(request):
                     else:resource.append({"hostname": server.server_assets.ip, "port": int(server.server_assets.port),"username": server.server_assets.username,"password": server.server_assets.passwd})  
             elif request.POST.get('server_model') == 'service':
                 try:
-                    serverList = Assets.objects.filter(business=int(request.POST.get('ansible_service',0)))
+                    serverList = Assets.objects.filter(business=int(request.POST.get('ansible_service',0)),assets_type__in=["server","vmser"])
                 except:
                     serverList = []
                 for server in serverList:
@@ -695,13 +702,13 @@ def apps_script_online_run(request,pid):
                     if server_assets.keyfile == 1:resource.append({"hostname": server_assets.ip, "port": int(server_assets.port),"username": server_assets.username})
                     else:resource.append({"hostname": server_assets.ip, "port": int(server_assets.port),"username": server_assets.username,"password": server_assets.passwd})
             elif request.POST.get('server_model') == 'group':
-                serverList = Assets.objects.filter(group=request.POST.get('ansible_group'))
+                serverList = Assets.objects.filter(group=request.POST.get('ansible_group'),assets_type__in=["server","vmser"])
                 for server in serverList:
                     sList.append(server.server_assets.ip)
                     if server.server_assets.keyfile == 1:resource.append({"hostname": server.server_assets.ip, "port": int(server.server_assets.port),"username": server.server_assets.username})
                     else:resource.append({"hostname": server.server_assets.ip, "port": int(server.server_assets.port),"username": server.server_assets.username,"password": server.server_assets.passwd})  
             elif request.POST.get('server_model') == 'service':
-                serverList = Assets.objects.filter(business=request.POST.get('ansible_service'))
+                serverList = Assets.objects.filter(business=request.POST.get('ansible_service'),assets_type__in=["server","vmser"])
                 for server in serverList:
                     try:
                         sList.append(server.server_assets.ip)
@@ -714,7 +721,6 @@ def apps_script_online_run(request,pid):
             filePath = os.getcwd() + '/' + str(script.script_file)
             saveScript(content=request.POST.get('script_file'),filePath=filePath)
             try:
-                print request.POST.get('ansible_group',0).replace(' ','')
                 Ansible_Script.objects.filter(id=pid).update(
                                               script_server=json.dumps(sList),
                                               script_group=request.POST.get('ansible_group',0),
@@ -722,7 +728,7 @@ def apps_script_online_run(request,pid):
                                               script_type=request.POST.get('server_model')
                                               )
             except Exception,ex:
-                print ex
+                logger.error(msg="保存脚本失败: {ex}".format(ex=str(ex)))
                 return JsonResponse({'msg':str(ex),"code":500,'data':[]})
             return JsonResponse({'msg':"保存成功","code":200,'data':[]})    
         else:

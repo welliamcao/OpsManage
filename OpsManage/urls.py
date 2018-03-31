@@ -140,6 +140,7 @@ urlpatterns = [
     url(r'^api/sql/order/(?P<id>[0-9]+)/$', db_api.sql_order_detail),
     url(r'^api/sql/custom/$', db_api.sql_custom_list),
     url(r'^api/sql/custom/(?P<id>[0-9]+)/$', db_api.sql_custom_detail),
+    url(r'^webssh/(?P<sid>[0-9]+)/$',wssh.wssh),
     url(r'^roles/',elfinder.finder),
     url(r'^elfinder/',include('elfinder.urls')),
 ]

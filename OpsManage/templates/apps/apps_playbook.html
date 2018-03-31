@@ -1,4 +1,8 @@
 {% extends 'index.html' %}
+{% block ace-content %}
+<link href="https://cdn.bootcss.com/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css" rel="stylesheet">
+<script src="https://cdn.bootcss.com/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.js"></script>
+{% endblock %}
 {% block page-content %}
 <div id="page-wrapper">
     <div class="row">
@@ -50,7 +54,8 @@
 					                                            		</select>
 					                                            	{% endif %}
 					                                            	{% if serverList %}
-					                                            		<select multiple class="selectpicker" data-live-search="true" name="playbook_server"  required>
+<!-- 					                                            		<select multiple class="selectpicker" data-live-search="true" name="playbook_server" id="ansible_server"  required> -->
+					                                            		<select multiple data-live-search="true" name="playbook_server" id="ansible_server"  required>
 						                                            	{% for ds in serverList %}
 						                                            		<option name="playbook_server" value="{{ds.ip}}">{{ds.ip}}</option>
 						                                            	{% endfor %}
@@ -184,6 +189,17 @@
 		$("#playbook_vars").text(JSON.stringify(songResJson,null,2)); 
 	{% endif %}
 	
+
+    $(document).ready(function() {
+        $('#ansible_server').multiselect({
+            enableClickableOptGroups: true,
+            enableCollapsibleOptGroups: true,
+            includeSelectAllOption: true,
+           	enableFiltering: true,            
+        });
+    });
+    
+   
 	
 	function getAnsiblePlayBookFile(obj,id) {
 		var btnObj = $(obj);

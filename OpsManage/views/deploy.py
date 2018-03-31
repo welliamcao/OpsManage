@@ -535,4 +535,3 @@ def deploy_log(request,page):
             projectList = paginator.page(paginator.num_pages)        
         return render(request,'deploy/deploy_log.html',{"user":request.user,"projectList":projectList},
                                   )    
-     

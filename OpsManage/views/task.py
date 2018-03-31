@@ -9,7 +9,7 @@ from celery.registry import tasks as cTasks
 from celery import registry
 from celery.five import keys, items
 from django.contrib.auth.decorators import permission_required
-
+from OpsManage.utils.logger import logger
 
 @login_required()
 @permission_required('djcelery.change_periodictask',login_url='/noperm/')
@@ -115,7 +115,7 @@ def task_view(request):
                 if task.startswith('OpsManage.tasks.ansible') or task.startswith('OpsManage.tasks.sched'):
                     regTaskList.append(task)              
         except Exception, ex:
-            print ex
+            logger.warn(msg="获取Celery Task失败: {ex}".format(ex=str(ex)))
             taskLog = []
         return render(request,'task/task_view.html',
                       {"user":request.user,"regTaskList":regTaskList,"workList":workList},
@@ -146,7 +146,8 @@ def task_view(request):
                     data['state'] = taskLog.state
                     data['runtime'] = taskLog.runtime
                     return  JsonResponse({"code":200,"data":data,"msg":"操作成功"})
-                except Exception,e:
+                except Exception,ex:
+                    logger.warn(msg="查看Celery Task运行日志失败: {ex}".format(ex=str(ex)))
                     return  JsonResponse({"code":500,"data":None,"msg":"日志查看失败。"})
             elif op == 'delete':
                 try:

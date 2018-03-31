@@ -1,5 +1,6 @@
 # -*- coding=utf-8 -*-
 from OpsManage.data.base import APBase
+from OpsManage.utils.logger import logger
 
 class DsRedis(object):
     class OpsDeploy(object):
@@ -9,7 +10,8 @@ class DsRedis(object):
                 redisConn = APBase.getRedisConnection(APBase.REDSI_POOL)
                 redisConn.lpush(redisKey, data)
                 redisConn = None 
-            except:
+            except Exception, ex:
+                logger.warn(msg="Lpush data to redis failed: {ex}".format(ex=str(ex)))
                 return False
         
         @staticmethod
@@ -19,7 +21,8 @@ class DsRedis(object):
                 data = redisConn.rpop(redisKey) 
                 redisConn = None
                 return data    
-            except:
+            except Exception, ex:
+                logger.warn(msg="Rpop redis key failed: {ex}".format(ex=str(ex)))
                 return False        
         @staticmethod
         def delete(redisKey):
@@ -28,7 +31,8 @@ class DsRedis(object):
                 data = redisConn.delete(redisKey) 
                 redisConn = None
                 return data  
-            except:
+            except Exception, ex:
+                logger.warn(msg="Delete redis key failed: {ex}".format(ex=str(ex)))
                 return False      
             
     class OpsProject(object):   
@@ -39,7 +43,8 @@ class DsRedis(object):
                 redisConn.set(redisKey, value)
                 redisConn.expire(redisKey, 300)
                 redisConn = None 
-            except:
+            except Exception, ex:
+                logger.warn(msg="Set redis key failed: {ex}".format(ex=str(ex)))
                 return False
             
         @staticmethod
@@ -48,9 +53,10 @@ class DsRedis(object):
                 redisConn = APBase.getRedisConnection(APBase.REDSI_POOL)
                 redisConn.delete(redisKey)
                 redisConn = None 
-            except:
-                return False     
-
+            except Exception, ex:
+                logger.warn(msg="Delete redis key failed: {ex}".format(ex=str(ex)))    
+                return False
+            
         @staticmethod
         def get(redisKey):
             try:
@@ -58,7 +64,8 @@ class DsRedis(object):
                 result = redisConn.get(redisKey)
                 redisConn = None 
                 return result
-            except:
+            except Exception, ex:
+                logger.warn(msg="Get redis key failed: {ex}".format(ex=str(ex))) 
                 return False      
             
     class OpsAnsibleModel(object):
@@ -68,7 +75,8 @@ class DsRedis(object):
                 redisConn = APBase.getRedisConnection(APBase.REDSI_POOL)
                 redisConn.lpush(redisKey, data)
                 redisConn = None 
-            except:
+            except Exception, ex:
+                logger.warn(msg="Lpush  redis data failed: {ex}".format(ex=str(ex))) 
                 return False
         
         @staticmethod
@@ -78,7 +86,8 @@ class DsRedis(object):
                 data = redisConn.rpop(redisKey) 
                 redisConn = None
                 return data    
-            except:
+            except Exception, ex:
+                logger.warn(msg="Rpop redis data failed: {ex}".format(ex=str(ex))) 
                 return False        
         @staticmethod
         def delete(redisKey):
@@ -87,7 +96,8 @@ class DsRedis(object):
                 data = redisConn.delete(redisKey) 
                 redisConn = None
                 return data  
-            except:
+            except Exception, ex:
+                logger.warn(msg="Delete redis key failed: {ex}".format(ex=str(ex)))
                 return False   
             
     class OpsAnsiblePlayBook(object):
@@ -97,7 +107,8 @@ class DsRedis(object):
                 redisConn = APBase.getRedisConnection(APBase.REDSI_POOL)
                 redisConn.lpush(redisKey, data)
                 redisConn = None 
-            except:
+            except Exception, ex:
+                logger.warn(msg="Lpush  redis data failed: {ex}".format(ex=str(ex))) 
                 return False
         
         @staticmethod
@@ -107,7 +118,8 @@ class DsRedis(object):
                 data = redisConn.rpop(redisKey) 
                 redisConn = None
                 return data    
-            except:
+            except Exception, ex:
+                logger.warn(msg="Rpop redis data failed: {ex}".format(ex=str(ex))) 
                 return False        
         @staticmethod
         def delete(redisKey):
@@ -116,7 +128,8 @@ class DsRedis(object):
                 data = redisConn.delete(redisKey) 
                 redisConn = None
                 return data  
-            except:
+            except Exception, ex:
+                logger.warn(msg="Delete redis key failed: {ex}".format(ex=str(ex)))
                 return False      
 
             
@@ -128,7 +141,8 @@ class DsRedis(object):
                 redisConn.set(redisKey, value)
                 redisConn.expire(redisKey, 1800)
                 redisConn = None 
-            except:
+            except Exception, ex:
+                logger.warn(msg="Set redis key failed: {ex}".format(ex=str(ex)))
                 return False                  
         @staticmethod
         def delete(redisKey):
@@ -136,7 +150,8 @@ class DsRedis(object):
                 redisConn = APBase.getRedisConnection(APBase.REDSI_POOL)
                 redisConn.delete(redisKey)
                 redisConn = None 
-            except:
+            except Exception, ex:
+                logger.warn(msg="Delete redis key failed: {ex}".format(ex=str(ex)))
                 return False     
 
         @staticmethod
@@ -146,5 +161,6 @@ class DsRedis(object):
                 result = redisConn.get(redisKey)
                 redisConn = None 
                 return result
-            except:
+            except Exception, ex:
+                logger.warn(msg="Get redis key failed: {ex}".format(ex=str(ex))) 
                 return False                                         

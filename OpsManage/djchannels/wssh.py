@@ -10,7 +10,7 @@ except ImportError:
 from OpsManage.utils.interactive import interactive_shell,get_redis_instance,SshTerminalThread
 from OpsManage.models import Global_Config,User_Server,Server_Assets
 from django.contrib.auth.models import User
-
+from OpsManage.utils.logger import logger
                 
 class webterminal(WebsocketConsumer):
     
@@ -110,6 +110,7 @@ class webterminal(WebsocketConsumer):
         except Exception,e:
             import traceback
             print traceback.print_exc()
+            logger.error(msg="webssh receive failed: {ex}".format(ex=str(traceback.print_exc())))
             self.closessh()
             self.close()
 

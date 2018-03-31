@@ -370,7 +370,7 @@
                 return (vType !== undefined) ? vType === 'text/html' : vName.match(/\.(htm|html)$/i);
             },
             text: function (vType, vName) {
-                return (vType !== undefined && vType.match('text.*')) || vName.match(/\.(txt|md|csv|nfo|php|ini|sql)$/i);
+                return (vType !== undefined && vType.match('text.*')) || vName.match(/\.(txt|md|csv|nfo|php|ini|sql|yml|yaml)$/i);
             },
             video: function (vType, vName) {
                 return (vType !== undefined && vType.match(/\.video\/(ogg|mp4|webm)$/i)) || vName.match(/\.(og?|mp4|webm)$/i);
