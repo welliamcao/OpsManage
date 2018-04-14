@@ -248,8 +248,9 @@
 			btn: parseInt("0011",2),
 			onOk: function(){
 				$.ajax({
+					  dataType: "JSON",
 					  type: 'DELETE',
-					  url: '/api/sql/order/'+id+'/',
+					  url: '/api/sql/orders/'+id+'/',
 				      success:function(response){	
 				    	btnObj.removeAttr('disabled');
 	                	window.wxc.xcConfirm("删除成功！", window.wxc.xcConfirm.typeEnum.success);
@@ -280,8 +281,9 @@
 				btn: parseInt("0011",2),
 				onOk: function(){
 					$.ajax({
+						  dataType: "JSON",
 						  type: 'PUT',
-						  url: '/api/sql/order/'+id+'/',
+						  url: '/api/sql/orders/'+id+'/',
 						  data: {
 							  "order_status":6
 						  },
@@ -310,8 +312,9 @@
 						return;
 					};
 					$.ajax({
+						  dataType: "JSON",
 						  type: 'PUT',
-						  url: '/api/sql/order/'+id+'/',
+						  url: '/api/sql/orders/'+id+'/',
 						  data: {
 							  'order_cancel':result,
 							  "order_status":4

@@ -1,0 +1,211 @@
+	.content-body {
+	    padding-bottom: 4em;
+	}
+	
+	.post {
+	    background: #fff;
+	    padding: 30px 30px 0;
+	}
+	
+	.entry-title {
+	    text-align: center;
+	    font-size: 1.9em;
+	    margin-bottom: 20px;
+	    line-height: 1.6;
+	    padding: 10px 20px 0;
+	}
+	
+	.entry-meta {
+	    text-align: center;
+	    color: #DDDDDD;
+	    font-size: 13px;
+	    margin-bottom: 30px;
+	}
+	
+	.post-category::after,
+	.post-date::after,
+	.post-author::after,
+	.comments-link::after {
+	    content: '';
+	    color: #000;
+	}
+	.widget-title {
+	    font-size: 1.5em;
+	    margin-bottom: 20px;
+	    line-height: 1.6;
+	    padding: 10px 0 0;
+	    font-weight: 400;
+	}
+	
+	.widget-recent-posts ul {
+	    padding: 0;
+	    margin: 0;
+	    padding-left: 20px;
+	}
+	
+	.widget-recent-posts ul li {
+	    list-style-type: none;
+	    position: relative;
+	    line-height: 170%;
+	    margin-bottom: 10px;
+	}
+	
+	.widget-recent-posts ul li::before {
+	    content: '\f3d3';
+	    font-family: "Ionicons";
+	    position: absolute;
+	    left: -17px;
+	    top: 3px;
+	    font-size: 16px;
+	    color: #000;
+	}
+	
+	.widget-archives ul {
+	    padding: 0;
+	    margin: 0;
+	    padding-left: 25px;
+	}
+	
+	.widget-archives ul li {
+	    list-style-type: none;
+	    position: relative;
+	    line-height: 170%;
+	    margin-bottom: 10px;
+	}
+	
+	.widget-archives ul li::before {
+	    content: '\f3f3';
+	    font-family: "Ionicons";
+	    position: absolute;
+	    left: -25px;
+	    top: 1px;
+	    font-size: 16px;
+	    color: #000;
+	}
+	
+	.widget-category ul {
+	    padding: 0;
+	    margin: 0;
+	    padding-left: 25px;
+	}
+	
+	.widget-category ul li {
+	    list-style-type: none;
+	    position: relative;
+	    line-height: 170%;
+	    margin-bottom: 10px;
+	}
+	
+	.widget-category ul li::before {
+	    content: '\f3fe';
+	    font-family: "Ionicons";
+	    position: absolute;
+	    left: -25px;
+	    top: 1px;
+	    font-size: 18px;
+	    color: #000;
+	}
+	
+	.widget-tag-cloud ul {
+	    padding: 0;
+	    margin: 0;
+	    margin-right: -10px;
+	}
+	
+	.widget-tag-cloud ul li {
+	    list-style-type: none;
+	    font-size: 13px;
+	    display: inline-block;
+	    margin-right: 10px;
+	    margin-bottom: 10px;
+	    padding: 3px 8px;
+	    border: 1px solid #ddd;
+	}
+	
+	.widget-content ul ul {
+	    margin-top: 10px;
+	}
+	
+	.widget-content ul li {
+	    margin-bottom: 10px;
+	}
+	
+
+.read-more {
+    font-family: 'Ubuntu', sans-serif;
+    font-weight: 400;
+    word-spacing: 1px;
+    letter-spacing: 0.01em;
+    text-align: center;
+    margin-top: 20px;
+}
+
+.cl-effect-14 a {
+    padding: 0 20px;
+    height: 45px;
+    line-height: 45px;
+    position: relative;
+    display: inline-block;
+    margin: 15px 25px;
+    letter-spacing: 1px;
+    font-weight: 400;
+    text-shadow: 0 0 1px rgba(255, 255, 255, 0.3);
+}
+
+.cl-effect-14 a::before,
+.cl-effect-14 a::after {
+    position: absolute;
+    width: 45px;
+    height: 1px;
+    background: #C3C3C3;
+    content: '';
+    -webkit-transition: all 0.3s;
+    -moz-transition: all 0.3s;
+    transition: all 0.3s;
+    pointer-events: none;
+}
+
+.cl-effect-14 a::before {
+    top: 0;
+    left: 0;
+    -webkit-transform: rotate(90deg);
+    -moz-transform: rotate(90deg);
+    transform: rotate(90deg);
+    -webkit-transform-origin: 0 0;
+    -moz-transform-origin: 0 0;
+    transform-origin: 0 0;
+}
+
+.cl-effect-14 a::after {
+    right: 0;
+    bottom: 0;
+    -webkit-transform: rotate(90deg);
+    -moz-transform: rotate(90deg);
+    transform: rotate(90deg);
+    -webkit-transform-origin: 100% 0;
+    -moz-transform-origin: 100% 0;
+    transform-origin: 100% 0;
+}
+
+.cl-effect-14 a:hover::before,
+.cl-effect-14 a:hover::after,
+.cl-effect-14 a:focus::before,
+.cl-effect-14 a:focus::after {
+    background: #000;
+}
+
+.cl-effect-14 a:hover::before,
+.cl-effect-14 a:focus::before {
+    left: 50%;
+    -webkit-transform: rotate(0deg) translateX(-50%);
+    -moz-transform: rotate(0deg) translateX(-50%);
+    transform: rotate(0deg) translateX(-50%);
+}
+
+.cl-effect-14 a:hover::after,
+.cl-effect-14 a:focus::after {
+    right: 50%;
+    -webkit-transform: rotate(0deg) translateX(50%);
+    -moz-transform: rotate(0deg) translateX(50%);
+    transform: rotate(0deg) translateX(50%);
+}	

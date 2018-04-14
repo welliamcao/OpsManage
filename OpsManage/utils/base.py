@@ -2,9 +2,9 @@
 # _#_ coding:utf-8 _*_ 
 '''版本控制方法'''
 from random import choice
-import string,hashlib
+import string,hashlib,calendar
 import commands,os,time,smtplib
-from datetime import datetime,timedelta
+from datetime import datetime,timedelta,date
 from email.mime.text import MIMEText
 from email.mime.application import MIMEApplication 
 from email.mime.multipart import MIMEMultipart
@@ -115,3 +115,17 @@ def calcDays(startDate,endDate):
     startDate=datetime(startDate[0],startDate[1],startDate[2],startDate[3],startDate[4],startDate[5])
     endDate=datetime(endDate[0],endDate[1],endDate[2],endDate[3],endDate[4],endDate[5])
     return (endDate-startDate).days
+    
+def getMonthFirstDayAndLastDay(year=None, month=None):
+    if year:
+        year = int(year)
+    else:
+        year = datetime.date.today().year
+    if month:
+        month = int(month)
+    else:
+        month = datetime.date.today().month
+    firstDayWeekDay, monthRange = calendar.monthrange(year, month)
+    firstDay = date(year=year, month=month, day=1)
+    lastDay = date(year=year, month=month, day=monthRange)
+    return firstDay, lastDay
