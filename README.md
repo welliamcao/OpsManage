@@ -154,6 +154,7 @@ SFTP_CONF = {
 ```
 # cd /mnt/OpsManage/
 # python manage.py makemigrations OpsManage
+# python manage.py makemigrations wiki
 # python manage.py migrate
 # python manage.py createsuperuser
 ```

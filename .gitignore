@@ -9,4 +9,5 @@ media*
 .project
 .pydevproject
 *.log
+.quarantine
 

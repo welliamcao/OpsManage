@@ -6,8 +6,6 @@ from django.db import models
 # Create your models here.
 
 from django.contrib.auth.models import User
-from ckeditor.fields import RichTextField
-from ckeditor_uploader.fields import RichTextUploadingField
 
 
 
@@ -47,7 +45,7 @@ class Tag(models.Model):
 
 class Post(models.Model):
     title = models.CharField(max_length=70,verbose_name='标题',unique=True)
-    content = RichTextUploadingField('内容')
+    content =  models.TextField(verbose_name='类容')
     created_time = models.DateTimeField(auto_now_add=True,verbose_name='创建时间')
     modified_time = models.DateTimeField(auto_now_add=True,verbose_name='修改时间')
     category = models.ForeignKey(Category,verbose_name='分类')
