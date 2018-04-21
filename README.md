@@ -20,6 +20,9 @@
 ## OpsManage功能说明
 ![image](https://github.com/welliamcao/OpsManage/blob/master/demo_imgs/opsmanage.png)
 
+## Docker构建OpsManage
+[传送门](https://github.com/welliamcao/OpsManage/wiki/Docker%E6%9E%84%E5%BB%BAOpsManage)
+
 ## 安装环境配置
 一、安装Python
 ```
@@ -97,7 +100,7 @@ character_set_server = utf8
 ```
 ```
 # mysql -uroot -p
-mysql> create database opsmanage;
+mysql> create database opsmanage DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
 mysql> grant all privileges on opsmanage.* to root@'%' identified by 'password';
 mysql>\q
 # /etc/init.d/mysqld restart

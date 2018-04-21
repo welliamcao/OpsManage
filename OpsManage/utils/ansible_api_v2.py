@@ -363,16 +363,17 @@ class ANSRunner(object):
         Options = namedtuple('Options', ['connection','module_path', 'forks', 'timeout',  'remote_user',  
                 'ask_pass', 'private_key_file', 'ssh_common_args', 'ssh_extra_args', 'sftp_extra_args',  
                 'scp_extra_args', 'become', 'become_method', 'become_user', 'ask_value_pass', 'verbosity',  
-                'check', 'listhosts', 'listtasks', 'listtags', 'syntax'])  
+                'check', 'listhosts', 'listtasks', 'listtags', 'syntax','ask_sudo_pass'])  
    
         self.variable_manager = VariableManager()  
         self.loader = DataLoader()  
         self.options = Options(connection='smart', module_path=None, forks=100, timeout=10,  
                 remote_user=kwargs.get('remote_user','root'), ask_pass=False, private_key_file=None, ssh_common_args=None, 
                 ssh_extra_args=None,sftp_extra_args=None, scp_extra_args=None, become=True,
-                become_method=kwargs.get('become_method','sudo'),become_user=kwargs.get('become_user','root'), 
+                become_method=kwargs.get('become_method',None),become_user=kwargs.get('become_user',None), 
                 verbosity=kwargs.get('verbosity',None),check=False, listhosts=False,
-                listtasks=False, listtags=False, syntax=False,ask_value_pass=False, )  
+                listtasks=False, listtags=False, syntax=False,ask_value_pass=False, 
+                ask_sudo_pass=False)  
   
         self.passwords = dict(sshpass=None, becomepass=None)  
         self.inventory = MyInventory(self.resource, self.loader, self.variable_manager).inventory
