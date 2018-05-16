@@ -23,6 +23,9 @@
 ## Docker构建OpsManage
 [传送门](https://github.com/welliamcao/OpsManage/wiki/Docker%E6%9E%84%E5%BB%BAOpsManage)
 
+## QQ交流群
+![image](https://github.com/welliamcao/OpsManage/blob/master/demo_imgs/qq_group.png)
+
 ## 安装环境配置
 一、安装Python
 ```
