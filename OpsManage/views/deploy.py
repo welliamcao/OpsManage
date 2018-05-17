@@ -243,6 +243,7 @@ def deploy_run(request,pid):
             allServerList = [ ds.server  for ds in Project_Number.objects.filter(project=project) ]
             #获取项目目标服务器列表与分批部署服务器（post提交）列表的差集
             tmpServer = [ i for i in allServerList if i not in request.POST.getlist('project_server') ]
+            print tmpServer
         elif request.POST.get('project_model',None) == "rollback":tmpServer = None
         else:return JsonResponse({'msg':"项目部署失败：未选择目标服务器","code":500,'data':[]}) 
         if DsRedis.OpsProject.get(redisKey=project.project_uuid+"-locked") is None:#判断该项目是否有人在部署
