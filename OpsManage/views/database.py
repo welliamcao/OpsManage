@@ -197,7 +197,17 @@ def db_sqlorder_run(request,id):
         else:order.prem = 1
     except Exception,ex:
         logger.error(msg="执行SQL[{id}]错误: {ex}".format(id=id,ex=str(ex)))
-        return render(request,'database/db_sqlorder_run.html',{"user":request.user,"errinfo":"工单不存在，或者您没有权限处理这个工单"}) 
+        return render(request,'database/db_sqlorder_run.html',{"user":request.user,"errinfo":"工单不存在，或者您没有权限处理这个工单"})
+    try:
+        inceptRbt = Inception(
+                   host=incept.db_backup_host,
+                   name=order.sql_audit_order.order_db.db_name,
+                   user=order.sql_audit_order.order_db.db_user,
+                   passwd=order.sql_audit_order.order_db.db_passwd,
+                   port=order.sql_audit_order.order_db.db_port
+                   )  
+    except Exception,ex:
+        return render(request,'database/db_sqlorder_run.html',{"user":request.user,"errinfo":"Inception配置错误"})
     if request.method == "GET":
         oscStatus = None
         sqlResultList = []
@@ -322,14 +332,14 @@ def db_sqlorder_run(request,id):
             sqlResultList = SQL_Order_Execute_Result.objects.filter(order=order)
             for ds in sqlResultList:
                 if ds.backup_db.find('None') == -1:
-                    result = Inception.getRollBackTable(
+                    result = inceptRbt.getRollBackTable(
                                                    host=incept.db_backup_host, user=incept.db_backup_user, 
                                                    passwd=incept.db_backup_passwd, dbName=ds.backup_db, 
                                                    port=incept.db_backup_port, sequence=str(ds.sequence).replace('\'','')
                                                    )
                     if result.get('status') == 'success':
                         tableName = result.get('data')[0]
-                        rbkSql = Inception.getRollBackSQL(
+                        rbkSql = inceptRbt.getRollBackSQL(
                                                        host=incept.db_backup_host, user=incept.db_backup_user, 
                                                        passwd=incept.db_backup_passwd, dbName=ds.backup_db, 
                                                        port=incept.db_backup_port, tableName=tableName,
