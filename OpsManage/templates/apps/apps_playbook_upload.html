@@ -2,8 +2,8 @@
 {% block ace-content %}
 <link href="/static/dist/css/fileinput.css" media="all" rel="stylesheet" type="text/css" />
 <script src="/static/dist/js/fileinput.js" type="text/javascript"></script>
-<link href="/static/dist/css/bootstrap-multiselect.css" rel="stylesheet">
-<script src="/static/dist/js/bootstrap-multiselect.js"></script>
+<!-- <link href="/static/dist/css/bootstrap-multiselect.css" rel="stylesheet">
+<script src="/static/dist/js/bootstrap-multiselect.js"></script> -->
 {% endblock %}
 {% block page-content %}
 <div id="page-wrapper">
@@ -85,9 +85,9 @@
                                         
                                          <div id="custom_server" class="form-group" style="display:none;">
                                             <label>勾选目标服务器<i class="fa fa-info-circle" data-toggle="tooltip"  title="自定选择服务器"></i></label>
-                                            <select multiple  name="playbook_server" id="ansible_server">
+                                            <select multiple  name="playbook_server" class="form-control" id="ansible_server">
                                             	{% for ds in serverList %}
-                                            		<option name="playbook_server" value="{{ds.id}}">{{ds.ip}}</option>
+                                            		<option name="playbook_server"  value="{{ds.id}}">{{ds.ip}}</option>
                                             	{% endfor %}
                                             </select>
                                         </div>                                          
@@ -137,14 +137,15 @@
 {% endif %}
 $(function () { $("[data-toggle='tooltip']").tooltip(); });
 
-$(document).ready(function() {
+/* $(document).ready(function() {
     $('#ansible_server').multiselect({
         enableClickableOptGroups: true,
         enableCollapsibleOptGroups: true,
         includeSelectAllOption: true,
-       	enableFiltering: true,            
+       	enableFiltering: true,          	
     });
-});
+});  */
+
 
 $("#playbook_file").fileinput({
 	language : 'zh',
