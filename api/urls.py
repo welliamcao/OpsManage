@@ -44,6 +44,7 @@ urlpatterns = [
             url(r'inc/config/(?P<id>[0-9]+)/$', db_api.inc_detail),
             url(r'db/config/$', db_api.db_list),
             url(r'db/config/(?P<id>[0-9]+)/$', db_api.db_detail),
+            url(r'db/status/(?P<id>[0-9]+)/$', db_api.db_status),
             url(r'orders/(?P<id>[0-9]+)/$', orders_api.order_detail),
             url(r'sql/custom/$', db_api.sql_custom_list),
             url(r'sql/custom/(?P<id>[0-9]+)/$', db_api.sql_custom_detail),  

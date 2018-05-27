@@ -11,6 +11,10 @@ from rest_framework.decorators import api_view
 from django.contrib.auth.decorators import permission_required
 from OpsManage.tasks.sql import sendOrderNotice
 from orders.models import Order_System
+from OpsManage.data.base import MySQLPool
+from django.http import JsonResponse
+from OpsManage.utils.logger import logger
+from OpsManage.utils import mysql as MySQL
 
 @api_view(['POST' ])
 @permission_required('OpsManage.can_add_database_server_config',raise_exception=True)
@@ -164,3 +168,42 @@ def sql_exec_logs(request, id,format=None):
             return Response(status=status.HTTP_403_FORBIDDEN)
         snippet.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+    
+@api_view(['POST','GET'])
+@permission_required('OpsManage.can_read_database_server_config',raise_exception=True)  
+def db_status(request, id,format=None):
+    try:
+        dbServer = DataBase_Server_Config.objects.get(id=id)
+    except DataBase_Server_Config.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)    
+    if request.method == 'POST':
+        dataList = []
+        mysql = MySQLPool(host=dbServer.db_host,port=dbServer.db_port,user=dbServer.db_user,passwd=dbServer.db_passwd,dbName=dbServer.db_name)
+        version = mysql.execute(sql='SELECT VERSION() as version;')
+        if isinstance(version, tuple):
+            data = {}
+            data['name'] = 'Version'
+            try:
+                data['value'] = version[1][0][0]
+                dataList.append(data)
+            except Exception,ex:
+                data['value'] =  '未知'
+                logger.warn(msg="获取MySQL版本信息失败: {ex}".format(ex=ex))
+        status = mysql.execute(sql='show status;')
+        if isinstance(status, tuple):
+            for ds in status[1]:
+                data = {}
+                if ds[0].lower() in MySQL.keysList:
+                    data['value'] = ds[1]
+                    data['name'] = ds[0].capitalize()
+                    dataList.append(data)
+        logs = mysql.execute(sql='show global variables;')
+        if isinstance(logs, tuple):
+            for ds in logs[1]:
+                data = {}
+                if ds[0].lower() in MySQL.keysList:
+                    data['value'] = ds[1]
+                    data['name'] = ds[0].capitalize()
+                    dataList.append(data)            
+        return JsonResponse({"code":200,"msg":"success","data":dataList})
+        

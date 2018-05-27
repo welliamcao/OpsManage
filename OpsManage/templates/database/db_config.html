@@ -1,4 +1,15 @@
 {% extends 'index.html' %}
+{% block ace-content %}
+<style type="text/css"> 	
+	td.details-control {
+	    background: url('/static/img/details_open.png') no-repeat center center; */
+	    cursor: pointer;
+	}
+	tr.shown td.details-control {
+	    background: url('/static/img/details_close.png') no-repeat center center;
+	} 
+</style>
+{% endblock %}
 {% block page-content %}
 
 <div id="page-wrapper">
@@ -287,56 +298,42 @@
                         	<div>
                         		<button type="button" class="btn btn-xs btn-default" data-toggle="modal" data-target="#myDatabaseModal"><i class="glyphicon glyphicon-plus"></i></button>
                         	</div>
-							<table  width="100%" class="table table-striped table-bordered table-hover dataTable no-footer" id="taskTableList">						
-	                                <thead>
-											<tr>
-												<th class="text-center">
-													<label>
-														<span class="lbl"></span>
-													</label>
-													ID
-												</th>
-												<th class="text-center">环境类型</th>
-												<th class="text-center">业务类型</th>
-												<th class="text-center">使用组</th>
-												<th class="text-center">数据库名</th>
-												<th class="text-center">数据库地址</th>
-												<th class="text-center">
-													账户
-												</th>
-					
-												<th class="text-center">端口</th>
-												<th class="text-center">标签</th>
-												<th class="text-center">操作</th>
-											</tr>
-											
-									        <tfoot>
-									            <tr>
-												<th class="text-center">
-													<label>
-														<span class="lbl"></span>
-													</label>
-													ID
-												</th>
-												<th class="text-center">环境类型</th>
-												<th class="text-center">业务类型</th>
-												<th class="text-center">使用组</th>
-												<th class="text-center">数据库名</th>
-												<th class="text-center">数据库地址</th>
-					
-												<th class="text-center">
-													账户
-												</th>
-					
-												<th class="text-center">端口</th>
-												<th class="text-center">标签</th>
-												<th class="text-center">操作</th>
-									            </tr>
-									        </tfoot>										    
-	                                </thead>
-	                                <tbody>
+							<table  width="100%" class="table table-striped table-bordered table-hover dataTable no-footer" id="taskTableList">	
+						        <thead>
+						            <tr>
+						                <th class="text-center">详细</th>
+						                <th class="text-center">ID</th>
+						                <th class="text-center">环境类型</th>
+						                <th class="text-center">业务类型</th>
+						                <th class="text-center">使用组</th>
+						                <th class="text-center">数据库名</th>
+						                <th class="text-center">数据库地址</th>
+						                <th class="text-center">账户</th>
+						                <th class="text-center">端口</th>
+										<th class="text-center">标签</th>
+										<th class="text-center">操作</th>
+						            </tr>
+						        </thead>
+						        <tfoot>
+						            <tr>
+						                <th class="text-center">详细</th>
+						                <th class="text-center">ID</th>
+						                <th class="text-center">环境类型</th>
+						                <th class="text-center">业务类型</th>
+						                <th class="text-center">使用组</th>
+						                <th class="text-center">数据库名</th>
+						                <th class="text-center">数据库地址</th>
+						                <th class="text-center">账户</th>
+						                <th class="text-center">端口</th>
+										<th class="text-center">标签</th>
+										<th class="text-center">操作</th>
+						            </tr>
+						        </tfoot>													
+		                                <tbody>
 	                                	{% for ds in dataBaseList %}
 	                                		<tr>
+		                                		<td class="text-center">                                		
+		                                		</td>	                                		
 		                                		<td class="text-center">
 		                                			{{ds.id}}
 		                                		</td>
@@ -380,19 +377,19 @@
 													<div>																				
 														<div class="btn-group">	
 															<button type="button" class="btn btn-xs btn-default" data-toggle="modal" data-target="#myDatabaseEditModal-{{ds.id}}">
-																<abbr title="編輯任務"><i class="fa fa-edit"></i>
+																<abbr title="編輯"><i class="fa fa-edit"></i>
 															</button>
-														</div>
+														</div>													
 														<div class="btn-group">	
 															<button type="button" class="btn btn-xs btn-default" onclick="delDatabaseSever(this,'{{ds.db_host}}-{{ds.db_name}}',{{ ds.id}})">
-																<abbr title="删除任务"><i class="fa fa-trash"></i>
+																<abbr title="删除"><i class="fa fa-trash"></i>
 															</button>											
 														</div>
 													</div>  	                                			
 		                                		</td>	
 	                                		</tr>                                			                                		                                			                                			                                			                                		
 	                                	{% endfor %}
-	                                </tbody>
+	                                </tbody>																				                                   
 	                       	</table>
                             <!-- /.table-responsive -->
                         </div>
@@ -688,9 +685,9 @@
 
 <script type="text/javascript"> 
 
-	$(document).ready(function() {
+/* 	$(document).ready(function() {
 	    $('#taskTableList').DataTable();
-	} ); 
+	} );  */
 	
 	$(document).ready(function() {
 	    $('#customSQLList').DataTable();
@@ -1094,6 +1091,91 @@
 		   }
 
 	}	
+	
+	
+	function format ( dataList ) {
+	    // `d` is the original data object for the row
+	    var trHtml = '';
+	    
+		for (var i=0; i <dataList.length; i++){
+/* 			trHtml += 	'<tr>'+
+				            '<td>'+ dataList[i]["name"] +':</td>'+
+				            '<td>'+ dataList[i]["value"] +'</td>'+
+				        '</tr>' */		
+			if (i%6 == 0){
+				trHtml += '</tr>';
+			}
+			trHtml += '<td>'+ dataList[i]["name"] +':</td>'+ '<td>'+ dataList[i]["value"] +'</td>'			        
+		};	
+ 	    var vHtml = '<fieldset>' +
+		    			'<legend>基本信息</legend>' +
+		    			'<div>' +
+		    				'<table class="table table-bordered">'+ 
+		    					'<tr>' + trHtml  +'</tr>'
+		    				'</table>'
+		    			'</div>' +
+					'</fieldset>'; 		
+/* 		var vHtml = '<table class="table">'+ 
+	    					'<tr>' + trHtml  +'</tr>'
+	    				'</table>';		 */			
+	    return vHtml;
+	}
+	 
+	$(document).ready(function() {
+	    var table = $('#taskTableList').DataTable( {
+/* 	        "ajax": "../ajax/data/objects.txt", */
+	        "columns": [
+	            {
+	                "className":      'details-control',
+	                "orderable":      false,
+	                "data":           null,
+	                "defaultContent": ''
+	            },
+	            { "data": "id" },
+	            { "data": "环境类型" },
+	            { "data": "业务类型" },
+	            { "data": "使用组" },
+	            { "data": "数据库名" },
+	            { "data": "数据库地址" },
+	            { "data": "账户" },
+	            { "data": "端口" },
+	            { "data": "标签" },
+	            { "data": "操作" }
+	        ],
+	        "order": [[1, 'asc']]
+	    } );
+	     
+	    // Add event listener for opening and closing details
+	    $('#taskTableList tbody').on('click', 'td.details-control', function () {
+	    	var dataList = [];
+	        var tr = $(this).closest('tr');
+	        var row = table.row( tr );
+	        dbId = row.data()["id"];
+	        $.ajax({
+	            url : "/api/db/status/"+dbId+"/",
+	            type : "post",
+	            async : false,
+	            data : {"id":dbId},
+	            dataType : "json",
+	            success : function(result) {
+	            	dataList = result.data;
+	            }
+	        });	        
+/* 	    	console.log(dataList); */
+	        if ( row.child.isShown() ) {
+	            // This row is already open - close it
+	            row.child.hide();
+	            tr.removeClass('shown');
+	        }
+	        else {
+	            // Open this row
+	            row.child( format(dataList) ).show();
+	            tr.addClass('shown');
+	        }
+	    } );
+	} );
+	
+	
 	
 </script>
 {% endblock %}
