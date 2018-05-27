@@ -47,7 +47,6 @@ class Order(object):
                 sql = """SELECT id,IFNULL(count(0),0) as count from opsmanage_order_system WHERE 
                         order_type={type} and date_format(create_time,"%%Y%%m%%d") = {startTime} 
                         and order_user='{user}'""".format(startTime=startTime,user=user,type=type)
-                print sql
                 userData = Order_System.objects.raw(sql)               
                 try:
                     username = User.objects.get(id=user).username
