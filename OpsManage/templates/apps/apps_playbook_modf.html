@@ -5,8 +5,8 @@
 <script src="http://cdn.bootcss.com/ace/1.2.4/ext-language_tools.js"></script>
 <script src="http://cdn.bootcss.com/ace/1.2.4/ext-old_ie.js"></script>
 <script src="http://cdn.bootcss.com/ace/1.2.4/theme-monokai.js"></script> 
-<link href="/static/dist/css/bootstrap-multiselect.css" rel="stylesheet">
-<script src="/static/dist/js/bootstrap-multiselect.js"></script>
+<!-- <link href="/static/dist/css/bootstrap-multiselect.css" rel="stylesheet">
+<script src="/static/dist/js/bootstrap-multiselect.js"></script> -->
 <style type="text/css">
 	#compile-editor {
 		/* position: absolute; */
@@ -41,7 +41,7 @@
                                         </div>
                                         <div class="form-group">
                                             <label>描述<i class="fa fa-info-circle" data-toggle="tooltip"  title="功能描述"></i></label>
-                                            <textarea class="form-control" rows="3" id="playbook_desc">{{playbook.playbook_desc|default:""}}</textarea>
+                                            <textarea class="form-control" rows="3" id="playbook_desc" name="playbook_desc">{{playbook.playbook_desc|default:""}}</textarea>
                                             <p class="help-block">例如：用于初始化系统内核参数，关闭不必要的服务</p>
                                         </div>                                         
                                         {% if playbook.playbook_type == 1 and playbook.playbook_contents %}
@@ -66,19 +66,19 @@
 												<select class="form-control" name="server_model" id="server_model" onchange="javascript:oBtAnsibleServerl();">
 													<option name="server_model" value="" >请选择一个类型</option>
 													{% if playbook.playbook_server_model == 'service'  %}
-														<option value="service" selected="selected" name="server_model">项目类型</option>
+														<option value="service" selected="selected" name="server_model">产品线</option>
 														<option value="group" name="server_model">使用部门</option>
 														<option value="custom" name="server_model">自定义</option>
 													{% elif playbook.playbook_server_model == 'group' %}
-														<option value="service" name="server_model">业务类型</option>
+														<option value="service" name="server_model">产品线</option>
 														<option value="group" selected="selected" name="server_model">使用部门</option>
 														<option value="custom" name="server_model">自定义</option> 	
 													{% elif playbook.playbook_server_model == 'custom' %}
-														<option value="service" name="server_model">业务类型</option>
+														<option value="service" name="server_model">产品线</option>
 														<option value="group" name="server_model">使用部门</option>
 														<option value="custom" selected="selected" name="server_model">自定义</option> 		
 													{% else %}
-														<option value="service" name="server_model">业务类型</option>
+														<option value="service" name="server_model">产品线</option>
 														<option value="group" name="server_model">使用部门</option>
 														<option value="custom" name="server_model">自定义</option> 																												
 													{% endif %}
@@ -86,7 +86,7 @@
                                         </div> 
 										<div id='project_server'  {% if playbook.playbook_server_model != 'service'  %}style="display:none;"{% endif %}>
 											<div class="form-group">
-												 <label>所属项目</label>
+												 <label>所属产品线</label>
 		                                            <select class="form-control" name="ansible_project"  id="ansible_project" onchange="javascript:oBtProjectSelect();">
 		                                            	<option name="project" value="" selected="selected">请选择一个项目</option>
 		                                            	{% for ds in projectList %}
@@ -128,7 +128,7 @@
                                         </div>                                         
                                         	<div id="custom_server" class="form-group" {% if playbook.playbook_server_model != 'custom'  %}style="display:none;"{% endif %}>                                       
                                             <label>勾选目标服务器<i class="fa fa-info-circle" data-toggle="tooltip"  title="自定选择服务器"></i></label>
-                                            <select multiple  name="playbook_server" id="playbook_server">
+                                            <select multiple  name="playbook_server" id="playbook_server" class="form-control">
                                             	{% for ds in serverList %}
                                             			{% if ds.count == 1 %}
                                             				<option name="playbook_server" value="{{ds.id}}" selected="selected">{{ds.ip}}</option>
@@ -192,14 +192,14 @@
 	<script src="http://cdn.bootcss.com/ace/1.2.4/theme-monokai.js"></script> 
 <script type="text/javascript">
 $(function () { $("[data-toggle='tooltip']").tooltip(); });
-$(document).ready(function() {
+/* $(document).ready(function() {
     $('#playbook_server').multiselect({
         enableClickableOptGroups: true,
         enableCollapsibleOptGroups: true,
         includeSelectAllOption: true,
        	enableFiltering: true,            
     });
-});
+}); */
 {% if playbook.playbook_type == 1 %}
 	$(function () {
 		var editor = ace.edit("compile-editor");

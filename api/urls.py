@@ -2,7 +2,8 @@ from django.conf.urls import url
 from api.views import (wiki_api,assets_api,
                        deploy_api,cron_api,
                        logs_api,ansible_api,
-                       db_api,users_api)
+                       db_api,users_api,
+                       orders_api)
 urlpatterns = [
             url(r'assets/$', assets_api.asset_list), 
             url(r'assets/(?P<id>[0-9]+)/$', assets_api.asset_detail),
@@ -30,7 +31,7 @@ urlpatterns = [
             url(r'deploy/(?P<id>[0-9]+)/$', deploy_api.deploy_detail),    
             url(r'playbook/$', ansible_api.playbook_list),  
             url(r'playbook/(?P<id>[0-9]+)/$', ansible_api.playbook_detail),
-            url(r'order/(?P<username>.+)/$', deploy_api.OrderList.as_view()),
+#             url(r'order/(?P<username>.+)/$', deploy_api.OrderList.as_view()),
             url(r'logs/assets/(?P<id>[0-9]+)/$', assets_api.assetsLog_detail),
             url(r'logs/cron/(?P<id>[0-9]+)/$', cron_api.cronLogsdetail),
             url(r'logs/ansible/model/(?P<id>[0-9]+)/$', ansible_api.modelLogsdetail),
@@ -43,7 +44,7 @@ urlpatterns = [
             url(r'inc/config/(?P<id>[0-9]+)/$', db_api.inc_detail),
             url(r'db/config/$', db_api.db_list),
             url(r'db/config/(?P<id>[0-9]+)/$', db_api.db_detail),
-            url(r'sql/orders/(?P<id>[0-9]+)/$', db_api.sql_order_detail),
+            url(r'orders/(?P<id>[0-9]+)/$', orders_api.order_detail),
             url(r'sql/custom/$', db_api.sql_custom_list),
             url(r'sql/custom/(?P<id>[0-9]+)/$', db_api.sql_custom_detail),  
             url(r'wiki/tag/$', wiki_api.tag_list),

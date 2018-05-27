@@ -14,7 +14,7 @@
 </style>
 {% endblock %}
 {%block page-content %}
-{% if order.order_status == 1 and order.prem == 1 or order.order_status == 6 and order.prem == 1  %}
+{% if order.order_status == 4 and order.prem == 1 or order.order_status == 8 and order.prem == 1  %}
 	<div id="page-wrapper">
 	
 		<div class="row">
@@ -42,11 +42,11 @@
 									{% csrf_token %}
 									<div class="form-group">
 	 									<label>用途<i class="fa fa-info-circle" data-toggle="tooltip" title="说明用途"></i></label>
-										<textarea class="form-control" rows="3" id="order_desc" disabled>{{order.order_desc}}</textarea>								
+										<textarea class="form-control" rows="3" id="order_desc" disabled>{{order.order_subject}}</textarea>								
 									</div>	
 									<div class="form-group">
 										<label>上线SQL<i class="fa fa-info-circle" data-toggle="tooltip" title="即将被执行上线的SQL"></i></label>
-										<div id="compile-editor" class="ace_editor">{{order.order_sql}}</div>
+										<div id="compile-editor" class="ace_editor">{{order.sql_audit_order.order_sql}}</div>
 										<p class="help-block">例如：insert into tablename (xxx,xxx,xxx) values (xxx,xxx,xxx);</p>										
 									</div>
 									{% if order.order_status == 1 %}						
@@ -63,23 +63,23 @@
 								</legend>
 								<div class="form-group">
 									<label>环境类型</label> <br> 
-									<input type="text" class="form-control" id="db_env" name="db_env" value="{% if order.order_db.db_env == 'test' %}测试环境{%else%}生产环境{%endif%}" disabled> </input>						
+									<input type="text" class="form-control" id="db_env" name="db_env" value="{% if order.sql_audit_order.order_db.db_env == 'test' %}测试环境{%else%}生产环境{%endif%}" disabled> </input>						
 								</div>								
 								<div class="form-group">
 									<label>所属项目</label> <br> 
-									<input type="text" class="form-control" id="db_project" name="db_project" value="{{order.order_db.db_service.project.project_name}}" disabled> </input>						
+									<input type="text" class="form-control" id="db_project" name="db_project" value="{{order.sql_audit_order.order_db.db_service.project.project_name}}" disabled> </input>						
 								</div>								
 								<div class="form-group">
 									<label>业务类型</label> <br> 
-									<input type="text" class="form-control" id="db_service" name="db_service" value="{{order.order_db.db_service.service_name}}" disabled> </input>						
+									<input type="text" class="form-control" id="db_service" name="db_service" value="{{order.sql_audit_order.order_db.db_service.service_name}}" disabled> </input>						
 								</div>									
 								<div class="form-group">
 									<label>数据库</label> <br> 
-									<input type="text" class="form-control" id="order_db" name="order_db" value="{{order.order_db.db_name}}({{order.order_db.db_host}})-{{order.order_db.db_mark|default:""}}" disabled> </input>								
+									<input type="text" class="form-control" id="order_db" name="order_db" value="{{order.sql_audit_order.order_db.db_name}}({{order.sql_audit_order.order_db.db_host}})-{{order.sql_audit_order.order_db.db_mark|default:""}}" disabled> </input>								
 								</div>									
 <!-- 								<div class="form-group">
 									<label>数据库</label> <br> 
-									<input type="text" class="form-control" id="order_db" name="order_db" value="{{order.order_db.db_host}} - {{order.order_db.db_name}}" disabled> </input>								
+									<input type="text" class="form-control" id="order_db" name="order_db" value="{{order.sql_audit_order.order_db.db_host}} - {{order.sql_audit_order.order_db.db_name}}" disabled> </input>								
 								</div>	 -->					
 								<div class="form-group">
 									
@@ -149,7 +149,7 @@
 	    $(function () { 
 	    	$("[data-toggle='popover']").popover();
 	    });	
-	    {% if order.order_status == 6 %}
+	    {% if order.order_status == 8 %}
 			function auditSqlOrder(obj,op) {	
 				var btnObj = $(obj);
 				var required = ["order_db","order_executor"];
@@ -182,7 +182,7 @@
 							else {
 								window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
 							}
-							{% if order.order_type == 'online' %}
+							{% if order.sql_audit_order.order_type == 'online' %}
 							document.getElementById("auditResultDiv").style.display = ""; 
 													
 							var resultHTML =  '<table class="table table-hover" id="auditResult">' +
@@ -222,7 +222,7 @@
 		
 	</script>
 <!-- 	回滚页面 -->
-{% elif order.order_status == 2 and order.prem == 1 and order.order_type == 'online' or order.order_status == 3 and order.prem == 1 and order.order_type == 'online' or order.order_status == 7 and order.prem == 1 and order.order_type == 'online' %}
+{% elif order.order_status == 5 and order.prem == 1 and order.sql_audit_order.order_type == 'online' or order.order_status == 6 and order.prem == 1 and order.sql_audit_order.order_type == 'online' or order.order_status == 9 and order.prem == 1 and order.sql_audit_order.order_type == 'online' %}
 	<div id="page-wrapper">
 	
 		<div class="row">
@@ -250,7 +250,7 @@
 									{% csrf_token %}
 								<div class="form-group">
 									<label>环境类型</label> <br> 
-									{% if order.order_db.db_env == 'test' %}
+									{% if order.sql_audit_order.order_db.db_env == 'test' %}
 									<input type="text" class="form-control" id="order_env" name="db_env" value="测试" disabled> </input>	
 									{% else %}	   
 									<input type="text" class="form-control" id="order_env" name="db_env" value="正式" disabled> </input>	
@@ -258,15 +258,15 @@
 								</div>		
 								<div class="form-group">
 									<label>所属项目</label> <br> 
-									<input type="text" class="form-control" id="db_project" name="db_project" value="{{order.order_db.db_service.project.project_name}}" disabled> </input>						
+									<input type="text" class="form-control" id="db_project" name="db_project" value="{{order.sql_audit_order.order_db.db_service.project.project_name}}" disabled> </input>						
 								</div>																	
 								<div class="form-group">
 									<label>业务类型</label> <br> 
-									<input type="text" class="form-control" id="db_service" name="db_service" value="{{order.order_db.db_service.service_name}}" disabled> </input>						
+									<input type="text" class="form-control" id="db_service" name="db_service" value="{{order.sql_audit_order.order_db.db_service.service_name}}" disabled> </input>						
 								</div>									
 								<div class="form-group">
 									<label>数据库</label> <br> 
-									<input type="text" class="form-control" id="order_db" name="order_db" value="{{order.order_db.db_name}}({{order.order_db.db_host}})" disabled> </input>								
+									<input type="text" class="form-control" id="order_db" name="order_db" value="{{order.sql_audit_order.order_db.db_name}}({{order.sql_audit_order.order_db.db_host}})" disabled> </input>								
 								</div>						
 								<div class="form-group">
 									<label>执行人<i class="fa fa-info-circle"
@@ -276,14 +276,14 @@
 								</div>									
 								<div class="form-group">
 	 									<label>用途<i class="fa fa-info-circle" data-toggle="tooltip" title="说明用途"></i></label>
-										<textarea class="form-control" rows="3" id="order_desc" disabled>{{order.order_desc}}</textarea>																						
+										<textarea class="form-control" rows="3" id="order_desc" disabled>{{order.order_subject}}</textarea>																						
 								</div>	
 								<div class="form-group">
 									<label>已上线SQL<i class="fa fa-info-circle" data-toggle="tooltip" title="说明用途"></i></label>		
-									<div id="compile-editor" class="ace_editor">{{order.order_sql}}</div>
+									<div id="compile-editor" class="ace_editor">{{order.sql_audit_order.order_sql}}</div>
 									<p class="help-block">例如：insert into tablename (xxx,xxx,xxx) values (xxx,xxx,xxx);</p>									
 								</div>
-									{% if order.order_status == 2 and rbkSql != 0 %}						
+									{% if order.order_status == 5 and rbkSql != 0 %}						
 										<button type="button" class="btn btn-default" onclick="rbkSqlOrder(this)" id="auditContol">回滚</button>
 									{% elif rbkSql == 0 or order.order_status == 7 %}
 										<button type="button" class="btn btn-default disabled" >不能回滚</button>
@@ -398,7 +398,7 @@
 	    $(function () { 
 	    	$("[data-toggle='popover']").popover();
 	    });	
-	    {% if order.order_status == 2 %}
+	    {% if order.order_status == 5 %}
 			function rbkSqlOrder(obj) {	
 				var btnObj = $(obj);
 				btnObj.attr('disabled',true);				 
@@ -431,7 +431,7 @@
 
 			var interval = setInterval(function(){  
 			        $.ajax({  
-			            url : '/db/sql/order/osc/{{order.id}}/',  
+			            url : '/db/sql/order/osc/{{order.sql_audit_order.id}}/',  
 			            type : 'post',
 						data:{
 							'model':'query'
@@ -480,7 +480,7 @@
 				var btnObj = $(obj);
 				btnObj.attr('disabled',true);	
 				$.ajax({
-		            url : '/db/sql/order/osc/{{order.id}}/',  
+		            url : '/db/sql/order/osc/{{order.sql_audit_order.id}}/',  
 		            type : 'post',
 					data:{
 						'model':'stop'
@@ -537,7 +537,7 @@
 									{% csrf_token %}
 								<div class="form-group">
 									<label>环境类型</label> <br> 
-									{% if order.order_db.db_env == 'test' %}
+									{% if order.sql_audit_order.order_db.db_env == 'test' %}
 									<input type="text" class="form-control" id="order_env" name="db_env" value="测试" disabled> </input>	
 									{% else %}	   
 									<input type="text" class="form-control" id="order_env" name="db_env" value="正式" disabled> </input>	
@@ -545,19 +545,19 @@
 								</div>										
 								<div class="form-group">
 									<label>所属项目</label> <br> 
-									<input type="text" class="form-control" id="db_project" name="db_project" value="{{order.order_db.db_service.project.project_name}}" disabled> </input>						
+									<input type="text" class="form-control" id="db_project" name="db_project" value="{{order.sql_audit_order.order_db.db_service.project.project_name}}" disabled> </input>						
 								</div>										
 								<div class="form-group">
 									<label>业务类型</label> <br> 
-									<input type="text" class="form-control" id="db_service" name="db_service" value="{{order.order_db.db_service.service_name}}" disabled> </input>						
+									<input type="text" class="form-control" id="db_service" name="db_service" value="{{order.sql_audit_order.order_db.db_service.service_name}}" disabled> </input>						
 								</div>									
 								<div class="form-group">
 									<label>数据库</label> <br> 
-									<input type="text" class="form-control" id="order_db" name="order_db" value="{{order.order_db.db_name}}({{order.order_db.db_host}})" disabled> </input>								
+									<input type="text" class="form-control" id="order_db" name="order_db" value="{{order.sql_audit_order.order_db.db_name}}({{order.sql_audit_order.order_db.db_host}})" disabled> </input>								
 								</div>										
 <!-- 								<div class="form-group">
 									<label>数据库</label> <br> 
-									<input type="text" class="form-control" id="order_db" name="order_db" value="{{order.order_db.db_host}} - {{order.order_db.db_name}}" disabled> </input>								
+									<input type="text" class="form-control" id="order_db" name="order_db" value="{{order.sql_audit_order.order_db.db_host}} - {{order.sql_audit_order.order_db.db_name}}" disabled> </input>								
 								</div> -->		
 												
 								<div class="form-group">
@@ -568,16 +568,16 @@
 								</div>	
 								<div class="form-group">
 									<label>取消原因</label> <br> 
-									<input type="text" class="form-control" id="order_cancel" name="order_db" value="{{order.order_cancel}}" disabled> </input>								
+									<input type="text" class="form-control" id="order_cancel" name="order_db" value="{{order.order_cancel|default:""}}" disabled> </input>								
 								</div>																
 									<div class="form-group">
 	 									<label>用途<i class="fa fa-info-circle" data-toggle="tooltip" title="说明用途"></i></label>
-										<textarea class="form-control" rows="3" id="order_desc" disabled>{{order.order_desc}}</textarea>	
+										<textarea class="form-control" rows="3" id="order_desc" disabled>{{order.order_subject}}</textarea>	
 
 									</div>	
 								<div class="form-group">
 										<label>SQL内容<i class="fa fa-info-circle" data-toggle="tooltip" title="说明用途"></i></label>														
-										<div id="compile-editor" class="ace_editor">{{order.order_sql}}</div>
+										<div id="compile-editor" class="ace_editor">{{order.sql_audit_order.order_sql}}</div>
 										<p class="help-block">例如：insert into tablename (xxx,xxx,xxx) values (xxx,xxx,xxx);</p>							
 								</div>									
 							</div>

@@ -22,10 +22,22 @@
 											<div class="form-group">
 												 <label class="col-sm-2 control-label">项目名称</label>
 												 <div class="col-sm-6">
-												 	<input type="text" class="form-control" name="project_name" value="{{order.order_project.project.project_name}}"  class="input-xlarge" readonly="readonly" />
-												 	<input type="hidden" class="form-control" name="project_uuid" value="{{order.order_project.project_uuid}}" readonly="readonly"/>
+												 	<input type="text" class="form-control" name="project_name" value="{{order.project_order.order_project.project_name}}"  class="input-xlarge" readonly="readonly" />
+												 	<input type="hidden" class="form-control" name="project_uuid" value="{{order.project_order.order_project.project_uuid}}" readonly="readonly"/>
 												 </div>
 											</div>
+											<div class="form-group">
+												 <label class="col-sm-2 control-label">项目环境</label>
+												 <div class="col-sm-6">
+	                               					{% if order.project_order.order_project.project_env == 'sit' %}
+	                                					<span class="label label-success">测试环境</span>
+	                                				{% elif order.project_order.order_project.project_env == 'qa' %}
+	                                					<span class="label label-warning">预生产环境</span>
+	                                				{% elif order.project_order.order_project.project_env == 'uat' %}
+	                                					<span class="label label-danger">生产环境</span>
+	                                				{% endif %}
+												 </div>
+											</div>											
 		                                     <div class="form-group">
 		                                            <label class="col-sm-2 control-label">目标服务器</label>
 		                                            <div class="col-sm-6">
@@ -46,14 +58,14 @@
 											<div class="form-group">
 												 <label class="col-sm-2 control-label">更新内容</label>
 												 <div class="col-sm-6">                                           
-                                            		<textarea class="form-control" rows="3" readonly="readonly">{{order.order_content}}</textarea>
+                                            		<textarea class="form-control" rows="3" readonly="readonly">{{order.project_order.order_content}}</textarea>
 												 </div>
 											</div>												
-											{% if order.order_project.project_model == 'branch' and order.order_project.project_repertory == 'git'  %}																
+											{% if order.project_order.order_project.project_model == 'branch' and order.project_order.order_project.project_repertory == 'git'  %}																
 											<div class="form-group">
 												 <label class="col-sm-2 control-label">分支</label>
 												 <div class="col-sm-6">
-													<input type="text" class="form-control" name="project_branch" value="{{order.order_branch}}"  class="input-xlarge" readonly="readonly"/>							 	
+													<input type="text" class="form-control" name="project_branch" value="{{order.project_order.order_branch}}"  class="input-xlarge" readonly="readonly"/>							 	
 												 </div>
 											</div>													
 											
@@ -61,7 +73,7 @@
 												 <label class="col-sm-2 control-label">更新版本</label>
 												 <div class="col-sm-6">
 													<div class="input-group">
-														<input type="text" class="form-control " name="project_version" value="{{order.order_comid}}" readonly="readonly">
+														<input type="text" class="form-control " name="project_version" value="{{order.project_order.order_comid}}" readonly="readonly">
 														<span class="input-group-btn">
 															<button class="btn btn-success" type="button"  data-toggle="modal" data-target="#myModal" >
 																查看
@@ -70,12 +82,12 @@
 													</div>											 
 												</div>
 											</div>
-											{% elif order.order_project.project_model == 'tag' and  order.order_project.project_repertory == 'git'  %}
+											{% elif order.project_order.order_project.project_model == 'tag' and  order.project_order.order_project.project_repertory == 'git'  %}
 											<div class="form-group">
 												 <label class="col-sm-2 control-label">Tag版本</label>
 												 <div class="col-sm-6">
-												 	{% if order.order_tag %}
-												 		<input type="text" class="form-control" name="project_branch" value="{{order.order_tag}}"  class="input-xlarge" readonly="readonly"/>
+												 	{% if order.project_order.order_tag %}
+												 		<input type="text" class="form-control" name="project_branch" value="{{order.project_order.order_tag}}"  class="input-xlarge" readonly="readonly"/>
 												 	{% else %}
 														<input type="text" class="form-control" name="project_branch"   class="input-xlarge" readonly="readonly"/>	
 													{% endif %}					 	
@@ -86,7 +98,7 @@
 													 <label class="col-sm-2 control-label">更新版本</label>
 													 <div class="col-sm-6">
 														<div class="input-group">
-															<input type="text" class="form-control " name="project_version" value="{{order.order_comid}}" readonly="readonly">
+															<input type="text" class="form-control " name="project_version" value="{{order.project_order.order_comid}}" readonly="readonly">
 															<span class="input-group-btn">
 																<button class="btn btn-success" type="button"  data-toggle="modal" data-target="#myModal" >
 																	查看
@@ -101,25 +113,25 @@
 											<div class="form-group">
 												 <label class="col-sm-2 control-label">部署指派</label>
 												 <div class="col-sm-6">												 	
-                                            		<input class="form-control" value="{{order.order_audit}}" readonly="readonly">
+                                            		<input class="form-control" value="{{order.order_user}}" readonly="readonly">
 												 </div>
 											</div>	
 											<div class="form-group">
 												 <label class="col-sm-2 control-label">紧急程度</label>
 												 <div class="col-sm-6">	
-										         	{% if order.order_level == 1 %}
-										         		<button  type="button" class="btn btn-outline btn-default disabled">非紧急</button>
+										         	{% if order.project_order.order_level == 1 %}
+										         		<button  type="button" class="btn btn-outline btn-default disabled">紧急</button>
 										         	{% else %}
-										         		<button  type="button" class="btn btn-outline btn-warning disabled">紧急</button>
+										         		<button  type="button" class="btn btn-outline btn-warning disabled">非紧急</button>
 										         	{% endif %} 
 												 </div>
 											</div>																						
 											<div class="form-group">
 												 <label class="col-sm-2 control-label">工单状态</label>
 												 <div class="col-sm-6">	
-										         	{% if order.order_status == 0 %}
-										         		<button  type="button" class="btn btn-outline btn-info disabled">已通过</button>							         	
-										         	{% elif order.order_status == 1 %}
+										         	{% if order.order_status == 8 %}
+										         		<button  type="button" class="btn btn-outline btn-info disabled">已授权</button>							         	
+										         	{% elif order.order_status == 7 %}
 										         		<button  type="button" class="btn btn-outline btn-danger" ><del>已撤销</del></button>
 										         	{% elif order.order_status == 2 %}
 										         		<button  type="button" class="btn btn-outline btn-warning disabled">审核中</button>
@@ -133,26 +145,18 @@
 												 <label class="col-sm-2 control-label">工单操作</label>
 												 <div class="col-sm-6">	
 										         	{% if order.order_status == 0 %}
-										         		<button  type="button" class="btn btn-outline btn-success" onclick="updateOrderStatus(this,{{ order.id }},'disable',1)">撤销部署</button>							         	
+										         		<button  type="button" class="btn btn-outline btn-success" onclick="updateOrderStatus(this,{{ order.id }},'disable',7)">撤销部署</button>							         	
 										         	{% elif order.order_status == 2 %}
-										         		<button  type="button" class="btn btn-outline btn-success" onclick='updateOrderStatus(this,{{ order.id }},"auth",0)'>确认授权</button>
+										         		<button  type="button" class="btn btn-outline btn-success" onclick='updateOrderStatus(this,{{ order.id }},"auth",8)'>确认授权</button>
 										         	{% endif %}	
 												 </div>
 											</div>		
 											{% endif %}																			
-											{% if order.order_status == 1 %}
-												<div class="form-group">
-													 <label class="col-sm-2 control-label">撤销原因</label>
-													 <div class="col-sm-6">                                           
-	                                            		<textarea class="form-control" rows="3" disabled>{{order.order_cancel}}</textarea>
-													 </div>
-												</div>													
-											{% endif %}
 											</fieldset>
 											<legend></legend>
 											<div class="form-group">
 											<label class="col-sm-3 control-label"></label>
-											{% if order.order_status == 0 %}
+											{% if order.order_status == 8 %}
 												<button type="button"  class="btn btn-default disabled">完成部署</button>
 									 			<button type="button"  class="btn btn-default" onclick="runDeploy(this)" >点击部署</button>
 									 		{% else %}
@@ -197,7 +201,7 @@
 						&times;
 					</button>
 					<h4 class="modal-title" id="myModalLabel">
-						<code>{{order.order_project.project_name}}</code>项目<code>{{order.order_comid|slice:":7"}}</code>版本提交历史
+						<code>{{order.order_project.project_name}}</code>项目<code>{{order.project_order.order_comid|slice:":7"}}</code>版本提交历史
 					</h4>
 				</div>
 				<div class="modal-body">
@@ -207,7 +211,7 @@
 				<div class="modal-footer">
 					<button type="button" class="btn btn-default" data-dismiss="modal">关闭
 					</button>
-					<button type="button" class="btn btn-primary" onclick="getVersion(this,'{{order.order_branch}}','{{order.order_comid}}')">
+					<button type="button" class="btn btn-primary" onclick="getVersion(this,'{{order.project_order.order_branch}}','{{order.project_order.order_comid}}')">
 						点击查看
 					</button>
 				</div>
@@ -248,7 +252,7 @@
 
 <script type="text/javascript">
 
-{% if order.order_perm == 'pass' and order.order_status == 0 or order.order_status == 2 and order.order_perm == 'pass' %}
+{% if order.order_perm == 'pass' and order.order_status == 8 or order.order_status == 2 and order.order_perm == 'pass' %}
 	function updateOrderStatus(obj,id,model,status){
 		if (model == 'auth' || model == 'finish' ){
 			if (model == 'auth'){
@@ -264,21 +268,15 @@
 				btn: parseInt("0011",2),
 				onOk: function(){
 					$.ajax({
-						  type: 'POST',
-						  url: '/deploy_order/1/',
+						  type: 'PUT',
+						  url: '/api/orders/{{order.id}}/',
 						  data: {
 							  "id":id,
-							  "model":model,
 							  "order_status":status
 						  },
 					      success:function(response){			            
-				                if (response["code"]=="200"){ 
-				                	window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.success);
-				                }
-					        	else{
-					        		window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
-					        	};
-				                location.reload();
+				                window.wxc.xcConfirm("授权成功", window.wxc.xcConfirm.typeEnum.success);
+				   /*              location.reload(); */
 						},
 			            error:function(response){
 			            	window.wxc.xcConfirm("请求数据错误！", window.wxc.xcConfirm.typeEnum.error);
@@ -300,10 +298,9 @@
 						return;
 					};
 					$.ajax({
-						  type: 'POST',
-						  url: '/deploy_order/1/',
+						  type: 'PUT',
+						  url: '/api/orders/{{order.id}}/',
 						  data: {
-							  "model":model,
 							  'order_cancel':result,
 							  'id':id,
 							  "order_status":status
@@ -329,11 +326,11 @@
 	}
 {% endif %}
 		
-{% if order.order_status == 0 %}
+{% if order.order_status == 8 %}
 	function finishDeploy(obj){
 		$.ajax({
-		  type: 'POST',
-		  url: '/deploy_order/1/',
+		  type: 'PUT',
+		  url: '/api/orders/{{order.id}}/',
 		  data: {
 			  "id":{{order.id}},
 			  "model":'finish',
@@ -381,7 +378,7 @@
 		/* 轮训获取结果 开始  */
 	   var interval = setInterval(function(){  
 	        $.ajax({  
-	            url : '/deploy_result/{{order.order_project.id}}/',  
+	            url : '/deploy_result/{{order.project_order.order_project.id}}/',  
 	            type : 'post', 
 	            data:post_data,
 	            success : function(result){
@@ -392,26 +389,21 @@
 	            			/* 更新数据库-更新完成 */	
 	            			if (noDeployServer.length == 0){
 	            				$.ajax({
-	            					  type: 'POST',
-	            					  url: '/deploy_order/1/',
+	            					  type: 'PUT',
+	            					  url: '/api/orders/{{order.id}}/',
 	            					  data: {
 	            						  "id":{{order.id}},
 	            						  "model":'finish',
 	            						  "order_status":3
 	            					  },
 	            						success:function(response){
-	            							if (response["code"] == "200"){
-	            								window.wxc.xcConfirm("部署完成", window.wxc.xcConfirm.typeEnum.success);
-	            								$('#permOrder').remove();
-	            								btnObj.attr('disabled',true);	            								
-	            							}
-	            							else{
-	            								window.wxc.xcConfirm("部署成功,但是未能更新工单状态", window.wxc.xcConfirm.typeEnum.error);
-	            							}
+	            							window.wxc.xcConfirm("部署完成", window.wxc.xcConfirm.typeEnum.success);
+	            							$('#permOrder').remove();
+	            							btnObj.attr('disabled',true);	            								
 	            							
 	            						},
 	            				    	error:function(response){
-	            				    		window.wxc.xcConfirm("部署失败", window.wxc.xcConfirm.typeEnum.error);
+	            				    		window.wxc.xcConfirm("部署成功,但是未能更新工单状态", window.wxc.xcConfirm.typeEnum.error);
 	            				    		clearInterval(interval);
 	            				    	}
 	            				});			            				
@@ -443,7 +435,7 @@
 	    /* 轮训获取结果结束  */
 		$.ajax({
 			cache:false,
-			url:'/deploy_run/{{order.order_project.id}}/', //请求地址
+			url:'/deploy_run/{{order.project_order.order_project.id}}/', //请求地址
 			type:"POST",  //提交类似
 			data:$("#deployRun").serialize(),  //提交参数
 			success:function(response){
@@ -469,7 +461,7 @@
 		btnObj.attr('disabled',true);
 		$("#version_result").html("正在提交，请稍等。。。");
 		$.ajax({
-			url:'/deploy_version/'+"{{order.order_project.id}}/", //请求地址
+			url:'/deploy_version/'+"{{order.project_order.order_project.id}}/", //请求地址
 			type:"POST",  //提交类似
 			data:{
 				'project_branch':project_branch,

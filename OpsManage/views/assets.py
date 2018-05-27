@@ -501,23 +501,23 @@ def assets_search(request):
         for a in assetsList:
             assets_id = '''<td class="text-center"><input type="checkbox" value="{aid}" name="ckbox"/></td>'''.format(aid=a.id)
             if a.assets_type == "server":
-                assets_type = '''<td class="text-center"><button  type="button" class="btn btn-default disabled">服务器</button></td>'''
+                assets_type = '''<td class="text-center">服务器</td>'''
             elif a.assets_type == "vmser":
-                assets_type = '''<td class="text-center"><button  type="button" class="btn btn-default disabled">虚拟机</button></td>'''                   
+                assets_type = '''<td class="text-center">虚拟机</td>'''                   
             elif a.assets_type == "switch":
-                assets_type = '''<td class="text-center"><button  type="button" class="btn btn-default disabled">交换机</button></td>'''                                
+                assets_type = '''<td class="text-center">交换机</td>'''                                
             elif a.assets_type == "route":
-                assets_type = '''<td class="text-center"><button  type="button" class="btn btn-default disabled">路由器</button></td>'''                                          
+                assets_type = '''<td class="text-center">路由器</td>'''                                          
             elif a.assets_type == "printer":
-                assets_type = '''<td class="text-center"><button  type="button" class="btn btn-default disabled">打印机</button></td>'''
+                assets_type = '''<td class="text-center">打印机</td>'''
             elif a.assets_type == "scanner":
-                assets_type = '''<td class="text-center"><button  type="button" class="btn btn-default disabled">扫描仪</button></td>'''                                             
+                assets_type = '''<td class="text-center">扫描仪</td>'''                                             
             elif a.assets_type == "firewall":
-                assets_type = '''<td class="text-center"><button  type="button" class="btn btn-default disabled">防火墙</button></td>'''                                           
+                assets_type = '''<td class="text-center">防火墙</td>'''                                           
             elif a.assets_type == "storage":
-                assets_type = '''<td class="text-center"><button  type="button" class="btn btn-default disabled">存储设备</button></td>'''
+                assets_type = '''<td class="text-center">存储设备</td>'''
             elif a.assets_type == "wifi":
-                assets_type = '''<td class="text-center"><button  type="button" class="btn btn-default disabled">无线设备</button></td>''' 
+                assets_type = '''<td class="text-center">无线设备</td>''' 
             nks = ''
             if a.management_ip:
                 liTags = ''
@@ -545,7 +545,7 @@ def assets_search(request):
             for p in baseAssets.get('project'):
                 if p.id == a.project:project = '''<td class="text-center">{project}</td>'''.format(project=p.project_name)                                      
             for s in baseAssets.get('service'):
-                if s.id == a.business:service = '''<td class="text-center"><button  type="button" class="btn btn-default disabled">{service}</button></td>'''.format(service=s.service_name)
+                if s.id == a.business:service = '''<td class="text-center">{service}</td>'''.format(service=s.service_name)
             if a.status == 0:status = '''<td class="text-center"><button  type="button" class="btn btn-outline btn-success">已上线</button></td>'''
             elif a.status == 1:status = '''<td class="text-center"><button  type="button" class="btn btn-outline btn-primary">已下线</button></td>'''
             elif a.status == 2:status = '''<td class="text-center"><button  type="button" class="btn btn-outline btn-warning">维修中</button></td>'''

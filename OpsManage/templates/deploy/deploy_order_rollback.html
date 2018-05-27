@@ -3,7 +3,7 @@
 <div id="page-wrapper">
     <div class="row">
          <div class="col-lg-12">
-              <h1 class="page-header"><i class="fa fa-github"></i><code>{{order.order_project.project_name}}</code> 项目回滚</h1>
+              <h1 class="page-header"><i class="fa fa-github"></i><code>{{order.project_order.order_project.project_name}}</code> 项目回滚</h1>
          </div>
                 <!-- /.col-lg-12 -->
     </div>
@@ -22,11 +22,23 @@
 											<div class="form-group">
 												 <label class="col-sm-2 control-label">项目名称</label>
 												 <div class="col-sm-6">
-												 	<input type="text" class="form-control" name="project_name" value="{{order.order_project.project.project_name}}"  class="input-xlarge" disabled/>
-												 	<input type="hidden" class="form-control" name="project_uuid" value="{{order.order_project.project_uuid}}" disabled/>
+												 	<input type="text" class="form-control" name="project_name" value="{{order.project_order.order_project.project_name}}"  class="input-xlarge" disabled/>
+												 	<input type="hidden" class="form-control" name="project_uuid" value="{{order.project_order.order_project.project_uuid}}" disabled/>
 												 	<input type="hidden" class="form-control" name="project_model" value="rollback"  class="input-xlarge" disabled/>
 												 </div>
 											</div>
+											<div class="form-group">
+												 <label class="col-sm-2 control-label">项目环境</label>
+												 <div class="col-sm-6">
+	                               					{% if order.project_order.order_project.project_env == 'sit' %}
+	                                					<span class="label label-success">测试环境</span>
+	                                				{% elif order.project_order.order_project.project_env == 'qa' %}
+	                                					<span class="label label-warning">预生产环境</span>
+	                                				{% elif order.project_order.order_project.project_env == 'uat' %}
+	                                					<span class="label label-danger">生产环境</span>
+	                                				{% endif %}
+												 </div>
+											</div>												
 											<div class="form-group">
 												 <label class="col-sm-2 control-label">更新主题</label>
 												 <div class="col-sm-6">												 	
@@ -37,14 +49,14 @@
 											<div class="form-group">
 												 <label class="col-sm-2 control-label">更新内容</label>
 												 <div class="col-sm-6">                                           
-                                            		<textarea class="form-control" rows="3" disabled>{{order.order_content}}</textarea>
+                                            		<textarea class="form-control" rows="3" disabled>{{order.project_order.order_content}}</textarea>
 												 </div>
 											</div>												
-											{% if order.order_project.project_model == 'branch' and  order.order_project.project_repertory == 'git' %}																
+											{% if order.project_order.order_project.project_model == 'branch' and  order.project_order.order_project.project_repertory == 'git' %}																
 											<div class="form-group">
 												 <label class="col-sm-2 control-label">分支</label>
 												 <div class="col-sm-6">
-													<input type="text" class="form-control" name="project_branch" value="{{order.order_branch}}"  class="input-xlarge" disabled/>							 	
+													<input type="text" class="form-control" name="project_branch" value="{{order.project_order.order_branch}}"  class="input-xlarge" disabled/>							 	
 												 </div>
 											</div>													
 											
@@ -52,7 +64,7 @@
 												 <label class="col-sm-2 control-label">版本选择</label>
 												 <div class="col-sm-6">
 													<div class="input-group">
-														<input type="text" class="form-control " name="project_version" value="{{order.order_comid}}" disabled>
+														<input type="text" class="form-control " name="project_version" value="{{order.project_order.order_comid}}" disabled>
 														<span class="input-group-btn">
 															<button class="btn btn-success" type="button"  data-toggle="modal" data-target="#myModal" >
 																查看
@@ -66,7 +78,7 @@
 												 <label class="col-sm-2 control-label">Tag版本</label>
 												 <div class="col-sm-6">
 												 	{% if order.order_tag %}
-												 		<input type="text" class="form-control" name="project_branch" value="{{order.order_tag}}"  class="input-xlarge" disabled/>
+												 		<input type="text" class="form-control" name="project_branch" value="{{order.project_order.order_tag}}"  class="input-xlarge" disabled/>
 												 	{% else %}
 														<input type="text" class="form-control" name="project_branch"   class="input-xlarge" disabled/>	
 													{% endif %}					 	
@@ -77,7 +89,7 @@
 													 <label class="col-sm-2 control-label">更新版本</label>
 													 <div class="col-sm-6">
 														<div class="input-group">
-															<input type="text" class="form-control " name="project_version" value="{{order.order_comid}}" disabled>
+															<input type="text" class="form-control " name="project_version" value="{{order.project_order.order_comid}}" disabled>
 															<span class="input-group-btn">
 																<button class="btn btn-success" type="button"  data-toggle="modal" data-target="#myModal" >
 																	查看
@@ -92,28 +104,28 @@
 											<div class="form-group">
 												 <label class="col-sm-2 control-label">部署指派</label>
 												 <div class="col-sm-6">												 	
-                                            		<input class="form-control" value="{{order.order_audit}}" disabled>
+                                            		<input class="form-control" value="{{order.order_user}}" disabled>
 												 </div>
 											</div>	
 											<div class="form-group">
 												 <label class="col-sm-2 control-label">紧急程度</label>
 												 <div class="col-sm-6">	
-										         	{% if order.order_level == 1 %}
-										         		<button  type="button" class="btn btn-outline btn-default disabled">非紧急</button>
+										         	{% if order.project_order.order_level == 1 %}
+										         		<button  type="button" class="btn btn-outline btn-default disabled">紧急</button>
 										         	{% else %}
-										         		<button  type="button" class="btn btn-outline btn-warning disabled">紧急</button>
+										         		<button  type="button" class="btn btn-outline btn-warning disabled">非紧急</button>
 										         	{% endif %} 
 												 </div>
 											</div>																						
 											<div class="form-group">
 												 <label class="col-sm-2 control-label">工单状态</label>
 												 <div class="col-sm-6">	
-										         	{% if order.order_status == 0 %}
-										         		<button  type="button" class="btn btn-outline btn-info">已通过</button>								         	
-										         	{% elif order.order_status == 1 %}
-										         		<button  type="button" class="btn btn-outline btn-danger disabled"><del>已撤销</del></button>
+										         	{% if order.order_status == 8 %}
+										         		<button  type="button" class="btn btn-outline btn-info disabled">已授权</button>							         	
+										         	{% elif order.order_status == 7 %}
+										         		<button  type="button" class="btn btn-outline btn-danger" ><del>已撤销</del></button>
 										         	{% elif order.order_status == 2 %}
-										         		<button  type="button" class="btn btn-outline btn-warning">审核中</button>
+										         		<button  type="button" class="btn btn-outline btn-warning disabled">审核中</button>
 										         	{% elif order.order_status == 3 %}
 										         		<button  type="button" class="btn btn-outline btn-success disabled" >已部署</button>
 										         	{% endif %}	
@@ -164,7 +176,7 @@
 					&times;
 				</button>
 				<h4 class="modal-title" id="myModalLabel">
-					<code>{{order.order_project.project_name}}</code>项目<code>{{order.order_comid|slice:":7"}}</code>版本提交历史
+					<code>{{order.order_project.project_name}}</code>项目<code>{{order.project_order.order_comid|slice:":7"}}</code>版本提交历史
 				</h4>
 			</div>
 			<div class="modal-body">
@@ -192,7 +204,7 @@ function getVersion(obj,project_branch,project_version) {
 	btnObj.attr('disabled',true);
 	$("#version_result").html("正在提交，请稍等。。。");
 	$.ajax({
-		url:'/deploy_version/'+"{{order.order_project.id}}/", //请求地址
+		url:'/deploy_version/'+"{{order.project_order.order_project.id}}/", //请求地址
 		type:"POST",  //提交类似
 		data:{
 			'project_branch':project_branch,
@@ -237,7 +249,7 @@ function getVersion(obj,project_branch,project_version) {
 		/* 轮训获取结果 开始  */
 	   var interval = setInterval(function(){  
 	        $.ajax({  
-	            url : '/deploy_result/{{order.order_project.id}}/',  
+	            url : '/deploy_result/{{order.project_order.order_project.id}}/',  
 	            type : 'post', 
 	            data:post_data,
 	            success : function(result){
@@ -256,7 +268,7 @@ function getVersion(obj,project_branch,project_version) {
 		
 	    /* 轮训获取结果结束  */
 		$.ajax({
-			url:'/deploy_run/{{order.order_project.id}}/', //请求地址
+			url:'/deploy_run/{{order.project_order.order_project.id}}/', //请求地址
 			type:"POST",  //提交类似
 			data:post_data,  //提交参数
 			success:function(response){

@@ -1,0 +1,103 @@
+{% extends 'index.html' %}
+{% block page-content %}
+<div id="page-wrapper">
+    <div class="row">
+         <div class="col-lg-12">
+              <h1 class="page-header"><i class="fa  fa-align-justify "></i> 项目列表</h1>
+         </div>
+                <!-- /.col-lg-12 -->
+         
+    </div>    
+    <div class="row">
+         <div class="col-lg-12">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            	<i class="fa fa-database"></i>项目列表明细
+                        </div>
+                        <!-- /.panel-heading -->
+                        <div class="panel-body">
+                            <table width="100%" class="table table-striped table-bordered table-hover" id="deployTableList">
+                                <thead>
+                                    <tr>
+                                    	<th>产品线</th>
+                                    	<th>项目</th>
+                                    	<th>环境</th>
+                                        <th>仓库目录</th>
+                                        <th>仓库地址</th>
+                                        <th>排除文件</th>
+                                        <th>目标服务器</th>
+                                        <th class="text-center">操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                	{% for ds in deployList %}
+                                		<tr class="odd gradeX">
+                                			<td>{{ds.project.project_name}} </td>
+                                			<td>{{ds.project_name}} </td>
+                                			<td>
+                                				{% if ds.project_env == 'sit' %}
+                                					<span class="label label-success">测试环境</span>
+                                				{% elif ds.project_env == 'qa' %}
+                                					<span class="label label-warning">预生产环境</span>
+                                				{% elif ds.project_env == 'uat' %}
+                                					<span class="label label-danger">生产环境</span>
+                                				{% endif %}
+                                			</td>
+                                			<td>
+                                				{{ds.project_repo_dir}} 
+                                			</td>
+                                			<td>{{ds.project_address}} </td>
+                                			<td>
+												<button type="button" class="btn btn-default" title="文件列表" data-container="body" data-toggle="popover" data-placement="top" data-content="{{ds.project_exclude}}">
+                                    				排除文件
+                                				</button>                                			
+                                				
+                                			</td>
+                                			<td>
+												<button type="button" class="btn btn-default" title="成员"  
+														data-container="body" data-toggle="popover" data-placement="top" 
+														data-content="
+														{% for ds in ds.number %}
+															{{ds.server}}<br>
+														{% endfor %} 
+														" data-html="true">
+													目标服务器
+												</button>                                			
+                                			</td>
+                                			<td class="text-center">
+												<a href="/order/deploy/apply/{{ds.id}}/"><button  type="button" class="btn btn-default"><abbr title="部署申请"><i class="fa fa-play-circle-o"></i></button></a> 			     																						           			
+                                			</td>
+                                		</tr>
+                                	{% endfor %}
+                                </tbody>
+                            </table>
+                            <!-- /.table-responsive -->
+                            <div class="well">
+                                <h4>产品线管理说明</h4>
+                                <p>预生产环境与生产环境的代码部署需要审批，测试环境则不需要。</p>
+                                <a class="btn btn-default btn-lg btn-block" target="_blank" href="/deploy_add"><i class="fa fa-plus-circle "></i>新建代码部署</a>
+                            </div>
+                        </div>
+                        <!-- /.panel-body -->
+                    </div>
+                    <!-- /.panel -->
+                </div>
+    </div>  
+<script type="text/javascript">
+
+    
+    $(document).ready(function() {
+        $('#deployTableList').DataTable();
+    } );    
+    
+    $(function () { 
+    	$("[data-toggle='popover']").popover();
+    });   
+     
+	
+
+	
+
+	
+</script>
+{% endblock %}

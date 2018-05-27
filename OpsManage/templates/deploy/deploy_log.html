@@ -30,7 +30,9 @@
 				                            <table width="100%" class="table table-striped table-bordered table-hover" id="projectTableList">
 				                                <thead>
 				                                    <tr>
+				                                    	<th class="text-center">产品线</th>
 				                                    	<th class="text-center">项目名称</th>
+				                                    	<th class="text-center">项目环境</th>
 				                                    	<th class="text-center">版本号</th>
 				                                    	<th class="text-center">操作内容</th>
 				                                    	<th class="text-center">操作用户</th>
@@ -43,7 +45,17 @@
 				                                <tbody>
 				                                	{% for ds in projectList %}
 				                                		<tr class="odd gradeX" id="deployLogs-{{ds.id}}">
+				                                			<td class="text-center">{{ds.project.project.project_name}} </td>
 				                                			<td class="text-center">{{ds.project_name}} </td>
+				                                			<td class="text-center">
+				                               					{% if ds.project.project_env == 'sit' %}
+				                                					<span class="label label-success">测试环境</span>
+				                                				{% elif ds.project.project_env == 'qa' %}
+				                                					<span class="label label-warning">预生产环境</span>
+				                                				{% elif ds.project.project_env == 'uat' %}
+				                                					<span class="label label-danger">生产环境</span>
+				                                				{% endif %}				                                			
+				                                			</td>
 				                                			<td class="text-center">
 				                                			{% if ds.project_branch %}
 				                                				<a href="javascript:;" target="_blank" class="tooltip-test" data-toggle="tooltip" title="{{ds.project_branch}}">{{ds.project_branch|slice:":13" }}...</a>		                                								                                			

@@ -2,8 +2,8 @@
 {% block ace-content %}
 <link href="/static/dist/css/fileinput.css" media="all" rel="stylesheet" type="text/css" />
 <script src="/static/dist/js/fileinput.js" type="text/javascript"></script>
-<link href="/static/dist/css/bootstrap-multiselect.css" rel="stylesheet">
-<script src="/static/dist/js/bootstrap-multiselect.js"></script>
+<!-- <link href="/static/dist/css/bootstrap-multiselect.css" rel="stylesheet">
+<script src="/static/dist/js/bootstrap-multiselect.js"></script> -->
 {% endblock %}
 {% block page-content %}
 <div id="page-wrapper">
@@ -49,7 +49,7 @@
 											<label>动态主机<i class="fa fa-info-circle" data-toggle="tooltip"  title="根据不同场景选择服务器"></i></label>	
 											<select class="form-control" name="server_model" id="server_model" onchange="javascript:oBtAnsibleServerl();" required>
 												<option name="server_model" value="" selected="selected">请选择一个类型</option>
-												<option value="service" name="server_model">项目类型</option>
+												<option value="service" name="server_model">产品线</option>
 												<option value="group" name="server_model">使用部门</option>
 												<option value="custom" name="server_model">自定义</option> 	
 											</select>		
@@ -57,9 +57,9 @@
  
 										<div id='project_server'  style="display:none;">
 											<div class="form-group">
-												 <label>所属项目</label>
+												 <label>所属产品线</label>
 		                                            <select class="form-control" name="ansible_project"  id="ansible_project" onchange="javascript:oBtProjectSelect();">
-		                                            	<option name="project" value="" selected="selected">请选择一个项目</option>
+		                                            	<option name="project" value="" selected="selected">请选择一个产品线</option>
 		                                            	{% for ds in projectList %}
 		                                            		<option name="project" value="{{ds.id}}">{{ds.project_name}}</option>
 		                                            	{% endfor %}
@@ -85,9 +85,9 @@
                                         
                                          <div id="custom_server" class="form-group" style="display:none;">
                                             <label>勾选目标服务器<i class="fa fa-info-circle" data-toggle="tooltip"  title="自定选择服务器"></i></label>
-                                            <select multiple  name="playbook_server" id="ansible_server">
+                                            <select multiple  name="playbook_server" class="form-control" id="ansible_server">
                                             	{% for ds in serverList %}
-                                            		<option name="playbook_server" value="{{ds.id}}">{{ds.ip}}</option>
+                                            		<option name="playbook_server"  value="{{ds.id}}">{{ds.ip}}</option>
                                             	{% endfor %}
                                             </select>
                                         </div>                                          
@@ -137,14 +137,15 @@
 {% endif %}
 $(function () { $("[data-toggle='tooltip']").tooltip(); });
 
-$(document).ready(function() {
+/* $(document).ready(function() {
     $('#ansible_server').multiselect({
         enableClickableOptGroups: true,
         enableCollapsibleOptGroups: true,
         includeSelectAllOption: true,
-       	enableFiltering: true,            
+       	enableFiltering: true,          	
     });
-});
+});  */
+
 
 $("#playbook_file").fileinput({
 	language : 'zh',

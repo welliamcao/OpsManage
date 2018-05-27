@@ -6,8 +6,9 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User,Group,Permission
 from django.contrib.auth.decorators import permission_required
 from django.db.models import Q 
+from orders.models import Order_System
 from OpsManage.views import assets
-from OpsManage.models import (Server_Assets,Project_Order,Service_Assets,
+from OpsManage.models import (Server_Assets,Service_Assets,
                                 Assets,User_Server,Global_Config,
                                 Project_Assets)
 @login_required()
@@ -58,8 +59,11 @@ def user_center(request):
                     serverList.append(ser.assets)
         except:
             config = None     
-        orderList = Project_Order.objects.filter(Q(order_user=User.objects.get(username=request.user)) |
-                                                Q(order_audit=User.objects.get(username=request.user))).order_by("id")[0:150]       
+        orderList = Order_System.objects.filter(Q(order_user=User.objects.get(username=request.user).id) | Q(order_executor=User.objects.get(username=request.user).id)).order_by("id")[0:150]  
+        for order in  orderList:
+            if order.order_executor == request.user.id:order.perm = 1
+            order.order_user = User.objects.get(id=order.order_user).username
+            order.order_executor = User.objects.get(id=order.order_executor).username
         return render(request,'users/user_center.html',{"user":request.user,"orderList":orderList,
                                                         "serverList":serverList,"baseAssets":baseAssets,
                                                         "config":config}) 

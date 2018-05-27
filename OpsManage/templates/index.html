@@ -70,6 +70,7 @@
 <!-- Echat JavaScript -->
 <script type="text/javascript" src="/static/js/echarts.js"></script>
 
+
 <!-- Datetimepicker -->
 <link rel="stylesheet"
 	href="/static/dist/css/bootstrap-datetimepicker.min.css"
@@ -170,12 +171,12 @@ pre {
 								<li><a href="/assets_search/">资产查询</a></li>
 								<li><a href="/assets_log/1/">操作日志</a></li>
 							</ul> <!-- /.nav-second-level --></li>
-						<li><a href="#"><i class="fa fa-hdd-o fa-fw"></i> 代码发布<span
+						<li><a href="#"><i class="glyphicon glyphicon-hdd"></i> 代码发布<span
 								class="fa arrow"></span></a>
 							<ul class="nav nav-second-level">
 								<li><a href="/deploy_add">项目配置</a></li>
 								<li><a href="/deploy_list">项目列表</a></li>
-								<li><a href="/deploy_order/1/">部署工单</a></li>
+<!-- 								<li><a href="/deploy_order/1/">部署工单</a></li> -->
 								<li><a href="/deploy_log/1/">操作日志</a></li>
 							</ul> <!-- /.nav-second-level --></li>
 						<li><a href="#"><i class="fa fa-table fa-fw"></i> 任务管理<span
@@ -217,13 +218,13 @@ pre {
 								</li>	
 <!-- 								<li><a href="#">Redis<span class="fa arrow"></span></a>	
 								<li><a href="#">MongoDB<span class="fa arrow"></span></a> -->
-								<li><a href="#">SQL管理<span class="fa arrow"></span></a>
+<!-- 								<li><a href="#">SQL管理<span class="fa arrow"></span></a>
 									<ul class="nav nav-third-level">
 										<li><a href="/db/sql/order/audit/">上线申请</a></li>
 										<li><a href="/db/sql/order/list/1/">工单列表</a></li>
 										<li><a href="/db/sql/order/search/">工单查询</a></li>
 									</ul>
-								</li>															
+								</li>	 -->														
 								<li><a href="/db/sql/logs/1/">操作日志</a></li>
 							</ul> <!-- /.nav-second-level --></li>							
 						{% if user.is_superuser %}
@@ -239,7 +240,18 @@ pre {
 							<ul class="nav nav-second-level">
 								<li><a href="/wiki/add/">新建文档</a></li>
 								<li><a href="/wiki/index/">文档列表</a></li>
-							</ul> <!-- /.nav-second-level --></li>						
+							</ul> <!-- /.nav-second-level --></li>	
+						<li><a href="#"><i class="fa  fa-ticket fa-fw"></i> 工单系统<span
+								class="fa arrow"></span></a>
+							<ul class="nav nav-second-level">
+								<li><a href="#">工单申请<span class="fa arrow"></span></a>
+									<ul class="nav nav-third-level">
+										<li><a href="/order/deploy/apply/">代码部署</a></li>
+										<li><a href="/order/sql/apply/">上线SQL</a></li>
+									</ul></li>
+								<li><a href="/order/list/1/">工单列表</a></li>
+								<li><a href="/order/search/">工单查询</a></li>
+							</ul> <!-- /.nav-second-level --></li>													
 						<li><a href="/config"><i class="fa fa-wrench fa-fw"></i>
 								全局配置</a></li>
 						<li><a href="#"><i class="fa fa-group "></i> 用户中心<span
@@ -390,7 +402,7 @@ pre {
 					<!-- /.panel -->
 					<div class="panel panel-default">
 						<div class="panel-heading">
-							<i class="fa fa-bar-chart-o fa-fw"></i> 月度更新统计
+							<i class="fa fa-bar-chart-o fa-fw"></i> 月度代码更新统计
 							<!--                             <div class="pull-right"> -->
 							<!--                                 <div class="btn-group"> -->
 							<!--                                     <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown"> -->
@@ -455,116 +467,69 @@ pre {
 						<!-- /.panel-heading -->
 						<div class="panel-body">
 							<ul class="timeline">
-								{% for ds in orderNotice %} {% if ds.order_status == 0 %}
+								{% for ds in orderNotice %}
+								 {% if ds.order_status == 8 %}
 								<li>
-									<div class="timeline-badge">
-										<i class="fa fa-check"></i>
+									<div class="timeline-badge success">
+										<i class="fa fa-check "></i>
 									</div>
 									<div class="timeline-panel">
 										<div class="timeline-heading">
-											<h4 class="timeline-title">{{ ds.order_subject }}</h4>
+											<h4 class="timeline-title"><a href="{{ds.order_url}}">{{ ds.order_subject }}</a></h4>
 											<p>
 												<small class="text-muted"><i class="fa fa-clock-o"></i>
 													{{ ds.modify_time }}</small>
 											</p>
 										</div>
 										<div class="timeline-body">
-											<p>申请人：{{ ds.order_user }}</p>
-											<p>部署项目：{{ ds.order_project.project.project_name }}</p>
-											{% if ds.order_branch %}
-											<p>
-												部署版本：<a href="/deploy_order/status/{{ ds.id }}">{{ds.order_comid|slice:":7" }}</a>
-											</p>
-											{% else %}
-											<p>
-												部署标签：<a href="/deploy_order/status/{{ ds.id }}">{{ds.order_tag }}</a>
-											</p>
-											{% endif %}
-											<p>部署内容：{{ ds.order_content }}</p>
+											<p><strong>申请人：</strong>{{ ds.order_user }}</p>
+											<p><strong>执行人：</strong>{{ ds.order_executor }}</p>
+											<p><strong>工单类型：</strong><code>{{ ds.order_type }}</code></p>
+											<p><strong>工单内容：</strong>{{ ds.order_content }}</p>
 										</div>
 									</div>
-								</li> {% elif ds.order_status == 2 %}
-								<li class="timeline-inverted">
-									<div class="timeline-badge warning">
-										<i class="fa fa-credit-card"></i>
-									</div>
-									<div class="timeline-panel">
-										<div class="timeline-heading">
-											<h4 class="timeline-title">{{ ds.order_subject }}</h4>
-											<p>
-												<small class="text-muted"><i class="fa fa-clock-o"></i>
-													{{ ds.modify_time }}</small>
-										</div>
-										<div class="timeline-body">
-											<p>申请人：{{ ds.order_user }}</p>
-											<p>部署项目：{{ ds.order_project.project.project_name }}</p>
-											{% if ds.order_branch %}
-											<p>
-												部署版本：<a href="/deploy_order/status/{{ ds.id }}">{{ds.order_comid|slice:":7" }}</a>
-											</p>
-											{% else %}
-											<p>
-												部署标签：<a href="/deploy_order/status/{{ ds.id }}">{{ds.order_tag }}</a>
-											</p>
-											{% endif %}
-											<p>部署内容：{{ ds.order_content }}</p>
-										</div>
-									</div>
-								</li> {% elif ds.order_status == 1 %}
+								</li> {% elif ds.order_status == 7 or ds.order_status == 9 %}
 								<li class="timeline-inverted">
 									<div class="timeline-badge danger">
 										<i class="fa fa-bomb"></i>
 									</div>
 									<div class="timeline-panel">
 										<div class="timeline-heading">
-											<h4 class="timeline-title">{{ ds.order_subject }}</h4>
+											<h4 class="timeline-title"><a href="{{ds.order_url}}">{{ ds.order_subject }}</a></h4>
 											<p>
 												<small class="text-muted"><i class="fa fa-clock-o"></i>
 													{{ ds.modify_time }}</small>
 										</div>
 										<div class="timeline-body">
-											<p>申请人：{{ ds.order_user }}</p>
-											<p>部署项目：{{ ds.order_project.project.project_name }}</p>
-											{% if ds.order_branch %}
-											<p>
-												部署版本：<a href="/deploy_order/status/{{ ds.id }}">{{ds.order_comid|slice:":7" }}</a>
-											</p>
-											{% else %}
-											<p>
-												部署标签：<a href="/deploy_order/status/{{ ds.id }}">{{ds.order_tag }}</a>
-											</p>
-											{% endif %}
-											<p>部署内容：{{ ds.order_content }}</p>
+											<p><strong>申请人：</strong>{{ ds.order_user }}</p>
+											<p><strong>执行人：</strong>{{ ds.order_executor }}</p>
+											<p><strong>工单类型：</strong><code>{{ ds.order_type }}</code></p>
+											<p><strong>工单内容：</strong>{{ ds.order_content }}</p>
 										</div>
 									</div>
-								</li> {% elif ds.order_status == 3 %}
-								<li class="timeline-badge">
-									<div class="timeline-badge success">
-										<i class="fa fa-graduation-cap"></i>
-									</div>
-									<div class="timeline-panel">
-										<div class="timeline-heading">
-											<h4 class="timeline-title">{{ ds.order_subject }}</h4>
-											<p>
-												<small class="text-muted"><i class="fa fa-clock-o"></i>
-													{{ ds.modify_time }}</small>
+								</li> 
+								{% else %}
+									<li class="timeline-inverted">
+										<div class="timeline-badge warning">
+											<i class="fa fa-credit-card"></i>
 										</div>
-										<div class="timeline-body">
-											<p>申请人：{{ ds.order_user }}</p>
-											<p>部署项目：{{ ds.order_project.project.project_name }}</p>
-											{% if ds.order_branch %}
-											<p>
-												部署版本：<a href="/deploy_order/status/{{ ds.id }}">{{ds.order_comid|slice:":7" }}</a>
-											</p>
-											{% else %}
-											<p>
-												部署标签：<a href="/deploy_order/status/{{ ds.id }}">{{ds.order_tag }}</a>
-											</p>
-											{% endif %}
-											<p>部署内容：{{ ds.order_content }}</p>
+										<div class="timeline-panel">
+											<div class="timeline-heading">
+												<h4 class="timeline-title"><a href="{{ds.order_url}}">{{ ds.order_subject }}</a></h4>
+												<p>
+													<small class="text-muted"><i class="fa fa-clock-o"></i>
+														{{ ds.modify_time }}</small>
+											</div>
+											<div class="timeline-body">
+												<p><strong>申请人：</strong>{{ ds.order_user }}</p>												
+												<p><strong>执行人：</strong>{{ ds.order_executor }}</p>
+												<p><strong>工单类型：</strong><code>{{ ds.order_type }}</code></p>
+												<p><strong>工单内容：</strong>{{ ds.order_content }}</p>
+											</div>
 										</div>
-									</div>
-								</li> {% endif %} {% endfor %}
+									</li> 									
+								{% endif %} 
+								{% endfor %}
 							</ul>
 						</div>
 						<!-- /.panel-body -->
@@ -780,124 +745,7 @@ pre {
 
 
 </script>
-<!-- 	<script type="text/javascript" src="/static/js/reconnecting-websocket.js"></script>
-	<audio id="notifySound"><source src="/static/misc/hx.mp3" type="audio/mp3"> </audio>
-	<script type="application/javascript">
-	    var ws_scheme = window.location.protocol == "https:" ? "wss" : "ws";
-	    var ws = new ReconnectingWebSocket(ws_scheme + '://' + window.location.host + "/ws/chats/",null, {debug: true, reconnectInterval: 3000} ); 
-	    ws.onmessage = function (message) {
-	        var rdata = JSON.parse(message.data);
-	        console.log(rdata);
-	        $('#notifySound')[0].play();
-			liHtml = '<li class="left clearfix">' +
-					      '<span class="chat-img pull-left">' +
-					            '<img src="/static/avatar/robot.gif" alt="User Avatar" class="img-circle" />' +
-					        '</span>' +
-					        '<div class="chat-body clearfix">' +
-					            '<div class="header">' +
-					                '<small class=" text-muted">' +
-					                    '<i class="fa fa-clock-o fa-fw"></i>'+ rdata['ctime'] + '</small>' +
-					                '<strong class="pull-left primary-font">'+ rdata['user'] + '</strong>' +
-					            '</div>' +
-					            '<p>' + rdata['msg'] +
-					            '</p>' +
-					        '</div>' +
-					   '</li>'	        
-			$("#chatTalk").append(liHtml); 
-	    }
-	    $("#btnChatRoom").click(function(){
-	        var sdata = {
-		          msg: $('#inputChatRoom').val(),
-		          user:"{{user}}"
-		        }
-		    console.log(sdata)
-			liHtml = '<li class="right clearfix">' +
-					      '<span class="chat-img pull-right">' +
-					            '<img src="/static/avatar/suser.gif" alt="User Avatar" class="img-circle" />' +
-					        '</span>' +
-					        '<div class="chat-body clearfix">' +
-					            '<div class="header">' +
-					                '<small class=" text-muted">' +
-					                    '<i class="fa fa-clock-o fa-fw"></i>'+ CurentTime() + '</small>' +
-					                '<strong class="pull-right primary-font">'+ "{{user}}" + '</strong>' +
-					            '</div>' +
-					            '<p>' + sdata['msg'] +
-					            '</p>' +
-					        '</div>' +
-					   '</li>'	        
-			$("#chatTalk").append(liHtml); 		    
-		    ws.send(JSON.stringify(sdata));
-	    })	
-	    ws.onclose = function(){
-	        console.log('closed....');
-	    };	    
-	    
-	    function CurentTime()  
-	    {   
-	        var now = new Date();  
-	          
-	        var year = now.getFullYear();       //年  
-	        var month = now.getMonth() + 1;     //月  
-	        var day = now.getDate();            //日  
-	          
-	        var hh = now.getHours();            //时  
-	        var mm = now.getMinutes();          //分  
-	        var ss = now.getSeconds();           //秒  
-	          
-	        var clock = year + "-";  
-	          
-	        if(month < 10)  
-	            clock += "0";  
-	          
-	        clock += month + "-";  
-	          
-	        if(day < 10)  
-	            clock += "0";  
-	              
-	        clock += day + " ";  
-	          
-	        if(hh < 10)  
-	            clock += "0";  
-	              
-	        clock += hh + ":";  
-	        if (mm < 10) clock += '0';   
-	        clock += mm + ":";   
-	           
-	        if (ss < 10) clock += '0';   
-	        clock += ss;   
-	        return(clock);   
-	}     
-	</script> -->
-	{% endblock %}			
-	<script type="text/javascript"> 
-	$(function() {
-		$.ajax({
-			url:'/api/order/{{user}}/', //请求地址
-			type:"GET",  //提交类似
-			success:function(response){
-				if (response.length > 0 ){						
-						var newStr = ''
-						for (var i=0;i< response.length;i++)
-							{
-							newStr += '<li><a href="/deploy_order/status/'+ response[i]['id'] + '/">'+
-									  '<div>' +
-									  '<strong>' +  response[i]['order_user'] + '</strong>' +
-									  '<span class="pull-right text-muted">' +
-									  '<em>' + response[i]['create_time'].replace("T",' ').replace(/-/g,'/').slice(0,16) + '</em>' +
-									  '</span>' +
-									  '</div>' +
-									  '<div>'+ response[i]['order_subject'] + '</div>' +
-									  '</a>' +
-									  '</li><li class="divider"></li>';
-						};
-						$('#deploy_order').html(newStr);	
-						$('#deploy_order_count').html(response.length);	
-					}
-			}
-		});	
-	});
-
-</script>
+{% endblock %}			
 </body>
 
 </html>

@@ -24,9 +24,9 @@
 							<form role="form" method="post">
 								{% csrf_token %}
 								<div class="form-group">
-									<label>项目名称</label> 
+									<label>产品线名称</label> 
 									<select class="form-control" name="project_id" id="asset_project" onchange="javascript:oBtProjectSelect();" required>
-										<option selected="selected" name="project_id">请选择项目</option>
+										<option selected="selected" name="project_id">请选择产品线</option>
 										{% for ds in baseAssets.project %}
 											<option value="{{ds.id}}" name="project_id">{{ds.project_name}}</option>
 										{% endfor %}
@@ -38,7 +38,11 @@
 									 <select class="form-control" name="project_service" id="project_service" onchange="javascript:oBtServiceSelect('service','server');" required>
 									   		<option selected="selected" value="">请选择一个类型</option>								   							
 									</select>
-								</div>								
+								</div>
+								<div class="form-group">
+									 <label>项目名称</label>
+									 <input class="form-control" name="project_name" required>
+								</div>																	
 								<div class="form-group">
 									<label>项目环境</label> 
 									<select class="form-control" name="project_env" id='env_type_select' onchange="javascript:oBtEnvType();" required>

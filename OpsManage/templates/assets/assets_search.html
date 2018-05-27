@@ -218,7 +218,7 @@
 				      </div>
 				      <div class="col-xs-6 col-sm-3">
 							<div class="form-group">
-								<label class="col-sm-3 control-label">所属项目:</label>
+								<label class="col-sm-3 control-label">所属产品线:</label>
 								<div class="col-sm-8">
 									 <select class="form-control" id="selProject" >
 									 	<option selected="selected" value="">请选择一个类型</option>
@@ -379,7 +379,7 @@
 										       <th class="text-center">资产编号</th>
 										       <th class="text-center">设备型号</th>
 										       <th class="text-center">放置区域</th>
-										       <th class="text-center">所属项目</th>
+										       <th class="text-center">所属产品线</th>
 										       <th class="text-center">业务类型</th>
 										       <th class="text-center">使用组</th>
 										       <th class="text-center">购买时间</th>
@@ -394,7 +394,7 @@
 											       <th class="text-center">资产编号</th>
 											       <th class="text-center">设备型号</th>
 											       <th class="text-center">放置区域</th>
-											       <th class="text-center">所属项目</th>
+											       <th class="text-center">所属产品线</th>
 											       <th class="text-center">业务类型</th>
 											       <th class="text-center">使用组</th>
 											       <th class="text-center">购买时间</th>
@@ -924,7 +924,7 @@
                     changepage(1);
                 }
             })   
-			//所属项目
+			//所属产品线
             $('#selProject').change(function () {
                 if ($('#selProject').val() != "") {
                     $("#hdnProject").val($('#selProject').val());

@@ -41,9 +41,9 @@
 											</select>		
 										</div>  
 										<div class="form-group" >			 		             
-											<label >所属项目</label>	
+											<label >所属产品线</label>	
 											<select class="form-control"  name="ops_project" id="ops_project" onchange="javascript:oBtProjectSelect();">
-												<option name="ops_project" value="" selected="selected">选择一个项目</option>
+												<option name="ops_project" value="" selected="selected">选择一个产品线</option>
 												{% for ds in projectList %}
 													<option value="{{ds.id}}" name="ops_project">{{ds.project_name}}</option>
 												{% endfor %}

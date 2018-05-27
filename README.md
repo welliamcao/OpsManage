@@ -30,7 +30,7 @@
 一、安装Python
 ```
 # yum install zlib zlib-devel readline-devel sqlite-devel bzip2-devel openssl-devel gdbm-devel libdbi-devel ncurses-libs kernel-devel libxslt-devel libffi-devel python-devel mysql-devel zlib-devel mysql-server sshpass gcc git -y
-# wget http://mirrors.sohu.com/python/2.7.12/Python-2.7.12.tgz
+# wget http://mirrors.sohu.com/python/2.7.12/Python-2.7.12.tgz  #CentOS 7不要安装python2.7
 # tar -xzvf Python-2.7.12.tgz
 # cd Python-2.7.12
 # ./configure
@@ -88,6 +88,7 @@ daemonize yes
 loglevel warning
 logfile "/var/log/redis.log"
 bind 你的服务器ip地址
+例如： bind 127.0.0.1 192.168.88.201
 ```
 ```
 # cd ../
@@ -110,7 +111,7 @@ mysql>\q
 ```
 七、配置OpsManage
 ```
-# cd /mnt/OpsManage
+# cd /mnt/OpsManage/OpsManage
 # vim settings.py
 BROKER_URL =  redis://192.168.1.233:6379/3 #修改成自己的配置，格式是redis://[:password]@host:port/db
 REDSI_KWARGS_LPUSH = {"host":'192.168.1.233','port':6379,'db':3} #修改成自己的配置
@@ -161,6 +162,7 @@ SFTP_CONF = {
 # cd /mnt/OpsManage/
 # python manage.py makemigrations OpsManage
 # python manage.py makemigrations wiki
+# python manage.py makemigrations orders
 # python manage.py migrate
 # python manage.py createsuperuser
 ```

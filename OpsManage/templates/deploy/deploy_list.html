@@ -109,6 +109,7 @@
                             <table width="100%" class="table table-striped table-bordered table-hover" id="deployTableList">
                                 <thead>
                                     <tr>
+                                    	<th>产品线</th>
                                     	<th>项目名称</th>
                                     	<th>项目环境</th>
                                         <th>仓库目录</th>
@@ -123,13 +124,14 @@
                                 	{% for ds in deployList %}
                                 		<tr class="odd gradeX">
                                 			<td>{{ds.project.project_name}} </td>
+                                			<td>{{ds.project_name}} </td>
                                 			<td>
                                 				{% if ds.project_env == 'sit' %}
-                                					<button  type="button" class="btn btn-default disabled">测试环境</button>
+                                					<span class="label label-success">测试环境</span>
                                 				{% elif ds.project_env == 'qa' %}
-                                					<button  type="button" class="btn btn-default disabled">预生产环境</button>
+                                					<span class="label label-warning">预生产环境</span>
                                 				{% elif ds.project_env == 'uat' %}
-                                					<button  type="button" class="btn btn-default disabled">生产环境</button>
+                                					<span class="label label-danger">生产环境</span>
                                 				{% endif %}
                                 			</td>
                                 			<td>
@@ -166,7 +168,7 @@
 													{% if ds.project_env == 'sit' or ds.project_env == 'qa' %}
 														<a href="/deploy_run/{{ds.id}}"><button  type="button" class="btn btn-default"><abbr title="部署"><i class="fa fa-play-circle-o"></i></button></a>   
 													{% else %}
-														<a href="/deploy_ask/{{ds.id}}"><button  type="button" class="btn btn-default"><abbr title="部署申请"><i class="fa fa-play-circle-o"></i></button></a>      
+														<a href="/order/deploy/apply/{{ds.id}}"><button  type="button" class="btn btn-default"><abbr title="部署申请"><i class="fa fa-play-circle-o"></i></button></a>      
 													{% endif %} 
 													<a href="/deploy_manage/{{ds.id}}"><button  type="button" class="btn btn-default"><abbr title="版本控制"><i class="fa fa-gear"></i></button></a>  
 												{% else %}
@@ -210,7 +212,7 @@
                             <div class="well">
                                 <h4>项目管理说明</h4>
                                 <p>预生产环境与生产环境的代码部署需要审批，测试环境则不需要。</p>
-                                <a class="btn btn-default btn-lg btn-block" target="_blank" href="/deploy_add"><i class="fa fa-plus-circle "></i>新建项目</a>
+                                <a class="btn btn-default btn-lg btn-block" target="_blank" href="/deploy_add"><i class="fa fa-plus-circle "></i>新建代码部署</a>
                             </div>
                         </div>
                         <!-- /.panel-body -->

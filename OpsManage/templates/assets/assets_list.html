@@ -178,7 +178,7 @@
                             <!-- /.nav-second-level -->
                         </li>                          
                         <li>
-                            <a href="#"><i class="fa fa-sitemap fa-fw"></i>应用部署<span class="fa arrow"></span></a>
+                            <a href="#"><i class="fa fa-sitemap fa-fw"></i> 应用部署<span class="fa arrow"></span></a>
                             <ul class="nav nav-second-level">
                                 <li>
                                     <a href="/apps/model">运行模块</a>
@@ -229,13 +229,13 @@
 								</li>	
 <!-- 								<li><a href="#">Redis<span class="fa arrow"></span></a>	
 								<li><a href="#">MongoDB<span class="fa arrow"></span></a> -->
-								<li><a href="#">SQL管理<span class="fa arrow"></span></a>
+<!-- 								<li><a href="#">SQL管理<span class="fa arrow"></span></a>
 									<ul class="nav nav-third-level">
 										<li><a href="/db/sql/order/audit/">上线申请</a></li>
 										<li><a href="/db/sql/order/list/1/">工单列表</a></li>
 										<li><a href="/db/sql/order/search/">工单查询</a></li>
 									</ul>
-								</li>															
+								</li> -->															
 								<li><a href="/db/sql/logs/1/">操作日志</a></li>
 							</ul> <!-- /.nav-second-level --></li>		                        
                         {% if user.is_superuser %}
@@ -251,7 +251,18 @@
 							<ul class="nav nav-second-level">
 								<li><a href="/wiki/add/">新建文档</a></li>
 								<li><a href="/wiki/index/">文档列表</a></li>
-							</ul> <!-- /.nav-second-level --></li>							                  
+							</ul> <!-- /.nav-second-level --></li>		
+						<li><a href="#"><i class="fa  fa-ticket fa-fw"></i> 工单系统<span
+								class="fa arrow"></span></a>
+							<ul class="nav nav-second-level">
+								<li><a href="#">工单申请<span class="fa arrow"></span></a>
+									<ul class="nav nav-third-level">
+										<li><a href="/order/deploy/apply/">代码部署</a></li>
+										<li><a href="/order/sql/apply/">上线SQL</a></li>
+									</ul></li>
+								<li><a href="/order/list/1/">工单列表</a></li>
+								<li><a href="/order/search/">工单查询</a></li>
+							</ul> <!-- /.nav-second-level --></li>													                  
                         <li>
                             <a href="/config"><i class="fa fa-wrench fa-fw"></i> 全局配置</a>
                         </li>                           
@@ -429,7 +440,7 @@
 				      </div>                  
 				      <div class="col-xs-6 col-sm-3">
 							<div class="form-group">
-								<label class="col-sm-3 control-label">所属项目:</label>
+								<label class="col-sm-3 control-label">所属产品线:</label>
 								<div class="col-sm-8">
 									 <select class="form-control" id="selProject" >
 									 	<option selected="selected" value="">请选择一个类型</option>
@@ -504,7 +515,7 @@
 									       <th class="text-center">资产编号</th>
 									       <th class="text-center">设备型号</th>
 									       <th class="text-center">放置区域</th>
-									       <th class="text-center">所属项目</th>
+									       <th class="text-center">产品线</th>
 									       <th class="text-center">业务类型</th>
 									       <th class="text-center">使用组</th>
 									       <th class="text-center">购买时间</th>									       
@@ -519,7 +530,7 @@
 										       <th class="text-center">资产编号</th>
 										       <th class="text-center">设备型号</th>
 										       <th class="text-center">放置区域</th>
-										       <th class="text-center">所属项目</th>
+										       <th class="text-center">产品线</th>
 										       <th class="text-center">业务类型</th>
 										       <th class="text-center">使用组</th>
 										       <th class="text-center">购买时间</th>
@@ -534,23 +545,23 @@
 	                                    	 <td class="text-center"><input type="checkbox" value={{a.id}} name="ckbox"/></td>
 									         <td class="text-center">	
 									         		{% if a.assets_type == "server" %}
-									         			<button  type="button" class="btn btn-default disabled">服务器</button>
+									         			服务器
 									         		{% elif a.assets_type == "vmser" %}
-									         			<button  type="button" class="btn btn-default disabled">虚拟机</button>	
+									         			虚拟机	
 									         		{% elif a.assets_type == "switch" %}
-									         			<button  type="button" class="btn btn-default disabled">交换机</button>	
+									         			交换机	
 									         		{% elif a.assets_type == "route" %}
-									         			<button  type="button" class="btn btn-default disabled">路由器</button>	
+									         			路由器
 									         		{% elif a.assets_type == "printer" %}
-									         			<button  type="button" class="btn btn-default disabled">打印机</button>	
+									         			打印机	
 									         		{% elif a.assets_type == "scanner" %}
-									         			<button  type="button" class="btn btn-default disabled">扫描仪</button>	
+									         			扫描仪
 									         		{% elif a.assets_type == "firewall" %}
-									         			<button  type="button" class="btn btn-default disabled">防火墙</button>	
+									         			防火墙	
 									         		{% elif a.assets_type == "storage" %}
-									         			<button  type="button" class="btn btn-default disabled">存储设备</button>
+									         			存储设备
 									         		{% elif a.assets_type == "wifi" %}
-									         			<button  type="button" class="btn btn-default disabled">无线设备</button>									         													         												         												         											         												         			
+									         			无线设备									         													         												         												         											         												         			
 									         		{% endif %}
 									         </td>
 									         <td>
@@ -587,14 +598,14 @@
 									         <td class="text-center">
 									         	{% for s in baseAssets.project %}
 									         		{% if s.id == a.project %}
-									         			<button  type="button" class="btn btn-default disabled">{{ s.project_name }}</button>	
+									         			{{ s.project_name }}	
 									         		{% endif %}
 									         	{% endfor %}								         		
 									         </td>									         
 									         <td class="text-center">
 									         	{% for s in baseAssets.service %}
 									         		{% if s.id == a.business %}
-									         			<button  type="button" class="btn btn-default disabled">{{ s.service_name }}</button>	
+									         			{{ s.service_name }}	
 									         		{% endif %}
 									         	{% endfor %}								         		
 									         </td>									         
@@ -1078,33 +1089,6 @@
 				}			
 			window.wxc.xcConfirm(txt, "custom", option);
 		}
-	
-		$(function() {
-			$.ajax({
-				url:'/api/order/{{user}}/', //请求地址
-				type:"GET",  //提交类似
-				success:function(response){
-					if (response.length > 0 ){						
-							var newStr = ''
-							for (var i=0;i< response.length;i++)
-								{
-								newStr += '<li><a href="/deploy_order/status/'+ response[i]['id'] + '/">'+
-										  '<div>' +
-										  '<strong>' +  response[i]['order_user'] + '</strong>' +
-										  '<span class="pull-right text-muted">' +
-										  '<em>' + response[i]['create_time'].replace("T",' ').replace(/-/g,'/').slice(0,16) + '</em>' +
-										  '</span>' +
-										  '</div>' +
-										  '<div>'+ response[i]['order_subject'] + '</div>' +
-										  '</a>' +
-										  '</li><li class="divider"></li>';
-							};
-							$('#deploy_order').html(newStr);	
-							$('#deploy_order_count').html(response.length);	
-						}
-				}
-			});	
-		});
 				
 	   
 </script>  

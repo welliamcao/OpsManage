@@ -3,6 +3,7 @@
 from rest_framework import serializers
 from OpsManage.models import *
 from wiki.models import *
+from orders.models import *
 from django.contrib.auth.models import Group,User
 
 
@@ -171,10 +172,10 @@ class InceptionSerializer(serializers.ModelSerializer):
                   'db_backup_host','db_backup_user','db_backup_port',
                   'db_backup_passwd')   
 
-class AuditSqlOrderSerializer(serializers.ModelSerializer):
+class OrderSerializer(serializers.ModelSerializer):
     class Meta:
-        model = SQL_Audit_Order
-        fields = ('id','order_desc','order_status','order_cancel')         
+        model = Order_System
+        fields = ('id','order_subject','order_status','order_cancel','order_level')         
         
 class DataBaseServerSerializer(serializers.ModelSerializer):
     class Meta:

@@ -2,6 +2,7 @@
 # _#_ coding:utf-8 _*_ 
 import re, MySQLdb
 from OpsManage.models import Inception_Server_Config,Custom_High_Risk_SQL
+from OpsManage.utils.logger import logger
 
 class Inception():
     def __init__(self,host=None,name=None,user=None,passwd=None,port=None):
@@ -49,6 +50,7 @@ class Inception():
             conn.close()
             return {"status":'success','data':dataList}
         except MySQLdb.Error,e:
+            logger.error(msg="Mysql Error %d: %s" % (e.args[0], e.args[1]))
             return {"status":'error',"errinfo":"Mysql Error %d: %s" % (e.args[0], e.args[1])}        
         
     def checkSql(self,sql):
@@ -92,6 +94,7 @@ class Inception():
             conn.close()
             return {"status":'success','data':result}
         except MySQLdb.Error,e:
+            logger.error(msg="Mysql Error %d: %s" % (e.args[0], e.args[1]))
             return {"status":'error',"errinfo":"Mysql Error %d: %s" % (e.args[0], e.args[1])}         
     
     def getOscStatus(self,sqlSHA1):
@@ -118,6 +121,10 @@ class Inception():
                                    passwd=self.db_passwd,db=self.db_name,
                                    port=int(self.db_port)
                                    )
+        except Exception,e:
+            logger.error(msg="Mysql Error %d: %s" % (e.args[0], e.args[1]))
+            return {"status":'error',"errinfo":"Mysql Error %d: %s" % (e.args[0], e.args[1])}        
+        try:
             cur = conn.cursor()
             ret = cur.execute(sql)
             # 提交到数据库执行
@@ -129,7 +136,7 @@ class Inception():
         except MySQLdb.Error,e:
             #遇到错误就回滚
             conn.rollback()
-            return {"status":'error',"errinfo":"Mysql Error %d: %s" % (e.args[0], e.args[1])}        
+            return {"status":'error',"errinfo":"Mysql Error %d: %s" % (e.args[0], e.args[1])}         
     
     def alterSqlCheck(self, sql):
         for row in sql.rstrip(';').split(';'):
@@ -154,6 +161,7 @@ class Inception():
             conn.close()
             return {"status":'success','data':result}
         except MySQLdb.Error,e:
+            logger.error(msg="Mysql Error %d: %s" % (e.args[0], e.args[1]))
             return {"status":'error',"errinfo":"Mysql Error %d: %s" % (e.args[0], e.args[1])}
                
     def getRollBackTable(self,host,user,passwd,dbName,port,sequence):
@@ -171,4 +179,5 @@ class Inception():
             conn.close()
             return {"status":'success','data':result}
         except MySQLdb.Error,e:
+            logger.error(msg="Mysql Error %d: %s" % (e.args[0], e.args[1]))
             return {"status":'error',"errinfo":"Mysql Error %d: %s" % (e.args[0], e.args[1])}                  

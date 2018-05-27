@@ -19,7 +19,7 @@
                                 <legend><i class="fa  fa-paper-plane"></i>部署服务器</legend>
                                     <form role="form" method="post">  {% csrf_token %}
                                         <div class="form-group">
-                                            <label>项目名称</label>
+                                            <label>产品线名称</label>
                                             <input class="form-control" name="project_name" value="{{project.project.project_name}}" disabled>
                                             <p class="help-block">例如：opsmanage.</p>
                                         </div>
@@ -34,7 +34,11 @@
 											   			{% endif %}
 											   		{% endfor %}							   							
 											</select>
-										</div>                                        
+										</div>  
+										<div class="form-group">
+											 <label>项目名称</label>
+											 <input class="form-control" name="project_name" value="{{project.project_name}}" disabled>
+										</div>											                                      
                                         <div class="form-group">
                                             <label>项目环境</label>
                                             <select class="form-control" name="project_env" id='env_type_select' onchange="javascript:oBtEnvType();" required>
