@@ -52,7 +52,16 @@
     
   <!-- DataTables JavaScript -->
   <link rel="stylesheet" href="/static/dist/css/jquery.dataTables.min.css">
-  <script src="/static/js/jquery.dataTables.min.js"></script>    
+  <script src="/static/js/jquery.dataTables.min.js"></script>   
+	<style type="text/css"> 	
+		td.details-control {
+		    background: url('/static/img/details_open.png') no-repeat center center; */
+		    cursor: pointer;
+		}
+		tr.shown td.details-control {
+		    background: url('/static/img/details_close.png') no-repeat center center;
+		} 
+	</style>   
 </head>
 
 <body>
@@ -509,7 +518,9 @@
                             <table width="100%" class="table table-striped table-bordered table-hover" id="assetsListTable">
                                 <thead>
 									  <tr>
+									  	   <th class="text-center">详情</th>
 									  	   <th class="text-center"><input type="checkbox" onclick="checkAllBox()"/>全选</th>
+									  	   <th class="text-center">资产ID</th>
 									       <th class="text-center">资产类型</th>
 									       <th class="text-center">管理IP</th>
 									       <th class="text-center">资产编号</th>
@@ -517,14 +528,15 @@
 									       <th class="text-center">放置区域</th>
 									       <th class="text-center">产品线</th>
 									       <th class="text-center">业务类型</th>
-									       <th class="text-center">使用组</th>
-									       <th class="text-center">购买时间</th>									       
+									       <th class="text-center">使用组</th>								       
 									       <th class="text-center">设备状态</th>
 									       <th class="text-center">操作</th>
 									    </tr>
 								        <tfoot>
 								            <tr>
-								               <th class="text-center"></th>
+								               <th class="text-center">详情</th>
+								               <th class="text-center">全选</th>
+								               <th class="text-center">资产ID</th>
 										       <th class="text-center">资产类型</th>
 										       <th class="text-center">管理IP</th>
 										       <th class="text-center">资产编号</th>
@@ -533,7 +545,6 @@
 										       <th class="text-center">产品线</th>
 										       <th class="text-center">业务类型</th>
 										       <th class="text-center">使用组</th>
-										       <th class="text-center">购买时间</th>
 										       <th class="text-center">设备状态</th>
 										       <th class="text-center">操作</th>
 								            </tr>
@@ -542,7 +553,9 @@
                                 <tbody>
                                 	{% for a in  assetsList %}
 	                                    <tr class="odd gradeX">
+	                                    	 <td class="text-center"></td>
 	                                    	 <td class="text-center"><input type="checkbox" value={{a.id}} name="ckbox"/></td>
+	                                    	 <td class="text-center">{{ a.id }}</td>
 									         <td class="text-center">	
 									         		{% if a.assets_type == "server" %}
 									         			服务器
@@ -615,13 +628,6 @@
 									         			{{ g.name }}
 									         		{% endif %}
 									         	{% endfor %}
-									         </td>
-									         <td class="text-center">
-									         	{% if a.buy_time %}
-									         		{{ a.buy_time|date:"Y/m/d" }}
-									         	{% else %}
-									         		{{ a.create_date|date:"Y/m/d" }}
-									         	{% endif %}									         
 									         </td>
 									         <td class="text-center">
 									         		{% if a.status == 0 %}
@@ -932,12 +938,77 @@
 	  	}
 	}
 
-
+ 
+	function format ( dataList ) {
+	    var trHtml = '';
+		for (var i=0; i <dataList.length; i++){	
+			trHtml += '<tr><td>'+ dataList[i]["name"] +':</td>'+ '<td>'+ dataList[i]["value"] +'</td></tr>'			        
+		};	
+ 	    var vHtml = '<fieldset>' +
+		    			'<legend>硬件信息</legend>' +
+		    				'<table cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">'+ 
+		    				  trHtml  +
+		    				'</table>'
+					'</fieldset>'; 				
+	    return vHtml;
+	}	
+ 	
 	$(document).ready(function() {
-	    $('#assetsListTable').DataTable({
-	        responsive: true
-	    });
-	});
+	    var table = $('#assetsListTable').DataTable( {
+/* 	        "ajax": "../ajax/data/objects.txt", */
+	        "columns": [
+	            {
+	                "className": 'details-control',
+	                "orderable": false,
+	                "data":      null,
+	                "defaultContent": ''
+	            },
+	            { "data": "全选" },
+	            { "data": "资产id" },
+	            { "data": "资产类型" },
+	            { "data": "管理IP" },
+	            { "data": "资产编号" },
+	            { "data": "设备型号" },
+	            { "data": "放置区域" },
+	            { "data": "产品线" },
+	            { "data": "业务类型" },
+	            { "data": "使用组" },
+	            { "data": "设备状态" },
+	            { "data": "操作" }
+	        ],
+	        "order": [[2, 'asc']]
+	    } );
+	     
+	    // Add event listener for opening and closing details
+	    $('#assetsListTable tbody').on('click', 'td.details-control', function () {
+	    	var dataList = [];
+	        var tr = $(this).closest('tr');
+	        var row = table.row( tr );
+	        aId = row.data()["资产id"];
+	        $.ajax({
+	            url : "/api/assets/info/"+aId+"/",
+	            type : "post",
+	            async : false,
+	            data : {"id":aId},
+	            dataType : "json",
+	            success : function(result) {
+	            	dataList = result.data;
+	            }
+	        });	        
+/* 	    	console.log(dataList); */
+	        if ( row.child.isShown() ) {
+	            // This row is already open - close it
+	            row.child.hide();
+	            tr.removeClass('shown');
+	        }
+	        else {
+	            // Open this row
+	            row.child( format(dataList) ).show();
+	            tr.addClass('shown');
+	        }
+	    } );
+	} ); 	
+ 	
 	//Flot Pie Chart
 	$(function() {
 	    var data = [
@@ -1053,7 +1124,7 @@
 		window.wxc.xcConfirm(txt, "custom", option);			   
 	}
 
-	   function assetsUpdate(obj, id,ip,type){
+	function assetsUpdate(obj, id,ip,type){
 			var btnObj = $(obj);
 			var txt=  "是否确认更新？";
 			var option = {
@@ -1090,6 +1161,7 @@
 			window.wxc.xcConfirm(txt, "custom", option);
 		}
 				
+
 	   
 </script>  
 

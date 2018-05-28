@@ -97,16 +97,16 @@
                                 				{% if user.is_superuser %}
 													<a href="{% if ds.order_type == 1 %}/deploy_order/status/{{ds.id}}/{% else %}/db/sql/order/run/{{ds.id}}/{% endif %}" target="_blank"><button  type="button" class="btn btn-default"><abbr title="执行SQL"><i class="fa fa-play-circle-o"></i></button></a>	
 													{% if ds.order_status == 4 or ds.order_status == 2 %}
-														<button  type="button" class="btn btn-default" onclick="updateOrderStatus(this,{{ds.id}},'auth',8)"><abbr title="授权"><i class="fa fa-check"  ></i></button>
+														<button  type="button" class="btn btn-default" onclick="updateOrderStatus(this,{{ds.id}},'auth',8)"><abbr title="授权"><i class="fa fa-check"></i></button>
 														<button  type="button" class="btn btn-default" onclick="updateOrderStatus(this,{{ds.id}},'disable',7)"><abbr title="取消"><i class="fa fa-times"></i></button>
 													{% elif ds.order_status == 8 %}
-														<abbr title="授权"><i class="fa fa-check"></i></button>	
-														<abbr title="取消"><i class="fa fa-times "></i></button>
+														<button  type="button" class="btn btn-default"><abbr title="授权"><i class="fa fa-check"></i></button>	
+														<button  type="button" class="btn btn-default"><abbr title="取消"><i class="fa fa-times "></i></button>
 													{% elif ds.order_status == 5 %}
-														<abbr title="授权"><i class="fa fa-check"></i></button>
-														<abbr title="取消"><i class="fa fa-times "></i></button>											
+														<button  type="button" class="btn btn-default"><abbr title="授权"><i class="fa fa-check"></i></button>
+														<button  type="button" class="btn btn-default"><abbr title="取消"><i class="fa fa-times "></i></button>											
 													{% else %}
-														<abbr title="授权"><i class="fa fa-check"></i></button>
+														<button  type="button" class="btn btn-default"><abbr title="授权"><i class="fa fa-check"></i></button>
 														<button  type="button" class="btn btn-default disabled" ><abbr title="取消"><i class="fa fa-times "></i></button>		
 													{% endif %}														
 													<button  type="button" class="btn btn-default" onclick="deleteOrder(this,{{ds.id}})"><abbr title="删除"><i class="glyphicon glyphicon-trash"></i></button>
@@ -114,22 +114,22 @@
 													{% if ds.perm %}
 														<a href="{% if ds.order_type == 1 %}/deploy_run/{{ds.id}}/{% else %}/db/sql/order/run/{{ds.id}}/{% endif %}" target="_blank"><button  type="button" class="btn btn-default"><abbr title="执行SQL"><i class="fa fa-play-circle-o"></i></button></a>	
 														{% if ds.order_status == 4 or ds.order_status == 2 %}
-															<button  type="button" class="btn btn-default" onclick="updateOrderStatus(this,{{ds.id}},'auth',8)"><abbr title="授权"><i class="fa fa-check"  ></i></button>
-															<button  type="button" class="btn btn-default" onclick="updateOrderStatus(this,{{ds.id}},'disable',7)"><abbr title="取消"><i class="fa fa-times"  ></i></button>
+															<button type="button" class="btn btn-default" onclick="updateOrderStatus(this,{{ds.id}},'auth',8)"><abbr title="授权"><i class="fa fa-check"  ></i></button>
+															<button type="button" class="btn btn-default" onclick="updateOrderStatus(this,{{ds.id}},'disable',7)"><abbr title="取消"><i class="fa fa-times"  ></i></button>
 														{% elif ds.order_status == 8 %}
-															<abbr title="授权"><i class="fa fa-check"></i></button>	
-															<button  type="button" class="btn btn-default" onclick="updateOrderStatus(this,{{ds.id}},'disable',7)"><abbr title="取消"><i class="fa fa-times "  ></i></button>		
+															<button type="button" class="btn btn-default"><abbr title="授权"><i class="fa fa-check"></i></button>	
+															<button type="button" class="btn btn-default" onclick="updateOrderStatus(this,{{ds.id}},'disable',7)"><abbr title="取消"><i class="fa fa-times "  ></i></button>		
 														{% elif ds.order_status == 5 %}
-															<abbr title="授权"><i class="fa fa-check"></i></button>	
-															<abbr title="取消"><i class="fa fa-times"></i></button>																			
+															<button type="button" class="btn btn-default"><abbr title="授权"><i class="fa fa-check"></i></button>	
+															<button type="button" class="btn btn-default"><abbr title="取消"><i class="fa fa-times"></i></button>																			
 														{% else %}
-															<abbr title="授权"><i class="fa fa-check"></i></button>
-															<button  type="button" class="btn btn-default" onclick="updateOrderStatus(this,{{ds.id}},'disable',7)"><abbr title="取消"><i class="fa fa-times">  </i></button>	
+															<button type="button" class="btn btn-default"><abbr title="授权"><i class="fa fa-check"></i></button>
+															<button type="button" class="btn btn-default" onclick="updateOrderStatus(this,{{ds.id}},'disable',7)"><abbr title="取消"><i class="fa fa-times">  </i></button>	
 														{% endif %}											
 													{% else %}
-														<abbr title="执行SQL"><i class="fa fa-play-circle-o"></i></button>
-														<abbr title="授权"><i class="fa fa-check" ></i></button>
-														<abbr title="取消"><i class="fa fa-times "></i></button>															
+														<button type="button" class="btn btn-default"><abbr title="执行SQL"><i class="fa fa-play-circle-o"></i></button>
+														<button type="button" class="btn btn-default"><abbr title="授权"><i class="fa fa-check" ></i></button>
+														<button type="button" class="btn btn-default"><abbr title="取消"><i class="fa fa-times "></i></button>															
 													{% endif %}
                                 				{% endif %}
 								           				

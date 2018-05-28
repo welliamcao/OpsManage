@@ -7,6 +7,7 @@ from api.views import (wiki_api,assets_api,
 urlpatterns = [
             url(r'assets/$', assets_api.asset_list), 
             url(r'assets/(?P<id>[0-9]+)/$', assets_api.asset_detail),
+            url(r'assets/info/(?P<id>[0-9]+)/$', assets_api.asset_info),
             url(r'service/$', assets_api.service_list), 
             url(r'service/(?P<id>[0-9]+)/$', assets_api.service_detail), 
             url(r'project/$', assets_api.project_list), 
