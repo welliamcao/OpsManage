@@ -62,7 +62,6 @@
 				                                    	<th class="text-center">操作用户</th>
 				                                        <th class="text-center">模块名称</th>
 				                                        <th class="text-center">模块参数</th>
-				                                        <th class="text-center">服务器</th>
 				                                        <th class="text-center">操作时间</th>
 				                                        {% if perms.can_delete_log_ansible_model %}
 				                                        	<th class="text-center">操作</th>
@@ -78,9 +77,6 @@
 				                                			<td class="text-center">{{ds.ans_user}} </td>
 				                                			<td class="text-center">{{ds.ans_model}} </td>
 				                                			<td class="text-center">{{ds.ans_args}} </td>
-				                                			<td>
-				                                				{{ds.ans_server|default:""}}
-				                                			</td>
 				                                			<td class="text-center">{{ds.create_time|date:"Y/m/d H:i  "}} </td>				                                			
 					                                		<td class="text-center">
 																<a href="javascript:" onclick="getAnsibleResult(this,'model',{{ds.id}})">
@@ -140,7 +136,6 @@
 				                                    	<th class="text-center">操作用户</th>
 				                                        <th class="text-center">剧本名称</th>
 				                                        <th class="text-center">剧本内容</th>
-				                                        <th class="text-center">服务器</th>
 				                                        <th class="text-center">操作时间</th>
 				                                        {% if perms.can_delete_log_ansible_playbook %}
 				                                        	<th class="text-center">操作</th>
@@ -160,7 +155,6 @@
 				                                				</a>
 				                                			</td>
 				                                			<td class="text-center">{{ds.ans_content}} </td>
-				                                			<td class="text-center">{{ds.ans_server}} </td>
 				                                			<td class="text-center">{{ds.create_time|date:"Y/m/d H:i  "}}
 				                                			</td>
 				                                			<td class="text-center">
@@ -374,7 +368,8 @@
 		
 		$(document).ready(function() {
 		    $('#playbookTableList').DataTable({
-		        responsive: true
+		        responsive: true,
+		        "order": [[5, 'asc']]
 		    });
 		});
 

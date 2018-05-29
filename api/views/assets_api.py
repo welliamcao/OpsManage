@@ -27,7 +27,7 @@ def project_list(request,format=None):
         serializer = serializers.ProjectSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save() 
-            recordAssets.delay(user=str(request.user),content="添加项目名称：{project_name}".format(project_name=request.data.get("project_name")),type="project",id=serializer.data.get('id'))
+            recordAssets.delay(user=str(request.user),content="添加产品线名称：{project_name}".format(project_name=request.data.get("project_name")),type="project",id=serializer.data.get('id'))
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -47,7 +47,7 @@ def project_detail(request, id,format=None):
         old_name = snippet.project_name
         if serializer.is_valid():
             serializer.save()
-            recordAssets.delay(user=str(request.user),content="修改项目为：{old_name} -> {project_name}".format(old_name=old_name,project_name=request.data.get("project_name")),type="project",id=id)
+            recordAssets.delay(user=str(request.user),content="修改产品线为：{old_name} -> {project_name}".format(old_name=old_name,project_name=request.data.get("project_name")),type="project",id=id)
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
      
