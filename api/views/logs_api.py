@@ -11,7 +11,7 @@ from rest_framework.response import Response
 
 
 @api_view(['POST' ])
-@permission_required('OpsManage.read_log_ansible_model',raise_exception=True)
+@permission_required('OpsManage.can_read_log_ansible_model',raise_exception=True)
 def AnsibleModelLogsList(request,format=None):  
     if request.method == 'POST': 
         try:   
@@ -27,7 +27,7 @@ def AnsibleModelLogsList(request,format=None):
             return Response({"data":serializer.data,"perm":0})
         
 @api_view(['POST' ])
-@permission_required('OpsManage.read_log_ansible_model',raise_exception=True)
+@permission_required('OpsManage.can_read_log_ansible_playbook',raise_exception=True)
 def AnsiblePlayBookLogsList(request,format=None):  
     if request.method == 'POST': 
         try:   

@@ -547,7 +547,7 @@ def apps_script_online(request):
                     try:
                         sList.append(server.server_assets.ip)
                     except Exception, ex:
-                        print ex
+                        logger.warn(msg="获取组信息失败: {ex}".format(ex=ex))
                         continue
                     if server.server_assets.keyfile == 1:resource.append({"hostname": server.server_assets.ip, "port": int(server.server_assets.port),"username": server.server_assets.username})
                     else:resource.append({"hostname": server.server_assets.ip, "port": int(server.server_assets.port),"username": server.server_assets.username,"password": server.server_assets.passwd})  
@@ -560,7 +560,7 @@ def apps_script_online(request):
                     try:
                         sList.append(server.server_assets.ip)
                     except Exception, ex:
-                        print ex
+                        logger.warn(msg="获取业务信息失败: {ex}".format(ex=ex))
                         continue                   
                     if server.server_assets.keyfile == 1:resource.append({"hostname": server.server_assets.ip, "port": int(server.server_assets.port),"username": server.server_assets.username})
                     else:resource.append({"hostname": server.server_assets.ip, "port": int(server.server_assets.port),"username": server.server_assets.username,"password": server.server_assets.passwd})   
@@ -578,9 +578,10 @@ def apps_script_online(request):
                 try:
                     os.remove(filePath)
                 except Exception, ex:
-                    print ex              
+                    logger.warn(msg="删除文件失败: {ex}".format(ex=ex))              
                 return JsonResponse({'msg':"操作成功","code":200,'data':[]})
-        if request.POST.get('type') == 'save' and request.POST.get('script_file'):
+        if request.POST.get('type') == 'save' and request.POST.get('script_file') and \
+            ( request.user.has_perm('OpsManage.can_add_ansible_script') or request.user.has_perm('OpsManage.can_edit_ansible_script') ):
             fileName = '/upload/scripts/script-{ram}'.format(ram=uuid.uuid4().hex[0:8]) 
             filePath = os.getcwd() + fileName
             saveScript(content=request.POST.get('script_file'),filePath=filePath)
@@ -603,7 +604,7 @@ def apps_script_online(request):
                                               script_type=request.POST.get('server_model')
                                               )
             except Exception,ex:
-                print ex
+                logger.warn(msg="添加ansible脚本失败: {ex}".format(ex=ex))  
                 return JsonResponse({'msg':str(ex),"code":500,'data':[]})
             return JsonResponse({'msg':"保存成功","code":200,'data':[]})
         else:
@@ -713,7 +714,7 @@ def apps_script_online_run(request,pid):
                     try:
                         sList.append(server.server_assets.ip)
                     except Exception, ex:
-                        print ex
+                        logger.warn(msg="获取业务失败: {ex}".format(ex=ex))  
                         continue
                     if server.server_assets.keyfile == 1:resource.append({"hostname": server.server_assets.ip, "port": int(server.server_assets.port),"username": server.server_assets.username})
                     else:resource.append({"hostname": server.server_assets.ip, "port": int(server.server_assets.port),"username": server.server_assets.username,"password": server.server_assets.passwd})     

@@ -250,11 +250,11 @@
 											'</button>' +	
 										  '</a>'							
 	                    	var tableBody = '<tr class="odd gradeX" id="playbookLogs-' + response['data'][i].id + '">' +
-				                			'<td class="text-center">' + response['data'][i].ans_id + '</td>' + 
+				                			'<td class="text-center">' + response['data'][i].id + '</td>' + 
 				                			'<td class="text-center">' + response['data'][i].ans_user + '</td>' +
 				                			'<td class="text-center">' + response['data'][i].ans_model + '</td>' +
 				                			'<td class="text-center">' + response['data'][i].ans_args + '</td>' +
-				                			'<td class="text-center">' + response['data'][i].ans_server + '</td>' +
+/* 				                			'<td class="text-center">' + response['data'][i].ans_server + '</td>' + */
 				                			'<td class="text-center">' + response['data'][i].create_time.replace("T",' ').replace(/-/g,'/').slice(0,16) + '</td>' +				                                			
 				                    		'<td class="text-center">' +
 												'<a href="javascript:" onclick="getAnsibleResult(this,\'model\','+ response['data'][i].id + ')">' + 
@@ -278,13 +278,13 @@
 				            	'<th class="text-center">操作用户</th>' +
 				                '<th class="text-center">模块名称</th>' +
 				                '<th class="text-center">模块参数</th>' +
-				                '<th class="text-center">服务器</th>' +
+/* 				                '<th class="text-center">服务器</th>' + */
 				                '<th class="text-center">操作时间</th>' +
 				                '<th class="text-center">操作</th>' +				                                        
 				            '</tr>' +
 				        '</thead>' +
 				        '<tbody>' + tableBodys + '</tbody></table>';
-					    document.getElementById("modelTableList").innerHTML = tableHmtl;
+					    document.getElementById("modelTableList").innerHTML = tableHmtl;		
 					}
 					else{
 						window.wxc.xcConfirm("未查询到相关数据", window.wxc.xcConfirm.typeEnum.error);
@@ -326,7 +326,7 @@
 				                				'</a>' +
 				                			'</td>' +
 				                			'<td class="text-center">' + response['data'][i].ans_content + '</td>' +
-				                			'<td class="text-center">' + response['data'][i].ans_server + '</td>' +
+/* 				                			'<td class="text-center">' + response['data'][i].ans_server + '</td>' + */
 				                			'<td class="text-center">' + response['data'][i].create_time.replace("T",' ').replace(/-/g,'/').slice(0,16) + '</td>' +				                                			
 				                    		'<td class="text-center">' +
 												'<a href="javascript:" onclick="getAnsibleResult(this,\'playbook\','+ response['data'][i].id + ')">' + 
@@ -350,7 +350,7 @@
 				            	'<th class="text-center">操作用户</th>' +
 				                '<th class="text-center">剧本名称</th>' +
 				                '<th class="text-center">剧本内容</th>' +
-				                '<th class="text-center">服务器</th>' +
+/* 				                '<th class="text-center">服务器</th>' + */
 				                '<th class="text-center">操作时间</th>' +
 				                '<th class="text-center">操作</th>' +				                                        
 				            '</tr>' +				            

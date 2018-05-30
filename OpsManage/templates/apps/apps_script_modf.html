@@ -43,19 +43,19 @@
 											<select class="form-control" name="server_model" id="server_model" onchange="javascript:oBtAnsibleServerl();">
 												<option name="server_model" value="" >请选择一个类型</option>
 												{% if script.script_type == 'service' %}
-													<option value="service" selected="selected" name="server_model">项目类型</option>
+													<option value="service" selected="selected" name="server_model">产品线类型</option>
 													<option value="group" name="server_model">使用部门</option>
 													<option value="custom" name="server_model">自定义</option> 													
 												{% elif script.script_type == 'group' %}
-													<option value="service" name="server_model">项目类型</option>
+													<option value="service" name="server_model">产品线类型</option>
 													<option value="group" name="server_model" selected="selected">使用部门</option>
 													<option value="custom" name="server_model">自定义</option> 
 												{% elif script.script_type == 'custom' %}
-													<option value="service" name="server_model">项目类型</option>
+													<option value="service" name="server_model">产品线类型</option>
 													<option value="group" name="server_model">使用部门</option>
 													<option value="custom" name="server_model" selected="selected">自定义</option> 
 												{% else %}
-													<option value="service" name="server_model">项目类型</option>
+													<option value="service" name="server_model">产品线类型</option>
 													<option value="group" name="server_model">使用部门</option>
 													<option value="custom" name="server_model">自定义</option> 													
 												{% endif %}	
@@ -64,9 +64,9 @@
 										</div>
 										<div id='project_server'  {% if script.script_type != 'service' %}style="display:none;"{% endif %}>
 											<div class="form-group">
-												 <label>所属项目</label>
+												 <label>所属产品线</label>
 		                                            <select class="form-control" name="ansible_project"  id="ansible_project" onchange="javascript:oBtProjectSelect();" required>
-		                                            	<option name="project" value="" >请选择一个项目</option>
+		                                            	<option name="project" value="" >请选择一个产品线</option>
 		                                            	{% for ds in projectList %}
 		                                            		{% if ds.id == project.id %}
 		                                            			<option name="project" value="{{ds.id}}" selected="selected">{{ds.project_name}}</option>
@@ -135,7 +135,7 @@
 										</div> 											                 
 		                                <input  type="hidden"   class="form-control" id="model" name="model" value="model">
 		                                <input  type="hidden"   class="form-control" id="ans_uuid" name="ans_uuid" value="{{script.script_uuid}}">  
-                                        <button type="button" class="btn btn-default" {% if perms.OpsManage.can_add_ansible_script %} onclick="saveAnsibleScript(this)" {% else %} disabled  {% endif %}>保存</button>
+                                        <button type="button" class="btn btn-default" {% if perms.OpsManage.can_edit_ansible_script %} onclick="saveAnsibleScript(this)" {% else %} disabled  {% endif %}>保存</button>
                                         <button type="button" class="btn btn-default" id="run_ansible_model" {% if perms.OpsManage.can_exec_ansible_script %} onclick="runAnsibleModel(this)" {% else %} disabled  {% endif %}>运行</button>		                                   
 		                                                               	
                                 </div>                            
@@ -181,6 +181,9 @@ function setAceEditMode(model) {
 	};
 	editor.getSession().setMode("ace/mode/" + model);
 	editor.setShowPrintMargin(false);
+	{% if not perms.OpsManage.can_edit_ansible_script %}
+	editor.setReadOnly(true);
+	{% endif %}
 	editor.setOptions({
 	    enableBasicAutocompletion: true,
 	    enableSnippets: true,
@@ -369,7 +372,7 @@ function setAceEditMode(model) {
 		})	
 	}	
 	{% endif %}
-	{% if perms.OpsManage.can_add_ansible_script %}
+	{% if  perms.OpsManage.can_edit_ansible_script %}
 	function saveAnsibleScript(obj){
 		var btnObj = $(obj);
 		btnObj.attr('disabled',true);

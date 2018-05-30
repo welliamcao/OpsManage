@@ -315,11 +315,12 @@
 		});
 
 
-		$(document).ready(function() {
-		    $('#orderTableList').DataTable({
-		        responsive: true
-		    });
-		});	
+	    $(document).ready(function() {
+	        $('#orderTableList').DataTable({
+	        	responsive: true,
+ 		        "order": [[6, 'asc']]
+	        });
+	    } );
 	
 		function modfUserPasswd(obj) {
 			var btnObj = $(obj);
