@@ -231,12 +231,17 @@ def deploy_run(request,pid):
     if request.method == "GET":
         if project.project_model == 'branch':bList = version.branch(path=project.project_repo_dir) 
         elif project.project_model == 'tag':bList = version.tag(path=project.project_repo_dir) 
+        if project.project_env == 'uat':
+            return render(request,'deploy/deploy_run.html',{"user":request.user,
+                                                             "project":project,"serverList":serverList,
+                                                             "errorInfo":"正式环境代码部署，请走工单审批流程"}, 
+                                      )                    
         #获取最新版本
         version.pull(path=project.project_repo_dir)        
-        vList = version.log(path=project.project_repo_dir, number=50)
+        vList = version.log(path=project.project_repo_dir, number=50) 
         return render(request,'deploy/deploy_run.html',{"user":request.user,
                                                          "project":project,"serverList":serverList,
-                                                         "bList":bList,"vList":vList}, 
+                                                         "bList":bList,"vList":vList,}, 
                                   ) 
         
     elif request.method == "POST":
