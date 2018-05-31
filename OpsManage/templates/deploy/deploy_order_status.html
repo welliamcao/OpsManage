@@ -337,17 +337,8 @@
 			  "order_status":3
 		  },
 			success:function(response){
-				if (response["code"] == "200"){
 					window.wxc.xcConfirm("部署完成", window.wxc.xcConfirm.typeEnum.success);
-					location.reload();
-// 					$('#permOrder').remove();
-// 					btnObj.attr('disabled',true);
-					
-				}
-				else{
-					window.wxc.xcConfirm("部署成功,但是未能更新工单状态", window.wxc.xcConfirm.typeEnum.error);
-				}
-				
+					location.reload();				
 			},
 	    	error:function(response){
 	    		window.wxc.xcConfirm("部署失败", window.wxc.xcConfirm.typeEnum.error);

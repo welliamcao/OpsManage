@@ -37,7 +37,7 @@
 													<div class="col-sm-6">
 														<select class="form-control" name="server_model" id="server_model" onchange="javascript:oBtAnsibleServerl();">
 															<option value="" name="server_model" selected="selected">选择一个类型</option>
-															<option value="service" name="server_model">项目类型</option>															
+															<option value="service" name="server_model">产品线类型</option>															
 															<option value="group" name="server_model">使用部门</option>	
 															<option value="custom" name="server_model">自定义</option> 	
 														</select>		
@@ -45,10 +45,10 @@
 											</div>	
 											<div id='project_server'  style="display:none;">
 												<div class="form-group">
-													 <label class="col-sm-2 control-label" >所属项目</label>
+													 <label class="col-sm-2 control-label" >所属产品线</label>
 													 <div class="col-sm-6">
 			                                            <select class="form-control" name="ansible_project"  id="ansible_project" onchange="javascript:oBtProjectSelect();" required>
-			                                            	<option name="project" value="" selected="selected">请选择一个项目</option>
+			                                            	<option name="project" value="" selected="selected">请选择一个产品线</option>
 			                                            	{% for ds in projectList %}
 			                                            		<option name="project" value="{{ds.id}}">{{ds.project_name}}</option>
 			                                            	{% endfor %}

@@ -220,8 +220,6 @@ def deploy_version(request,pid):
 def deploy_run(request,pid): 
     try:
         project = Project_Config.objects.get(id=pid)
-        if project.project_env == 'uat':
-            return HttpResponseRedirect('/order/deploy/apply/{pid}/'.format(pid=pid))
         serverList = Project_Number.objects.filter(project=project)
         if project.project_repertory == 'git':version = GitTools()
         elif project.project_repertory == 'svn':version = SvnTools()

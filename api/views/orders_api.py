@@ -29,6 +29,8 @@ def order_detail(request, id,format=None):
             sendOrderNotice.delay(id,mask='【已取消】')  
         elif int(request.data.get('order_status')) == 8:
             sendOrderNotice.delay(id,mask='【已授权】')  
+        elif int(request.data.get('order_status')) == 3:
+            sendOrderNotice.delay(id,mask='【已部署】')         
         serializer = serializers.OrderSerializer(snippet, data=request.data)
         if serializer.is_valid():
             serializer.save()
