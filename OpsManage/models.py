@@ -167,10 +167,10 @@ class Project_Assets(models.Model):
     class Meta:
         db_table = 'opsmanage_project_assets'
         permissions = (
-            ("can_read_project_assets", "读取项目资产权限"),
-            ("can_change_project_assets", "更改项目资产权限"),
-            ("can_add_project_assets", "添加项目资产权限"),
-            ("can_delete_project_assets", "删除项目资产权限"),              
+            ("can_read_project_assets", "读取产品线权限"),
+            ("can_change_project_assets", "更改产品线权限"),
+            ("can_add_project_assets", "添加产品线权限"),
+            ("can_delete_project_assets", "删除产品线权限"),              
         )  
         verbose_name = '项目资产表'  
         verbose_name_plural = '项目资产表' 
@@ -282,10 +282,10 @@ class Project_Config(models.Model):
     class Meta:
         db_table = 'opsmanage_project_config'
         permissions = (
-            ("can_read_project_config", "读取项目权限"),
-            ("can_change_project_config", "更改项目权限"),
-            ("can_add_project_config", "添加项目权限"),
-            ("can_delete_project_config", "删除项目权限"),               
+            ("can_read_project_config", "读取项目部署权限"),
+            ("can_change_project_config", "更改项目部署权限"),
+            ("can_add_project_config", "添加项目部署权限"),
+            ("can_delete_project_config", "删除项目部署权限"),               
         )
         unique_together = (("project_env", "project","project_name"))
         verbose_name = '项目管理表'  
@@ -309,12 +309,12 @@ class Project_Number(models.Model):
     dir =  models.CharField(max_length=100,verbose_name='项目目录',default=None)
     class Meta:
         db_table = 'opsmanage_project_number'
-        permissions = (
-            ("can_read_project_number", "读取项目成员权限"),
-            ("can_change_project_number", "更改项目成员权限"),
-            ("can_add_project_number", "添加项目成员权限"),
-            ("can_delete_project_number", "删除项目成员权限"),             
-        )
+#         permissions = (
+#             ("can_read_project_number", "读取项目成员权限"),
+#             ("can_change_project_number", "更改项目成员权限"),
+#             ("can_add_project_number", "添加项目成员权限"),
+#             ("can_delete_project_number", "删除项目成员权限"),             
+#         )
         unique_together = (("project", "server"))
         verbose_name = '项目成员表'  
         verbose_name_plural = '项目成员表' 

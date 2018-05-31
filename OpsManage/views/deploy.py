@@ -13,12 +13,11 @@ from OpsManage.data.DsRedisOps import DsRedis
 from OpsManage.utils.ansible_api_v2 import ANSRunner
 from django.contrib.auth.models import User,Group
 from OpsManage.views.assets import getBaseAssets
-from django.db.models import Count
-from django.db.models import Q 
 from orders.models import Order_System
 from OpsManage.tasks.deploy import recordProject
 from django.contrib.auth.decorators import permission_required
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from OpsManage.utils.logger import logger
 
 
 @login_required()
@@ -84,9 +83,10 @@ def deploy_modf(request,pid):
         project = Project_Config.objects.select_related().get(id=pid)
         tagret_server = Project_Number.objects.filter(project=project)
         serverList = [ s.server_assets for s in Assets.objects.filter(project=project.project.id) ]
-    except:
+    except Exception, ex:
+        logger.error(msg="修改项目失败: {ex}".format(ex=ex))
         return render(request,'deploy/deploy_modf.html',{"user":request.user,
-                                                         "errorInfo":"项目不存在，可能已经被删除."},
+                                                         "errorInfo":"修改项目失败: {ex}".format(ex=ex)},
                                 )     
     if request.method == "GET": 
         serviceList = Service_Assets.objects.filter(project=project.project)
@@ -223,9 +223,10 @@ def deploy_run(request,pid):
         serverList = Project_Number.objects.filter(project=project)
         if project.project_repertory == 'git':version = GitTools()
         elif project.project_repertory == 'svn':version = SvnTools()
-    except:
+    except Exception ,ex:
+        logger.error(msg="项目部署失败: {ex}".format(ex=ex))
         return render(request,'deploy/deploy_run.html',{"user":request.user,
-                                                         "errorInfo":"项目不存在，可能已经被删除."}, 
+                                                         "errorInfo":"项目部署失败: {ex}".format(ex=ex)}, 
                                   )     
     if request.method == "GET":
         if project.project_model == 'branch':bList = version.branch(path=project.project_repo_dir) 
@@ -390,7 +391,7 @@ def deploy_result(request,pid):
         
         
 @login_required()
-@permission_required('OpsManage.can_add_project_order',login_url='/noperm/')
+@permission_required('orders.can_add_project_order',login_url='/noperm/')
 def deploy_order_status(request,pid):
     if request.method == "GET":
         try:
@@ -398,15 +399,16 @@ def deploy_order_status(request,pid):
             order.order_user = User.objects.get(id=order.order_user).username
             serverList = Project_Number.objects.filter(project=order.project_order.order_project)
             if order.order_user == str(request.user):order.order_perm = 'pass'
-        except:
+        except Exception ,ex:
+            logger.error(msg="获取代码部署工单失败: {ex}".format(ex=ex))
             return render(request,'orders/deploy_apply.html',{"user":request.user,
-                                                "errorInfo":"工单不存在，可能已经被删除."}, 
+                                                "errorInfo":"获取代码部署工单失败: {ex}".format(ex=ex)}, 
                                               )             
         return render(request,'deploy/deploy_order_status.html',{"user":request.user,"order":order,"serverList":serverList},) 
     
     
 @login_required()
-@permission_required('OpsManage.can_add_project_order',login_url='/noperm/')
+@permission_required('orders.can_add_project_order',login_url='/noperm/')
 def deploy_order_rollback(request,pid):
     if request.method == "GET":
         order= Order_System.objects.get(id=pid)

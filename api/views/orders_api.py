@@ -15,7 +15,7 @@ from orders.models import Order_System
 
 
 @api_view(['PUT', 'DELETE'])
-# @permission_required('OpsManage.can_change_order_systemr',raise_exception=True)
+@permission_required('orders.can_change_order_systemr',raise_exception=True)
 def order_detail(request, id,format=None):
     """
     Retrieve, update or delete a server assets instance.

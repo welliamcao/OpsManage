@@ -63,10 +63,10 @@ class Project_Order(models.Model):
     class Meta:
         db_table = 'opsmanage_project_order'
         permissions = (
-            ("can_read_project_order", "读取项目部署权限"),
-            ("can_change_project_order", "更改项目部署权限"),
-            ("can_add_project_order", "添加项目部署权限"),
-            ("can_delete_project_order", "删除项目部署权限"),            
+            ("can_read_project_order", "读取代码部署工单权限"),
+            ("can_change_project_order", "更改代码部署工单权限"),
+            ("can_add_project_order", "添加代码部署工单限"),
+            ("can_delete_project_order", "删除代码部署工单权限"),            
         )
         verbose_name = '代码部署工单表'  
         verbose_name_plural = '代码部署工单表'    

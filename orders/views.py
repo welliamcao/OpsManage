@@ -1,9 +1,7 @@
 #!/usr/bin/env python  
 # _#_ coding:utf-8 _*_  
-import uuid,json,os,random
+import json,os
 from django.shortcuts import render
-from OpsManage.utils import base
-from django.db.models import Count
 from django.http import HttpResponseRedirect,JsonResponse
 from django.contrib.auth.decorators import login_required, permission_required
 from OpsManage.models import (Project_Assets,Project_Config,Project_Number,
@@ -20,7 +18,7 @@ from OpsManage.utils.inception import Inception
 from dao.order import Order
 
 @login_required()
-@permission_required('OpsManage.can_read_project_config',login_url='/noperm/')
+@permission_required('orders.can_add_project_order',login_url='/noperm/')
 def deploy_ask(request):
     deployList = Project_Config.objects.filter(project_env='uat')
     for ds in deployList:
@@ -28,7 +26,7 @@ def deploy_ask(request):
     return render(request,'orders/deploy_list.html',{"user":request.user,"deployList":deployList}) 
 
 @login_required()
-@permission_required('OpsManage.can_add_project_order',login_url='/noperm/')
+@permission_required('orders.can_add_project_order',login_url='/noperm/')
 def deploy_apply(request,pid):
     try:
         project = Project_Config.objects.get(id=pid)
@@ -82,7 +80,7 @@ def deploy_apply(request,pid):
 
 
 @login_required()
-@permission_required('OpsManage.can_read_sql_audit_order',login_url='/noperm/')
+@permission_required('orders.can_read_sql_audit_order',login_url='/noperm/')
 def db_sqlorder_audit(request):
     try:
         config = SQL_Audit_Control.objects.get(id=1)  
@@ -195,7 +193,7 @@ def db_sqlorder_audit(request):
 
 
 @login_required()
-@permission_required('OpsManage.can_read_order_system',login_url='/noperm/')
+@permission_required('orders.can_read_order_system',login_url='/noperm/')
 def order_list(request,page):
     if request.method == "GET":
         if request.user.is_superuser:
@@ -241,7 +239,7 @@ def order_list(request,page):
         
         
 @login_required()
-@permission_required('OpsManage.can_read_order_system',login_url='/noperm/')
+@permission_required('orders.can_read_order_system',login_url='/noperm/')
 def order_search(request):        
     if request.method == "GET":
         userList = User.objects.all()       
