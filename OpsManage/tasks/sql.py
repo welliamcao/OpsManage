@@ -36,17 +36,20 @@ def sendOrderNotice(order_id,mask):
     if order.order_type == 1:
         order_type = '代码部署'
         order_content = order.project_order.order_content
+        order_url = "/deploy_order/status/{order_id}/".format(order_id=order_id)
     else:
         order_type = 'SQL更新'
         order_content = order_content = str(order.sql_audit_order.order_sql).replace(';',';<br>')
+        order_url = "/db/sql/order/run/{order_id}/".format(order_id=order_id)
     content = """<strong>申请人：</strong>{user}<br> 
                  <strong>工单类型：</strong>{order_type}<br>
                  <strong>更新内容：</strong><br>{order_content}<br>
-                 <strong>工单地址：</strong><a href='{site}/db/sql/order/run/{order_id}/'>点击查看工单</a><br>
+                 <strong>工单地址：</strong><a href='{site}{order_url}'>点击查看工单</a><br>
                  <strong> 授权人：</strong>{auth}<br>
                  <strong>状态：</strong>{mask}<br>""".format(order_id=order_id,user=User.objects.get(id=order.order_user).username,
                                                           site=config.site,auth=User.objects.get(id=order.order_executor).username,
-                                                          order_content=order_content,mask=mask,order_type=order_type)
+                                                          order_content=order_content,mask=mask,order_type=order_type,
+                                                          order_url=order_url)
     try:
         to_user = User.objects.get(id=order.order_executor)
     except Exception, ex:
@@ -56,7 +59,6 @@ def sendOrderNotice(order_id,mask):
     CGroups(to_username).send({'text': json.dumps({"title":"你有一条新的工单需要处理<br>","type":"info","messages":content})})
     if order.order_cancel:
         content += "<strong>撤销原因：</strong>{order_cancel}".format(order_cancel=order.order_cancel)
-
     if config.subject:subject = "{sub} {oub} {mask}".format(sub=config.subject,oub=order.order_subject,mask=mask)
     else:subject = "{oub} {mask}".format(mask=mask,oub=order.order_subject)
     if config.cc_user:
