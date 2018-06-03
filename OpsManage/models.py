@@ -561,10 +561,16 @@ class DataBase_Server_Config(models.Model):
                 ('test',u'测试环境'),
                 ('prod',u'生产环境'),
                 )
+    mode = (
+            ('1',u'单例'),
+            ('2',u'主从'),
+            ('3',u'pxc'),
+            )    
     db_env = models.CharField(choices=env_type,max_length=10,verbose_name='环境类型',default=None)
     db_type = models.CharField(max_length=10,verbose_name='数据库类型',default=None)
     db_name = models.CharField(max_length=100,verbose_name='数据库名',blank=True,null=True)
     db_host = models.CharField(max_length=100,verbose_name='数据库地址')
+    db_mode = models.SmallIntegerField(choices=mode,verbose_name='架构类型',default=1)
     db_user = models.CharField(max_length=100,verbose_name='用户')
     db_passwd = models.CharField(max_length=100,verbose_name='密码')
     db_port = models.IntegerField(verbose_name='端口')

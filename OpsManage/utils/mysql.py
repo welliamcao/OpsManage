@@ -2,12 +2,6 @@
 # _#_ coding:utf-8 _*_ 
 import commands,os,sys
 
-keysList = [
-            'uptime','slave_running','opened_files','opened_tables','connections','threads_connected',
-            'binlog_format','expire_logs_days','log_bin','slow_query_log','connections','threads_connected',
-            'slow_launch_time',   
-        ]
-
 def loads(host,user,passwd,port,dbname,sql):
     cmd = "mysql -h {host} -u {user} -p{passwd}  {dbname} -P {port} --default-character-set=utf8 < {sql}".format(host=host,user=user,passwd=passwd,dbname=dbname,sql=sql,port=port)
     return commands.getstatusoutput(cmd)    

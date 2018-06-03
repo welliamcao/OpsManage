@@ -177,33 +177,81 @@ def db_status(request, id,format=None):
     except DataBase_Server_Config.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)    
     if request.method == 'POST':
-        dataList = []
-        mysql = MySQLPool(host=dbServer.db_host,port=dbServer.db_port,user=dbServer.db_user,passwd=dbServer.db_passwd,dbName=dbServer.db_name)
-        version = mysql.execute(sql='SELECT VERSION() as version;')
-        if isinstance(version, tuple):
-            data = {}
-            data['name'] = 'Version'
-            try:
-                data['value'] = version[1][0][0]
-                dataList.append(data)
-            except Exception,ex:
-                data['value'] =  '未知'
-                logger.warn(msg="获取MySQL版本信息失败: {ex}".format(ex=ex))
-        status = mysql.execute(sql='show status;')
-        if isinstance(status, tuple):
-            for ds in status[1]:
+        MySQL_STATUS = {}
+        MYSQL = MySQLPool(host=dbServer.db_host,port=dbServer.db_port,user=dbServer.db_user,passwd=dbServer.db_passwd,dbName=dbServer.db_name)
+        STATUS = MYSQL.getStatus()
+        GLOBAL = MYSQL.getGlobalStatus()
+        MySQL_STATUS['base'] = STATUS[0] + GLOBAL
+        MySQL_STATUS['pxc'] = STATUS[1] 
+        MySQL_STATUS['master'] = MYSQL.getMasterStatus()
+        MySQL_STATUS['slave'] = MYSQL.getSlaveStatus()
+        return JsonResponse({"code":200,"msg":"success","data":MySQL_STATUS})
+    
+@api_view(['POST','GET'])
+@permission_required('OpsManage.can_read_database_server_config',raise_exception=True)  
+def db_org(request, id,format=None):
+    try:
+        dbServer = DataBase_Server_Config.objects.get(id=id)
+    except DataBase_Server_Config.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)    
+    if request.method == 'POST':
+        MYSQL = MySQLPool(host=dbServer.db_host,port=dbServer.db_port,user=dbServer.db_user,passwd=dbServer.db_passwd,dbName=dbServer.db_name)
+        STATUS = MYSQL.getStatus()
+        pxcServerList = []
+        title = dbServer.db_host + dbServer.db_mark
+        if dbServer.db_mode == 1:name = '单例模式'
+        elif dbServer.db_mode == 2:name = '主从模式'
+        else:
+            name = 'PXC模式'
+            title = dbServer.db_mark
+        MYSQLORG = {
+                    'name': name,
+                    'title': title,
+                    'className': 'product-dept',
+                    'children': []                   
+                }
+        if dbServer.db_mode == 3:
+            for ds in STATUS[1]:
+                if ds.get('name') == 'Wsrep_incoming_addresses':pxcServerList = ds.get('value').split(',')
+            slaveData = {}
+            for ds in MYSQL.getMasterStatus():
+                if ds.get('name') == 'Slave':slaveData[dbServer.db_host+':'+str(dbServer.db_port)] = ds.get('value')  
+            for s in pxcServerList:
                 data = {}
-                if ds[0].lower() in MySQL.keysList:
-                    data['value'] = ds[1]
-                    data['name'] = ds[0].capitalize()
-                    dataList.append(data)
-        logs = mysql.execute(sql='show global variables;')
-        if isinstance(logs, tuple):
-            for ds in logs[1]:
-                data = {}
-                if ds[0].lower() in MySQL.keysList:
-                    data['value'] = ds[1]
-                    data['name'] = ds[0].capitalize()
-                    dataList.append(data)            
-        return JsonResponse({"code":200,"msg":"success","data":dataList})
+                host = s.split(':')[0]
+                port = s.split(':')[1]
+                data['name'] = host
+                data['title'] = port
+                data['children'] = []
+                if slaveData.has_key(s):
+                    data['name'] = 'master'
+                    data['title'] = host+':'+port
+                    count = 1
+                    for d in slaveData.get(s):
+                        x = {}
+                        host = d.split(':')[0]
+                        port = d.split(':')[1]
+                        x['name'] = 'slave-' + str(count)
+                        x['title'] =  host+':'+port
+                        count = count + 1
+                        data['children'].append(x)                                                             
+                MYSQLORG['children'].append(data)
+        elif dbServer.db_mode == 2:
+            count = 1
+            for m in MYSQL.getSlaveStatus():
+                if m.get('name') == 'Master_Host':
+                    MYSQLORG['children'].append({"name":'Master-' + str(count),"title":m.get('value')})
+                    count = count + 1
+            for ds in MYSQL.getMasterStatus():
+                if ds.get('name') == 'Slave':
+                    count = 1
+                    for s in ds.get('value'):
+                        x = {}
+                        host = s.split(':')[0]
+                        port = s.split(':')[1]
+                        x['name'] = 'slave-' + str(count)
+                        x['title'] =  host+':'+port 
+                        count = count + 1  
+                        MYSQLORG['children'].append(x)
+        return JsonResponse({"code":200,"msg":"success","data":MYSQLORG})    
         
