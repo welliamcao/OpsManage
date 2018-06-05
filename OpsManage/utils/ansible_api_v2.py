@@ -160,35 +160,47 @@ class PlayBookResultsCollectorToSave(CallbackBase):
         self.task_changed = {}
         self.redisKey = redisKey
         self.logId = logId
+        self.taks_check = {}
         
-#     def v2_runner_on_ok(self, result, *args, **kwargs):
-#         self.task_ok[result._host.get_name()]  = result._result
-#         delegated_vars = result._result.get('_ansible_delegated_vars', None)
-#         if result._task.action in ('include', 'include_role'):
-#             return
-#         elif result._result.get('changed', False):
-#             if delegated_vars:
-#                 msg = "changed: [%s -> %s]" % (result._host.get_name(), delegated_vars['ansible_host'])
-#             else:
-#                 msg = "changed: [%s]" % result._host.get_name()
-#         else:
-#             if delegated_vars:
-#                 msg = "ok: [%s -> %s]" % (result._host.get_name(), delegated_vars['ansible_host'])
-#             else:
-#                 msg = "ok: [%s]" % result._host.get_name()  
-#         DsRedis.OpsAnsiblePlayBook.lpush(self.redisKey,msg)
-#         if self.logId:AnsibleSaveResult.PlayBook.insert(self.logId, msg)    
+    def v2_runner_on_ok(self, result, *args, **kwargs):  
+        self._clean_results(result._result, result._task.action)    
+        self.task_ok[result._host.get_name()]  = result._result
+        delegated_vars = result._result.get('_ansible_delegated_vars', None)
+        if result._task.action in ('include', 'include_role'):
+            return
+        elif result._result.get('changed', False):
+            if delegated_vars:
+                msg = "changed: [%s -> %s]" % (result._host.get_name(), delegated_vars['ansible_host'])
+            else:
+                msg = "changed: [%s]" % result._host.get_name()
+        else:
+            if delegated_vars:
+                msg = "ok: [%s -> %s]" % (result._host.get_name(), delegated_vars['ansible_host'])
+            else:
+                msg = "ok: [%s]" % result._host.get_name()  
+        if result._task.loop and 'results' in result._result:
+            self._process_items(result)   
+        else:             
+            DsRedis.OpsAnsiblePlayBook.lpush(self.redisKey,msg)
+            if self.logId:AnsibleSaveResult.PlayBook.insert(self.logId, msg)    
         
         
-#     def v2_runner_on_failed(self, result, *args, **kwargs):
-#         delegated_vars = result._result.get('_ansible_delegated_vars', None)
-#         self.task_failed[result._host.get_name()] = result._result
-#         if delegated_vars:
-#             msg = "fatal: [{host} -> {delegated_vars}]: FAILED! => {msg}".format(host=result._host.get_name(),delegated_vars=delegated_vars['ansible_host'],msg=json.dumps(result._result))
-#         else: 
-#             msg = "fatal: [{host}]: FAILED! => {msg}".format(host=result._host.get_name(),msg=json.dumps(result._result))
-#         DsRedis.OpsAnsiblePlayBook.lpush(self.redisKey,msg) 
-#         if self.logId:AnsibleSaveResult.PlayBook.insert(self.logId, msg)
+    def v2_runner_on_failed(self, result, *args, **kwargs):
+        delegated_vars = result._result.get('_ansible_delegated_vars', None)
+        self.task_failed[result._host.get_name()] = result._result
+        if 'exception' in result._result:
+            msg = result._result['exception'].strip().split('\n')[-1]
+            logger.error(msg=msg)
+            del result._result['exception']
+        if result._task.loop and 'results' in result._result:
+            self._process_items(result)
+        else:            
+            if delegated_vars:
+                msg = "fatal: [{host} -> {delegated_vars}]: FAILED! => {msg}".format(host=result._host.get_name(),delegated_vars=delegated_vars['ansible_host'],msg=json.dumps(result._result))
+            else: 
+                msg = "fatal: [{host}]: FAILED! => {msg}".format(host=result._host.get_name(),msg=json.dumps(result._result))
+            DsRedis.OpsAnsiblePlayBook.lpush(self.redisKey,msg) 
+            if self.logId:AnsibleSaveResult.PlayBook.insert(self.logId, msg)
         
     def v2_runner_on_unreachable(self, result):
         self.task_unreachable[result._host.get_name()] = result._result
@@ -203,11 +215,24 @@ class PlayBookResultsCollectorToSave(CallbackBase):
         if self.logId:AnsibleSaveResult.PlayBook.insert(self.logId, msg)
          
     def v2_runner_on_skipped(self, result):
-        self.task_ok[result._host.get_name()]  = result._result
+        self.task_skipped[result._host.get_name()]  = result._result
         msg = "skipped: [{host}]\n".format(host=result._host.get_name())
+        if result._task.loop and 'results' in result._result:
+            self._process_items(result)        
+        else:
+            DsRedis.OpsAnsiblePlayBook.lpush(self.redisKey,msg)
+            if self.logId:AnsibleSaveResult.PlayBook.insert(self.logId, msg)
+    
+    def v2_runner_on_no_hosts(self, task):
+        msg = "skipping: no hosts matched"
         DsRedis.OpsAnsiblePlayBook.lpush(self.redisKey,msg)
-        if self.logId:AnsibleSaveResult.PlayBook.insert(self.logId, msg)
+        if self.logId:AnsibleSaveResult.PlayBook.insert(self.logId, msg)        
 
+    def v2_playbook_item_on_skipped(self, result):
+        msg = "skipping: [%s] => (item=%s) " % (result._host.get_name(), result._result['item'])
+        DsRedis.OpsAnsiblePlayBook.lpush(self.redisKey,msg)
+        if self.logId:AnsibleSaveResult.PlayBook.insert(self.logId, msg) 
+    
     def v2_playbook_on_play_start(self, play):
         name = play.get_name().strip()
         if not name:
@@ -279,6 +304,10 @@ class PlayBookResultsCollectorToSave(CallbackBase):
 
     def v2_runner_item_on_failed(self, result):
         delegated_vars = result._result.get('_ansible_delegated_vars', None)
+        if 'exception' in result._result:
+            msg = result._result['exception'].strip().split('\n')[-1]
+            logger.error(msg=msg)
+            del result._result['exception']        
         msg = "failed: "
         if delegated_vars:
             msg += "[%s -> %s]" % (result._host.get_name(), delegated_vars['ansible_host'])
