@@ -499,25 +499,24 @@ def assets_search(request):
         baseAssets = getBaseAssets()
         dataList = []
         for a in assetsList:
-            assets_id = '''<td class="text-center"><input type="checkbox" value="{aid}" name="ckbox"/></td>'''.format(aid=a.id)
             if a.assets_type == "server":
-                assets_type = '''<td class="text-center">服务器</td>'''
+                assets_type = '''服务器'''
             elif a.assets_type == "vmser":
-                assets_type = '''<td class="text-center">虚拟机</td>'''                   
+                assets_type = '''虚拟机'''                   
             elif a.assets_type == "switch":
-                assets_type = '''<td class="text-center">交换机</td>'''                                
+                assets_type = '''交换机'''                                
             elif a.assets_type == "route":
-                assets_type = '''<td class="text-center">路由器</td>'''                                          
+                assets_type = '''路由器'''                                          
             elif a.assets_type == "printer":
-                assets_type = '''<td class="text-center">打印机</td>'''
+                assets_type = '''打印机'''
             elif a.assets_type == "scanner":
-                assets_type = '''<td class="text-center">扫描仪</td>'''                                             
+                assets_type = '''扫描仪'''                                             
             elif a.assets_type == "firewall":
-                assets_type = '''<td class="text-center">防火墙</td>'''                                           
+                assets_type = '''防火墙'''                                           
             elif a.assets_type == "storage":
-                assets_type = '''<td class="text-center">存储设备</td>'''
+                assets_type = '''存储设备'''
             elif a.assets_type == "wifi":
-                assets_type = '''<td class="text-center">无线设备</td>''' 
+                assets_type = '''无线设备''' 
             nks = ''
             if a.management_ip:
                 liTags = ''
@@ -539,24 +538,23 @@ def assets_search(request):
                             <li><span class="label label-danger">外</span>:<code>{server_ip}</code></li>
                             {liTags}
                         </ul>'''.format(server_ip=a.server_assets.ip,liTags=liTags)
-            management_ip = '''<td class="text-center">{ip}</td>'''.format(ip=nks)  
-            name = '''<td class="text-center">{name}</td>'''.format(name=a.name)      
-            model = '''<td class="text-center">{model}</td>'''.format(model=a.model)  
+            management_ip = '''{ip}'''.format(ip=nks)  
+            name = '''{name}'''.format(name=a.name)      
+            model = '''{model}'''.format(model=a.model)  
             for p in baseAssets.get('project'):
-                if p.id == a.project:project = '''<td class="text-center">{project}</td>'''.format(project=p.project_name)                                      
+                if p.id == a.project:project = '''{project}'''.format(project=p.project_name)                                      
             for s in baseAssets.get('service'):
-                if s.id == a.business:service = '''<td class="text-center">{service}</td>'''.format(service=s.service_name)
-            if a.status == 0:status = '''<td class="text-center"><button  type="button" class="btn btn-outline btn-success">已上线</button></td>'''
-            elif a.status == 1:status = '''<td class="text-center"><button  type="button" class="btn btn-outline btn-primary">已下线</button></td>'''
-            elif a.status == 2:status = '''<td class="text-center"><button  type="button" class="btn btn-outline btn-warning">维修中</button></td>'''
-            elif a.status == 3:status = '''<td class="text-center"><button  type="button" class="btn btn-outline btn-info">已入库</button></td>'''
-            elif a.status == 4:status = '''<td class="text-center"><button  type="button" class="btn btn-outline btn-default">未使用</button></td>'''
-            if a.buy_time:buy_time = '''<td class="text-center">{buy_time}</td>'''.format(buy_time=a.buy_time)
-            else:buy_time = '''<td class="text-center">{buy_time}</td>'''.format(buy_time=str(a.create_date)[0:10])
-            group ='''<td class="text-center">{groupname}</td>'''.format(groupname=Group.objects.get(id=a.group).name)
+                if s.id == a.business:service = '''{service}'''.format(service=s.service_name)
+            if a.status == 0:status = '''<button  type="button" class="btn btn-outline btn-success">已上线</button>'''
+            elif a.status == 1:status = '''<button  type="button" class="btn btn-outline btn-primary">已下线</button>'''
+            elif a.status == 2:status = '''<button  type="button" class="btn btn-outline btn-warning">维修中</button>'''
+            elif a.status == 3:status = '''<button  type="button" class="btn btn-outline btn-info">已入库</button>'''
+            elif a.status == 4:status = '''<button  type="button" class="btn btn-outline btn-default">未使用</button>'''
+            if a.buy_time:buy_time = '''{buy_time}'''.format(buy_time=a.buy_time)
+            else:buy_time = '''{buy_time}'''.format(buy_time=str(a.create_date)[0:10])
+            group ='''{groupname}'''.format(groupname=Group.objects.get(id=a.group).name)
             for z in baseAssets.get('zone'):
-                if z.id == a.put_zone:put_zone = '''<td class="text-center">{zone_name}</td>'''.format(zone_name=z.zone_name)
-#                 else:put_zone = '''<td class="text-center">未知</td>'''
+                if z.id == a.put_zone:put_zone = '''{zone_name}'''.format(zone_name=z.zone_name)
             try:
                 if a.assets_type in ["server","vmser"]:
                     assets_type_div = '''
@@ -583,14 +581,27 @@ def assets_search(request):
                         </div>'''         
             except:
                 pass             
-            opt = '''
-                <td class="text-center">
+            opt = '''                
                      <a href="/assets_view/{id}" style="text-decoration:none;"><button  type="button" class="btn btn-default"><abbr title="查看详细信息"><i class="glyphicon glyphicon-info-sign"></i></abbr></button></a>
                      {assets_type_div}
                      <a href="/assets_mod/{id}" style="text-decoration:none;"><button  type="button" class="btn btn-default"><abbr title="修改资料"><i class="glyphicon glyphicon-edit"></button></i></abbr></a>
                      <button  type="button" class="btn btn-default" onclick="deleteAssets(this,{id})"><i class="glyphicon glyphicon-trash"></i></button>
-                 </td>'''.format(id=a.id,assets_type_div=assets_type_div)
-            dataList.append([assets_id,assets_type,management_ip,name,model,put_zone,project,service,group,buy_time,status,opt])                                                                                                                                                                                          
+                 '''.format(id=a.id,assets_type_div=assets_type_div)
+            dataList.append(
+                             {"详情":'',
+                             '全选':'<input type="checkbox" value="{id}" name="ckbox"/>'.format(id=a.id),
+                             '资产ID':a.id,
+                             '资产类型':assets_type,
+                             '管理IP':management_ip,
+                             '资产编号':name,
+                             '设备型号':model,
+                             '放置区域':put_zone,
+                             '产品线':project,
+                             '业务类型':service,
+                             '使用组':group,
+                             '设备状态':status,
+                             '操作':opt}
+                             )                                                                                                                                                                                          
         return JsonResponse({'msg':"数据查询成功","code":200,'data':dataList,'count':0})     
     
 @login_required(login_url='/login')  
