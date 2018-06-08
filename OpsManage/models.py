@@ -41,6 +41,7 @@ class Assets(models.Model):
             ("can_change_assets", "更改资产权限"),
             ("can_add_assets", "添加资产权限"),
             ("can_delete_assets", "删除资产权限"),
+            ("can_dumps_assets", "导出资产权限"),
         ) 
         verbose_name = '总资产表'  
         verbose_name_plural = '总资产表'  

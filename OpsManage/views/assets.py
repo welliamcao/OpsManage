@@ -1,17 +1,19 @@
 #!/usr/bin/env python  
 # _#_ coding:utf-8 _*_  
 import os,xlrd,time
-from django.http import JsonResponse
+from django.http import JsonResponse,StreamingHttpResponse
 from django.shortcuts import render,HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
 from OpsManage.models import *
 from django.db.models import Count
 from OpsManage.utils.ansible_api_v2 import ANSRunner
 from django.contrib.auth.models import Group,User
+from OpsManage.utils import base
 from OpsManage.tasks.assets import recordAssets
 from django.contrib.auth.decorators import permission_required
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from OpsManage.utils.logger import logger
+from OpsManage.utils.execl import CellWriter
 
 def getBaseAssets():
     try:
@@ -617,108 +619,196 @@ def assets_log(request,page):
             assetsList = paginator.page(paginator.num_pages)        
         return render(request,'assets/assets_log.html',{"user":request.user,"assetsList":assetsList})
     
-    
+
+
 @login_required(login_url='/login')
 @permission_required('OpsManage.can_change_assets',login_url='/noperm/')
-def assets_batch(request):
+def assets_update(request):
     if request.method == "POST":
         fList = []
         sList = []
         resource = []
         serList = []
-        if request.POST.get('model') == 'update':
-            for ast in request.POST.getlist('assetsIds[]'):
+#         if request.POST.get('model') == 'update':
+        for ast in request.POST.getlist('assetsIds[]'):
+            try:
+                assets = Assets.objects.get(id=int(ast))
+            except Exception, ex:
+                logger.warn(msg="批量更新获取资产失败: {ex}".format(ex=str(ex)))
+                continue
+            if assets.assets_type in ['vmser','server']:
                 try:
-                    assets = Assets.objects.get(id=int(ast))
+                    server_assets = Server_Assets.objects.get(assets=assets)
                 except Exception, ex:
-                    logger.warn(msg="批量更新获取资产失败: {ex}".format(ex=str(ex)))
+                    logger.warn(msg="批量更新获取服务器资产失败: {ex}".format(ex=str(ex)))
+                    if server_assets.ip not in fList:fList.append(server_assets.ip) 
                     continue
-                if assets.assets_type in ['vmser','server']:
+                serList.append(server_assets.ip)
+                if server_assets.keyfile == 1:resource.append({"hostname": server_assets.ip, "port": int(server_assets.port),"username": server_assets.username})
+                else:resource.append({"hostname": server_assets.ip, "port": server_assets.port,"username": server_assets.username, "password": server_assets.passwd})                    
+        ANS = ANSRunner(resource)
+        ANS.run_model(host_list=serList,module_name='setup',module_args="")
+        data = ANS.handle_cmdb_data(ANS.get_model_result())    
+        if data:
+            for ds in data:
+                status = ds.get('status')
+                sip = ds.get('ip') 
+                if status == 0:
+                    assets = Server_Assets.objects.get(ip=ds.get('ip')).assets
+                    assets.model = ds.get('model')
+                    assets.save()
                     try:
-                        server_assets = Server_Assets.objects.get(assets=assets)
-                    except Exception, ex:
-                        logger.warn(msg="批量更新获取服务器资产失败: {ex}".format(ex=str(ex)))
-                        if server_assets.ip not in fList:fList.append(server_assets.ip) 
-                        continue
-                    serList.append(server_assets.ip)
-                    if server_assets.keyfile == 1:resource.append({"hostname": server_assets.ip, "port": int(server_assets.port),"username": server_assets.username})
-                    else:resource.append({"hostname": server_assets.ip, "port": server_assets.port,"username": server_assets.username, "password": server_assets.passwd})                    
-            ANS = ANSRunner(resource)
-            ANS.run_model(host_list=serList,module_name='setup',module_args="")
-            data = ANS.handle_cmdb_data(ANS.get_model_result())    
-            if data:
-                for ds in data:
-                    status = ds.get('status')
-                    sip = ds.get('ip') 
-                    if status == 0:
-                        assets = Server_Assets.objects.get(ip=ds.get('ip')).assets
-                        assets.model = ds.get('model')
-                        assets.save()
-                        try:
-                            Server_Assets.objects.filter(ip=ds.get('ip')).update(cpu_number=ds.get('cpu_number'),kernel=ds.get('kernel'),
-                                                                                  selinux=ds.get('selinux'),hostname=ds.get('hostname'),
-                                                                                  system=ds.get('system'),cpu=ds.get('cpu'),
-                                                                                  disk_total=ds.get('disk_total'),cpu_core=ds.get('cpu_core'),
-                                                                                  swap=ds.get('swap'),ram_total=ds.get('ram_total'),
-                                                                                  vcpu_number=ds.get('vcpu_number')
-                                                                                  )
-                            if sip not in sList:sList.append(sip)
-                        except Exception:
-                            if sip not in fList:fList.append(sip) 
-                        for nk in ds.get('nks'):
-                            macaddress = nk.get('macaddress')
-                            count = NetworkCard_Assets.objects.filter(assets=assets,macaddress=macaddress).count()
-                            if count > 0:
-                                try:
-                                    NetworkCard_Assets.objects.filter(assets=assets,macaddress=macaddress).update(assets=assets,device=nk.get('device'),
-                                                                                                                       ip=nk.get('address'),module=nk.get('module'),
-                                                                                                                       mtu=nk.get('mtu'),active=nk.get('active'))
-                                except Exception, ex:
-                                    logger.warn(msg="批量更新更新服务器网卡资产失败: {ex}".format(ex=str(ex)))
-                            else:
-                                try:
-                                    NetworkCard_Assets.objects.create(assets=assets,device=nk.get('device'),
-                                                                  macaddress=nk.get('macaddress'),
-                                                                  ip=nk.get('address'),module=nk.get('module'),
-                                                                  mtu=nk.get('mtu'),active=nk.get('active'))
-                                except Exception, ex:
-                                    logger.warn(msg="批量更新写入服务器网卡资产失败: {ex}".format(ex=str(ex)))                         
-                    else:
+                        Server_Assets.objects.filter(ip=ds.get('ip')).update(cpu_number=ds.get('cpu_number'),kernel=ds.get('kernel'),
+                                                                              selinux=ds.get('selinux'),hostname=ds.get('hostname'),
+                                                                              system=ds.get('system'),cpu=ds.get('cpu'),
+                                                                              disk_total=ds.get('disk_total'),cpu_core=ds.get('cpu_core'),
+                                                                              swap=ds.get('swap'),ram_total=ds.get('ram_total'),
+                                                                              vcpu_number=ds.get('vcpu_number')
+                                                                              )
+                        if sip not in sList:sList.append(sip)
+                    except Exception:
                         if sip not in fList:fList.append(sip) 
-                                                         
-            if sList:
-                return JsonResponse({'msg':"数据更新成功","code":200,'data':{"success":sList,"failed":fList}}) 
-            else:return JsonResponse({'msg':"数据更新失败","code":500,'data':{"success":sList,"failed":fList}}) 
-            
-        elif request.POST.get('model') == 'delete':
-            for ast in request.POST.getlist('assetsIds[]'):
-                try:
-                    assets = Assets.objects.get(id=int(ast))
-                except Exception, ex:
-                    print ex
-                    continue
-                if assets.assets_type in ['vmser','server']:
-                    try:
-                        server_assets = Server_Assets.objects.get(assets=assets)
-                    except Exception, ex:
-                        fList.append(assets.management_ip)
-                        assets.delete() 
-                        continue   
-                    sList.append(server_assets.ip)
-                    server_assets.delete()                    
+                    for nk in ds.get('nks'):
+                        macaddress = nk.get('macaddress')
+                        count = NetworkCard_Assets.objects.filter(assets=assets,macaddress=macaddress).count()
+                        if count > 0:
+                            try:
+                                NetworkCard_Assets.objects.filter(assets=assets,macaddress=macaddress).update(assets=assets,device=nk.get('device'),
+                                                                                                                   ip=nk.get('address'),module=nk.get('module'),
+                                                                                                                   mtu=nk.get('mtu'),active=nk.get('active'))
+                            except Exception, ex:
+                                logger.warn(msg="批量更新更新服务器网卡资产失败: {ex}".format(ex=str(ex)))
+                        else:
+                            try:
+                                NetworkCard_Assets.objects.create(assets=assets,device=nk.get('device'),
+                                                              macaddress=nk.get('macaddress'),
+                                                              ip=nk.get('address'),module=nk.get('module'),
+                                                              mtu=nk.get('mtu'),active=nk.get('active'))
+                            except Exception, ex:
+                                logger.warn(msg="批量更新写入服务器网卡资产失败: {ex}".format(ex=str(ex)))                         
                 else:
-                    try:
-                        net_assets = Network_Assets.objects.get(assets=assets)
-                    except Exception, ex:
-                        fList.append(assets.management_ip)
-                        assets.delete() 
-                        continue  
-                    sList.append(assets.management_ip)
-                    net_assets.delete()                    
-                assets.delete()                                    
+                    if sip not in fList:fList.append(sip)                         
+        if sList:
             return JsonResponse({'msg':"数据更新成功","code":200,'data':{"success":sList,"failed":fList}}) 
-        else:
-            return JsonResponse({'msg':"操作失败","code":500,'data':"不支持的操作"})    
+        else:return JsonResponse({'msg':"数据更新失败","code":500,'data':{"success":sList,"failed":fList}}) 
+                
+@login_required(login_url='/login')
+@permission_required('OpsManage.can_delete_assets',login_url='/noperm/')
+def assets_delete(request):
+    if request.method == "POST":
+        fList = []
+        sList = []
+        for ast in request.POST.getlist('assetsIds[]'):
+            try:
+                assets = Assets.objects.get(id=int(ast))
+            except Exception, ex:
+                print ex
+                continue
+            if assets.assets_type in ['vmser','server']:
+                try:
+                    server_assets = Server_Assets.objects.get(assets=assets)
+                except Exception, ex:
+                    fList.append(assets.management_ip)
+                    assets.delete() 
+                    continue   
+                sList.append(server_assets.ip)
+                server_assets.delete()                    
+            else:
+                try:
+                    net_assets = Network_Assets.objects.get(assets=assets)
+                except Exception, ex:
+                    fList.append(assets.management_ip)
+                    assets.delete() 
+                    continue  
+                sList.append(assets.management_ip)
+                net_assets.delete()                    
+            assets.delete()                                    
+        return JsonResponse({'msg':"数据删除成功","code":200,'data':{"success":sList,"failed":fList}})
+
+@login_required(login_url='/login')
+@permission_required('OpsManage.can_dumps_assets',login_url='/noperm/')
+def assets_dumps(request):
+    if request.method == "POST":  
+        dRbt = CellWriter('assets_dumps.xls')
+        serSheet = dRbt.workbook.add_sheet('服务器资产',cell_overwrite_ok=True)
+        netSheet = dRbt.workbook.add_sheet('网络设备资产',cell_overwrite_ok=True)
+        bList = ['设备类型','资产编号','设备序列号','购买时间','过保时间','购买人','管理IP','生产制造商','设备型号','供货商',
+                 '设备状态','放置区域','产品线','使用组','业务类型','主机地址','认证方式','账户','主机名字','端口','CPU型号',
+                 'Raid类型','物理CPU','逻辑CPU','CPU核心数','内存容量','内核版本','Selinux状态','Swap分区','磁盘空间',
+                 '系统版本号','机房线路']
+        nList = ['设备类型','资产编号','设备序列号','购买时间','过保时间','购买人','管理IP','生产制造商','设备型号','供货商',
+                 '设备状态','放置区域','产品线','使用组','业务类型','主机地址','背板带宽','端口数','固件版本','CPU型号',
+                 '内存容量','配置说明']
+        dRbt.writeBanner(sheetName=serSheet, bList=bList)
+        dRbt.writeBanner(sheetName=netSheet, bList=nList)
+        count = 1
+        for ast in request.POST.get('assetsIds').split(','):
+            try:
+                assets = Assets.objects.select_related().get(id=int(ast))
+            except Exception, ex:
+                logger.warn(msg=ex) 
+                continue
+            if assets.assets_type in ['vmser','server']:
+                sheet = serSheet
+                sheet.write(count,15,assets.server_assets.ip,dRbt.bodySttle())
+                sheet.write(count,16,assets.server_assets.keyfile,dRbt.bodySttle())
+                sheet.write(count,17,assets.server_assets.username,dRbt.bodySttle())
+                sheet.write(count,18,assets.server_assets.hostname,dRbt.bodySttle())
+                sheet.write(count,19,assets.server_assets.port,dRbt.bodySttle())
+                sheet.write(count,20,assets.server_assets.cpu,dRbt.bodySttle())
+                sheet.write(count,21,Raid_Assets.objects.get(id=assets.server_assets.raid).raid_name,dRbt.bodySttle())
+                sheet.write(count,22,assets.server_assets.cpu_number,dRbt.bodySttle())
+                sheet.write(count,23,assets.server_assets.vcpu_number,dRbt.bodySttle())
+                sheet.write(count,24,assets.server_assets.cpu_core,dRbt.bodySttle())
+                sheet.write(count,25,assets.server_assets.ram_total,dRbt.bodySttle())
+                sheet.write(count,26,assets.server_assets.kernel,dRbt.bodySttle())
+                sheet.write(count,27,assets.server_assets.selinux,dRbt.bodySttle())
+                sheet.write(count,28,assets.server_assets.swap,dRbt.bodySttle())
+                sheet.write(count,29,assets.server_assets.disk_total,dRbt.bodySttle())
+                sheet.write(count,30,assets.server_assets.system,dRbt.bodySttle())
+                sheet.write(count,31,Line_Assets.objects.get(id=assets.server_assets.line).line_name,dRbt.bodySttle())
+            else:
+                sheet = netSheet
+                sheet.write(count,15,assets.network_assets.ip,dRbt.bodySttle())
+                sheet.write(count,16,assets.network_assets.bandwidth,dRbt.bodySttle())
+                sheet.write(count,17,assets.network_assets.port_number,dRbt.bodySttle())
+                sheet.write(count,18,assets.network_assets.firmware,dRbt.bodySttle())
+                sheet.write(count,19,assets.network_assets.cpu,dRbt.bodySttle())
+                sheet.write(count,20,assets.network_assets.stone,dRbt.bodySttle())
+                sheet.write(count,21,assets.network_assets.configure_detail,dRbt.bodySttle())
+            if assets.assets_type == 'vmser':sheet.write(count,0,'虚拟机',dRbt.bodySttle())
+            elif assets.assets_type == 'server':sheet.write(count,0,'服务器',dRbt.bodySttle())
+            elif assets.assets_type == 'switch':sheet.write(count,0,'交换机',dRbt.bodySttle())
+            elif assets.assets_type == 'route':sheet.write(count,0,'路由器',dRbt.bodySttle())
+            elif assets.assets_type == 'printer':sheet.write(count,0,'打印机',dRbt.bodySttle())
+            elif assets.assets_type == 'scanner':sheet.write(count,0,'扫描仪',dRbt.bodySttle())
+            elif assets.assets_type == 'firewall':sheet.write(count,0,'防火墙',dRbt.bodySttle())
+            elif assets.assets_type == 'storage':sheet.write(count,0,'存储设备',dRbt.bodySttle())
+            elif assets.assets_type == 'wifi':sheet.write(count,0,'无线设备',dRbt.bodySttle())
+            sheet.write(count,1,assets.name,dRbt.bodySttle())
+            sheet.write(count,2,assets.sn,dRbt.bodySttle())
+            sheet.write(count,3,str(assets.buy_time),dRbt.bodySttle())
+            sheet.write(count,4,str(assets.expire_date),dRbt.bodySttle())
+            sheet.write(count,5,assets.buy_user,dRbt.bodySttle())
+            sheet.write(count,6,assets.management_ip,dRbt.bodySttle())
+            sheet.write(count,7,assets.manufacturer,dRbt.bodySttle())
+            sheet.write(count,8,assets.model,dRbt.bodySttle())
+            sheet.write(count,9,assets.provider,dRbt.bodySttle())
+            if assets.status == 0:sheet.write(count,10,'已上线',dRbt.bodySttle())
+            elif assets.status == 1:sheet.write(count,10,'已下线',dRbt.bodySttle())
+            elif assets.status == 2:sheet.write(count,10,'维修中',dRbt.bodySttle())
+            elif assets.status == 3:sheet.write(count,10,'已入库',dRbt.bodySttle())
+            elif assets.status == 4:sheet.write(count,10,'未使用',dRbt.bodySttle())
+            sheet.write(count,11,Zone_Assets.objects.get(id=assets.put_zone).zone_name,dRbt.bodySttle())
+            sheet.write(count,12,Project_Assets.objects.get(id=assets.project).project_name,dRbt.bodySttle())
+            sheet.write(count,13,Group.objects.get(id=assets.group).name,dRbt.bodySttle())
+            sheet.write(count,14,Service_Assets.objects.get(id=assets.business).service_name,dRbt.bodySttle())
+            count = count + 1
+        dRbt.save()
+        response = StreamingHttpResponse(base.file_iterator('assets_dumps.xls'))
+        response['Content-Type'] = 'application/octet-stream'
+        response['Content-Disposition'] = 'attachment; filename="{file_name}'.format(file_name='assets_dumps.xls')
+        return response           
         
 @login_required(login_url='/login')
 @permission_required('OpsManage.can_read_assets',login_url='/noperm/')

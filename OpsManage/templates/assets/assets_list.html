@@ -503,7 +503,7 @@
                         <div class="panel-heading">
 							    <div class="btn-group btn-group-xs pull-right">
 							    	<button type="button" class="btn btn-default"><a href="#" data-toggle="modal" data-target="#myAssetsImportModal"><i class="fa fa-pencil fa-fw"></i>批量导入</a></button>
-								    <button type="button" class="btn btn-default"><a href="/assets_search"><i class="fa fa-search fa-fw"></i>高级搜索</a></button>
+							    	<button type="button" class="btn btn-default" onclick="fcDumpsAssetsData(this)"><i class="fa fa-refresh fa-fw"></i>导出资产</button>
 								    <button type="button" class="btn btn-default" onclick="updateAllAssets(this,'update')"><i class="fa fa-refresh fa-fw"></i>批量更新</button>
 								    <button type="button" class="btn btn-default" onclick="updateAllAssets(this,'delete')"><i class="fa fa-trash-o fa-fw"></i>批量删除</button>
 								</div>                         
@@ -883,25 +883,70 @@
 	}  
 
 
+	var downLoadFile = function (options) {
+	    var config = $.extend(true, { method: 'post' }, options);
+	    var $iframe = $('<iframe id="down-file-iframe"/>');
+	    var $form = $("<form target='down-file-iframe' method=" + config.method + " />");
+	    $form.attr('action', config.url);
+	    for (var key in config.data) {
+	    	console.log('<input type="hidden" name="' + key + '" value="' + config.data[key] +  '"/>');
+	        $form.append('<input type="hidden" name="' + key + '" value="' + config.data[key] +  '"/>');
+	    }
+	    $form.append("{% csrf_token %}");
+	    $iframe.append($form);
+	    $(document.body).append($iframe);
+	    $form[0].submit();
+	    $iframe.remove();
+	}	
+	
+	function fcDumpsAssetsData(obj){
+		var btnObj = $(obj);
+		btnObj.attr('disabled',true);
+		var serverId = [];
+	    var url = "/assets/batch/dumps/";	
+	    $.each($("input[name='ckbox']:checkbox"),function(){
+            if(this.checked){
+				serverId.push($(this).val());
+            }
+        })
+        if (serverId.length > 0){
+	         var data = {
+					'assetsIds':serverId,
+	         };
+	        downLoadFile({ //调用下载方法
+			        url:url,data:data
+			        }); 
+        }
+        else{
+        	window.wxc.xcConfirm("至少选择一个资产~", window.wxc.xcConfirm.typeEnum.error);
+        }
+        btnObj.removeAttr('disabled');
+		}
+	
+
 	function updateAllAssets(obj,model){
 		var btnObj = $(obj);
 		btnObj.attr('disabled',true);
 		var serverId = [];
 	  	var qcheck=document.getElementsByName("ckbox");
-	  	for (var i = 0; i < qcheck.length; i++)  
-		  {  
+	  	for (var i = 0; i < qcheck.length; i++){  
 	  		if(qcheck[i].checked==true){
 	  			serverId.push(qcheck[i].value);
 	  		}
-		  } 	
+		}
+	  	if (model=='update'){
+	  		var url = '/assets/batch/update/'
+	  	}
+	  	else if (model=='delete'){
+	  		var url = '/assets/batch/update/'
+	  	}
 	  	if (serverId.length > 0){
 			$.ajax({
 				  type: 'POST',
-				  url: '/assets/batch/',
+				  url: url,
 				  dataType:"json",
 				  data:{
 					  'assetsIds':serverId,
-					  'model':model
 				  },
 			      success:function(response){	
 			    	var sip = '';
