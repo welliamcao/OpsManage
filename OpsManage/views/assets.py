@@ -817,10 +817,10 @@ def assets_server(request):
         if request.POST.get('query') in ['service','project','group']:
             dataList = []
             if request.POST.get('query') == 'service':
-                for ser in Assets.objects.filter(business=request.POST.get('id')):
+                for ser in Assets.objects.filter(business=request.POST.get('id'),assets_type__in=['server','vmser']):
                     dataList.append({"id":ser.server_assets.id,"ip":ser.server_assets.ip})
             elif request.POST.get('query') == 'group':
-                for ser in Assets.objects.filter(group=request.POST.get('id')):
+                for ser in Assets.objects.filter(group=request.POST.get('id'),assets_type__in=['server','vmser']):
                     dataList.append({"id":ser.server_assets.id,"ip":ser.server_assets.ip})                
             return JsonResponse({'msg':"主机查询成功","code":200,'data':dataList})  
         else:JsonResponse({'msg':"不支持的操作","code":500,'data':[]})  

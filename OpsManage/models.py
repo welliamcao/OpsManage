@@ -610,8 +610,8 @@ class SQL_Execute_Histroy(models.Model):
             ("can_add_sql_execute_histroy", "添加SQL执行历史表权限"),
             ("can_delete_sql_execute_histroy", "删除SQL执行历史表权限"),              
         )
-        verbose_name = 'SQL审核工单表'  
-        verbose_name_plural = 'SQL审核工单表'     
+        verbose_name = 'SQL执行历史记录表'  
+        verbose_name_plural = 'SQL执行历史记录表'     
         
 class Custom_High_Risk_SQL(models.Model):
     sql = models.CharField(max_length=200,unique=True,verbose_name='SQL内容') 
@@ -620,7 +620,7 @@ class Custom_High_Risk_SQL(models.Model):
         permissions = (
             ("can_read_custom_high_risk_sql", "读取高危SQL表权限"),
             ("can_change_custom_high_risk_sql", "更改高危SQL表权限"),
-            ("can_add_sql_custom_high_risk_sql", "添加高危SQL表权限"),
+            ("can_add_custom_high_risk_sql", "添加高危SQL表权限"),
             ("can_delete_custom_high_risk_sql", "删除高危SQL表权限"),              
         )
         verbose_name = '自定义高危SQL表'  
