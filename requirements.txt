@@ -24,3 +24,4 @@ DBUtils
 xlrd
 chardet
 requests
+xlwt
