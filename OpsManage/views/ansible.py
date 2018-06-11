@@ -4,7 +4,7 @@ import uuid,os,json
 from django.http import HttpResponseRedirect,JsonResponse
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
-from OpsManage.models import Server_Assets
+from OpsManage.models import Server_Assets, Network_Assets
 from OpsManage.data.DsRedisOps import DsRedis
 from OpsManage.utils.ansible_api_v2 import ANSRunner
 from django.contrib.auth.models import User,Group
@@ -16,6 +16,7 @@ from OpsManage.models import (Ansible_Playbook,Ansible_Playbook_Number,
 from OpsManage.data.DsMySQL import AnsibleRecord
 from django.contrib.auth.decorators import permission_required
 from OpsManage.utils.logger import logger
+from dao.assets import AssetsSource
 
 
 @login_required()
@@ -23,7 +24,7 @@ from OpsManage.utils.logger import logger
 def apps_model(request):
     if request.method == "GET":
         projectList = Project_Assets.objects.all()
-        serverList = Server_Assets.objects.all()
+        serverList = AssetsSource().serverList()
         groupList = Group.objects.all()
         serviceList = Service_Assets.objects.all()
         return render(request,'apps/apps_model.html',{"user":request.user,"ans_uuid":uuid.uuid4(),
@@ -35,23 +36,11 @@ def apps_model(request):
         if request.POST.get('server_model') in ['service','group','custom']:
             if request.POST.get('server_model') == 'custom':
                 serverList = request.POST.getlist('ansible_server')
-                for server in serverList:
-                    server_assets = Server_Assets.objects.get(id=server)
-                    sList.append(server_assets.ip)
-                    if server_assets.keyfile == 1:resource.append({"hostname": server_assets.ip, "port": int(server_assets.port),"username": server_assets.username})
-                    else:resource.append({"hostname": server_assets.ip, "port": int(server_assets.port),"username": server_assets.username,"password": server_assets.passwd})
+                sList,resource = AssetsSource().custom(serverList)
             elif request.POST.get('server_model') == 'group':
-                serverList = Assets.objects.filter(group=request.POST.get('ansible_group'),assets_type__in=["server","vmser"])
-                for server in serverList:
-                    sList.append(server.server_assets.ip)
-                    if server.server_assets.keyfile == 1:resource.append({"hostname": server.server_assets.ip, "port": int(server.server_assets.port),"username": server.server_assets.username})
-                    else:resource.append({"hostname": server.server_assets.ip, "port": int(server.server_assets.port),"username": server.server_assets.username,"password": server.server_assets.passwd})  
+                sList,resource = AssetsSource().group(group=request.POST.get('ansible_group'))
             elif request.POST.get('server_model') == 'service':
-                serverList = Assets.objects.filter(business=request.POST.get('ansible_service'),assets_type__in=["server","vmser"])
-                for server in serverList:
-                    sList.append(server.server_assets.ip)
-                    if server.server_assets.keyfile == 1:resource.append({"hostname": server.server_assets.ip, "port": int(server.server_assets.port),"username": server.server_assets.username})
-                    else:resource.append({"hostname": server.server_assets.ip, "port": int(server.server_assets.port),"username": server.server_assets.username,"password": server.server_assets.passwd})                                       
+                sList,resource = AssetsSource().service(business=request.POST.get('ansible_service'))                                
             if len(request.POST.get('custom_model')) > 0:model_name = request.POST.get('custom_model')
             else:model_name = request.POST.get('ansible_model',None)
             if len(sList) > 0:
@@ -82,7 +71,8 @@ def ansible_run(request):
 @permission_required('OpsManage.can_add_ansible_playbook',login_url='/noperm/')
 def apps_upload(request):
     if request.method == "GET":
-        serverList = Server_Assets.objects.all()
+#         serverList = Server_Assets.objects.all()
+        serverList = AssetsSource().serverList()
         projectList = Project_Assets.objects.all()
         groupList = Group.objects.all()
         userList = User.objects.all()
@@ -92,21 +82,31 @@ def apps_upload(request):
                                                             "serviceList":serviceList,"projectList":projectList},
                                   )
     elif request.method == "POST":   
-        sList = []
+#         sList = []
         if request.POST.get('server_model') in ['service','group','custom']:  
+#             if request.POST.get('server_model') == 'custom':
+#                 for sid in request.POST.getlist('playbook_server'):
+#                     server = Server_Assets.objects.get(id=sid)
+#                     sList.append(server.ip)
+#                 playbook_server_value = None
+#             elif request.POST.get('server_model') == 'group':
+#                 serverList = Assets.objects.filter(group=request.POST.get('ansible_group'))
+#                 sList = [  s.server_assets.ip for s in serverList ]
+#                 playbook_server_value = request.POST.get('ansible_group')
+#             elif request.POST.get('server_model') == 'service':
+#                 serverList = Assets.objects.filter(business=request.POST.get('ansible_service'))
+#                 sList = [  s.server_assets.ip for s in serverList ]   
+#                 playbook_server_value = request.POST.get('ansible_service')     
             if request.POST.get('server_model') == 'custom':
-                for sid in request.POST.getlist('playbook_server'):
-                    server = Server_Assets.objects.get(id=sid)
-                    sList.append(server.ip)
+                serverList = request.POST.getlist('playbook_server')
+                sList,resource = AssetsSource().custom(serverList)
                 playbook_server_value = None
             elif request.POST.get('server_model') == 'group':
-                serverList = Assets.objects.filter(group=request.POST.get('ansible_group'))
-                sList = [  s.server_assets.ip for s in serverList ]
+                sList,resource = AssetsSource().group(group=request.POST.get('ansible_group'))
                 playbook_server_value = request.POST.get('ansible_group')
             elif request.POST.get('server_model') == 'service':
-                serverList = Assets.objects.filter(business=request.POST.get('ansible_service'))
-                sList = [  s.server_assets.ip for s in serverList ]   
-                playbook_server_value = request.POST.get('ansible_service')                            
+                sList,resource = AssetsSource().service(business=request.POST.get('ansible_service'))
+                playbook_server_value = request.POST.get('ansible_service')                        
         try:  
             playbook = Ansible_Playbook.objects.create(
                                             playbook_name = request.POST.get('playbook_name'),
@@ -140,7 +140,7 @@ def apps_upload(request):
 @permission_required('OpsManage.can_add_ansible_playbook',login_url='/noperm/')
 def apps_online(request):
     if request.method == "GET":
-        serverList = Server_Assets.objects.all()
+        serverList = AssetsSource().serverList()
         groupList = Group.objects.all()
         userList = User.objects.all()
         serviceList = Service_Assets.objects.all()
@@ -152,19 +152,15 @@ def apps_online(request):
     elif request.method == "POST": 
         sList = []
         playbook_server_value = None
-        if request.POST.get('server_model') in ['service','group','custom']:  
+        if request.POST.get('server_model') in ['service','group','custom']:    
             if request.POST.get('server_model') == 'custom':
-                for sid in request.POST.getlist('playbook_server[]'):
-                    server = Server_Assets.objects.get(id=sid)
-                    sList.append(server.ip)
-                playbook_server_value = None
+                serverList = request.POST.getlist('playbook_server[]')
+                sList,resource = AssetsSource().custom(serverList)
             elif request.POST.get('server_model') == 'group':
-                serverList = Assets.objects.filter(group=request.POST.get('ansible_group'))
-                sList = [  s.server_assets.ip for s in serverList ]
+                sList,resource = AssetsSource().group(group=request.POST.get('ansible_group'))
                 playbook_server_value = request.POST.get('ansible_group')
             elif request.POST.get('server_model') == 'service':
-                serverList = Assets.objects.filter(business=request.POST.get('ansible_service'))
-                sList = [  s.server_assets.ip for s in serverList ]   
+                sList,resource = AssetsSource().service(business=request.POST.get('ansible_service')) 
                 playbook_server_value = request.POST.get('ansible_service')   
         fileName = 'playbook/online-{ram}.yaml'.format(ram=uuid.uuid4().hex[0:8]) 
         filePath = os.getcwd() + '/upload/' + fileName
@@ -243,7 +239,7 @@ def apps_playbook_run(request,pid):
         playbook = Ansible_Playbook.objects.get(id=pid)
         numberList = Ansible_Playbook_Number.objects.filter(playbook=playbook)
         if numberList:serverList = []
-        else:serverList = Server_Assets.objects.all()
+        else:serverList = AssetsSource().serverList()           
     except:
         return render(request,'apps/apps_playbook.html',{"user":request.user,"ans_uuid":playbook.playbook_uuid,
                                                          "errorInfo":"剧本不存在，可能已经被删除."}, 
@@ -260,24 +256,18 @@ def apps_playbook_run(request,pid):
             #删除旧的执行消息
             DsRedis.OpsAnsiblePlayBook.delete(playbook.playbook_uuid)            
             playbook_file = os.getcwd() + '/upload/' + str(playbook.playbook_file)
-            sList = []
-            resource = []
             if numberList:serverList = [ s.playbook_server for s in numberList ]
             else:serverList = request.POST.getlist('playbook_server')
-            for server in serverList:
-                server_assets = Server_Assets.objects.get(ip=server)
-                sList.append(server_assets.ip)
-                if server_assets.keyfile == 1:resource.append({"hostname": server_assets.ip, "port": int(server_assets.port),"username": server_assets.username})
-                else:resource.append({"hostname": server_assets.ip, "port": int(server_assets.port),"username": server_assets.username,"password": server_assets.passwd})
+            sList, resource = AssetsSource().queryAssetsByIp(ipList=serverList)                  
             if playbook.playbook_vars:playbook_vars = playbook.playbook_vars
             else:playbook_vars = request.POST.get('playbook_vars')
             try:
                 if len(playbook_vars) == 0:playbook_vars=dict()
                 else:playbook_vars = json.loads(playbook_vars)
                 playbook_vars['host'] = sList    
-            except Exception,e:
+            except Exception,ex:
                 DsRedis.OpsAnsiblePlayBookLock.delete(redisKey=playbook.playbook_uuid+'-locked')
-                return JsonResponse({'msg':"剧本外部变量不是Json格式","code":500,'data':[]})
+                return JsonResponse({'msg':"{ex}".format(ex=ex),"code":500,'data':[]})
             logId = AnsibleRecord.PlayBook.insert(user=str(request.user),ans_id=playbook.id,ans_name=playbook.playbook_name,
                                         ans_content="执行Ansible剧本",ans_server=','.join(sList))   
             #执行ansible playbook
@@ -326,11 +316,11 @@ def apps_playbook_modf(request,pid):
                                   )    
     if request.method == "GET":
         numberList =[ s.playbook_server for s in numberList ]
-        serverList = Server_Assets.objects.all()
+        serverList = AssetsSource().serverList()
         projectList = Project_Assets.objects.all()
         for ds in serverList:
-            if ds.ip in numberList:ds.count = 1
-            else:ds.count = 0
+            if ds.get('ip') in numberList:ds['count'] = 1
+            else:ds['count'] = 0
         if playbook.playbook_type == 1:
             playbook_file = os.getcwd() + '/upload/' + str(playbook.playbook_file)
             if os.path.exists(playbook_file):
@@ -354,21 +344,17 @@ def apps_playbook_modf(request,pid):
     elif request.method == "POST":
         sList = []
         playbook_server_value = None
-        if request.POST.get('server_model') in ['service','group','custom']:  
+        if request.POST.get('server_model') in ['service','group','custom']:       
             if request.POST.get('server_model') == 'custom':
                 if playbook.playbook_type == 1:serverList = request.POST.getlist('playbook_server[]')
                 else:serverList = request.POST.getlist('playbook_server')
-                for sid in serverList:
-                    server = Server_Assets.objects.get(id=sid)
-                    sList.append(server.ip)
+                sList,resource = AssetsSource().custom(serverList)
             elif request.POST.get('server_model') == 'group':
-                serverList = Assets.objects.filter(group=request.POST.get('ansible_group'))
-                sList = [  s.server_assets.ip for s in serverList ]
+                sList,resource = AssetsSource().group(group=request.POST.get('ansible_group'))
                 playbook_server_value = request.POST.get('ansible_group')
             elif request.POST.get('server_model') == 'service':
-                serverList = Assets.objects.filter(business=request.POST.get('ansible_service'))
-                sList = [  s.server_assets.ip for s in serverList ]   
-                playbook_server_value = request.POST.get('ansible_service')      
+                sList,resource = AssetsSource().service(business=request.POST.get('ansible_service'))
+                playbook_server_value = request.POST.get('ansible_service')  
             if playbook.playbook_type == 1:
                 playbook_file = os.getcwd() + '/upload/' + str(playbook.playbook_file)
                 with open(playbook_file, 'w') as f:
@@ -424,19 +410,16 @@ def apps_playbook_online_modf(request,pid):
     if request.method == "POST":
         playbook_server_value = None
         sList = []
-        if request.POST.get('server_model') in ['service','group','custom']:  
+        if request.POST.get('server_model') in ['service','group','custom']:              
             if request.POST.get('server_model') == 'custom':
-                for sid in request.POST.getlist('playbook_server[]'):
-                    server = Server_Assets.objects.get(id=sid)
-                    sList.append(server.ip)
+                serverList = request.POST.getlist('playbook_server[]')
+                sList,resource = AssetsSource().custom(serverList)
             elif request.POST.get('server_model') == 'group':
-                serverList = Assets.objects.filter(group=request.POST.get('ansible_group'))
-                sList = [  s.server_assets.ip for s in serverList ]
+                sList,resource = AssetsSource().group(group=request.POST.get('ansible_group'))
                 playbook_server_value = request.POST.get('ansible_group')
             elif request.POST.get('server_model') == 'service':
-                serverList = Assets.objects.filter(business=request.POST.get('ansible_service'))
-                sList = [  s.server_assets.ip for s in serverList ]   
-                playbook_server_value = request.POST.get('ansible_service')            
+                sList,resource = AssetsSource().service(business=request.POST.get('ansible_service')) 
+                playbook_server_value = request.POST.get('ansible_service')
         if request.POST.get('playbook_content'):
             playbook_file = os.getcwd() + '/upload/' + str(playbook.playbook_file)
             with open(playbook_file, 'w') as f:

@@ -6,7 +6,7 @@ from OpsManage.models import (Ansible_Script,Ansible_Playbook,Server_Assets,
                               Ansible_Playbook_Number)
 from OpsManage.data.DsMySQL import AnsibleRecord
 from OpsManage.utils.ansible_api_v2 import ANSRunner
-
+from dao.assets import AssetsSource
 
 
     
@@ -15,7 +15,6 @@ from OpsManage.utils.ansible_api_v2 import ANSRunner
 @task  
 def AnsibleScripts(**kw):
     logId = None
-    resource = []
     try:
         if kw.has_key('scripts_id'):
             script = Ansible_Script.objects.get(id=kw.get('scripts_id'))
@@ -32,13 +31,7 @@ def AnsibleScripts(**kw):
                     return ex           
             if kw.has_key('logs'):
                 logId = AnsibleRecord.Model.insert(user='celery',ans_model='script',ans_server=','.join(sList),ans_args=filePath)
-            for sip in sList:
-                try:
-                    server_assets = Server_Assets.objects.get(ip=sip)
-                except Exception, ex:
-                    continue
-                if server_assets.keyfile == 1:resource.append({"hostname": server_assets.ip, "port": int(server_assets.port),"username": server_assets.username})
-                else:resource.append({"hostname": server_assets.ip, "port": int(server_assets.port),"username": server_assets.username,"password": server_assets.passwd})         
+            sList, resource = AssetsSource().queryAssetsByIp(ipList=sList)        
             ANS = ANSRunner(resource,redisKey=None,logId=logId)
             ANS.run_model(host_list=sList,module_name='script',module_args=filePath)
             return ANS.get_model_result()
@@ -50,7 +43,6 @@ def AnsibleScripts(**kw):
 @task  
 def AnsiblePlayBook(**kw):
     logId = None
-    resource = []
     try:
         if kw.has_key('playbook_id'):
             playbook = Ansible_Playbook.objects.get(id=kw.get('playbook_id'))
@@ -69,13 +61,7 @@ def AnsiblePlayBook(**kw):
             if kw.has_key('logs'):
                 logId = AnsibleRecord.PlayBook.insert(user='celery',ans_id=playbook.id,ans_name=playbook.playbook_name,
                                             ans_content=u"执行Ansible剧本",ans_server=','.join(sList)) 
-            for sip in sList:
-                try:
-                    server_assets = Server_Assets.objects.get(ip=sip)
-                except Exception, ex:
-                    continue
-                if server_assets.keyfile == 1:resource.append({"hostname": server_assets.ip, "port": int(server_assets.port),"username": server_assets.username})
-                else:resource.append({"hostname": server_assets.ip, "port": int(server_assets.port),"username": server_assets.username,"password": server_assets.passwd})         
+            sList, resource = AssetsSource().queryAssetsByIp(ipList=sList)       
             ANS = ANSRunner(resource,redisKey=None,logId=logId)
             ANS.run_playbook(host_list=sList, playbook_path=filePath)
             return ANS.get_playbook_result()

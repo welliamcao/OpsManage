@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 # -*- coding=utf-8 -*-
-import json,re
+import json,re,os
 from collections import namedtuple
 from ansible import constants
+from ansible.errors import AnsibleError, AnsibleOptionsError, AnsibleParserError
 from ansible.parsing.dataloader import DataLoader
 from ansible.vars import VariableManager
 from ansible.inventory import Inventory,Host,Group
@@ -55,15 +56,20 @@ class MyInventory(Inventory):
             hostport = host.get("port")  
             username = host.get("username")  
             password = host.get("password")
-            if username == 'root':keyfile = "/root/.ssh/id_rsa"
-            else:keyfile = "/home/{user}/.ssh/id_rsa".format(user=username)  
-            ssh_key = host.get("ssh_key",keyfile)  
+            connection = host.get("connection",'smart')
+            sudo_pass = host.get("sudo_pass")
+            if username == 'root':ssh_key = "/root/.ssh/id_rsa"
+            else:ssh_key = "/home/{user}/.ssh/id_rsa".format(user=username)
+            if not os.path.exists(ssh_key):ssh_key = host.get("ssh_key")  
             my_host = Host(name=hostname, port=hostport)  
             my_host.set_variable('ansible_ssh_host', hostip)  
             my_host.set_variable('ansible_ssh_port', hostport)  
             my_host.set_variable('ansible_ssh_user', username)  
-            my_host.set_variable('ansible_ssh_pass', password)  
+            my_host.set_variable('ansible_ssh_pass', password)
+            my_host.set_variable('ansible_sudo_pass', sudo_pass)  
             my_host.set_variable('ansible_ssh_private_key_file', ssh_key)  
+            my_host.set_variable('ansible_connection', connection)
+            
 
   
             # set other variables  
@@ -176,6 +182,8 @@ class PlayBookResultsCollectorToSave(CallbackBase):
         else:
             if delegated_vars:
                 msg = "ok: [%s -> %s]" % (result._host.get_name(), delegated_vars['ansible_host'])
+            elif result._result.has_key('msg'):
+                msg = "ok: [{host}] => {stdout}".format(host=result._host.get_name(),stdout=json.dumps(result._result,indent=4))  
             else:
                 msg = "ok: [%s]" % result._host.get_name()  
         if result._task.loop and 'results' in result._result:
@@ -352,7 +360,7 @@ class PlayBookResultsCollector(CallbackBase):
         self.task_unreachable[result._host.get_name()] = result
 
     def v2_runner_on_skipped(self, result):
-        self.task_ok[result._host.get_name()]  = result
+        self.task_skipped[result._host.get_name()]  = result
 
     def v2_runner_on_changed(self, result):
         self.task_changed[result._host.get_name()] = result
@@ -395,7 +403,7 @@ class ANSRunner(object):
    
         self.variable_manager = VariableManager()  
         self.loader = DataLoader()  
-        self.options = Options(connection='smart', module_path=None, forks=100, timeout=10,  
+        self.options = Options(connection=kwargs.get('connection','smart'), module_path=None, forks=100, timeout=10,  
                 remote_user=kwargs.get('remote_user','root'), ask_pass=False, private_key_file=None, ssh_common_args=None, 
                 ssh_extra_args=None,sftp_extra_args=None, scp_extra_args=None, become=True,
                 become_method=kwargs.get('become_method','sudo'),become_user=kwargs.get('become_user','root'), 
@@ -419,8 +427,13 @@ class ANSRunner(object):
                 gather_facts='no',  
                 tasks=[dict(action=dict(module=module_name, args=module_args))]  
         )
-         
-        play = Play().load(play_source, variable_manager=self.variable_manager, loader=self.loader)  
+        try: 
+            play = Play().load(play_source, variable_manager=self.variable_manager, loader=self.loader)  
+        except AnsibleParserError, err:
+            logger.error(msg="run model failed: {err}".format(err=str(err)))
+            if self.redisKey:DsRedis.OpsAnsibleModel.lpush(self.redisKey,data="run model failed: {err}".format(err=str(err)))
+            if self.logId:AnsibleSaveResult.Model.insert(self.logId, "run model failed: {err}".format(err=str(err)))   
+            return False               
         tqm = None  
         if self.redisKey or self.logId:self.callback = ModelResultsCollectorToSave(self.redisKey,self.logId)  
         else:self.callback = ModelResultsCollector()  

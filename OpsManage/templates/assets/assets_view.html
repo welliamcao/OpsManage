@@ -250,6 +250,16 @@
                                     <span class="pull-right text-muted small"><code>{{ asset_body.ip|default:"" }}</code>
                                     </span>
                                 </a>
+                               <a href="#" class="list-group-item">
+                                    <i class="fa fa-user-md   fa-fw"></i> 管理用户
+                                    <span class="pull-right text-muted small"><em>{{ asset_body.username|default:"" }}</em>
+                                    </span>
+                                </a>     
+                                <a href="#" class="list-group-item">
+                                    <i class="fa fa-tasks fa-fw"></i> 端口
+                                    <span class="pull-right text-muted small"><em>{{ asset_body.port|default:"" }}</em>
+                                    </span>
+                                </a>                                                           
                                 <a href="#" class="list-group-item">
                                     <i class="fa fa-lightbulb-o fa-fw"></i> CPU型号
                                     <span class="pull-right text-muted small"><em>{{ asset_body.cpu|default:"" }}</em>

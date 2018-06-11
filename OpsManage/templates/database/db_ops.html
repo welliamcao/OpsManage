@@ -160,7 +160,7 @@
 		if (service >= 1){
 			$.ajax({
 				dataType: "JSON",
-				url:'/db/ops/', //请求地址
+				url:'/db/sql/ops/', //请求地址
 				type:"POST",  //提交类似
 				data:{
 					'model':'querydb',
@@ -227,7 +227,7 @@
 			   if ( dbId.length > 0){	 
 					$.ajax({
 						dataType: "JSON",
-						url:'/db/ops/', //请求地址
+						url:'/db/sql/ops/', //请求地址
 						type:"POST",  //提交类似
 						data:{
 							'model':'binlog',
@@ -258,7 +258,7 @@
 		   if ( dbId.length > 0 && opsTag == 1){	 
 				$.ajax({
 					dataType: "JSON",
-					url:'/db/ops/', //请求地址
+					url:'/db/sql/ops/', //请求地址
 					type:"POST",  //提交类似
 					data:{
 						'model':'binlog',
@@ -299,7 +299,7 @@
 	    };
 	    $("#result").html("服务器正在处理，请稍等。。。");
 		$.ajax({
-			url:'/db/ops/', //请求地址
+			url:'/db/sql/ops/', //请求地址
 			type:"POST",  //提交类似
 			data:{
 				'opsTag':opsTag,

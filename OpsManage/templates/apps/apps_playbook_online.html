@@ -186,7 +186,13 @@
 		var editor = ace.edit("compile-editor");
 	    var contents = editor.getSession().getValue(); 
 	    var playbook_name = document.getElementsByName("playbook_name")[0].value;
-	    if ( contents.length == 0 || playbook_name.length == 0 ){
+	    var server_model = $("#server_model").val();
+	    var ansible_service = $("#ansible_service").val();
+	    if (server_model=='service' && ansible_service.length == 0){
+	    	window.wxc.xcConfirm("请选择一个业务类型", window.wxc.xcConfirm.typeEnum.error);
+	    	return false;	    	
+	    }	    
+	    else if ( contents.length == 0 || playbook_name.length == 0 ){
 	    	window.wxc.xcConfirm("剧本名称或者内容不能为空", window.wxc.xcConfirm.typeEnum.error);
 	    	return false;
 	    };

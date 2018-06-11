@@ -32,7 +32,6 @@ urlpatterns = [
             url(r'deploy/(?P<id>[0-9]+)/$', deploy_api.deploy_detail),    
             url(r'playbook/$', ansible_api.playbook_list),  
             url(r'playbook/(?P<id>[0-9]+)/$', ansible_api.playbook_detail),
-#             url(r'order/(?P<username>.+)/$', deploy_api.OrderList.as_view()),
             url(r'logs/assets/(?P<id>[0-9]+)/$', assets_api.assetsLog_detail),
             url(r'logs/cron/(?P<id>[0-9]+)/$', cron_api.cronLogsdetail),
             url(r'logs/ansible/model/(?P<id>[0-9]+)/$', ansible_api.modelLogsdetail),

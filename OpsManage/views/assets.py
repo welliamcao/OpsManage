@@ -738,7 +738,7 @@ def assets_dumps(request):
                  '系统版本号','机房线路']
         nList = ['设备类型','资产编号','设备序列号','购买时间','过保时间','购买人','管理IP','生产制造商','设备型号','供货商',
                  '设备状态','放置区域','产品线','使用组','业务类型','主机地址','背板带宽','端口数','固件版本','CPU型号',
-                 '内存容量','配置说明']
+                 '内存容量','配置说明','管理用户','端口']
         dRbt.writeBanner(sheetName=serSheet, bList=bList)
         dRbt.writeBanner(sheetName=netSheet, bList=nList)
         count = 1
@@ -776,6 +776,8 @@ def assets_dumps(request):
                 sheet.write(count,19,assets.network_assets.cpu,dRbt.bodySttle())
                 sheet.write(count,20,assets.network_assets.stone,dRbt.bodySttle())
                 sheet.write(count,21,assets.network_assets.configure_detail,dRbt.bodySttle())
+                sheet.write(count,22,assets.network_assets.username,dRbt.bodySttle())
+                sheet.write(count,23,assets.network_assets.port,dRbt.bodySttle())                
             if assets.assets_type == 'vmser':sheet.write(count,0,'虚拟机',dRbt.bodySttle())
             elif assets.assets_type == 'server':sheet.write(count,0,'服务器',dRbt.bodySttle())
             elif assets.assets_type == 'switch':sheet.write(count,0,'交换机',dRbt.bodySttle())
@@ -817,11 +819,13 @@ def assets_server(request):
         if request.POST.get('query') in ['service','project','group']:
             dataList = []
             if request.POST.get('query') == 'service':
-                for ser in Assets.objects.filter(business=request.POST.get('id'),assets_type__in=['server','vmser']):
-                    dataList.append({"id":ser.server_assets.id,"ip":ser.server_assets.ip})
+                for ser in Assets.objects.filter(business=request.POST.get('id')):#,assets_type__in=['server','vmser','switch','route']):
+                    if ser.assets_type in ['server','vmser']:dataList.append({"id":ser.server_assets.id,"ip":ser.server_assets.ip})
+                    elif ser.assets_type in ['switch','route']:dataList.append({"id":ser.network_assets.id,"ip":ser.network_assets.ip}) 
             elif request.POST.get('query') == 'group':
-                for ser in Assets.objects.filter(group=request.POST.get('id'),assets_type__in=['server','vmser']):
-                    dataList.append({"id":ser.server_assets.id,"ip":ser.server_assets.ip})                
+                for ser in Assets.objects.filter(group=request.POST.get('id')):#assets_type__in=['server','vmser','switch','route']):
+                    if ser.assets_type in ['server','vmser']:dataList.append({"id":ser.server_assets.id,"ip":ser.server_assets.ip})
+                    elif ser.assets_type in ['switch','route']:dataList.append({"id":ser.network_assets.id,"ip":ser.network_assets.ip})                 
             return JsonResponse({'msg':"主机查询成功","code":200,'data':dataList})  
         else:JsonResponse({'msg':"不支持的操作","code":500,'data':[]})  
     else:

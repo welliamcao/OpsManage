@@ -128,7 +128,8 @@ class ServerSerializer(serializers.ModelSerializer):
         fields = ('id','ip','hostname','username','port','passwd',
                   'line','cpu','cpu_number','vcpu_number','keyfile',
                   'cpu_core','disk_total','ram_total','kernel',
-                  'selinux','swap','raid','system','assets') 
+                  'selinux','swap','raid','system','assets',
+                  'sudo_passwd') 
 
     def create(self, data):
         if(data.get('assets')):
@@ -146,7 +147,8 @@ class NetworkSerializer(serializers.ModelSerializer):
     class Meta:
         model = Network_Assets
         fields = ('id','ip','bandwidth','port_number','firmware',
-                  'cpu','stone','configure_detail','assets')    
+                  'cpu','stone','configure_detail','assets',
+                  'port','passwd','sudo_passwd','username')    
     def create(self, data):
         if(data.get('assets')):
             assets_data = data.pop('assets')

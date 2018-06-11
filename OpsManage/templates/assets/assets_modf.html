@@ -266,7 +266,13 @@
 													 <div class="col-sm-6">
 													 <input type="password" class="form-control" name="server_passwd" placeholder="Password"  class="input-xlarge" value="{{ asset_body.passwd|default:"" }}" />
 													 </div>
-												</div>																							
+												</div>	
+												<div class="form-group">
+													 <label class="col-sm-2 control-label">sudo密码</label>
+													 <div class="col-sm-6">
+													 <input type="password" class="form-control" name="server_sudo_passwd" placeholder="Password"  class="input-xlarge" value="{{ asset_body.sudo_passwd|default:"" }}" />
+													 </div>
+												</div>																																			
 												<div class="form-group">
 													 <label class="col-sm-2 control-label">主机名字</label>
 													 <div class="col-sm-6">
@@ -408,6 +414,34 @@
 												 	<input type="text" class="form-control" name="net_ip" placeholder="Ip Address" value="{{ asset_body.ip|default:"" }}" pattern="^(\d+\.\d+\.\d+\.\d+|[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(/.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+/.?))$" title="请输入IP地址或者域名"  class="input-xlarge"/>
 												 </div>
 											</div>				
+											
+											<div class="form-group">
+													<label class="col-sm-2 control-label">SSH账户</label>
+													 <div class="col-sm-6">
+													 <input type="text" class="form-control" name="net_username" placeholder="Username"  class="input-xlarge" value="{{ asset_body.username|default:"" }}" />
+													</div>
+											</div>											
+											
+											<div class="form-group">
+												 <label class="col-sm-2 control-label">SSH端口</label>
+												 <div class="col-sm-6">
+												 <input type="text" class="form-control" name="net_port" placeholder="ssh port" pattern="^(\d+)" class="input-xlarge" value="{{ asset_body.port|default:"" }}" />
+												 </div>
+											</div>											
+											
+											<div class="form-group">
+												 <label class="col-sm-2 control-label">SSH密码</label>
+												 <div class="col-sm-6">
+												 <input type="password" class="form-control" name="net_passwd" placeholder="Password"  class="input-xlarge" value="{{ asset_body.passwd|default:"" }}" />
+												 </div>
+											</div>		
+
+											<div class="form-group">
+												 <label class="col-sm-2 control-label">EN密码</label>
+												 <div class="col-sm-6">
+												 <input type="password" class="form-control" name="net_sudo_passwd" placeholder="Password"  class="input-xlarge" value="{{ asset_body.sudo_passwd|default:"" }}" />
+												 </div>
+											</div>												
 											
 											<div class="form-group">
 												 <label class="col-sm-2 control-label">端口数</label>
