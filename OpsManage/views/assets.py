@@ -702,7 +702,7 @@ def assets_delete(request):
             try:
                 assets = Assets.objects.get(id=int(ast))
             except Exception, ex:
-                print ex
+                logger.error(msg="删除资产失败: {ex}".format(ex=ex))
                 continue
             if assets.assets_type in ['vmser','server']:
                 try:
@@ -791,7 +791,10 @@ def assets_dumps(request):
             sheet.write(count,2,assets.sn,dRbt.bodySttle())
             sheet.write(count,3,str(assets.buy_time),dRbt.bodySttle())
             sheet.write(count,4,str(assets.expire_date),dRbt.bodySttle())
-            sheet.write(count,5,assets.buy_user,dRbt.bodySttle())
+            try:
+                sheet.write(count,5,User.objects.get(id=assets.buy_user).username,dRbt.bodySttle())
+            except:
+                sheet.write(count,5,assets.buy_user,dRbt.bodySttle())
             sheet.write(count,6,assets.management_ip,dRbt.bodySttle())
             sheet.write(count,7,assets.manufacturer,dRbt.bodySttle())
             sheet.write(count,8,assets.model,dRbt.bodySttle())
