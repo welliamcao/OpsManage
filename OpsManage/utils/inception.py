@@ -27,6 +27,7 @@ class Inception():
                                               db_name=self.db_name,
                                               action=action,auditSql=auditSql
                                               )
+        print sql
         try:
             conn = MySQLdb.connect(host=incept.db_host,user='',passwd='',db='',port=int(incept.db_port))
             cur = conn.cursor()
@@ -156,7 +157,7 @@ class Inception():
                                    )
             cur = conn.cursor()
             ret = cur.execute(sql)
-            result = cur.fetchone()
+            result = cur.fetchall()
             cur.close()
             conn.close()
             return {"status":'success','data':result}

@@ -108,7 +108,8 @@ def db_sqlorder_run(request,id):
                         rollBackSql = ["Ops！数据库服务器 - {host} 可能未开启binlog或者未开启备份功能，获取回滚SQL失败。".format(host=order.sql_audit_order.order_db.db_host,dbname=order.sql_audit_order.order_db.db_name)]
                         return render(request,'database/db_sqlorder_run.html',{"user":request.user,"order":order,"sqlResultList":sqlResultList,"rollBackSql":rollBackSql,"rbkSql":0,"oscStatus":oscStatus})  
                     if rbkSql.get('status') == 'success' and rbkSql.get('data'): 
-                        rollBackSql.append(rbkSql.get('data')[0])  
+                        for sql in rbkSql.get('data'):
+                            rollBackSql.append(sql[0])  
         elif  order.sql_audit_order.order_type=='file':
             filePath = os.getcwd() + '/upload/' + str(order.sql_audit_order.order_file)
             with open(filePath, 'r') as f:
@@ -213,7 +214,8 @@ def db_sqlorder_run(request,id):
                                                        sequence=str(ds.sequence).replace('\'',''),
                                                        ) 
                     if rbkSql.get('status') == 'success': 
-                        rollBackSql.append(rbkSql.get('data')[0])
+                        for sql in rbkSql.get('data'):
+                            rollBackSql.append(sql[0])                         
             if rollBackSql:
                 rbkSql = Inception(
                                    host=order.sql_audit_order.order_db.db_host,
@@ -222,14 +224,15 @@ def db_sqlorder_run(request,id):
                                    passwd=order.sql_audit_order.order_db.db_passwd,
                                    port=order.sql_audit_order.order_db.db_port                                   
                                    )
-                result = rbkSql.rollback(','.join(rollBackSql))
-                if result.get('status') == 'success': 
-                    order.order_status = 6
-                    order.save()         
-                    sendOrderNotice.delay(order.id,mask='【已回滚】')           
-                    return JsonResponse({'msg':"SQL回滚成功","code":200,'data':[]})  
-                else:
-                    return JsonResponse({'msg':"SQL回滚失败：" + result.get('errinfo'),"code":500,'data':[]})   
+                for sql in rollBackSql:
+                    result = rbkSql.rollback(sql)
+                    if result.get('status') == 'error':#回滚时如果其中一条出现错误就停止回滚 
+                        return JsonResponse({'msg':"SQL回滚失败：" + result.get('errinfo'),"code":500,'data':[]})
+                #回滚语句如果全部执行成功则修改状态
+                order.order_status = 6
+                order.save()         
+                sendOrderNotice.delay(order.id,mask='【已回滚】')                     
+                return JsonResponse({'msg':"SQL回滚成功","code":200,'data':[]})           
             else:    
                 return JsonResponse({'msg':"没有需要执行的回滚SQL语句","code":500,'data':[]})    
         else:

@@ -4,13 +4,6 @@
 <link href="/static/dist/css/bootstrap-multiselect.css" rel="stylesheet">
 <script src="/static/dist/js/bootstrap-multiselect.js"></script>
 <script type="text/javascript" src="/static/dist/js/bootstrap-notify.js"></script>
-<style type="text/css">
-	#compile-editor {
-		/* position: absolute; */
-	width: 100%;
-	height: 400px;
-   }	
-</style>
 {% endblock %}
 {% block page-content %}
 <div id="page-wrapper">
@@ -143,7 +136,7 @@
                                 <!-- /.col-lg-8 (nested) -->
                                 <div class="col-lg-8">
                                     <legend><i class="fa  fa-paper-plane-o"></i>执行结果</legend>
-									<pre>
+									<pre class="html">
 				                        <div id="result">
 				                        </div>
 				                    </pre>                                      
@@ -159,8 +152,11 @@
             </div>
 </div>
 
+ 
 <script type="text/javascript">
 
+
+	
 $(document).ready(function() {
     $('#ansible_server').multiselect({
         enableClickableOptGroups: true,

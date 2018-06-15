@@ -484,7 +484,7 @@ class Global_Config(models.Model):
     server = models.SmallIntegerField(verbose_name='是否开启服务器命令记录',blank=True,null=True)
     email = models.SmallIntegerField(verbose_name='是否开启邮件通知',blank=True,null=True)
     webssh = models.SmallIntegerField(verbose_name='是否开启WebSSH',blank=True,null=True)
-    sql = models.SmallIntegerField(verbose_name='是否开启WebSSH',blank=True,null=True)
+    sql = models.SmallIntegerField(verbose_name='是否开启SQL更新通知',blank=True,null=True)
     class Meta:
         db_table = 'opsmanage_global_config'
     

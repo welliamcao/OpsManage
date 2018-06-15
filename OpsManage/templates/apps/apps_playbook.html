@@ -33,7 +33,7 @@
                                 	<br>
                                 	<br>
 									<div class="row">
-			                                <div class="col-lg-5">
+			                                <div class="col-lg-4">
 			                                <legend><i class="fa  fa-paper-plane"></i>Ansible服务器</legend>
 			                                    <form role="form" id="ansiblePlayBookRun" class="main form-horizontal" >{% csrf_token %}
 														<div class="form-group">
@@ -99,7 +99,7 @@
 													</form>                                        
 			                                </div>
 			                                <!-- /.col-lg-6 (nested) -->
-			                                <div class="col-lg-7">
+			                                <div class="col-lg-8">
 			                                    <legend><i class="fa  fa-paper-plane-o"></i>执行结果</legend>
 												<pre>
 							                        <div id="result">
@@ -250,7 +250,7 @@
 	            success : function(result){
 	            	if (result["msg"] !== null ){
 	            		$("#result").append("<p>"+result["msg"]+"</p>"); 
-	            		if (result["msg"].indexOf("[Done]") == 0){
+	            		if (result["msg"].indexOf("[Done]") == 0){            			
 	            			clearInterval(interval);
 	            			window.wxc.xcConfirm("Ansible执行完成", window.wxc.xcConfirm.typeEnum.success);
 	            			btnObj.removeAttr('disabled');
