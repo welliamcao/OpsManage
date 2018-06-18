@@ -4,6 +4,7 @@ from rest_framework import serializers
 from OpsManage.models import *
 from wiki.models import *
 from orders.models import *
+from filemanage.models import *
 from django.contrib.auth.models import Group,User
 
 
@@ -211,4 +212,22 @@ class CategorySerializer(serializers.ModelSerializer):
 class PostSerializer(serializers.ModelSerializer):
     class Meta:
         model = Post
-        fields = ('id','title','content','category','author')   
+        fields = ('id','title','content','category','author')  
+
+
+class UploadFilesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UploadFiles
+        fields = ('file_path', 'file_type')  
+        
+class UploadFilesOrderSerializer(serializers.ModelSerializer):
+    files = UploadFilesSerializer(many=True)
+    class Meta:
+        model = FileUpload_Audit_Order
+        fields = ('id', 'dest_path', 'dest_server',
+                  'chown_user','chown_rwx','files')  
+        
+class DownloadFilesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FileDownload_Audit_Order
+        fields = ('id','order_content', 'dest_server','dest_path')        

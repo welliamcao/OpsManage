@@ -96,6 +96,7 @@ urlpatterns = [
     url(r'^wiki/',include('wiki.urls')),
     url(r'^order/',include('orders.urls')),
     url(r'^api/',include('api.urls')),
+    url(r'^file/',include('filemanage.urls')),
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)

@@ -174,56 +174,6 @@
 	    }
 	});
 
-	function uploadSqlFile(target,id) { 
-		var isIE = /msie/i.test(navigator.userAgent) && !window.opera; 
-		var fileSize = 0; 
-		var filetypes =[".sql",".txt"]; 
-		var filepath = target.value; 
-		var filemaxsize = 1024*10;//2M 
-		if(filepath){ 
-			var isnext = false; 
-			var fileend = filepath.substring(filepath.indexOf(".")); 
-			if(filetypes && filetypes.length>0){ 
-				for(var i =0; i<filetypes.length;i++){ 
-					if(filetypes[i]==fileend){ 
-						isnext = true; 
-						break; 
-					} 
-				} 
-			} 
-			if(!isnext){ 
-				target.value =""; 
-				return false; 
-			} 
-		}else{ 
-			return false; 
-		} 
-		if (isIE && !target.files) { 
-			var filePath = target.value; 
-			var fileSystem = new ActiveXObject("Scripting.FileSystemObject"); 
-			if(!fileSystem.FileExists(filePath)){ 
-				window.wxc.xcConfirm("附件不存在，请重新上传", window.wxc.xcConfirm.typeEnum.error);
-				return false; 
-			} 
-			var file = fileSystem.GetFile (filePath); 
-			fileSize = file.Size; 
-		} else { 
-			fileSize = target.files[0].size; 
-		} 
-	
-		var size = fileSize / 1024; 
-		if(size > filemaxsize){ 
-			window.wxc.xcConfirm("sql文件大小不能大于"+filemaxsize/1024+"M！", window.wxc.xcConfirm.typeEnum.error);
-			target.value =""; 
-			return false; 
-		} 
-		if(size <= 0){ 
-			window.wxc.xcConfirm("附件大小不能为0M！", window.wxc.xcConfirm.typeEnum.error);
-			target.value =""; 
-			return false; 
-		} 
-	} 
-
 
 	function oBtEnvSelect(){
 		$('#order_db option:selected').empty();

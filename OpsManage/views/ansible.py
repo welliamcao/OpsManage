@@ -82,21 +82,7 @@ def apps_upload(request):
                                                             "serviceList":serviceList,"projectList":projectList},
                                   )
     elif request.method == "POST":   
-#         sList = []
-        if request.POST.get('server_model') in ['service','group','custom']:  
-#             if request.POST.get('server_model') == 'custom':
-#                 for sid in request.POST.getlist('playbook_server'):
-#                     server = Server_Assets.objects.get(id=sid)
-#                     sList.append(server.ip)
-#                 playbook_server_value = None
-#             elif request.POST.get('server_model') == 'group':
-#                 serverList = Assets.objects.filter(group=request.POST.get('ansible_group'))
-#                 sList = [  s.server_assets.ip for s in serverList ]
-#                 playbook_server_value = request.POST.get('ansible_group')
-#             elif request.POST.get('server_model') == 'service':
-#                 serverList = Assets.objects.filter(business=request.POST.get('ansible_service'))
-#                 sList = [  s.server_assets.ip for s in serverList ]   
-#                 playbook_server_value = request.POST.get('ansible_service')     
+        if request.POST.get('server_model') in ['service','group','custom']:       
             if request.POST.get('server_model') == 'custom':
                 serverList = request.POST.getlist('playbook_server')
                 sList,resource = AssetsSource().custom(serverList)

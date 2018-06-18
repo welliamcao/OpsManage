@@ -39,18 +39,23 @@ def index(request):
     #获取所有指派给自己需要审核的工单
     orderNotice = Order_System.objects.filter().order_by('-id')[0:10]
     for order in orderNotice:
-        if order.order_type   == 1:
+        if order.order_type  == 1:
             order.order_url = '/deploy_order/status/{id}/'.format(id=order.id)
-            order.order_type = '部署代码'
             order.order_content = order.project_order.order_content
-        else:
-            order.order_type = 'SQL更新'
+        elif order.order_type  == 0:
             order.order_url = '/db/sql/order/run/{id}/'.format(id=order.id)
             if order.sql_audit_order.order_type == 'file' and order.sql_audit_order.order_file:
                 filePath = os.getcwd() + '/upload/' + str(order.sql_audit_order.order_file)
                 with open(filePath, 'r') as f:
-                    order.order_content = f.read(100)   
-            else:order.order_content = order.sql_audit_order.order_sql
+                    order.order_content = f.read(1000)   
+            else:order.order_content = order.sql_audit_order.order_sql  
+        elif order.order_type  == 2:
+            order.order_url = '/file/upload/run/{id}/'.format(id=order.id)
+            order.order_content = order.fileupload_audit_order.order_content  
+        elif order.order_type  == 3:
+            order.order_url = '/file/download/run/{id}/'.format(id=order.id)
+            order.order_content = order.filedownload_audit_order.order_content                    
+        else:order.order_content = '未知'
         order.order_user  = User.objects.get(id=order.order_user).username
         order.order_executor  = User.objects.get(id=order.order_executor).username
     #月度更新频率统计

@@ -229,14 +229,14 @@
 											<legend>服务器设备资产信息修改 - 可选信息</legend>
 					
 											<div class="form-group" >
-												 <label class="col-sm-2 control-label">主机地址</label>
+												 <label class="col-sm-2 control-label"><font color='red'>* </font>主机地址</label>
 												 <div class="col-sm-6">
 												 	<input type="text" class="form-control" name="server_ip" placeholder="Ip Address" value="{{ asset_body.ip|default:"" }}" pattern="^(\d+\.\d+\.\d+\.\d+|[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(/.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+/.?))$" title="请输入IP地址或者域名"  class="input-xlarge"/>
 												 </div>
 											</div>
 
 											<div class="form-group">
-												 <label class="col-sm-2 control-label">认证方式<i class="fa fa-info-circle" data-toggle="tooltip"  title="如果选择密钥方式认证，请先在部署服务器到节点服务器做好证书认证"></i></label>
+												 <label class="col-sm-2 control-label"><font color='red'>* </font>认证方式<i class="fa fa-info-circle" data-toggle="tooltip"  title="如果选择密钥方式认证，请先在部署服务器到节点服务器做好证书认证"></i></label>
 												 <div class="col-sm-6">
 												 	<select class="form-control" id='auth_type_select' onchange="javascript:oBtAuthType();" name="server_keyfile">
 												 		{% if asset_body.keyfile == 1 %}
@@ -250,7 +250,7 @@
 												 </div>
 											</div>
 												<div class="form-group">
-													 <label class="col-sm-2 control-label">账户</label>
+													 <label class="col-sm-2 control-label"><font color='red'>* </font>账户</label>
 													 <div class="col-sm-6">
 													 <input type="text" class="form-control" name="server_username" placeholder="Username"  class="input-xlarge" value="{{ asset_body.username|default:"" }}" />
 													 </div>
@@ -262,7 +262,7 @@
 											{% endif %}
 	
 												<div class="form-group">
-													 <label class="col-sm-2 control-label">密码</label>
+													 <label class="col-sm-2 control-label"><font color='red'>* </font>密码</label>
 													 <div class="col-sm-6">
 													 <input type="password" class="form-control" name="server_passwd" placeholder="Password"  class="input-xlarge" value="{{ asset_body.passwd|default:"" }}" />
 													 </div>
@@ -285,7 +285,7 @@
 							
 											</div>
 											<div class="form-group">
-												 <label class="col-sm-2 control-label">端口</label>
+												 <label class="col-sm-2 control-label"><font color='red'>* </font>端口</label>
 												 <div class="col-sm-6">
 												 <input type="text" class="form-control" name="server_port" placeholder="Port"  class="input-xlarge" pattern="^(\d+)" value="{{ asset_body.port|default:"" }}" />
 												 </div>
@@ -409,7 +409,7 @@
 											</div>
 											
 											<div class="form-group" >
-												 <label class="col-sm-2 control-label">主机地址</label>
+												 <label class="col-sm-2 control-label"><font color='red'>* </font>主机地址</label>
 												 <div class="col-sm-6">
 												 	<input type="text" class="form-control" name="net_ip" placeholder="Ip Address" value="{{ asset_body.ip|default:"" }}" pattern="^(\d+\.\d+\.\d+\.\d+|[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(/.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+/.?))$" title="请输入IP地址或者域名"  class="input-xlarge"/>
 												 </div>

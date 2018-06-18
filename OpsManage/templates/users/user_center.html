@@ -58,8 +58,12 @@
 											<td class="text-center">
 												{% if ds.order_type == 1 %}
 													<span class="label label-success">代码更新</span>
-												{% else %}
+												{% elif ds.order_type == 2 %}
+													<span class="label label-warning">文件分发</span>
+												{% elif ds.order_type == 0 %}
 													<span class="label label-info">SQL更新</span>
+												{% elif ds.order_type == 3 %}
+													<span class="label label-danger">文件下载</span>												
 												{% endif %}
                                 			</td>  
                                 			<td class="text-center">
@@ -95,7 +99,17 @@
                                 			</td>
                                 			<td class="text-center">  
                                 				{% if user.is_superuser %}
-													<a href="{% if ds.order_type == 1 %}/deploy_order/status/{{ds.id}}/{% else %}/db/sql/order/run/{{ds.id}}/{% endif %}" target="_blank"><button  type="button" class="btn btn-default"><abbr title="执行SQL"><i class="fa fa-play-circle-o"></i></button></a>	
+                           							{% if ds.order_type == 1 and ds.order_status == 3 %}                               						
+                                						<a href="/deploy_order/rollback/{{ds.id}}/" target="_blank"><button  type="button" class="btn btn-default"><abbr title="回滚代码"><i class="fa fa-play-circle-o"></i></button></a>	
+                                					{% elif ds.order_type == 1  %}	
+                                						<a href="/deploy_order/status/{{ds.id}}/" target="_blank"><button  type="button" class="btn btn-default"><abbr title="部署代码"><i class="fa fa-play-circle-o"></i></button></a>	
+                                					{% elif ds.order_type == 0 %}
+                                						<a href="/db/sql/order/run/{{ds.id}}/" target="_blank"><button  type="button" class="btn btn-default"><abbr title="更新SQL"><i class="fa fa-play-circle-o"></i></button></a>	
+                                					{% elif ds.order_type == 2 %}
+                                						<a href="/file/upload/run/{{ds.id}}/" target="_blank"><button  type="button" class="btn btn-default"><abbr title="更新SQL"><i class="fa fa-play-circle-o"></i></button></a>
+                                					{% elif ds.order_type == 3 %}
+                                						<a href="/file/download/run/{{ds.id}}/" target="_blank"><button  type="button" class="btn btn-default"><abbr title="文件下载"><i class="fa fa-play-circle-o"></i></button></a>                                						                            						                             							                                						
+                                					{% endif %}		
 													{% if ds.order_status == 4 or ds.order_status == 2 %}
 														<button  type="button" class="btn btn-default" onclick="updateOrderStatus(this,{{ds.id}},'auth',8)"><abbr title="授权"><i class="fa fa-check"></i></button>
 														<button  type="button" class="btn btn-default" onclick="updateOrderStatus(this,{{ds.id}},'disable',7)"><abbr title="取消"><i class="fa fa-times"></i></button>
@@ -112,7 +126,17 @@
 													<button  type="button" class="btn btn-default" onclick="deleteOrder(this,{{ds.id}})"><abbr title="删除"><i class="glyphicon glyphicon-trash"></i></button>
 												{% else %}
 													{% if ds.perm %}
-														<a href="{% if ds.order_type == 1 %}/deploy_order/status/{{ds.id}}/{% else %}/db/sql/order/run/{{ds.id}}/{% endif %}" target="_blank"><button  type="button" class="btn btn-default"><abbr title="执行SQL"><i class="fa fa-play-circle-o"></i></button></a>	
+	                           							{% if ds.order_type == 1 and ds.order_status == 3 %}                               						
+	                                						<a href="/deploy_order/rollback/{{ds.id}}/" target="_blank"><button  type="button" class="btn btn-default"><abbr title="回滚代码"><i class="fa fa-play-circle-o"></i></button></a>	
+	                                					{% elif ds.order_type == 1  %}	
+	                                						<a href="/deploy_order/status/{{ds.id}}/" target="_blank"><button  type="button" class="btn btn-default"><abbr title="部署代码"><i class="fa fa-play-circle-o"></i></button></a>	
+	                                					{% elif ds.order_type == 0 %}
+	                                						<a href="/db/sql/order/run/{{ds.id}}/" target="_blank"><button  type="button" class="btn btn-default"><abbr title="更新SQL"><i class="fa fa-play-circle-o"></i></button></a>	
+	                                					{% elif ds.order_type == 2 %}
+	                                						<a href="/file/upload/run/{{ds.id}}/" target="_blank"><button  type="button" class="btn btn-default"><abbr title="更新SQL"><i class="fa fa-play-circle-o"></i></button></a>	                                						
+	                                					{% elif ds.order_type == 3 %}
+	                                						<a href="/file/download/run/{{ds.id}}/" target="_blank"><button  type="button" class="btn btn-default"><abbr title="文件下载"><i class="fa fa-play-circle-o"></i></button></a>                                						                            						
+	                                					{% endif %}		
 														{% if ds.order_status == 4 or ds.order_status == 2 %}
 															<button type="button" class="btn btn-default" onclick="updateOrderStatus(this,{{ds.id}},'auth',8)"><abbr title="授权"><i class="fa fa-check"  ></i></button>
 															<button type="button" class="btn btn-default" onclick="updateOrderStatus(this,{{ds.id}},'disable',7)"><abbr title="取消"><i class="fa fa-times"  ></i></button>
@@ -318,7 +342,7 @@
 	    $(document).ready(function() {
 	        $('#orderTableList').DataTable({
 	        	responsive: true,
- 		        "order": [[6, 'asc']]
+ 		        "order": [[ 0, 'desc' ], [ 6, 'desc' ]]
 	        });
 	    } );
 	

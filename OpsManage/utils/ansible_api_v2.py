@@ -30,7 +30,7 @@ class MyInventory(Inventory):
                     "vars": {"var1": value1, "var2": value2, ...} 
                 } 
             } 
-                                         如果你只传入1个列表，这默认该列表内的所有主机属于my_group组,比如 
+                                         如果你只传入1个列表，这默认该列表内的所有主机属于default_group组,比如 
             [{"hostname": "10.0.0.0", "port": "22", "username": "test", "password": "pass"}, ...] 
         """  
         self.resource = resource  
@@ -125,15 +125,15 @@ class ModelResultsCollectorToSave(CallbackBase):
         for remove_key in ('changed', 'invocation'):
             if remove_key in result._result:
                 del result._result[remove_key] 
-        data = "<font color='red'>{host} | UNREACHABLE! => {stdout}</font>".format(host=result._host.get_name(),stdout=json.dumps(result._result,indent=4))    
+        data = "<font color='#FA8072'>{host} | UNREACHABLE! => {stdout}</font>".format(host=result._host.get_name(),stdout=json.dumps(result._result,indent=4))    
         DsRedis.OpsAnsibleModel.lpush(self.redisKey,data) 
         if self.logId:AnsibleSaveResult.Model.insert(self.logId, data)
    
         
     def v2_runner_on_ok(self, result,  *args, **kwargs):   
-        for remove_key in ('changed', 'invocation'):
+        for remove_key in ('changed', 'invocation','_ansible_parsed','_ansible_no_log'):
             if remove_key in result._result:
-                del result._result[remove_key]       
+                del result._result[remove_key]    
         if result._result.has_key('rc') and result._result.has_key('stdout'):
             data = "<font color='green'>{host} | SUCCESS | rc={rc} >> \n{stdout}".format(host=result._host.get_name(),rc=result._result.get('rc'),stdout=result._result.get('stdout'))
         else:
@@ -146,9 +146,9 @@ class ModelResultsCollectorToSave(CallbackBase):
             if remove_key in result._result:
                 del result._result[remove_key]
         if result._result.has_key('rc') and result._result.has_key('stdout'):
-            data = "<font color='red'>{host} | FAILED | rc={rc} >> \n{stdout}</font>".format(host=result._host.get_name(),rc=result._result.get('rc'),stdout=result._result.get('stdout'))
+            data = "<font color='#DC143C'>{host} | FAILED | rc={rc} >> \n{stdout}</font>".format(host=result._host.get_name(),rc=result._result.get('rc'),stdout=result._result.get('stdout'))
         else:
-            data = "<font color='red'>{host} | FAILED! => {stdout}</font>".format(host=result._host.get_name(),stdout=json.dumps(result._result,indent=4))
+            data = "<font color='#DC143C'>{host} | FAILED! => {stdout}</font>".format(host=result._host.get_name(),stdout=json.dumps(result._result,indent=4))
         DsRedis.OpsAnsibleModel.lpush(self.redisKey,data)
         if self.logId:AnsibleSaveResult.Model.insert(self.logId, data)
 
@@ -172,7 +172,7 @@ class PlayBookResultsCollectorToSave(CallbackBase):
         self._clean_results(result._result, result._task.action)    
         self.task_ok[result._host.get_name()]  = result._result
         delegated_vars = result._result.get('_ansible_delegated_vars', None)
-        if result._task.action in ('include', 'include_role'):
+        if result._task.action in ('include', 'include_role','_ansible_parsed','_ansible_no_log'):
             return
         elif result._result.get('changed', False):
             if delegated_vars:
@@ -204,15 +204,15 @@ class PlayBookResultsCollectorToSave(CallbackBase):
             self._process_items(result)
         else:            
             if delegated_vars:
-                msg = "<font color='red'>fatal: [{host} -> {delegated_vars}]: FAILED! => {msg}</font>".format(host=result._host.get_name(),delegated_vars=delegated_vars['ansible_host'],msg=json.dumps(result._result))
+                msg = "<font color='#DC143C'>fatal: [{host} -> {delegated_vars}]: FAILED! => {msg}</font>".format(host=result._host.get_name(),delegated_vars=delegated_vars['ansible_host'],msg=json.dumps(result._result))
             else: 
-                msg = "<font color='red'>fatal: [{host}]: FAILED! => {msg}</font>".format(host=result._host.get_name(),msg=json.dumps(result._result))
+                msg = "<font color='#DC143C'>fatal: [{host}]: FAILED! => {msg}</font>".format(host=result._host.get_name(),msg=json.dumps(result._result))
             DsRedis.OpsAnsiblePlayBook.lpush(self.redisKey,msg) 
             if self.logId:AnsibleSaveResult.PlayBook.insert(self.logId, msg)
         
     def v2_runner_on_unreachable(self, result):
         self.task_unreachable[result._host.get_name()] = result._result
-        msg = "<font color='red'>fatal: [{host}]: UNREACHABLE! => {msg}</font>\n".format(host=result._host.get_name(),msg=json.dumps(result._result))        
+        msg = "<font color='#DC143C'>fatal: [{host}]: UNREACHABLE! => {msg}</font>\n".format(host=result._host.get_name(),msg=json.dumps(result._result))        
         DsRedis.OpsAnsiblePlayBook.lpush(self.redisKey,msg)  
         if self.logId:AnsibleSaveResult.PlayBook.insert(self.logId, msg)   
     
@@ -232,7 +232,7 @@ class PlayBookResultsCollectorToSave(CallbackBase):
             if self.logId:AnsibleSaveResult.PlayBook.insert(self.logId, msg)
     
     def v2_runner_on_no_hosts(self, task):
-        msg = "<font color='red'>skipping: no hosts matched</font>"
+        msg = "<font color='#DC143C'>skipping: no hosts matched</font>"
         DsRedis.OpsAnsiblePlayBook.lpush(self.redisKey,msg)
         if self.logId:AnsibleSaveResult.PlayBook.insert(self.logId, msg)        
 
@@ -273,6 +273,7 @@ class PlayBookResultsCollectorToSave(CallbackBase):
     def v2_playbook_on_stats(self, stats):
         msg = "<font color='#FFFFFF'>\nPLAY RECAP *********************************************************************</font>"
         DsRedis.OpsAnsiblePlayBook.lpush(self.redisKey,msg)
+        if self.logId:AnsibleSaveResult.PlayBook.insert(self.logId, msg)
         hosts = sorted(stats.processed.keys())
         for h in hosts:
             t = stats.summarize(h)
@@ -284,8 +285,8 @@ class PlayBookResultsCollectorToSave(CallbackBase):
                                        "failed":t['failures']
                                    }
             f_color,u_color,c_color,s_color,o_color,h_color = '#FFFFFF','#FFFFFF','#FFFFFF','#FFFFFF','green','green'
-            if t['failures'] > 0 :f_color,h_color = 'red','red' 
-            elif t['unreachable'] > 0:u_color,h_color = 'red','red'
+            if t['failures'] > 0 :f_color,h_color = '#DC143C','#DC143C' 
+            elif t['unreachable'] > 0:u_color,h_color = '#DC143C','#DC143C'
             elif t['changed'] > 0:c_color,h_color = 'yellow','yellow'
             elif t['ok'] > 0:o_color = 'green'
             elif t["skipped"] > 0:s_color='yellow'
@@ -325,7 +326,7 @@ class PlayBookResultsCollectorToSave(CallbackBase):
             msg = result._result['exception'].strip().split('\n')[-1]
             logger.error(msg=msg)
             del result._result['exception']        
-        msg = "<font color='red'>failed: "
+        msg = "<font color='#DC143C'>failed: "
         if delegated_vars:
             msg += "[%s -> %s]</font>" % (result._host.get_name(), delegated_vars['ansible_host'])
         else:
@@ -342,7 +343,7 @@ class PlayBookResultsCollectorToSave(CallbackBase):
 
     def v2_runner_retry(self, result):
         task_name = result.task_name or result._task
-        msg = "<font color='red'>FAILED - RETRYING: %s (%d retries left).</font>" % (task_name, result._result['retries'] - result._result['attempts'])
+        msg = "<font color='#DC143C'>FAILED - RETRYING: %s (%d retries left).</font>" % (task_name, result._result['retries'] - result._result['attempts'])
         if (self._display.verbosity > 2 or '_ansible_verbose_always' in result._result) and not '_ansible_verbose_override' in result._result:
             msg += "Result was: %s</font>" % json.dumps(result._result,indent=4)
         DsRedis.OpsAnsiblePlayBook.lpush(self.redisKey,msg)
@@ -456,6 +457,7 @@ class ANSRunner(object):
             )  
             tqm._stdout_callback = self.callback  
             constants.HOST_KEY_CHECKING = False #关闭第一次使用ansible连接客户端是输入命令
+
             tqm.run(play)  
         except Exception as err: 
             logger.error(msg="run model failed: {err}".format(err=str(err)))

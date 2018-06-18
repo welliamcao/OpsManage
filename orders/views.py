@@ -5,17 +5,21 @@ from django.shortcuts import render
 from django.http import HttpResponseRedirect,JsonResponse
 from django.contrib.auth.decorators import login_required, permission_required
 from OpsManage.models import (Project_Assets,Project_Config,Project_Number,
-                              Service_Assets,DataBase_Server_Config,SQL_Audit_Control)
+                              Service_Assets,DataBase_Server_Config,SQL_Audit_Control,
+    Server_Assets)
 from .models import Order_System,Project_Order,SQL_Audit_Order
 from django.db.models import Q 
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from OpsManage.utils.logger import logger
+from OpsManage.utils import base
 from OpsManage.utils.git import GitTools
 from OpsManage.utils.svn import SvnTools
 from django.contrib.auth.models import User,Group
 from OpsManage.tasks.sql import sendOrderNotice
 from OpsManage.utils.inception import Inception
 from dao.order import Order
+from dao.assets import AssetsSource
+from filemanage.models import FileUpload_Audit_Order,UploadFiles,FileDownload_Audit_Order
 
 @login_required()
 @permission_required('orders.can_add_project_order',login_url='/noperm/')
@@ -208,13 +212,20 @@ def order_list(request,page):
                 if ds.order_type  == 1:
                     ds.order_url = '/deploy_order/status/{id}/'.format(id=ds.id)
                     ds.order_content = ds.project_order.order_content
-                else:
+                elif ds.order_type  == 0:
                     ds.order_url = '/db/sql/order/run/{id}/'.format(id=ds.id)
                     if ds.sql_audit_order.order_type == 'file' and ds.sql_audit_order.order_file:
                         filePath = os.getcwd() + '/upload/' + str(ds.sql_audit_order.order_file)
                         with open(filePath, 'r') as f:
                             ds.order_content = f.read(1000)   
-                    else:ds.order_content = ds.sql_audit_order.order_sql                                               
+                    else:ds.order_content = ds.sql_audit_order.order_sql  
+                elif ds.order_type  == 2:
+                    ds.order_url = '/file/upload/run/{id}/'.format(id=ds.id)
+                    ds.order_content = ds.fileupload_audit_order.order_content  
+                elif ds.order_type  == 3:
+                    ds.order_url = '/file/download/run/{id}/'.format(id=ds.id)
+                    ds.order_content = ds.filedownload_audit_order.order_content                    
+                else:ds.order_content = '未知'
             except Exception, ex:
                 logger.warn(msg="获取审核SQL[{id}]错误: {ex}".format(id=ds.id,ex=str(ex)))
         orderRbt = Order()       
@@ -229,7 +240,8 @@ def order_list(request,page):
         except PageNotAnInteger:
             orderList = paginator.page(1)
         except EmptyPage:
-            orderList = paginator.page(paginator.num_pages)        
+            orderList = paginator.page(paginator.num_pages) 
+        print orderRbt.getMonthOrderCount()       
         return render(request,'orders/order_list.html',{"user":request.user,"orderList":orderList,
                                                         "orderType":orderType,"monthDataList":orderRbt.getMonthOrderCount(),
                                                         "codeDataList":orderRbt.getOrderCount(type=1, day=7),"usernameList":usernameList,
@@ -260,7 +272,7 @@ def order_search(request):
                 order_url =  '/deploy_order/status/{id}/'.format(id=ds.id)
                 order_type = '<td class="text-center"><span class="label label-success">代码部署</span></td>'
                 order_content = '<td class="text-center"><a href="{order_url}">{content}</a></td>'.format(order_url=order_url,content = ds.project_order.order_content[0:10])
-            else:
+            elif ds.order_type == 0:
                 order_url = '/db/sql/order/run/{id}/'.format(id=ds.id)
                 order_type = '<td class="text-center"><span class="label label-info">SQL更新</span></td>'
                 if ds.sql_audit_order.order_type == 'file' and ds.sql_audit_order.order_file:
@@ -270,6 +282,14 @@ def order_search(request):
                 order_content = '''<td class="text-center"><a href="{order_url}" target="_blank" class="tooltip-test" 
                                         data-toggle="tooltip" title="{content}">{abr_content}</a></td>'''.format(order_url=order_url,content = ds.sql_audit_order.order_sql,
                                                                                                                  abr_content=ds.sql_audit_order.order_sql[0:50])
+            elif ds.order_type == 2:
+                order_url =  '/file/upload/run/{id}/'.format(id=ds.id)
+                order_type = '<td class="text-center"><span class="label label-warning">文件分发</span></td>'
+                order_content = '<td class="text-center"><a href="{order_url}">{content}</a></td>'.format(order_url=order_url,content = ds.fileupload_audit_order.order_content[0:10]) 
+            elif ds.order_type == 3:
+                order_url =  '/file/download/run/{id}/'.format(id=ds.id)
+                order_type = '<td class="text-center"><span class="label label-danger">文件下载</span></td>'
+                order_content = '<td class="text-center"><a href="{order_url}">{content}</a></td>'.format(order_url=order_url,content = ds.filedownload_audit_order.order_content[0:10])                                                        
             order_subject = '<td class="text-center">{order_subject}</td>'.format(order_subject=ds.order_subject)          
             order_executor = '''<td class="text-center">{order_executor}</td>'''.format(order_executor=User.objects.get(id=ds.order_executor).username)
             order_createTime = '''<td class="text-center">{order_createTime}</td>'''.format(order_createTime=ds.create_time)                      
@@ -315,3 +335,142 @@ def order_search(request):
             dataList.append([order_id ,order_type,order_user,order_subject,order_content,order_executor,order_createTime,order_status,order_op])
         return JsonResponse({'msg':"数据查询成功","code":200,'data':dataList,'count':0})         
     
+    
+@login_required()
+@permission_required('filemanage.can_read_fileupload_audit_order',login_url='/noperm/')
+def file_upload_list(request,page):
+    if request.method == "GET":
+        if request.user.is_superuser:
+            uploadList = Order_System.objects.filter(order_type=2).order_by("-id")[0:1000]
+        else:
+            uploadList = Order_System.objects.filter(Q(order_user=request.user.id) | Q(order_executor=request.user.id),order_type=2).order_by("-id")[0:1000]
+        #分页信息
+        paginator = Paginator(uploadList, 25)         
+        try:
+            uploadList = paginator.page(page)
+        except PageNotAnInteger:
+            uploadList = paginator.page(1)
+        except EmptyPage:
+            uploadList = paginator.page(paginator.num_pages)                     
+        userList = User.objects.filter(is_superuser=1)    
+        serverList = Server_Assets.objects.all()
+        serviceList = Service_Assets.objects.all()
+        projectList = Project_Assets.objects.all()
+        groupList = Group.objects.all()
+        return render(request,'filemanage/file_upload_list.html',{"user":request.user,"serverList":serverList,"userList":userList,
+                                                                 "serviceList":serviceList,"projectList":projectList,
+                                                                 "groupList":groupList,"uploadList":uploadList})    
+
+   
+@login_required()
+@permission_required('filemanage.can_add_fileupload_audit_order',login_url='/noperm/')
+def file_upload_audit(request):
+    if request.method == "POST":  
+        try:
+            order = Order_System.objects.create(order_type=2,
+                                                order_subject=request.POST.get('order_subject'),
+                                                order_executor=request.POST.get('order_executor'),
+                                                order_status=4,
+                                                order_level=0,
+                                                order_user=request.user.id,
+                                                )
+        except Exception, ex:
+            logger.error(msg="文件上传失败: {ex}".format(ex=ex))
+            return JsonResponse({'msg':"文件上传失败: {ex}".format(ex=ex),"code":500}) 
+        if  request.POST.get('server_model') == 'service':
+            serverList = AssetsSource().service(business=request.POST.get('service'))[0]
+        elif request.POST.get('server_model') == 'group':
+            serverList = AssetsSource().group(group=request.POST.get('group'))[0]
+        elif request.POST.get('server_model') == 'custom':
+            serverList = AssetsSource().custom(serverList=request.POST.get('server'))[0]
+        else:
+            return JsonResponse({'msg':"参数不正确","code":500}) 
+        try:
+            upload = FileUpload_Audit_Order.objects.create(
+                                                           order = order,
+                                                           dest_path=request.POST.get('dest_path'),
+                                                           dest_server=json.dumps(serverList),
+                                                           chown_user=request.POST.get('chown_user'),
+                                                           chown_rwx=request.POST.get('chown_rwx'),
+                                                           order_content=request.POST.get('order_content'),
+                                                           )
+        except Exception, ex:
+            order.delete()
+            logger.error(msg="文件上传失败: {ex}".format(ex=ex))
+            return JsonResponse({'msg':"文件上传失败: {ex}".format(ex=ex),"code":500})
+                 
+        for files in request.FILES.getlist('order_files[]'): 
+            try:
+                upFile = UploadFiles.objects.create(file_order=upload,file_path=files)
+                filePath = os.getcwd() + '/upload/' + str(upFile.file_path)
+                upFile.file_type = base.getFileType(filePath)
+                upFile.save()
+            except Exception,ex:
+                order.delete()
+                upload.delete()
+                logger.error(msg="文件上传失败: {ex}".format(ex=ex))
+                return JsonResponse({'msg':"文件上传失败: {ex}".format(ex=ex),"code":500}) 
+         
+    return JsonResponse({'msg':"文件上传成功","code":200,'data':[],'count':0})    
+
+
+@login_required()
+@permission_required('filemanage.can_read_filedownload_audit_order',login_url='/noperm/')
+def file_download_list(request,page):
+    if request.method == "GET":
+        if request.user.is_superuser:
+            uploadList = Order_System.objects.filter(order_type=3).order_by("-id")[0:1000]
+        else:
+            uploadList = Order_System.objects.filter(Q(order_user=request.user.id) | Q(order_executor=request.user.id),order_type=3).order_by("-id")[0:1000]
+        #分页信息
+        paginator = Paginator(uploadList, 25)         
+        try:
+            uploadList = paginator.page(page)
+        except PageNotAnInteger:
+            uploadList = paginator.page(1)
+        except EmptyPage:
+            uploadList = paginator.page(paginator.num_pages)                     
+        userList = User.objects.filter(is_superuser=1)    
+        serverList = Server_Assets.objects.all()
+        serviceList = Service_Assets.objects.all()
+        projectList = Project_Assets.objects.all()
+        groupList = Group.objects.all()
+        return render(request,'filemanage/file_download_list.html',{"user":request.user,"serverList":serverList,"userList":userList,
+                                                                 "serviceList":serviceList,"projectList":projectList,
+                                                                 "groupList":groupList,"uploadList":uploadList}) 
+        
+@login_required()
+@permission_required('filemanage.can_add_filedownload_audit_order',login_url='/noperm/')
+def file_download_audit(request):
+    if request.method == "POST":  
+        try:
+            order = Order_System.objects.create(order_type=3,
+                                                order_subject=request.POST.get('order_subject'),
+                                                order_executor=request.POST.get('order_executor'),
+                                                order_status=4,
+                                                order_level=0,
+                                                order_user=request.user.id,
+                                                )
+        except Exception, ex:
+            logger.error(msg="文件下载申请失败: {ex}".format(ex=ex))
+            return JsonResponse({'msg':"文件下载申请失败: {ex}".format(ex=ex),"code":500}) 
+        if  request.POST.get('server_model') == 'service':
+            serverList = AssetsSource().service(business=request.POST.get('service'))[0]
+        elif request.POST.get('server_model') == 'group':
+            serverList = AssetsSource().group(group=request.POST.get('group'))[0]
+        elif request.POST.get('server_model') == 'custom':
+            serverList = AssetsSource().custom(serverList=request.POST.get('server'))[0]
+        else:
+            return JsonResponse({'msg':"参数不正确","code":500}) 
+        try:
+            FileDownload_Audit_Order.objects.create(
+                                                    order = order,
+                                                    dest_path=request.POST.get('dest_path'),
+                                                    dest_server=json.dumps(serverList),
+                                                    order_content=request.POST.get('order_content'),
+                                                    )
+        except Exception, ex:
+            order.delete()
+            logger.error(msg="文件下载申请失败: {ex}".format(ex=ex))
+            return JsonResponse({'msg':"文件下载申请失败: {ex}".format(ex=ex),"code":500})                         
+    return JsonResponse({'msg':"文件下载申请成功","code":200,'data':[],'count':0})         

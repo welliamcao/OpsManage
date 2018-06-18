@@ -215,16 +215,7 @@ pre {
 										<li><a href="/db/config/">基础配置</a></li>
 										<li><a href="/db/sql/ops/">管理入口</a></li>											
 									</ul>
-								</li>	
-<!-- 								<li><a href="#">Redis<span class="fa arrow"></span></a>	
-								<li><a href="#">MongoDB<span class="fa arrow"></span></a> -->
-<!-- 								<li><a href="#">SQL管理<span class="fa arrow"></span></a>
-									<ul class="nav nav-third-level">
-										<li><a href="/db/sql/order/audit/">上线申请</a></li>
-										<li><a href="/db/sql/order/list/1/">工单列表</a></li>
-										<li><a href="/db/sql/order/search/">工单查询</a></li>
-									</ul>
-								</li>	 -->														
+								</li>														
 								<li><a href="/db/sql/logs/1/">操作日志</a></li>
 							</ul> <!-- /.nav-second-level --></li>							
 						{% if user.is_superuser %}
@@ -248,6 +239,8 @@ pre {
 									<ul class="nav nav-third-level">
 										<li><a href="/order/deploy/apply/">代码部署</a></li>
 										<li><a href="/order/sql/apply/">上线SQL</a></li>
+										<li><a href="/order/file/upload/list/1/">文件分发</a></li>
+										<li><a href="/order/file/download/list/1/">文件下载</a></li>
 									</ul></li>
 								<li><a href="/order/list/1/">工单列表</a></li>
 								<li><a href="/order/search/">工单查询</a></li>
@@ -484,8 +477,16 @@ pre {
 										<div class="timeline-body">
 											<p><strong>申请人：</strong>{{ ds.order_user }}</p>
 											<p><strong>执行人：</strong>{{ ds.order_executor }}</p>
-											<p><strong>工单类型：</strong><code>{{ ds.order_type }}</code></p>
-											<p><strong>工单内容：</strong>{{ ds.order_content }}</p>
+												{% if ds.order_type == 1 %}
+													<p><strong>工单类型：</strong><code>代码更新</code></p>
+												{% elif ds.order_type == 2 %}
+													<p><strong>工单类型：</strong><code>文件分发</code></p>
+												{% elif ds.order_type == 0 %}
+													<p><strong>工单类型：</strong><code>SQL更新</code></p>
+												{% elif ds.order_type == 3 %}
+													<p><strong>工单类型：</strong><code>文件下载</code></p>											
+												{% endif %}	
+											<p><strong>工单内容：</strong>{{ ds.order_content }}</p>											
 										</div>
 									</div>
 								</li> {% elif ds.order_status == 7 or ds.order_status == 9 %}
@@ -503,7 +504,15 @@ pre {
 										<div class="timeline-body">
 											<p><strong>申请人：</strong>{{ ds.order_user }}</p>
 											<p><strong>执行人：</strong>{{ ds.order_executor }}</p>
-											<p><strong>工单类型：</strong><code>{{ ds.order_type }}</code></p>
+												{% if ds.order_type == 1 %}
+													<p><strong>工单类型：</strong><code>代码更新</code></p>
+												{% elif ds.order_type == 2 %}
+													<p><strong>工单类型：</strong><code>文件分发</code></p>
+												{% elif ds.order_type == 0 %}
+													<p><strong>工单类型：</strong><code>SQL更新</code></p>
+												{% elif ds.order_type == 3 %}
+													<p><strong>工单类型：</strong><code>文件下载</code></p>											
+												{% endif %}	
 											<p><strong>工单内容：</strong>{{ ds.order_content }}</p>
 										</div>
 									</div>
@@ -523,7 +532,15 @@ pre {
 											<div class="timeline-body">
 												<p><strong>申请人：</strong>{{ ds.order_user }}</p>												
 												<p><strong>执行人：</strong>{{ ds.order_executor }}</p>
-												<p><strong>工单类型：</strong><code>{{ ds.order_type }}</code></p>
+												{% if ds.order_type == 1 %}
+													<p><strong>工单类型：</strong><code>代码更新</code></p>
+												{% elif ds.order_type == 2 %}
+													<p><strong>工单类型：</strong><code>文件分发</code></p>
+												{% elif ds.order_type == 0 %}
+													<p><strong>工单类型：</strong><code>SQL更新</code></p>
+												{% elif ds.order_type == 3 %}
+													<p><strong>工单类型：</strong><code>文件下载</code></p>											
+												{% endif %}	
 												<p><strong>工单内容：</strong>{{ ds.order_content }}</p>
 											</div>
 										</div>

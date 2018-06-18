@@ -3,7 +3,7 @@ from api.views import (wiki_api,assets_api,
                        deploy_api,cron_api,
                        logs_api,ansible_api,
                        db_api,users_api,
-                       orders_api)
+                       orders_api,files_api)
 urlpatterns = [
             url(r'assets/$', assets_api.asset_list), 
             url(r'assets/(?P<id>[0-9]+)/$', assets_api.asset_detail),
@@ -53,5 +53,9 @@ urlpatterns = [
             url(r'wiki/tag/(?P<id>[0-9]+)/$', wiki_api.tag_detail),
             url(r'wiki/category/$', wiki_api.category_list),
             url(r'wiki/category/(?P<id>[0-9]+)/$', wiki_api.category_detail),   
-            url(r'wiki/archive/(?P<id>[0-9]+)/$', wiki_api.archive_detail),                     
+            url(r'wiki/archive/(?P<id>[0-9]+)/$', wiki_api.archive_detail),   
+            url(r'file/upload/$', files_api.upload_file_list), 
+            url(r'file/upload/(?P<id>[0-9]+)/$', files_api.upload_file_detail),           
+            url(r'file/download/$', files_api.download_file_list), 
+            url(r'file/download/(?P<id>[0-9]+)/$', files_api.download_file_detail),                                   
     ]    

@@ -105,6 +105,7 @@ INSTALLED_APPS = (
     'wiki',
     'orders',
     'api',
+    'filemanage',
 )
 
 MIDDLEWARE_CLASSES = (

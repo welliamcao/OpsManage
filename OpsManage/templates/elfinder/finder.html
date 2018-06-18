@@ -147,16 +147,7 @@
 										<li><a href="/db/config/">基础配置</a></li>
 										<li><a href="/db/sql/ops/">管理入口</a></li>											
 									</ul>
-								</li>	
-<!-- 								<li><a href="#">Redis<span class="fa arrow"></span></a>	
-								<li><a href="#">MongoDB<span class="fa arrow"></span></a> -->
-								<li><a href="#">SQL管理<span class="fa arrow"></span></a>
-									<ul class="nav nav-third-level">
-										<li><a href="/db/sql/order/audit/">上线申请</a></li>
-										<li><a href="/db/sql/order/list/1/">工单列表</a></li>
-										<li><a href="/db/sql/order/search/">工单查询</a></li>
-									</ul>
-								</li>															
+								</li>														
 								<li><a href="/db/sql/logs/1/">操作日志</a></li>
 							</ul> <!-- /.nav-second-level --></li>							
 						{% if user.is_superuser %}
@@ -172,7 +163,20 @@
 							<ul class="nav nav-second-level">
 								<li><a href="/wiki/add/">新建文档</a></li>
 								<li><a href="/wiki/index/">文档列表</a></li>
-							</ul> <!-- /.nav-second-level --></li>							
+							</ul> <!-- /.nav-second-level --></li>	
+						<li><a href="#"><i class="fa  fa-ticket fa-fw"></i> 工单系统<span
+								class="fa arrow"></span></a>
+							<ul class="nav nav-second-level">
+								<li><a href="#">工单申请<span class="fa arrow"></span></a>
+									<ul class="nav nav-third-level">
+										<li><a href="/order/deploy/apply/">代码部署</a></li>
+										<li><a href="/order/sql/apply/">上线SQL</a></li>
+										<li><a href="/order/file/upload/list/1/">文件分发</a></li>
+										<li><a href="/order/file/download/list/1/">文件下载</a></li>
+									</ul></li>
+								<li><a href="/order/list/1/">工单列表</a></li>
+								<li><a href="/order/search/">工单查询</a></li>
+							</ul> <!-- /.nav-second-level --></li>													
 						<li><a href="/config"><i class="fa fa-wrench fa-fw"></i>
 								全局配置</a></li>
 						<li><a href="#"><i class="fa fa-group "></i> 用户中心<span
