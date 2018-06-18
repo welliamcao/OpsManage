@@ -1,1 +1,479 @@
-﻿
+﻿2018-06-10 23:01:52 [ERROR] run playbook failed: Syntax Error while loading YAML.
+
+
+The error appears to have been in '/mnt/OpsManage/upload/playbook/online-a1b9463d.yaml': line 5, column 3, but may
+be elsewhere in the file depending on the exact syntax problem.
+
+The offending line appears to be:
+
+
+  - name: IOS | Show clock
+  ^ here
+
+2018-06-10 23:02:54 [ERROR] run playbook failed: 'task' is not a valid attribute for a Play
+
+The error appears to have been in '/mnt/OpsManage/upload/playbook/online-a1b9463d.yaml': line 1, column 3, but may
+be elsewhere in the file depending on the exact syntax problem.
+
+The offending line appears to be:
+
+
+- hosts: "{{host}}"
+  ^ here
+We could be wrong, but this one looks like it might be an issue with
+missing quotes.  Always quote template expression brackets when they
+start a value. For instance:
+
+    with_items:
+      - {{ foo }}
+
+Should be written as:
+
+    with_items:
+      - "{{ foo }}"
+
+2018-06-10 23:03:52 [ERROR] run playbook failed: 'task' is not a valid attribute for a Play
+
+The error appears to have been in '/mnt/OpsManage/upload/playbook/online-a1b9463d.yaml': line 1, column 3, but may
+be elsewhere in the file depending on the exact syntax problem.
+
+The offending line appears to be:
+
+
+- hosts: "{{ host }}"
+  ^ here
+We could be wrong, but this one looks like it might be an issue with
+missing quotes.  Always quote template expression brackets when they
+start a value. For instance:
+
+    with_items:
+      - {{ foo }}
+
+Should be written as:
+
+    with_items:
+      - "{{ foo }}"
+
+2018-06-11 21:21:53 [ERROR] run model failed: this task 'ios_command' has extra params, which is only allowed in the following modules: command, win_command, shell, win_shell, script, include, include_vars, add_host, group_by, set_fact, raw, meta
+2018-06-11 21:21:53 [ERROR] run model failed: local variable 'play' referenced before assignment
+2018-06-11 21:23:00 [ERROR] run model failed: this task 'ios_command' has extra params, which is only allowed in the following modules: command, win_command, shell, win_shell, script, include, include_vars, add_host, group_by, set_fact, raw, meta
+2018-06-11 21:23:38 [ERROR] run model failed: this task 'ios_command' has extra params, which is only allowed in the following modules: command, win_command, shell, win_shell, script, include, include_vars, add_host, group_by, set_fact, raw, meta
+2018-06-11 21:32:14 [WARNING] 资产错误: id:5, error:Assets has no network_assets.
+2018-06-11 21:32:14 [WARNING] 资产错误: id:6, error:Assets has no network_assets.
+2018-06-11 21:32:14 [WARNING] 资产错误: id:7, error:Assets has no server_assets.
+2018-06-11 21:32:14 [WARNING] 资产错误: id:7, error:int() argument must be a string or a number, not 'NoneType'
+2018-06-11 21:32:14 [WARNING] 资产错误: id:8, error:Assets has no server_assets.
+2018-06-11 21:32:14 [WARNING] 资产错误: id:8, error:int() argument must be a string or a number, not 'NoneType'
+2018-06-11 21:33:13 [WARNING] id:1, error:Assets has no network_assets.
+2018-06-11 21:33:13 [WARNING] id:2, error:Assets has no network_assets.
+2018-06-11 21:33:13 [WARNING] id:3, error:Assets has no network_assets.
+2018-06-11 21:33:13 [WARNING] id:4, error:Assets has no network_assets.
+2018-06-11 21:33:13 [WARNING] id:10, error:Assets has no server_assets.
+2018-06-11 21:36:07 [WARNING] id:1, error:Assets has no network_assets.
+2018-06-11 21:36:07 [WARNING] id:2, error:Assets has no network_assets.
+2018-06-11 21:36:07 [WARNING] id:3, error:Assets has no network_assets.
+2018-06-11 21:36:07 [WARNING] id:4, error:Assets has no network_assets.
+2018-06-11 21:36:07 [WARNING] id:5, error:Assets has no network_assets.
+2018-06-11 21:36:07 [WARNING] id:6, error:Assets has no network_assets.
+2018-06-11 21:36:07 [WARNING] id:7, error:Assets has no server_assets.
+2018-06-11 21:36:07 [WARNING] id:7, error:int() argument must be a string or a number, not 'NoneType'
+2018-06-11 21:36:07 [WARNING] id:8, error:Assets has no server_assets.
+2018-06-11 21:36:07 [WARNING] id:8, error:int() argument must be a string or a number, not 'NoneType'
+2018-06-11 21:37:22 [WARNING] id:10, error:Assets has no server_assets.
+2018-06-11 21:37:57 [WARNING] id:10, error:Assets has no server_assets.
+2018-06-11 21:41:00 [WARNING] id:10, error:Assets has no server_assets.
+2018-06-11 21:48:18 [WARNING] id:1, error:Assets has no network_assets.
+2018-06-11 21:48:18 [WARNING] id:2, error:Assets has no network_assets.
+2018-06-11 21:48:18 [WARNING] id:3, error:Assets has no network_assets.
+2018-06-11 21:48:18 [WARNING] id:4, error:Assets has no network_assets.
+2018-06-11 21:50:53 [WARNING] id:7, error:int() argument must be a string or a number, not 'NoneType'
+2018-06-11 21:50:53 [WARNING] id:8, error:int() argument must be a string or a number, not 'NoneType'
+2018-06-11 21:59:55 [WARNING] id:7, error:int() argument must be a string or a number, not 'NoneType'
+2018-06-11 21:59:55 [WARNING] id:8, error:int() argument must be a string or a number, not 'NoneType'
+2018-06-11 22:37:08 [ERROR] run playbook failed: the field 'hosts' is required, and cannot have empty values
+
+The error appears to have been in '/mnt/OpsManage/upload/playbook/online-a1b9463d.yaml': line 1, column 3, but may
+be elsewhere in the file depending on the exact syntax problem.
+
+The offending line appears to be:
+
+
+- hosts: "{{ host }}"
+  ^ here
+We could be wrong, but this one looks like it might be an issue with
+missing quotes.  Always quote template expression brackets when they
+start a value. For instance:
+
+    with_items:
+      - {{ foo }}
+
+Should be written as:
+
+    with_items:
+      - "{{ foo }}"
+
+2018-06-11 23:19:05 [INFO] Connected (version 2.0, client OpenSSH_5.3)
+2018-06-11 23:19:05 [INFO] Authentication (publickey) successful!
+2018-06-11 23:19:05 [INFO] [chan 0] Opened sftp connection (server version 3)
+2018-06-13 21:23:38 [WARNING] id:7, error:int() argument must be a string or a number, not 'NoneType'
+2018-06-13 21:24:14 [WARNING] id:7, error:int() argument must be a string or a number, not 'NoneType'
+2018-06-13 23:17:35 [WARNING] id:7, error:int() argument must be a string or a number, not 'NoneType'
+2018-06-13 23:18:35 [WARNING] id:7, error:int() argument must be a string or a number, not 'NoneType'
+2018-06-15 20:55:55 [ERROR] Mysql Error 2003: Can't connect to MySQL server on '192.168.88.233' (111)
+2018-06-15 20:57:22 [ERROR] Mysql Error 1049: Unknown database '192_168_88_235_3306_test'
+2018-06-15 21:28:55 [ERROR] Mysql Error 1049: Unknown database '192_168_88_235_3306_test'
+2018-06-15 21:29:04 [ERROR] Mysql Error 1049: Unknown database '192_168_88_235_3306_test'
+2018-06-16 13:31:42 [WARNING] id:7, error:int() argument must be a string or a number, not 'NoneType'
+2018-06-16 13:32:10 [WARNING] id:7, error:int() argument must be a string or a number, not 'NoneType'
+2018-06-16 13:33:06 [WARNING] id:7, error:int() argument must be a string or a number, not 'NoneType'
+2018-06-16 13:33:31 [WARNING] id:7, error:int() argument must be a string or a number, not 'NoneType'
+2018-06-16 13:35:40 [WARNING] id:7, error:int() argument must be a string or a number, not 'NoneType'
+2018-06-16 13:36:24 [WARNING] id:7, error:int() argument must be a string or a number, not 'NoneType'
+2018-06-16 13:38:04 [WARNING] id:7, error:int() argument must be a string or a number, not 'NoneType'
+2018-06-16 13:38:34 [WARNING] id:7, error:int() argument must be a string or a number, not 'NoneType'
+2018-06-16 13:39:30 [WARNING] id:7, error:int() argument must be a string or a number, not 'NoneType'
+2018-06-16 16:15:34 [ERROR] run playbook failed: Syntax Error while loading YAML.
+
+
+The error appears to have been in '/mnt/OpsManage/upload/playbook/online-67d42003.yaml': line 5, column 47, but may
+be elsewhere in the file depending on the exact syntax problem.
+
+The offending line appears to be:
+
+  - hostname:
+    name: {{inventory_hostname.replace(".","-")}}
+                                              ^ here
+We could be wrong, but this one looks like it might be an issue with
+missing quotes.  Always quote template expression brackets when they
+start a value. For instance:
+
+    with_items:
+      - {{ foo }}
+
+Should be written as:
+
+    with_items:
+      - "{{ foo }}"
+
+2018-06-16 16:18:50 [ERROR] run playbook failed: Syntax Error while loading YAML.
+
+
+The error appears to have been in '/mnt/OpsManage/upload/playbook/online-67d42003.yaml': line 5, column 12, but may
+be elsewhere in the file depending on the exact syntax problem.
+
+The offending line appears to be:
+
+  - hostname:
+    name: {{inventory_hostname}}
+           ^ here
+We could be wrong, but this one looks like it might be an issue with
+missing quotes.  Always quote template expression brackets when they
+start a value. For instance:
+
+    with_items:
+      - {{ foo }}
+
+Should be written as:
+
+    with_items:
+      - "{{ foo }}"
+
+2018-06-17 14:16:21 [WARNING] id:7, error:int() argument must be a string or a number, not 'NoneType'
+2018-06-17 14:17:39 [WARNING] id:7, error:int() argument must be a string or a number, not 'NoneType'
+2018-06-17 14:20:28 [ERROR] 文件上传失败: (1062, "Duplicate entry '\xe6\xb5\x8b\xe8\xaf\x95-1-3' for key 'opsmanage_order_system_order_subject_order_user_43930f38_uniq'")
+2018-06-17 14:20:41 [WARNING] 获取审核SQL[6]错误: Order_System has no sql_audit_order.
+2018-06-17 14:24:13 [WARNING] 获取审核SQL[6]错误: Order_System has no sql_audit_order.
+2018-06-17 14:25:34 [WARNING] 获取审核SQL[6]错误: Order_System has no sql_audit_order.
+2018-06-17 14:25:46 [WARNING] 获取审核SQL[6]错误: Order_System has no sql_audit_order.
+2018-06-17 14:26:41 [WARNING] 获取审核SQL[6]错误: Order_System has no sql_audit_order.
+2018-06-17 14:26:59 [WARNING] 获取审核SQL[6]错误: Order_System has no sql_audit_order.
+2018-06-17 14:27:05 [WARNING] 获取审核SQL[6]错误: Order_System has no sql_audit_order.
+2018-06-17 14:35:05 [ERROR] 文件上传失败: (1062, "Duplicate entry '\xe6\xb5\x8b\xe8\xaf\x955-1-3' for key 'opsmanage_order_system_order_subject_order_user_43930f38_uniq'")
+2018-06-17 14:40:32 [ERROR] 文件上传失败: (1406, "Data too long for column 'file_path' at row 1")
+2018-06-17 14:42:17 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/<!-- Note:  A "Server" is not itself a "Container", so you may not\n'
+2018-06-17 14:42:18 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/     define subcomponents such as "Valves" at this level.\n'
+2018-06-17 14:42:18 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/     Documentation at /docs/config/server.html\n'
+2018-06-17 14:42:18 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/ -->\n'
+2018-06-17 14:42:18 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/<Server port="8005" shutdown="SHUTDOWN">\n'
+2018-06-17 14:42:18 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/\n'
+2018-06-17 14:42:18 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/  <!--APR library loader. Documentation at /docs/apr.html -->\n'
+2018-06-17 14:42:18 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/  <Listener className="org.apache.catalina.core.AprLifecycleListener" SSLEngine="on" />\n'
+2018-06-17 14:42:18 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/  <!--Initialize Jasper prior to webapps are loaded. Documentation at /docs/jasper-howto.html -->\n'
+2018-06-17 14:42:18 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/  <Listener className="org.apache.catalina.core.JasperListener" />\n'
+2018-06-17 14:42:18 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/  <!-- JMX Support for the Tomcat server. Documentation at /docs/non-existent.html -->\n'
+2018-06-17 14:42:18 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/  <Listener className="org.apache.catalina.mbeans.ServerLifecycleListener" />\n'
+2018-06-17 14:42:18 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/  <Listener className="org.apache.catalina.mbeans.GlobalResourcesLifecycleListener" />\n'
+2018-06-17 14:42:18 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/\n'
+2018-06-17 14:42:18 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/  <!-- Global JNDI resources\n'
+2018-06-17 14:42:18 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/       Documentation at /docs/jndi-resources-howto.html\n'
+2018-06-17 14:42:18 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/  -->\n'
+2018-06-17 14:42:18 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/  <GlobalNamingResources>\n'
+2018-06-17 14:42:18 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/    <!-- Editable user database that can also be used by\n'
+2018-06-17 14:42:18 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/         UserDatabaseRealm to authenticate users\n'
+2018-06-17 14:42:18 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/    -->\n'
+2018-06-17 14:42:18 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/    <Resource name="UserDatabase" auth="Container"\n'
+2018-06-17 14:42:18 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/              type="org.apache.catalina.UserDatabase"\n'
+2018-06-17 14:42:18 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/              description="User database that can be updated and saved"\n'
+2018-06-17 14:42:18 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/              factory="org.apache.catalina.users.MemoryUserDatabaseFactory"\n'
+2018-06-17 14:42:18 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/              pathname="conf/tomcat-users.xml" />\n'
+2018-06-17 14:42:18 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/  </GlobalNamingResources>\n'
+2018-06-17 14:42:18 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/\n'
+2018-06-17 14:42:18 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/  <!-- A "Service" is a collection of one or more "Connectors" that share\n'
+2018-06-17 14:42:18 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/       a single "Container" Note:  A "Service" is not itself a "Container", \n'
+2018-06-17 14:42:18 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/       so you may not define subcomponents such as "Valves" at this level.\n'
+2018-06-17 14:42:18 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/       Documentation at /docs/config/service.html\n'
+2018-06-17 14:42:18 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/   -->\n'
+2018-06-17 14:42:18 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/  <Service name="Catalina">\n'
+2018-06-17 14:42:18 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/\n'
+2018-06-17 14:42:18 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/    <!-- A "Connector" represents an endpoint by which requests are received\n'
+2018-06-17 14:42:18 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/         and responses are returned. Documentation at :\n'
+2018-06-17 14:42:18 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/         Java HTTP Connector: /docs/config/http.html (blocking & non-blocking)\n'
+2018-06-17 14:42:19 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/         Java AJP  Connector: /docs/config/ajp.html\n'
+2018-06-17 14:42:19 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/         APR (HTTP/AJP) Connector: /docs/apr.html\n'
+2018-06-17 14:42:19 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/         Define a non-SSL HTTP/1.1 Connector on port 8080\n'
+2018-06-17 14:42:19 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/    -->\n'
+2018-06-17 14:42:19 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/    <Connector port="8080" protocol="HTTP/1.1" \n'
+2018-06-17 14:42:19 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/\t    connectionTimeout="20000" \n'
+2018-06-17 14:42:19 [ERROR] 文件上传失败: (1406, "Data too long for column 'file_path' at row 1")
+2018-06-17 14:43:19 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/<!-- Note:  A "Server" is not itself a "Container", so you may not\n'
+2018-06-17 14:43:20 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/     define subcomponents such as "Valves" at this level.\n'
+2018-06-17 14:43:20 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/     Documentation at /docs/config/server.html\n'
+2018-06-17 14:43:20 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/ -->\n'
+2018-06-17 14:43:20 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/<Server port="8005" shutdown="SHUTDOWN">\n'
+2018-06-17 14:43:20 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/\n'
+2018-06-17 14:43:20 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/  <!--APR library loader. Documentation at /docs/apr.html -->\n'
+2018-06-17 14:43:20 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/  <Listener className="org.apache.catalina.core.AprLifecycleListener" SSLEngine="on" />\n'
+2018-06-17 14:43:20 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/  <!--Initialize Jasper prior to webapps are loaded. Documentation at /docs/jasper-howto.html -->\n'
+2018-06-17 14:43:20 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/  <Listener className="org.apache.catalina.core.JasperListener" />\n'
+2018-06-17 14:43:20 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/  <!-- JMX Support for the Tomcat server. Documentation at /docs/non-existent.html -->\n'
+2018-06-17 14:43:20 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/  <Listener className="org.apache.catalina.mbeans.ServerLifecycleListener" />\n'
+2018-06-17 14:43:20 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/  <Listener className="org.apache.catalina.mbeans.GlobalResourcesLifecycleListener" />\n'
+2018-06-17 14:43:20 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/\n'
+2018-06-17 14:43:20 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/  <!-- Global JNDI resources\n'
+2018-06-17 14:43:20 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/       Documentation at /docs/jndi-resources-howto.html\n'
+2018-06-17 14:43:20 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/  -->\n'
+2018-06-17 14:43:20 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/  <GlobalNamingResources>\n'
+2018-06-17 14:43:20 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/    <!-- Editable user database that can also be used by\n'
+2018-06-17 14:43:20 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/         UserDatabaseRealm to authenticate users\n'
+2018-06-17 14:43:20 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/    -->\n'
+2018-06-17 14:43:20 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/    <Resource name="UserDatabase" auth="Container"\n'
+2018-06-17 14:43:20 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/              type="org.apache.catalina.UserDatabase"\n'
+2018-06-17 14:43:20 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/              description="User database that can be updated and saved"\n'
+2018-06-17 14:43:20 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/              factory="org.apache.catalina.users.MemoryUserDatabaseFactory"\n'
+2018-06-17 14:43:20 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/              pathname="conf/tomcat-users.xml" />\n'
+2018-06-17 14:43:20 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/  </GlobalNamingResources>\n'
+2018-06-17 14:43:20 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/\n'
+2018-06-17 14:43:20 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/  <!-- A "Service" is a collection of one or more "Connectors" that share\n'
+2018-06-17 14:43:20 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/       a single "Container" Note:  A "Service" is not itself a "Container", \n'
+2018-06-17 14:43:20 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/       so you may not define subcomponents such as "Valves" at this level.\n'
+2018-06-17 14:43:20 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/       Documentation at /docs/config/service.html\n'
+2018-06-17 14:43:20 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/   -->\n'
+2018-06-17 14:43:20 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/  <Service name="Catalina">\n'
+2018-06-17 14:43:20 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/\n'
+2018-06-17 14:43:20 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/    <!-- A "Connector" represents an endpoint by which requests are received\n'
+2018-06-17 14:43:20 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/         and responses are returned. Documentation at :\n'
+2018-06-17 14:43:20 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/         Java HTTP Connector: /docs/config/http.html (blocking & non-blocking)\n'
+2018-06-17 14:43:20 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/         Java AJP  Connector: /docs/config/ajp.html\n'
+2018-06-17 14:43:21 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/         APR (HTTP/AJP) Connector: /docs/apr.html\n'
+2018-06-17 14:43:21 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/         Define a non-SSL HTTP/1.1 Connector on port 8080\n'
+2018-06-17 14:43:21 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/    -->\n'
+2018-06-17 14:43:21 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/    <Connector port="8080" protocol="HTTP/1.1" \n'
+2018-06-17 14:43:21 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/\t    connectionTimeout="20000" \n'
+2018-06-17 14:43:21 [ERROR] 文件上传失败: (1406, "Data too long for column 'file_path' at row 1")
+2018-06-17 14:44:36 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/<!-- Note:  A "Server" is not itself a "Container", so you may not\n'
+2018-06-17 14:44:36 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/     define subcomponents such as "Valves" at this level.\n'
+2018-06-17 14:44:36 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/     Documentation at /docs/config/server.html\n'
+2018-06-17 14:44:36 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/ -->\n'
+2018-06-17 14:44:36 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/<Server port="8005" shutdown="SHUTDOWN">\n'
+2018-06-17 14:44:36 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/\n'
+2018-06-17 14:44:36 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/  <!--APR library loader. Documentation at /docs/apr.html -->\n'
+2018-06-17 14:44:36 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/  <Listener className="org.apache.catalina.core.AprLifecycleListener" SSLEngine="on" />\n'
+2018-06-17 14:44:36 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/  <!--Initialize Jasper prior to webapps are loaded. Documentation at /docs/jasper-howto.html -->\n'
+2018-06-17 14:44:36 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/  <Listener className="org.apache.catalina.core.JasperListener" />\n'
+2018-06-17 14:44:37 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/  <!-- JMX Support for the Tomcat server. Documentation at /docs/non-existent.html -->\n'
+2018-06-17 14:44:37 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/  <Listener className="org.apache.catalina.mbeans.ServerLifecycleListener" />\n'
+2018-06-17 14:44:37 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/  <Listener className="org.apache.catalina.mbeans.GlobalResourcesLifecycleListener" />\n'
+2018-06-17 14:44:37 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/\n'
+2018-06-17 14:44:37 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/  <!-- Global JNDI resources\n'
+2018-06-17 14:44:37 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/       Documentation at /docs/jndi-resources-howto.html\n'
+2018-06-17 14:44:37 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/  -->\n'
+2018-06-17 14:44:37 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/  <GlobalNamingResources>\n'
+2018-06-17 14:44:37 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/    <!-- Editable user database that can also be used by\n'
+2018-06-17 14:44:37 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/         UserDatabaseRealm to authenticate users\n'
+2018-06-17 14:44:37 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/    -->\n'
+2018-06-17 14:44:37 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/    <Resource name="UserDatabase" auth="Container"\n'
+2018-06-17 14:44:37 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/              type="org.apache.catalina.UserDatabase"\n'
+2018-06-17 14:44:37 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/              description="User database that can be updated and saved"\n'
+2018-06-17 14:44:37 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/              factory="org.apache.catalina.users.MemoryUserDatabaseFactory"\n'
+2018-06-17 14:44:37 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/              pathname="conf/tomcat-users.xml" />\n'
+2018-06-17 14:44:37 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/  </GlobalNamingResources>\n'
+2018-06-17 14:44:37 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/\n'
+2018-06-17 14:44:37 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/  <!-- A "Service" is a collection of one or more "Connectors" that share\n'
+2018-06-17 14:44:37 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/       a single "Container" Note:  A "Service" is not itself a "Container", \n'
+2018-06-17 14:44:37 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/       so you may not define subcomponents such as "Valves" at this level.\n'
+2018-06-17 14:44:37 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/       Documentation at /docs/config/service.html\n'
+2018-06-17 14:44:37 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/   -->\n'
+2018-06-17 14:44:37 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/  <Service name="Catalina">\n'
+2018-06-17 14:44:37 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/\n'
+2018-06-17 14:44:37 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/    <!-- A "Connector" represents an endpoint by which requests are received\n'
+2018-06-17 14:44:37 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/         and responses are returned. Documentation at :\n'
+2018-06-17 14:44:37 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/         Java HTTP Connector: /docs/config/http.html (blocking & non-blocking)\n'
+2018-06-17 14:44:37 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/         Java AJP  Connector: /docs/config/ajp.html\n'
+2018-06-17 14:44:37 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/         APR (HTTP/AJP) Connector: /docs/apr.html\n'
+2018-06-17 14:44:37 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/         Define a non-SSL HTTP/1.1 Connector on port 8080\n'
+2018-06-17 14:44:37 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/    -->\n'
+2018-06-17 14:44:37 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/    <Connector port="8080" protocol="HTTP/1.1" \n'
+2018-06-17 14:44:37 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/\t    connectionTimeout="20000" \n'
+2018-06-17 14:44:37 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/               redirectPort="443" URIEncoding="utf-8"  useBodyEncodingForURI="true"  proxyPort="443"  />\n'
+2018-06-17 14:44:37 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/\n'
+2018-06-17 14:44:37 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/    <!-- Define a SSL HTTP/1.1 Connector on port 8443\n'
+2018-06-17 14:44:37 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/         This connector uses the JSSE configuration, when using APR, the \n'
+2018-06-17 14:44:37 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/         connector should be using the OpenSSL style configuration\n'
+2018-06-17 14:44:38 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/         described in the APR documentation -->\n'
+2018-06-17 14:44:38 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/    <!--\n'
+2018-06-17 14:44:38 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/    <Connector port="8443" protocol="HTTP/1.1" SSLEnabled="true"\n'
+2018-06-17 14:44:38 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/               maxThreads="150" scheme="https" secure="true"\n'
+2018-06-17 14:44:38 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/               clientAuth="false" sslProtocol="TLS" />\n'
+2018-06-17 14:44:38 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/    -->\n'
+2018-06-17 14:44:38 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/\n'
+2018-06-17 14:44:38 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/    <!-- Define an AJP 1.3 Connector on port 8009 -->\n'
+2018-06-17 14:44:38 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/    <Connector port="8009" protocol="AJP/1.3" redirectPort="8443"  URIEncoding="utf-8"     />\n'
+2018-06-17 14:44:38 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/\n'
+2018-06-17 14:44:38 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/\n'
+2018-06-17 14:44:38 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/    <!-- An Engine represents the entry point (within Catalina) that processes\n'
+2018-06-17 14:44:38 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/         every request.  The Engine implementation for Tomcat stand alone\n'
+2018-06-17 14:44:38 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/         analyzes the HTTP headers included with the request, and passes them\n'
+2018-06-17 14:44:38 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/         on to the appropriate Host (virtual host).\n'
+2018-06-17 14:44:38 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/         Documentation at /docs/config/engine.html -->\n'
+2018-06-17 14:44:38 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/\n'
+2018-06-17 14:44:38 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/    <!-- You should set jvmRoute to support load-balancing via AJP ie :\n'
+2018-06-17 14:44:38 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/    <Engine name="Standalone" defaultHost="localhost" jvmRoute="jvm1">         \n'
+2018-06-17 14:44:38 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/    --> \n'
+2018-06-17 14:44:38 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/    <Engine name="Catalina" defaultHost="localhost">\n'
+2018-06-17 14:44:38 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/\n'
+2018-06-17 14:44:38 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/      <!--For clustering, please take a look at documentation at:\n'
+2018-06-17 14:44:38 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/          /docs/cluster-howto.html  (simple how to)\n'
+2018-06-17 14:44:38 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/          /docs/config/cluster.html (reference documentation) -->\n'
+2018-06-17 14:44:38 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/      <!--\n'
+2018-06-17 14:44:38 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/      <Cluster className="org.apache.catalina.ha.tcp.SimpleTcpCluster"/>\n'
+2018-06-17 14:44:38 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/      -->        \n'
+2018-06-17 14:44:38 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/\n'
+2018-06-17 14:44:38 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/      <!-- The request dumper valve dumps useful debugging information about\n'
+2018-06-17 14:44:38 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/           the request and response data received and sent by Tomcat.\n'
+2018-06-17 14:44:38 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/           Documentation at: /docs/config/valve.html -->\n'
+2018-06-17 14:44:38 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/      <!--\n'
+2018-06-17 14:44:38 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/      <Valve className="org.apache.catalina.valves.RequestDumperValve"/>\n'
+2018-06-17 14:44:38 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/      -->\n'
+2018-06-17 14:44:38 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/\n'
+2018-06-17 14:44:38 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/      <!-- This Realm uses the UserDatabase configured in the global JNDI\n'
+2018-06-17 14:44:38 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/           resources under the key "UserDatabase".  Any edits\n'
+2018-06-17 14:44:38 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/           that are performed against this UserDatabase are immediately\n'
+2018-06-17 14:44:39 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/           available for use by the Realm.  -->\n'
+2018-06-17 14:44:39 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/      <Realm className="org.apache.catalina.realm.UserDatabaseRealm"\n'
+2018-06-17 14:44:39 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/             resourceName="UserDatabase"/>\n'
+2018-06-17 14:44:39 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/\n'
+2018-06-17 14:44:39 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/      <!-- Define the default virtual host\n'
+2018-06-17 14:44:39 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/           Note: XML Schema validation will not work with Xerces 2.2.\n'
+2018-06-17 14:44:39 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/       -->\n'
+2018-06-17 14:44:39 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/      <Host name="localhost"  appBase="webapps"\n'
+2018-06-17 14:44:39 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/            unpackWARs="true" autoDeploy="true"\n'
+2018-06-17 14:44:39 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/            xmlValidation="false" xmlNamespaceAware="false">\n'
+2018-06-17 14:44:39 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/\n'
+2018-06-17 14:44:39 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/        <!-- SingleSignOn valve, share authentication between web applications\n'
+2018-06-17 14:44:39 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/             Documentation at: /docs/config/valve.html -->\n'
+2018-06-17 14:44:39 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/        <!--\n'
+2018-06-17 14:44:39 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/        <Valve className="org.apache.catalina.authenticator.SingleSignOn" />\n'
+2018-06-17 14:44:39 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/        -->\n'
+2018-06-17 14:44:39 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/\n'
+2018-06-17 14:44:39 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/        <!-- Access log processes all example.\n'
+2018-06-17 14:44:39 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/             Documentation at: /docs/config/valve.html -->\n'
+2018-06-17 14:44:39 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/        <!--\n'
+2018-06-17 14:44:39 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/        <Valve className="org.apache.catalina.valves.AccessLogValve" directory="logs"  \n'
+2018-06-17 14:44:39 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/               prefix="localhost_access_log." suffix=".txt" pattern="common" resolveHosts="false"/>\n'
+2018-06-17 14:44:39 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/        -->\n'
+2018-06-17 14:44:39 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/\t  <Valve className="org.apache.catalina.valves.RemoteIpValve"\n'
+2018-06-17 14:44:39 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/\t\t   remoteIpHeader="x-forwarded-for"\n'
+2018-06-17 14:44:39 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/\t\t   remoteIpProxiesHeader="x-forwarded-by"\n'
+2018-06-17 14:44:39 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/\t\t   protocolHeader="x-forwarded-proto"/>\t   \n'
+2018-06-17 14:44:39 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/      </Host>\n'
+2018-06-17 14:44:39 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/    </Engine>\n'
+2018-06-17 14:44:39 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/  </Service>\n'
+2018-06-17 14:44:39 [ERROR] 获取文件类型失败: [Errno 2] No such file or directory: '/mnt/OpsManage/upload/</Server>\n'
+2018-06-17 14:47:12 [ERROR] 文件上传失败: (1062, "Duplicate entry '\xe6\xb5\x8b\xe8\xaf\x95\xe6\x96\x87\xe4\xbb\xb6\xe4\xb8\x8a\xe4\xbc\xa0-1-3' for key 'opsmanage_order_system_order_subject_order_user_43930f38_uniq'")
+2018-06-17 14:49:22 [WARNING] id:7, error:int() argument must be a string or a number, not 'NoneType'
+2018-06-17 15:37:25 [WARNING] 获取审核SQL[20]错误: Order_System has no sql_audit_order.
+2018-06-17 15:37:25 [WARNING] 获取审核SQL[19]错误: Order_System has no sql_audit_order.
+2018-06-17 15:37:25 [WARNING] 获取审核SQL[6]错误: Order_System has no sql_audit_order.
+2018-06-17 15:38:07 [WARNING] 获取审核SQL[20]错误: Order_System has no sql_audit_order.
+2018-06-17 15:38:07 [WARNING] 获取审核SQL[19]错误: Order_System has no sql_audit_order.
+2018-06-17 15:38:07 [WARNING] 获取审核SQL[6]错误: Order_System has no sql_audit_order.
+2018-06-17 15:38:28 [WARNING] 获取审核SQL[20]错误: Order_System has no sql_audit_order.
+2018-06-17 15:38:28 [WARNING] 获取审核SQL[19]错误: Order_System has no sql_audit_order.
+2018-06-17 15:38:28 [WARNING] 获取审核SQL[6]错误: Order_System has no sql_audit_order.
+2018-06-17 15:38:30 [WARNING] 获取审核SQL[20]错误: Order_System has no sql_audit_order.
+2018-06-17 15:38:30 [WARNING] 获取审核SQL[19]错误: Order_System has no sql_audit_order.
+2018-06-17 15:38:30 [WARNING] 获取审核SQL[6]错误: Order_System has no sql_audit_order.
+2018-06-17 15:39:50 [WARNING] 获取审核SQL[20]错误: Order_System has no sql_audit_order.
+2018-06-17 15:39:50 [WARNING] 获取审核SQL[19]错误: Order_System has no sql_audit_order.
+2018-06-17 15:39:50 [WARNING] 获取审核SQL[6]错误: Order_System has no sql_audit_order.
+2018-06-17 16:33:51 [WARNING] 获取审核SQL[20]错误: Order_System has no sql_audit_order.
+2018-06-17 16:33:51 [WARNING] 获取审核SQL[19]错误: Order_System has no sql_audit_order.
+2018-06-17 16:33:52 [WARNING] 获取审核SQL[6]错误: Order_System has no sql_audit_order.
+2018-06-17 16:35:05 [WARNING] 获取审核SQL[20]错误: Order_System has no sql_audit_order.
+2018-06-17 16:35:05 [WARNING] 获取审核SQL[19]错误: Order_System has no sql_audit_order.
+2018-06-17 16:35:05 [WARNING] 获取审核SQL[6]错误: Order_System has no sql_audit_order.
+2018-06-17 16:36:07 [WARNING] 获取审核SQL[20]错误: Order_System has no sql_audit_order.
+2018-06-17 16:36:07 [WARNING] 获取审核SQL[19]错误: Order_System has no sql_audit_order.
+2018-06-17 16:36:07 [WARNING] 获取审核SQL[6]错误: Order_System has no sql_audit_order.
+2018-06-17 16:38:17 [WARNING] 获取审核SQL[20]错误: Order_System has no sql_audit_order.
+2018-06-17 16:38:17 [WARNING] 获取审核SQL[19]错误: Order_System has no sql_audit_order.
+2018-06-17 16:38:17 [WARNING] 获取审核SQL[6]错误: Order_System has no sql_audit_order.
+2018-06-17 16:41:44 [WARNING] 获取审核SQL[20]错误: Order_System has no sql_audit_order.
+2018-06-17 16:41:44 [WARNING] 获取审核SQL[19]错误: Order_System has no sql_audit_order.
+2018-06-17 16:41:44 [WARNING] 获取审核SQL[6]错误: Order_System has no sql_audit_order.
+2018-06-17 19:03:48 [WARNING] network_id:6, error:int() argument must be a string or a number, not 'NoneType'
+2018-06-17 19:05:56 [WARNING] network_id:6, error:int() argument must be a string or a number, not 'NoneType'
+2018-06-17 19:06:57 [WARNING] network_id:6, error:int() argument must be a string or a number, not 'NoneType'
+2018-06-17 19:07:40 [WARNING] network_id:6, error:int() argument must be a string or a number, not 'NoneType'
+2018-06-17 19:58:41 [WARNING] network_id:6, error:int() argument must be a string or a number, not 'NoneType'
+2018-06-17 20:12:25 [WARNING] 获取审核SQL[21]错误: Order_System has no sql_audit_order.
+2018-06-17 20:12:25 [WARNING] 获取审核SQL[20]错误: Order_System has no sql_audit_order.
+2018-06-17 20:12:26 [WARNING] 获取审核SQL[19]错误: Order_System has no sql_audit_order.
+2018-06-17 20:12:26 [WARNING] 获取审核SQL[6]错误: Order_System has no sql_audit_order.
+2018-06-17 20:13:54 [WARNING] 获取审核SQL[21]错误: Order_System has no sql_audit_order.
+2018-06-17 20:13:54 [WARNING] 获取审核SQL[20]错误: Order_System has no sql_audit_order.
+2018-06-17 20:13:54 [WARNING] 获取审核SQL[19]错误: Order_System has no sql_audit_order.
+2018-06-17 20:13:55 [WARNING] 获取审核SQL[6]错误: Order_System has no sql_audit_order.
+2018-06-17 20:14:02 [WARNING] 获取审核SQL[21]错误: Order_System has no sql_audit_order.
+2018-06-17 20:14:02 [WARNING] 获取审核SQL[20]错误: Order_System has no sql_audit_order.
+2018-06-17 20:14:02 [WARNING] 获取审核SQL[19]错误: Order_System has no sql_audit_order.
+2018-06-17 20:14:02 [WARNING] 获取审核SQL[6]错误: Order_System has no sql_audit_order.
+2018-06-17 20:14:11 [WARNING] 获取审核SQL[21]错误: Order_System has no sql_audit_order.
+2018-06-17 20:14:11 [WARNING] 获取审核SQL[20]错误: Order_System has no sql_audit_order.
+2018-06-17 20:14:11 [WARNING] 获取审核SQL[19]错误: Order_System has no sql_audit_order.
+2018-06-17 20:14:11 [WARNING] 获取审核SQL[6]错误: Order_System has no sql_audit_order.
+2018-06-17 20:16:24 [WARNING] 获取审核SQL[21]错误: Order_System has no sql_audit_order.
+2018-06-17 20:16:24 [WARNING] 获取审核SQL[20]错误: Order_System has no sql_audit_order.
+2018-06-17 20:16:24 [WARNING] 获取审核SQL[19]错误: Order_System has no sql_audit_order.
+2018-06-17 20:16:24 [WARNING] 获取审核SQL[6]错误: Order_System has no sql_audit_order.
+2018-06-17 20:17:53 [WARNING] 获取审核SQL[21]错误: Order_System has no sql_audit_order.
+2018-06-17 20:17:53 [WARNING] 获取审核SQL[20]错误: Order_System has no sql_audit_order.
+2018-06-17 20:17:53 [WARNING] 获取审核SQL[19]错误: Order_System has no sql_audit_order.
+2018-06-17 20:17:53 [WARNING] 获取审核SQL[6]错误: Order_System has no sql_audit_order.
+2018-06-17 20:22:57 [WARNING] 获取审核SQL[21]错误: Order_System has no sql_audit_order.
+2018-06-17 20:22:57 [WARNING] 获取审核SQL[20]错误: Order_System has no sql_audit_order.
+2018-06-17 20:22:57 [WARNING] 获取审核SQL[19]错误: Order_System has no sql_audit_order.
+2018-06-17 20:22:57 [WARNING] 获取审核SQL[6]错误: Order_System has no sql_audit_order.
+2018-06-17 22:16:28 [INFO] Connected (version 2.0, client OpenSSH_5.3)
+2018-06-17 22:16:28 [INFO] Authentication (publickey) successful!
+2018-06-17 22:16:29 [INFO] [chan 0] Opened sftp connection (server version 3)
+2018-06-18 10:33:08 [WARNING] id:7, error:int() argument must be a string or a number, not 'NoneType'
+2018-06-18 10:39:52 [WARNING] 获取审核SQL[24]错误: (1054, "Unknown column 'opsmanage_filedownload_audit_order.order_content' in 'field list'")
+2018-06-18 10:39:52 [WARNING] 获取审核SQL[23]错误: (1054, "Unknown column 'opsmanage_filedownload_audit_order.order_content' in 'field list'")
+2018-06-18 10:40:33 [WARNING] 获取审核SQL[24]错误: (1054, "Unknown column 'opsmanage_filedownload_audit_order.order_content' in 'field list'")
+2018-06-18 10:40:33 [WARNING] 获取审核SQL[23]错误: (1054, "Unknown column 'opsmanage_filedownload_audit_order.order_content' in 'field list'")
+2018-06-18 10:42:12 [WARNING] 获取审核SQL[24]错误: (1054, "Unknown column 'opsmanage_filedownload_audit_order.order_content' in 'field list'")
+2018-06-18 10:42:12 [WARNING] 获取审核SQL[23]错误: (1054, "Unknown column 'opsmanage_filedownload_audit_order.order_content' in 'field list'")
+2018-06-18 10:43:56 [WARNING] 获取审核SQL[24]错误: (1054, "Unknown column 'opsmanage_filedownload_audit_order.order_content' in 'field list'")
+2018-06-18 10:43:56 [WARNING] 获取审核SQL[23]错误: (1054, "Unknown column 'opsmanage_filedownload_audit_order.order_content' in 'field list'")
+2018-06-18 16:20:31 [ERROR] 文件下载申请失败: (1062, "Duplicate entry '\xe6\xb5\x8b\xe8\xaf\x95\xe6\x96\x87\xe4\xbb\xb6\xe4\xb8\x8b\xe8\xbd\xbd2-1-3' for key 'opsmanage_order_system_order_subject_order_user_43930f38_uniq'")
