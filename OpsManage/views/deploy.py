@@ -82,7 +82,7 @@ def deploy_modf(request,pid):
     try:
         project = Project_Config.objects.select_related().get(id=pid)
         tagret_server = Project_Number.objects.filter(project=project)
-        serverList = [ s.server_assets for s in Assets.objects.filter(project=project.project.id) ]
+        serverList = [ s.server_assets for s in Assets.objects.filter(project=project.project.id,assets_type__in=['server','vmser']) ]
     except Exception, ex:
         logger.error(msg="修改项目失败: {ex}".format(ex=ex))
         return render(request,'deploy/deploy_modf.html',{"user":request.user,
