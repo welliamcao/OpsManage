@@ -592,7 +592,7 @@ class DataBase_Server_Config(models.Model):
             ("can_add_database_server_config", "添加数据库信息表权限"),
             ("can_delete_database_server_config", "删除数据库信息表权限"),              
         )
-        unique_together = (("db_port", "db_host","db_env"))
+        unique_together = (("db_port", "db_host","db_env","db_name"))
         verbose_name = '数据库信息表'  
         verbose_name_plural = '数据库信息表'
   

@@ -27,7 +27,6 @@ class Inception():
                                               db_name=self.db_name,
                                               action=action,auditSql=auditSql
                                               )
-        print sql
         try:
             conn = MySQLdb.connect(host=incept.db_host,user='',passwd='',db='',port=int(incept.db_port))
             cur = conn.cursor()
