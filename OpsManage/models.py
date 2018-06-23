@@ -270,6 +270,7 @@ class Project_Config(models.Model):
     project_env = models.CharField(max_length=50,verbose_name='项目环境',default=None)
     project_name =  models.CharField(max_length=100,verbose_name='项目名称',default=None)
     project_service = models.SmallIntegerField(verbose_name='业务类型')
+    project_type = models.CharField(max_length=10,verbose_name='编译类型')
     project_local_command = models.TextField(blank=True,null=True,verbose_name='部署服务器要执行的命令',default=None)
     project_repo_dir = models.CharField(max_length=100,verbose_name='本地仓库目录',default=None)
     project_dir = models.CharField(max_length=100,verbose_name='代码目录',default=None)
@@ -326,7 +327,7 @@ class Project_Number(models.Model):
         verbose_name_plural = '项目成员表' 
         
     def __unicode__(self):
-        return '%s' % ( self.server)         
+        return '%s,%s' % ( self.server,self.dir)         
         
       
                         

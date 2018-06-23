@@ -194,5 +194,7 @@ SFTP_CONF = {
              'timeout':30
              }  #修改成能sftp登陆OpsManage的账户
 
+WORKSPACES = '/var/lib/opsmanage/workspaces/' 
+
 LOGIN_URL = '/login'
 

@@ -109,7 +109,7 @@
 					for (var i = 1; i < response["data"].length; ++i) {
 						if (response['data'][i]["islnk"] ){
 							var button = '<button type="button" class="btn btn-xs btn-default" disabled><abbr title="软连接不支持下载"><i class="fa  fa-cloud-download"></i></button>';
-						}else if(response['data'][i]["size"] > 300 ){
+						}else if(response['data'][i]["size"] > 500 ){
 							var button = '<button type="button" class="btn btn-xs btn-default" disabled><abbr title="文件过大不支持下载"><i class="fa  fa-cloud-download"></i></button>';
 						}else{
 							var button = '<button type="button" name="download_button" class="btn btn-xs btn-default" onclick="downLoadOrderFiles(this,\'' + response['data'][i]["path"] + '\',\'' + response['data'][i]["host"] +'\')"><abbr title="下载"><i class="fa  fa-cloud-download"></i></button>';
