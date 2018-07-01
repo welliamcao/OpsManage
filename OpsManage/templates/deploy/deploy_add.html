@@ -282,16 +282,17 @@ function oBtServiceSelect(model,ids){
 					var binlogHtml = '<select multiple  name="server" id="server"  required>'
 					var selectHtml = '';
 					for (var i=0; i <response["data"].length; i++){
-						 selectHtml += '<option name="server" value="'+ response["data"][i]["id"] +'">' + response["data"][i]["ip"] + '</option>' 
+						 selectHtml += '<option name="server" value="'+ response["data"][i]["id"] +'">' + response["data"][i]["ip"] + ' | ' + response["data"][i]["project"] + ' | ' + response["data"][i]["service"] + '</option>' 
 					};                        
 					binlogHtml =  binlogHtml + selectHtml + '</select>';
 					document.getElementById("server").innerHTML= binlogHtml;	
-				    $('#server').multiselect({
+					$('#server').multiselect('destroy');
+ 				    $('#server').multiselect({
 				        enableClickableOptGroups: true,
 				        enableCollapsibleOptGroups: true,
 				        includeSelectAllOption: true,
 				       	enableFiltering: true,            
-				    });								
+				    });	 						
 				},
 			});	
 	   }

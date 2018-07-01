@@ -8,6 +8,7 @@
 <link href="/static/dist/css/bootstrap-multiselect.css" rel="stylesheet">
 <script src="/static/dist/js/bootstrap-multiselect.js"></script>
 <script src="https://cdn.bootcss.com/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.js"></script>
+<script type="text/javascript" src="/static/dist/js/bootstrap-notify.js"></script>
 <style type="text/css">
 	#compile-editor {
 		/* position: absolute; */
@@ -32,7 +33,7 @@
                         </div>
                         <div class="panel-body">
                             <div class="row">
-                                <div class="col-lg-6">
+                                <div class="col-lg-5">
                                 <legend><i class="fa  fa-paper-plane"></i>Ansible服务器</legend>
                                     <form  method="post" id="ansibleModelRun">  {% csrf_token %}
                                         <div class="form-group">
@@ -80,7 +81,7 @@
 											<label>服务器选择</label>
 		                                       <select multiple  name="ansible_server"  id="ansible_server" required>
 		                                            {% for ds in serverList %}
-		                                            	<option name="server" value="{{ds.id}}">{{ds.ip}}</option>
+		                                            	<option name="server" value="{{ds.id}}">{{ds.ip}} | {{ds.project}} | {{ds.service}}</option>
 		                                            {% endfor %}
 		                                       </select>
 										</div>         
@@ -107,7 +108,7 @@
                                         <button type="button" class="btn btn-default" id="run_ansible_model" {% if perms.OpsManage.can_exec_ansible_script %} onclick="runAnsibleModel(this)" {% else %} disabled  {% endif %}>运行</button>		                                   
 		                                                               	
                                 </div>                            
-                                <div class="col-lg-6">
+                                <div class="col-lg-7">
                                     <legend><i class="fa  fa-paper-plane-o"></i>执行结果</legend>
 									<pre>
 				                        <div id="result">
@@ -124,7 +125,7 @@
                 <!-- /.col-lg-12 -->
             </div>
 </div>
-
+<div style="visibility:hidden"><a id="scrollToTop"></a></div>
 <script type="text/javascript">
 
 $(document).ready(function() {
@@ -237,7 +238,7 @@ function oBtServiceSelect(model,ids){
 				success:function(response){
 					var sHtml = '';
 					for (var i=0; i <response["data"].length; i++){
-						sHtml += '<br>' + response["data"][i]["ip"]  
+						sHtml += '<br>' + response["data"][i]["ip"] + " | " + response["data"][i]["project"] + " | " + response["data"][i]["service"]
 					};  
 					if ( sHtml.length > 0){
 						$.notify({
@@ -297,6 +298,7 @@ function oBtServiceSelect(model,ids){
 	            success : function(result){
 	            	if (result["msg"] !== null ){
 	            		$("#result").append("<p>"+result["msg"]+"</p>"); 
+	            		document.getElementById("scrollToTop").scrollIntoView(); 
 	            		if (result["msg"].indexOf("[Done]") == 0){
 	            			clearInterval(interval);
 	            			window.wxc.xcConfirm("Ansible执行完成", window.wxc.xcConfirm.typeEnum.success);

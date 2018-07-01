@@ -32,6 +32,7 @@ class Assets(models.Model):
     group = models.SmallIntegerField(blank=True,null=True,verbose_name='使用组')
     business = models.SmallIntegerField(blank=True,null=True,verbose_name='业务类型')
     project = models.SmallIntegerField(blank=True,null=True,verbose_name='项目类型')
+    host_vars = models.TextField(blank=True,null=True,verbose_name='ansible主机变量')
     create_date = models.DateTimeField(auto_now_add=True)
     update_date = models.DateTimeField(auto_now_add=True)
     class Meta:
@@ -316,12 +317,6 @@ class Project_Number(models.Model):
     dir =  models.CharField(max_length=100,verbose_name='项目目录',default=None)
     class Meta:
         db_table = 'opsmanage_project_number'
-#         permissions = (
-#             ("can_read_project_number", "读取项目成员权限"),
-#             ("can_change_project_number", "更改项目成员权限"),
-#             ("can_add_project_number", "添加项目成员权限"),
-#             ("can_delete_project_number", "删除项目成员权限"),             
-#         )
         unique_together = (("project", "server"))
         verbose_name = '项目成员表'  
         verbose_name_plural = '项目成员表' 
@@ -474,7 +469,45 @@ class Ansible_Playbook_Number(models.Model):
     def __unicode__(self):
         return '%s' % ( self.playbook_server)    
     
-     
+class Ansible_Inventory(models.Model):    
+    name = models.CharField(max_length=200,unique=True,verbose_name='资产名称')
+    desc = models.CharField(max_length=200,verbose_name='功能描述')
+    user =  models.SmallIntegerField(verbose_name='创建人')
+    create_time = models.DateTimeField(auto_now_add=True,blank=True,null=True,verbose_name='创建时间') 
+    class Meta:
+        db_table = 'opsmanage_ansible_inventory'
+        permissions = (
+            ("can_read_ansible_inventory", "读取Ansible资产权限"),
+            ("can_change_ansible_inventory", "更改Ansible资产权限"),
+            ("can_add_ansible_inventory", "添加Ansible资产权限"),
+            ("can_delete_ansible_inventory", "删除Ansible资产权限"),             
+        )
+        verbose_name = 'Ansible资产表'  
+        verbose_name_plural = 'Ansible资产表'
+
+# class Log_Ansible_Inventory(models.Model): 
+#     ans_user = models.CharField(max_length=50,verbose_name='使用用户',default=None)
+#     ans_content = models.CharField(max_length=500,default=None)
+#     create_time = models.DateTimeField(auto_now_add=True,blank=True,null=True,verbose_name='操作时间')
+#     class Meta:
+#         db_table = 'opsmanage_log_ansible_inventory'
+
+class Ansible_Inventory_Groups(models.Model):    
+    inventory = models.ForeignKey('Ansible_Inventory',related_name='inventory_group', on_delete=models.CASCADE)
+    group_name =  models.CharField(max_length=100,verbose_name='group name')
+    ext_vars = models.TextField(verbose_name='组外部变量',blank=True,null=True)
+    class Meta:
+        db_table = 'opsmanage_ansible_inventory_groups'
+        verbose_name = 'Ansible资产成员表'  
+        verbose_name_plural = 'Ansible资产成员表'
+        unique_together = (("inventory", "group_name"))
+
+class Ansible_Inventory_Groups_Server(models.Model):
+    groups = models.ForeignKey('Ansible_Inventory_Groups',related_name='inventory_group_server', on_delete=models.CASCADE)
+    server = models.SmallIntegerField(verbose_name='服务器')
+    class Meta:
+        db_table = 'opsmanage_ansible_inventory_groups_servers'
+        unique_together = (("groups", "server"))
     
 class Global_Config(models.Model):
     ansible_model = models.SmallIntegerField(verbose_name='是否开启ansible模块操作记录',blank=True,null=True)

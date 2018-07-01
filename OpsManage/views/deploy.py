@@ -1,7 +1,7 @@
 #!/usr/bin/env python  
 # _#_ coding:utf-8 _*_  
 import uuid,os
-from django.http import HttpResponseRedirect,JsonResponse
+from django.http import JsonResponse
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from OpsManage.models import (Project_Assets,Server_Assets,Project_Config,
@@ -325,7 +325,6 @@ def deploy_run(request,pid):
                     DsRedis.OpsDeploy.lpush(project.project_uuid, data="[DEPLOY start deploy project]")
                     DsRedis.OpsDeploy.lpush(project.project_uuid, data="[DEPLOY] try to converting deploy scripts file {tmpFile}".format(tmpFile=tmpFile))
                     result =  base.cmds(cmds='dos2unix {tmpFile}'.format(tmpFile=tmpFile)) 
-                    print result[1]
                     DsRedis.OpsDeploy.lpush(project.project_uuid, data="[DEPLOY] {cmds} info: {info}".format(cmds='dos2unix {tmpFile}'.format(tmpFile=tmpFile),info=result[1])) 
                     result =  base.cmds(cmds='cd {project_repo_dir} && bash {tmpFile}'.format(tmpFile=tmpFile,project_repo_dir=project.project_repo_dir)) 
                     os.remove(tmpFile)

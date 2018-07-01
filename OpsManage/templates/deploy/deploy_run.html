@@ -151,6 +151,7 @@
                 <!-- /.col-lg-12 -->
             </div>
 </div>
+<div style="visibility:hidden"><a id="scrollToTop"></a></div>
 <script type="text/javascript" src="/static/dist/js/jquery.smartWizard.min.js"></script>
 <script type="text/javascript">
 
@@ -256,6 +257,7 @@
 	            			$('#smartwizard').smartWizard("next");
 	            		}
 	            		$("#result").append("<p>"+result["msg"]+"</p>"); 
+	            		document.getElementById("scrollToTop").scrollIntoView(); 
 	            		if (result["msg"].indexOf("[Done]") == 0){
 	            			clearInterval(interval);
 	            			window.wxc.xcConfirm("项目部署成功", window.wxc.xcConfirm.typeEnum.success);

@@ -41,7 +41,11 @@
                             	{% for ds in serviceList %}
                             		<li><strong>{{ds.service_name}}</strong> </li>
                             			{% for ser in ds.host %}
-                            				<ul>{% if ser.management_ip  %}{{ser.management_ip}} | {{ser.server_assets.system|default:"未知"}}{% else %}{{ser.server_assets.ip}} | {{ser.server_assets.system|default:"未知"}}{% endif %}</p></ul>
+                            				{% if ser.assets_type == 'server' or ser.assets_type == 'vmser' %}
+                            				<ul>{{ser.server_assets.ip}} | {{ser.server_assets.system|default:"未知"}}</p></ul>
+                            				{% else %}
+                            				<ul>{{ser.network_assets.ip}} | {{ser.manufacturer}} {{ser.model|default:"未知"}} </p></ul>
+                            				{% endif %}
                             			{% endfor %}
                             	{% endfor %}
                             </ol>

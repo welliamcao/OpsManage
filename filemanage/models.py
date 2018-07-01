@@ -29,7 +29,7 @@ class FileUpload_Audit_Order(models.Model):
 
 class UploadFiles(models.Model):
     file_order = models.ForeignKey('FileUpload_Audit_Order', related_name='files', on_delete=models.CASCADE)
-    file_path = models.FileField(upload_to = './file/upload/',verbose_name='文件上传路径',max_length=500)
+    file_path = models.FileField(upload_to = './file/upload/%Y%m%d%H%M%S/',verbose_name='文件上传路径',max_length=500)
     file_type = models.CharField(max_length=100,blank=True,null=True,verbose_name='文件类型')
     class Meta:
         db_table = 'opsmanage_uploadfiles'

@@ -30,7 +30,7 @@
                         </div>
                         <div class="panel-body">
                             <div class="row">
-                                <div class="col-lg-6">
+                                <div class="col-lg-5">
                                 <legend><i class="fa  fa-paper-plane"></i>Ansible服务器</legend>
                                     <form  method="post" id="ansibleModelRun">  {% csrf_token %}
                                         <div class="form-group">
@@ -109,9 +109,9 @@
 		                                       <select multiple class="selectpicker" data-live-search="true" name="ansible_server"  id="ansible_server" required>
 		                                            {% for ds in serverList %}
 		                                            	{% if ds.count  %}
-		                                            		<option name="server" value="{{ds.id}}" selected="selected">{{ds.ip}}</option>
+		                                            		<option name="server" value="{{ds.id}}" selected="selected">{{ds.ip}} | {{ds.project}} | {{ds.service}}</option>
 		                                            	{% else %}
-		                                            		<option name="server" value="{{ds.id}}">{{ds.ip}}</option>
+		                                            		<option name="server" value="{{ds.id}}">{{ds.ip}} | {{ds.project}} | {{ds.service}}</option>
 		                                            	{% endif %}
 		                                            {% endfor %}
 		                                       </select>
@@ -139,7 +139,7 @@
                                         <button type="button" class="btn btn-default" id="run_ansible_model" {% if perms.OpsManage.can_exec_ansible_script %} onclick="runAnsibleModel(this)" {% else %} disabled  {% endif %}>运行</button>		                                   
 		                                                               	
                                 </div>                            
-                                <div class="col-lg-6">
+                                <div class="col-lg-7">
                                     <legend><i class="fa  fa-paper-plane-o"></i>执行结果</legend>
 									<pre>
 				                        <div id="result">
@@ -156,7 +156,7 @@
                 <!-- /.col-lg-12 -->
             </div>
 </div>
-
+<div style="visibility:hidden"><a id="scrollToTop"></a></div>
 <script type="text/javascript">
 
 function setAceEditMode(model) {
@@ -265,7 +265,7 @@ function setAceEditMode(model) {
 					success:function(response){
 						var sHtml = '';
 						for (var i=0; i <response["data"].length; i++){
-							sHtml += '<br>' + response["data"][i]["ip"]  
+							sHtml +=  '<br>' + response["data"][i]["ip"] + " | " + response["data"][i]["project"] + " | " + response["data"][i]["service"]
 						};  
 						if ( sHtml.length > 0){
 							$.notify({
@@ -325,6 +325,7 @@ function setAceEditMode(model) {
 	            success : function(result){
 	            	if (result["msg"] !== null ){
 	            		$("#result").append("<p>"+result["msg"]+"</p>"); 
+	            		document.getElementById("scrollToTop").scrollIntoView(); 
 	            		if (result["msg"].indexOf("[Done]") == 0){
 	            			clearInterval(interval);
 	            			window.wxc.xcConfirm("Ansible执行完成", window.wxc.xcConfirm.typeEnum.success);

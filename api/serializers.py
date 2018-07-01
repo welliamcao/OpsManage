@@ -231,4 +231,9 @@ class UploadFilesOrderSerializer(serializers.ModelSerializer):
 class DownloadFilesSerializer(serializers.ModelSerializer):
     class Meta:
         model = FileDownload_Audit_Order
-        fields = ('id','order_content', 'dest_server','dest_path')        
+        fields = ('id','order_content', 'dest_server','dest_path') 
+        
+class AnsibleInventorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Ansible_Inventory
+        fields = ('id','name', 'desc','user') 

@@ -94,7 +94,7 @@
 									 <label>服务器选择</label>
 	                                 <select multiple name="ansible_server"  id="ansible_server" required>
 	                                 	{% for ds in serverList %}
-	                                 		<option name="server" value="{{ds.id}}">{{ds.ip}}</option>
+	                                 		<option name="server" value="{{ds.id}}">{{ds.ip}} | {{ds.project}} | {{ds.service}}</option>
 	                                 	{% endfor %}
 	                                 </select>
 								</div>	

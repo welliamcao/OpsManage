@@ -1,0 +1,357 @@
+{% extends 'index.html' %}
+{% block ace-content %}
+<!-- ACE Editor -->   
+<script src="http://cdn.bootcss.com/ace/1.2.4/ace.js"></script>
+<script src="http://cdn.bootcss.com/ace/1.2.4/ext-language_tools.js"></script>
+<script src="http://cdn.bootcss.com/ace/1.2.4/ext-old_ie.js"></script>
+<script src="http://cdn.bootcss.com/ace/1.2.4/theme-monokai.js"></script> 
+<link href="/static/dist/css/bootstrap-multiselect.css" rel="stylesheet">
+<script src="/static/dist/js/bootstrap-multiselect.js"></script>
+<script type="text/javascript" src="/static/dist/js/bootstrap-notify.js"></script>
+<link href="/static/dist/css/fileinput.css" media="all" rel="stylesheet" type="text/css" />
+<script src="/static/dist/js/fileinput.js" type="text/javascript"></script>
+<style type="text/css"> 
+	td.details-control {
+	    background: url('/static/img/details_open.png') no-repeat center center;
+	    cursor: pointer;
+	}
+	tr.shown td.details-control {
+	    background: url('/static/img/details_close.png') no-repeat center center;
+	} 
+	#compile-editor {
+		/* position: absolute; */
+	width: 100%;
+	height: 400px;
+   }	
+  .dropdown-menu {
+		max-height: 500px;
+		overflow-y: auto;
+		overflow-x: hidden;
+	}      	
+</style>	
+{% endblock %}
+{% block page-content %}
+
+<div id="page-wrapper">
+            <div class="row">
+                <div class="col-lg-12">
+                    <h1 class="page-header"><i class="fa fa-university"></i> 修改动态资产组</h1>
+                </div>
+                <!-- /.col-lg-12 -->
+            </div>  
+            <div class="row">	
+				 <div class="col-lg-12" id="add_file_order">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            	<i class="fa  fa-rss"></i> 动态资产
+                        </div>
+                        <div class="panel-body">
+							<div class="col-lg-4">
+								<legend>
+									<i class="fa  fa-paper-plane"></i> 添加动态资产组
+								</legend>
+								<form role="form" method="post" id="inventory_group" enctype="multipart/form-data">
+								<div class="form-group" >			 		             
+									<label><font color='red'>* </font>选择资产组</label>	
+									<input class="form-control" id="inventoryIds" name="inventory" value="{{inventory.name}}" disabled></input>	
+								</div>									
+								<div class="form-group">
+										<label><font color='red'>* </font>组名称<i class="fa fa-info-circle" data-toggle="tooltip" title="资产组名称(请使用字母表示)"></i></label>
+									<input class="form-control" id="group_name" name="group_name" value=""></input>
+								</div>								
+								<div class="form-group" >			 		             
+									<label><font color='red'>* </font>添加主机</label>	
+	                                 <select multiple name="ansible_server"  id="server_list" required>
+	                                 	{% for ds in serverList %}
+	                                 		<option name="server" value="{{ds.id}}">{{ds.ip}} | {{ds.project}} | {{ds.service}}</option>
+	                                 	{% endfor %}
+	                                 </select>		
+								</div>																																															
+		
+								<div class="form-group">
+									<label>外部变量<i class="fa fa-info-circle" data-toggle="tooltip" title="改组的外部变量"></i></label>
+									<div id="compile-editor" class="ace_editor"></div> 
+								</div>
+									<lable id="auditContol"><button type="button" class="btn btn-default" onclick="addInventoryGroups(this)" >添加</button></lable>
+									<button type="reset" class="btn btn-default">撤销</button>								
+								</form>
+							</div>
+							<!-- /.col-lg-6 (nested) -->
+							<div class="hr hr32 hr-dotted"></div>
+							<div class="col-lg-8">
+								<legend>
+									<i class="fa  fa-paper-plane-o"></i> 修改资产组信息
+								</legend>  
+								{% for ds in  inventory.inventory_group.all %}
+								<div class="form-inline">
+									<form role="form" method="post" id="inventory_group_{{ds.id}}">
+										<label>Name <i class="fa fa-info-circle" data-toggle="tooltip" title="修改资产组组名称"></i></label>
+										<input class="form-control"  id="group_name_{{ds.id}}" value="{{ds.group_name}}"></input>
+										<label>Server <i class="fa fa-info-circle" data-toggle="tooltip" title="主机"></i></label>
+		                                 <select multiple name="server" id="group_selected_{{ds.id}}"  class="form-control" required>		                                 		
+		                                 </select>	
+		                                <label>Vars <i class="fa fa-info-circle" data-toggle="tooltip" title="外部变量"></i></label>
+		                                <input class="form-control"  id="ext_vars_{{ds.id}}" value="{{ds.ext_vars|default:"" }}"></input> 
+										<button  class="btn btn-default" onclick="modfInventoryGroups(this,{{ds.id}})">修改</button>
+										<button  class="btn btn-default" onclick="deleteInventoryGroups(this,{{ds.id}})">删除</button>			                                
+	                                </form>	
+				
+								</div>
+								<br>	
+								{% endfor %}					
+							</div>					
+							<!-- /.col-lg-6 (nested) -->
+							<div class="hr hr32 hr-dotted"></div>
+							</div>
+						</div>            
+					</div>            			 					           
+            </div>                    
+</div>
+
+
+
+
+<script type="text/javascript"> 
+
+function setAceEditMode(model) {
+	var editor = ace.edit("compile-editor");
+	require("ace/ext/old_ie");
+	var langTools = ace.require("ace/ext/language_tools");
+	editor.removeLines();
+	editor.setTheme("ace/theme/monokai");
+	editor.getSession().setMode("ace/mode/" + model);
+	editor.setShowPrintMargin(false);
+	editor.setOptions({
+	    enableBasicAutocompletion: true,
+	    enableSnippets: true,
+	    enableLiveAutocompletion: true
+	}); 
+			 
+};
+setAceEditMode("sh");
+
+$(document).ready(function() {
+    $('#server_list').multiselect({
+        enableClickableOptGroups: true,
+        enableCollapsibleOptGroups: true,
+        includeSelectAllOption: true,
+       	enableFiltering: true,   
+       	buttonWidth: '420px',
+    });
+});
+
+
+$(document).ready(function(){ 
+	{% for ds in  inventory.inventory_group.all %}
+		console.log({{ds.id}});
+		$.ajax({
+				url:'/apps/inventory/groups/server/'+ {{ds.id}} +'/', //请求地址
+				type:"GET",  //提交类似
+			    processData: false,
+			    contentType: false,				
+				success:function(response){
+					var binlogHtml = '<select multiple  class="form-control" id="group_selected_{{ds.id}}" required>'
+					var selectHtml = '';
+					for (var i=0; i <response["data"].length; i++){
+						if (response["data"][i]["select"] == 1){
+							selectHtml += '<option  name="server" selected="selected" value="'+ response["data"][i]["id"] +'">' + response["data"][i]["ip"] + ' | ' + response["data"][i]["project"] + ' | ' + response["data"][i]["service"]  + '</option>' 
+						}else{
+							selectHtml += '<option name="server" value="'+ response["data"][i]["id"] +'">' + response["data"][i]["ip"] + ' | ' + response["data"][i]["project"] + ' | ' + response["data"][i]["service"] + '</option>' 
+						}
+						 
+					};                        
+					binlogHtml =  binlogHtml + selectHtml + '</select>';
+					document.getElementById("group_selected_{{ds.id}}").innerHTML= binlogHtml;	
+				    $('#'+'group_selected_'+'{{ds.id}}').multiselect({
+				        enableClickableOptGroups: true,
+				        enableCollapsibleOptGroups: true,
+				        includeSelectAllOption: true,
+				       	enableFiltering: true,  
+				       	buttonWidth: '200px',
+				    });
+				}
+			});			
+	{% endfor%}
+})
+
+	
+function modfInventoryGroups(obj,id) {	
+		var btnObj = $(obj);
+	    var formData = new FormData();		
+		btnObj.attr('disabled',true);
+		var serverList = new Array();
+		var selectIds = 'group_selected_' + id
+		$("#"+selectIds + " option:selected").each(function () {
+			serverList.push($(this).val())
+		})				
+	    formData.append('group_name',$('#group_name_'+id).val());
+	    formData.append('ext_vars',$('#ext_vars_'+id).val());
+	    formData.append('server_list',serverList);
+		$.ajax({
+/* 				dataType: "JSON", */
+			url:'/apps/inventory/groups/server/'+ id +'/', //请求地址
+			type:"POST",  //提交类似
+		    processData: false,
+		    contentType: false,				
+			data:formData,  //提交参数
+			success:function(response){
+				btnObj.removeAttr('disabled');				
+				if (response["code"] == 200){
+					window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.success);
+ 					window.location.reload(); 
+				}
+				else {
+					window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
+				};
+			},
+	    	error:function(response){
+	    		btnObj.removeAttr('disabled');
+	    		window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
+	    	}
+		});	
+	}	
+	
+function deleteInventoryGroups(obj,id) {	
+	var btnObj = $(obj);	
+	btnObj.attr('disabled',true);
+	$.ajax({
+/* 				dataType: "JSON", */
+		url:'/apps/inventory/groups/server/'+ id +'/', //请求地址
+		type:"DELETE",  //提交类似
+	    processData: false,
+	    contentType: false,				
+		success:function(response){
+			btnObj.removeAttr('disabled');				
+			if (response["code"] == 200){
+				window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.success);
+					window.location.reload(); 
+			}
+			else {
+				window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
+			};
+		},
+    	error:function(response){
+    		btnObj.removeAttr('disabled');
+    		window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
+    	}
+	});	
+}		
+	
+function addInventoryGroups(obj) {	
+	var btnObj = $(obj);
+	var required = ["group_name","inventory"];
+	var editor = ace.edit("compile-editor");
+    var ext_vars = editor.getSession().getValue(); 	
+    var formData = new FormData();		
+	btnObj.attr('disabled',true);
+	var form = document.getElementById('inventory_group');
+		for (var i = 0; i < form.length; ++i) {
+			var name = form[i].name;
+			var value = form[i].value;	
+			idx = $.inArray(name, required);						
+			if (idx >= 0 && value.length == 0){
+				window.wxc.xcConfirm("请注意必填项不能为空~", window.wxc.xcConfirm.typeEnum.error);
+				btnObj.removeAttr('disabled');
+				return false;
+			};					
+		};		
+		var serverList = new Array();
+		$("#server_list option:selected").each(function () {
+			serverList.push($(this).val())
+		})
+		if (serverList.length == 0 ){
+			window.wxc.xcConfirm("主机不能为空", window.wxc.xcConfirm.typeEnum.error);
+			btnObj.removeAttr('disabled');
+			return false;			
+		}
+		var gid = $('#inventoryIds option:selected').val()
+	    formData.append('group_name',$('#group_name').val());
+	    formData.append('ids',gid);
+	    formData.append('server_list',serverList);
+	    formData.append('ext_vars',ext_vars);
+		$.ajax({
+/* 				dataType: "JSON", */
+			url:'/apps/inventory/groups/' + {{inventory.id}} + '/', //请求地址
+			type:"POST",  //提交类似
+		    processData: false,
+		    contentType: false,				
+			data:formData,  //提交参数
+			success:function(response){
+				btnObj.removeAttr('disabled');				
+				if (response["code"] == 200){
+					window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.success);
+					window.location.reload(); 
+				}
+				else {
+					window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
+				};
+			},
+	    	error:function(response){
+	    		btnObj.removeAttr('disabled');
+	    		window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
+	    	}
+		});	
+	}	
+	
+function format ( data ) {
+	var serHtml = '';
+	serHtml = "<pre>" + JSON.stringify(data["data"],null,4) + "</pre>";			
+    return serHtml;
+}	
+	 
+
+	$(document).ready(function() {
+	    var table = $('#taskTableList').DataTable( {
+/* 	        "ajax": "../ajax/data/objects.txt", */
+	        "columns": [
+	            {
+	                "className":      'details-control',
+	                "orderable":      false,
+	                "data":           null,
+	                "defaultContent": ''
+	            },
+	            { "data": "id" },
+	            { "data": "名称" },
+	            { "data": "用途描述" },
+	            { "data": "添加人" },
+	            { "data": "添加日期"},
+	            { "data": "操作" }       
+	        ],
+	        "order": [[5, 'asc']]
+	    } );    
+	    
+	    // Add event listener for opening and closing details
+	    $('#taskTableList tbody').on('click', 'td.details-control', function () {
+	    	var dataList = [];
+	        var tr = $(this).closest('tr');
+	        var row = table.row( tr );
+	        dbId = row.data()["id"];
+	        $.ajax({
+	            url : "/api/inventory/"+dbId+"/",
+	            type : "GET",
+	            async : false,
+	            data : {"id":dbId},
+	            dataType : "json",
+	            success : function(result) {
+	            	dataList = result;
+	            }
+	        });	        
+/* 	    	console.log(dataList); */
+	        if ( row.child.isShown() ) {
+	            // This row is already open - close it
+	            row.child.hide();
+	            tr.removeClass('shown');
+	        }
+	        else {
+	            // Open this row
+	            row.child( format(dataList) ).show();
+	            tr.addClass('shown');
+	        }
+	    } );
+	} );	
+
+	
+		
+	
+</script>
+{% endblock %}

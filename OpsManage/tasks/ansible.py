@@ -68,4 +68,3 @@ def AnsiblePlayBook(**kw):
     except Exception,e:
         print e
         return False       
-    

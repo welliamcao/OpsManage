@@ -352,7 +352,7 @@ def file_upload_list(request,page):
         except EmptyPage:
             uploadList = paginator.page(paginator.num_pages)                     
         userList = User.objects.filter(is_superuser=1)    
-        serverList = Server_Assets.objects.all()
+        serverList = AssetsSource().serverList()#Server_Assets.objects.all()
         serviceList = Service_Assets.objects.all()
         projectList = Project_Assets.objects.all()
         groupList = Group.objects.all()
@@ -430,7 +430,7 @@ def file_download_list(request,page):
         except EmptyPage:
             uploadList = paginator.page(paginator.num_pages)                     
         userList = User.objects.filter(is_superuser=1)    
-        serverList = Server_Assets.objects.all()
+        serverList = AssetsSource().serverList()#Server_Assets.objects.all()
         serviceList = Service_Assets.objects.all()
         projectList = Project_Assets.objects.all()
         groupList = Group.objects.all()

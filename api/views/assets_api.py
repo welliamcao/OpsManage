@@ -568,3 +568,4 @@ def asset_info(request, id,format=None):
         except Exception ,ex:
             logger.warn(msg="获取资产信息失败: {ex}".format(ex=ex))
         return JsonResponse({"code":200,"msg":"success","data":dataList})   
+            

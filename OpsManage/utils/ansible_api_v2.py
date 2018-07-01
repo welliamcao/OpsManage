@@ -21,7 +21,7 @@ class MyInventory(Inventory):
     """ 
     this is my ansible inventory object. 
     """  
-    def __init__(self, resource, loader, variable_manager):  
+    def __init__(self, resource, loader, variable_manager,host_list=[]):  
         """ 
         resource的数据格式是一个列表字典，比如 
             { 
@@ -33,8 +33,8 @@ class MyInventory(Inventory):
                                          如果你只传入1个列表，这默认该列表内的所有主机属于default_group组,比如 
             [{"hostname": "10.0.0.0", "port": "22", "username": "test", "password": "pass"}, ...] 
         """  
+        super(MyInventory, self).__init__(loader=loader, variable_manager=variable_manager, host_list=host_list)
         self.resource = resource  
-        self.inventory = Inventory(loader=loader, variable_manager=variable_manager, host_list=[])  
         self.dynamic_inventory()  
   
     def add_dynamic_group(self, hosts, groupname, groupvars=None):  
@@ -42,7 +42,6 @@ class MyInventory(Inventory):
             add hosts to a group 
         """  
         my_group = Group(name=groupname)  
-  
         # if group variables exists, add them to group  
         if groupvars:  
             for key, value in groupvars.iteritems():  
@@ -50,9 +49,9 @@ class MyInventory(Inventory):
   
         # add hosts to group  
         for host in hosts:  
-            # set connection variables  
-            hostname = host.get("hostname")  
-            hostip = host.get('ip', hostname)  
+            # set connection variables 
+            hostip = host.get("ip") 
+#             hostname = host.get("ip",hostip)  
             hostport = host.get("port")  
             username = host.get("username")  
             password = host.get("password")
@@ -61,7 +60,7 @@ class MyInventory(Inventory):
             if username == 'root':ssh_key = "/root/.ssh/id_rsa"
             else:ssh_key = "/home/{user}/.ssh/id_rsa".format(user=username)
             if not os.path.exists(ssh_key):ssh_key = host.get("ssh_key")  
-            my_host = Host(name=hostname, port=hostport)  
+            my_host = Host(name=hostip, port=hostport)  
             my_host.set_variable('ansible_ssh_host', hostip)  
             my_host.set_variable('ansible_ssh_port', hostport)  
             my_host.set_variable('ansible_ssh_user', username)  
@@ -74,12 +73,14 @@ class MyInventory(Inventory):
   
             # set other variables  
             for key, value in host.iteritems():  
-                if key not in ["hostname", "port", "username", "password"]:  
+                if key not in ["ip", "port", "username", "password"]:  
                     my_host.set_variable(key, value)  
             # add to group  
-            my_group.add_host(my_host)  
-  
-        self.inventory.add_group(my_group)  
+            my_group.add_host(my_host)
+        try:  
+            self.add_group(my_group)
+        except Exception,ex:
+            logger.error(msg="ansible添加资产组失败: {ex}".format(ex=ex))  
   
     def dynamic_inventory(self):  
         """ 
@@ -88,7 +89,7 @@ class MyInventory(Inventory):
         if isinstance(self.resource, list):  
             self.add_dynamic_group(self.resource, 'default_group')  
         elif isinstance(self.resource, dict):  
-            for groupname, hosts_and_vars in self.resource.iteritems():  
+            for groupname, hosts_and_vars in self.resource.iteritems():
                 self.add_dynamic_group(hosts_and_vars.get("hosts"), groupname, hosts_and_vars.get("vars")) 
 
 
@@ -172,6 +173,9 @@ class PlayBookResultsCollectorToSave(CallbackBase):
         self._clean_results(result._result, result._task.action)    
         self.task_ok[result._host.get_name()]  = result._result
         delegated_vars = result._result.get('_ansible_delegated_vars', None)
+        for remove_key in ('changed', 'invocation','_ansible_parsed','_ansible_no_log','_ansible_verbose_always'):
+            if remove_key in result._result:
+                del result._result[remove_key]         
         if result._task.action in ('include', 'include_role','_ansible_parsed','_ansible_no_log'):
             return
         elif result._result.get('changed', False):
@@ -422,7 +426,6 @@ class ANSRunner(object):
                 ask_sudo_pass=False)  
   
         self.passwords = dict(sshpass=None, becomepass=None)  
-        self.inventory = MyInventory(self.resource, self.loader, self.variable_manager).inventory
         self.variable_manager.set_inventory(self.inventory)  
   
     def run_model(self, host_list, module_name, module_args):  
@@ -431,6 +434,7 @@ class ANSRunner(object):
         module_name: ansible module_name 
         module_args: ansible module args 
         """  
+        inventory = MyInventory(self.resource, self.loader, self.variable_manager,host_list)
         play_source = dict(  
                 name="Ansible Play",  
                 hosts=host_list,  
@@ -449,7 +453,7 @@ class ANSRunner(object):
         else:self.callback = ModelResultsCollector()  
         try:  
             tqm = TaskQueueManager(  
-                    inventory=self.inventory,  
+                    inventory=inventory,  
                     variable_manager=self.variable_manager,  
                     loader=self.loader,  
                     options=self.options,  
@@ -470,14 +474,15 @@ class ANSRunner(object):
     def run_playbook(self, host_list, playbook_path,extra_vars=dict()): 
         """ 
         run ansible palybook 
-        """       
+        """   
+        inventory = MyInventory(self.resource, self.loader, self.variable_manager)
         try: 
             if self.redisKey or self.logId:self.callback = PlayBookResultsCollectorToSave(self.redisKey,self.logId)  
             else:self.callback = PlayBookResultsCollector()  
             extra_vars['host'] = ','.join(host_list)
             self.variable_manager.extra_vars = extra_vars            
             executor = PlaybookExecutor(  
-                playbooks=[playbook_path], inventory=self.inventory, variable_manager=self.variable_manager, loader=self.loader,  
+                playbooks=[playbook_path], inventory=inventory, variable_manager=self.variable_manager, loader=self.loader,  
                 options=self.options, passwords=self.passwords,  
             )  
             executor._tqm._stdout_callback = self.callback  

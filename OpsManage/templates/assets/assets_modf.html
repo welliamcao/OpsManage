@@ -57,7 +57,7 @@
 												 	<input type="text" class="form-control"  placeholder="编号" name="asset_name" value="{{ asset_main.name|default:"" }}" class="input-xlarge"  disabled/>
 												 </div>
 											</div>
-											{% if asset_main.assets_type == "server" %}
+											{% if asset_main.assets_type != "vmser" %}
 											<div class="form-group">
 												 <label class="col-sm-2 control-label">设备序列号</label>
 												 <div class="col-sm-6">
@@ -167,7 +167,7 @@
 <!-- 												 	<input type="text" class="form-control" name="asset_put_zone" placeholder="放置区域" value="{{ asset_main.put_zone }}" class="input-xlarge" /> -->
 													<select class="form-control" name="asset_put_zone"  >
 														{% for z in assets_data.zone %}
-															{% if z.id == asset_main.zone %}
+															{% if z.id == asset_main.put_zone %}
 																<option value="{{z.id}}" name="asset_put_zone" selected="selected" >{{z.zone_name|default:""}}</option>
 															{% else %}
 																<option value="{{z.id}}" name="asset_put_zone">{{z.zone_name|default:""}}</option>
