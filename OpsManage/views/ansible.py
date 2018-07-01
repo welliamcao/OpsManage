@@ -531,8 +531,8 @@ def apps_script_online(request):
                 for server in serverList:
                     server_assets = Server_Assets.objects.get(id=server)
                     sList.append(server_assets.ip)
-                    if server_assets.keyfile == 1:resource.append({"hostname": server_assets.ip, "port": int(server_assets.port),"username": server_assets.username})
-                    else:resource.append({"hostname": server_assets.ip, "port": int(server_assets.port),"username": server_assets.username,"password": server_assets.passwd})
+                    if server_assets.keyfile == 1:resource.append({"ip": server_assets.ip, "port": int(server_assets.port),"username": server_assets.username})
+                    else:resource.append({"ip": server_assets.ip, "port": int(server_assets.port),"username": server_assets.username,"password": server_assets.passwd})
             elif request.POST.get('server_model') == 'group':
                 try:
                     serverList = Assets.objects.filter(group=request.POST.get('ansible_group',0),assets_type__in=["server","vmser"])
@@ -544,8 +544,8 @@ def apps_script_online(request):
                     except Exception, ex:
                         logger.warn(msg="获取组信息失败: {ex}".format(ex=ex))
                         continue
-                    if server.server_assets.keyfile == 1:resource.append({"hostname": server.server_assets.ip, "port": int(server.server_assets.port),"username": server.server_assets.username})
-                    else:resource.append({"hostname": server.server_assets.ip, "port": int(server.server_assets.port),"username": server.server_assets.username,"password": server.server_assets.passwd})  
+                    if server.server_assets.keyfile == 1:resource.append({"ip": server.server_assets.ip, "port": int(server.server_assets.port),"username": server.server_assets.username})
+                    else:resource.append({"ip": server.server_assets.ip, "port": int(server.server_assets.port),"username": server.server_assets.username,"password": server.server_assets.passwd})  
             elif request.POST.get('server_model') == 'service':
                 try:
                     serverList = Assets.objects.filter(business=int(request.POST.get('ansible_service',0)),assets_type__in=["server","vmser"])
@@ -557,8 +557,8 @@ def apps_script_online(request):
                     except Exception, ex:
                         logger.warn(msg="获取业务信息失败: {ex}".format(ex=ex))
                         continue                   
-                    if server.server_assets.keyfile == 1:resource.append({"hostname": server.server_assets.ip, "port": int(server.server_assets.port),"username": server.server_assets.username})
-                    else:resource.append({"hostname": server.server_assets.ip, "port": int(server.server_assets.port),"username": server.server_assets.username,"password": server.server_assets.passwd})   
+                    if server.server_assets.keyfile == 1:resource.append({"ip": server.server_assets.ip, "port": int(server.server_assets.port),"username": server.server_assets.username})
+                    else:resource.append({"ip": server.server_assets.ip, "port": int(server.server_assets.port),"username": server.server_assets.username,"password": server.server_assets.passwd})   
                                                         
             if len(sList) > 0 and request.POST.get('type') == 'run' and request.POST.get('script_file'):
                 filePath = saveScript(content=request.POST.get('script_file'),filePath='/tmp/script-{ram}'.format(ram=uuid.uuid4().hex[0:8]))
@@ -695,14 +695,14 @@ def apps_script_online_run(request,pid):
                 for server in serverList:
                     server_assets = Server_Assets.objects.get(id=server)
                     sList.append(server_assets.ip)
-                    if server_assets.keyfile == 1:resource.append({"hostname": server_assets.ip, "port": int(server_assets.port),"username": server_assets.username})
-                    else:resource.append({"hostname": server_assets.ip, "port": int(server_assets.port),"username": server_assets.username,"password": server_assets.passwd})
+                    if server_assets.keyfile == 1:resource.append({"ip": server_assets.ip, "port": int(server_assets.port),"username": server_assets.username})
+                    else:resource.append({"ip": server_assets.ip, "port": int(server_assets.port),"username": server_assets.username,"password": server_assets.passwd})
             elif request.POST.get('server_model') == 'group':
                 serverList = Assets.objects.filter(group=request.POST.get('ansible_group'),assets_type__in=["server","vmser"])
                 for server in serverList:
                     sList.append(server.server_assets.ip)
-                    if server.server_assets.keyfile == 1:resource.append({"hostname": server.server_assets.ip, "port": int(server.server_assets.port),"username": server.server_assets.username})
-                    else:resource.append({"hostname": server.server_assets.ip, "port": int(server.server_assets.port),"username": server.server_assets.username,"password": server.server_assets.passwd})  
+                    if server.server_assets.keyfile == 1:resource.append({"ip": server.server_assets.ip, "port": int(server.server_assets.port),"username": server.server_assets.username})
+                    else:resource.append({"ip": server.server_assets.ip, "port": int(server.server_assets.port),"username": server.server_assets.username,"password": server.server_assets.passwd})  
             elif request.POST.get('server_model') == 'service':
                 serverList = Assets.objects.filter(business=request.POST.get('ansible_service'),assets_type__in=["server","vmser"])
                 for server in serverList:
@@ -711,8 +711,8 @@ def apps_script_online_run(request,pid):
                     except Exception, ex:
                         logger.warn(msg="获取业务失败: {ex}".format(ex=ex))  
                         continue
-                    if server.server_assets.keyfile == 1:resource.append({"hostname": server.server_assets.ip, "port": int(server.server_assets.port),"username": server.server_assets.username})
-                    else:resource.append({"hostname": server.server_assets.ip, "port": int(server.server_assets.port),"username": server.server_assets.username,"password": server.server_assets.passwd})     
+                    if server.server_assets.keyfile == 1:resource.append({"ip": server.server_assets.ip, "port": int(server.server_assets.port),"username": server.server_assets.username})
+                    else:resource.append({"ip": server.server_assets.ip, "port": int(server.server_assets.port),"username": server.server_assets.username,"password": server.server_assets.passwd})     
         if request.POST.get('type') == 'save' and request.POST.get('script_file'): 
             filePath = os.getcwd() + '/' + str(script.script_file)
             saveScript(content=request.POST.get('script_file'),filePath=filePath)

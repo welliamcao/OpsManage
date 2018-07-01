@@ -350,11 +350,11 @@ def deploy_run(request,pid):
                 hostList.append(ds.server)
                 data = dict()
                 if server.keyfile == 0:data["password"] = server.passwd
-                data["hostname"] = server.ip
+                data["ip"] = server.ip
                 data["port"] = int(server.port)
                 data["username"] = server.username                    
                 data["sudo_passwd"] = server.sudo_passwd
-                resource.append(data)   
+                resource.append(data)    
             DsRedis.OpsDeploy.lpush(project.project_uuid, data="[RSYNC start rsync project to remote server]")             
             if resource and hostList:
                 if exclude:args = '''src={srcDir} dest={desDir} links=yes recursive=yes compress=yes delete=yes rsync_opts="{exclude}"'''.format(srcDir=softdir, desDir=ds.dir,exclude=exclude)

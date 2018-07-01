@@ -169,8 +169,8 @@ def assets_facts(request,args=None):
         if genre == 'setup':
             try:
                 server_assets = Server_Assets.objects.get(id=request.POST.get('server_id'))
-                if server_assets.keyfile == 1:resource = [{"hostname": server_assets.ip, "port": int(server_assets.port),"username": server_assets.username}] 
-                else:resource = [{"hostname": server_assets.ip, "port": server_assets.port,"username": server_assets.username, "password": server_assets.passwd}]
+                if server_assets.keyfile == 1:resource = [{"ip": server_assets.ip, "port": int(server_assets.port),"username": server_assets.username}] 
+                else:resource = [{"ip": server_assets.ip, "port": server_assets.port,"username": server_assets.username, "password": server_assets.passwd}]
             except Exception,ex:
                 logger.error(msg="更新资产失败: {ex}".format(ex=str(ex)))
                 return  JsonResponse({'msg':"数据更新失败-查询不到该主机资料~","code":502})
@@ -229,8 +229,8 @@ def assets_facts(request,args=None):
             try:
                 server_assets = Server_Assets.objects.get(id=server_id)
                 assets = Assets.objects.get(id=server_assets.assets_id)
-                if server_assets.keyfile == 1:resource = [{"hostname": server_assets.ip, "port": int(server_assets.port),"username": server_assets.username}] 
-                else:resource = [{"hostname": server_assets.ip, "port": server_assets.port,"username": server_assets.username, "password": server_assets.passwd}]
+                if server_assets.keyfile == 1:resource = [{"ip": server_assets.ip, "port": int(server_assets.port),"username": server_assets.username}] 
+                else:resource = [{"ip": server_assets.ip, "port": server_assets.port,"username": server_assets.username, "password": server_assets.passwd}]
             except Exception,e:
                 logger.error(msg="更新硬件信息失败: {ex}".format(ex=ex))
                 return  JsonResponse({'msg':"数据更新失败-查询不到该主机资料~","code":502})
@@ -644,8 +644,8 @@ def assets_update(request):
                     if server_assets.ip not in fList:fList.append(server_assets.ip) 
                     continue
                 serList.append(server_assets.ip)
-                if server_assets.keyfile == 1:resource.append({"hostname": server_assets.ip, "port": int(server_assets.port),"username": server_assets.username})
-                else:resource.append({"hostname": server_assets.ip, "port": server_assets.port,"username": server_assets.username, "password": server_assets.passwd})                    
+                if server_assets.keyfile == 1:resource.append({"ip": server_assets.ip, "port": int(server_assets.port),"username": server_assets.username})
+                else:resource.append({"ip": server_assets.ip, "port": server_assets.port,"username": server_assets.username, "password": server_assets.passwd})                    
         ANS = ANSRunner(resource)
         ANS.run_model(host_list=serList,module_name='setup',module_args="")
         data = ANS.handle_cmdb_data(ANS.get_model_result())    

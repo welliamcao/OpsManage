@@ -509,7 +509,7 @@ class ANSRunner(object):
         for host, result in self.callback.host_unreachable.items():  
             self.results_raw['unreachable'][host]= result._result 
 
-        return json.dumps(self.results_raw)  
+        return json.dumps(self.results_raw,indent=4)  
 
     def get_playbook_result(self):  
         self.results_raw = {'skipped':{}, 'failed':{}, 'ok':{},"status":{},'unreachable':{},"changed":{}} 
