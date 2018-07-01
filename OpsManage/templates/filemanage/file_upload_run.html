@@ -107,7 +107,7 @@
 </div>
 
 
-
+<div style="visibility:hidden"><a id="scrollToTop"></a></div>
 <script type="text/javascript">	
 	
     
@@ -136,6 +136,7 @@
 	            success : function(result){
 	            	if (result["msg"] !== null ){
 	            		$("#result").append("<p>"+result["msg"]+"</p>"); 
+	            		document.getElementById("scrollToTop").scrollIntoView(); 
 	            		if (result["msg"].indexOf("[Done]") == 0){            			
 	            			clearInterval(interval);
 	            			window.wxc.xcConfirm("Ansible执行完成", window.wxc.xcConfirm.typeEnum.success);
