@@ -47,7 +47,7 @@
 											<div class="form-group">
 												 <label class="col-sm-2 control-label">资产编号</label>
 												 <div class="col-sm-6">
-												 	<input type="text" class="form-control" name="asset_name" placeholder="编号" value="" class="input-xlarge"  required/>
+												 	<input type="text" class="form-control" id="asset_name" name="asset_name" placeholder="编号" value="" class="input-xlarge"  required/>
 												 </div>
 											</div>
 																						
@@ -513,7 +513,7 @@
 		}
 	}
 	
-	var assets = ['asset_assets_type','asset_name','asset_sn','asset_buy_time','asset_buy_user','asset_management_ip','asset_manufacturer','asset_provider','asset_model','asset_status','asset_put_zone','asset_group','asset_business','asset_project'];
+	var assets = ['asset_assets_type','asset_name','asset_sn','asset_expire_date','asset_buy_time','asset_buy_user','asset_management_ip','asset_manufacturer','asset_provider','asset_model','asset_status','asset_put_zone','asset_group','asset_business','asset_project'];
 	function oBtAssetsType() {
 		   var obj = document.getElementById("assets_type_select"); 
 		   var index = obj.selectedIndex;
@@ -522,7 +522,7 @@
 			   document.getElementById("asset_net_chioce").style.display = "none";
 			   document.getElementById("asset_server_chioce").style.display = "";  
 			   document.getElementById("asset_vmserver_chioce").style.display = "";	
-			   assets = ['asset_assets_type','asset_name','asset_sn','asset_buy_time','asset_buy_user','asset_management_ip','asset_manufacturer','asset_provider','asset_model','asset_status','asset_put_zone','asset_group','asset_business','asset_project'];
+			   assets = ['asset_assets_type','asset_name','asset_sn','asset_expire_date','asset_buy_time','asset_buy_user','asset_management_ip','asset_manufacturer','asset_provider','asset_model','asset_status','asset_put_zone','asset_group','asset_business','asset_project'];
 		   }
 		   else if (value=="vmser"){
 			   document.getElementById("asset_server_chioce").style.display = "";  
@@ -534,7 +534,7 @@
 			   document.getElementById("asset_net_chioce").style.display = "";
 			   document.getElementById("asset_server_chioce").style.display = "none";	
 			   document.getElementById("asset_vmserver_chioce").style.display = "";	
-			   assets = ['asset_assets_type','asset_name','asset_sn','asset_buy_time','asset_buy_user','asset_management_ip','asset_manufacturer','asset_provider','asset_model','asset_status','asset_put_zone','asset_group','asset_business','asset_project'];
+			   assets = ['asset_assets_type','asset_name','asset_sn','asset_expire_date','asset_buy_time','asset_buy_user','asset_management_ip','asset_manufacturer','asset_provider','asset_model','asset_status','asset_put_zone','asset_group','asset_business','asset_project'];
 		   }
 	}
 
@@ -551,15 +551,18 @@
 	}	
 	
 	function addAssetsData(obj) {
-		console.log(assets);
 		var form = document.getElementById('addAssets');
 		for (var i = 0; i < form.length; ++i) {
 			var name = form[i].name;
 			var value = form[i].value;
 			var assetStart = name.indexOf("asset_");
 			if (assetStart==0 && value.length == 0 && assets.indexOf(name)>=0 ){
+				$("[name='"+ name +"']").parent().addClass("has-error");
 				window.wxc.xcConfirm("请注意必填项不能为空~", window.wxc.xcConfirm.typeEnum.error);
 				return false;
+			}else if (assetStart==0 && value.length > 0){
+				$("[name='"+ name +"']").parent().removeClass("has-error");
+				$("[name='"+ name +"']").parent().addClass("has-success");
 			}
 			
 		};
@@ -583,7 +586,6 @@
 				window.wxc.xcConfirm("资产添加成功", window.wxc.xcConfirm.typeEnum.success);
 			},
 	    	error:function(response){
-/* 	    		window.wxc.xcConfirm("资产添加失败：注意资产编号不要重复或者字段类型是否正确", window.wxc.xcConfirm.typeEnum.error); */
 				$.notify({
 					title: "<strong>资产添加错误:</strong><br>",
 					message: response.responseText
