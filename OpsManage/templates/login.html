@@ -52,10 +52,10 @@
                         <form role="form" method="post">{% csrf_token %}
                             <fieldset>
                                 <div class="form-group">
-                                    <input class="form-control" placeholder="Username" name="username" type="text" autofocus>
+                                    <input class="form-control" placeholder="Username" name="username" id="username" type="text" value="{{username|default:""}}" autofocus>
                                 </div>
                                 <div class="form-group">
-                                    <input class="form-control" placeholder="Password" name="password" type="password" value="">
+                                    <input class="form-control" placeholder="Password" name="password" id="password" type="password" value="">
                                 </div>
                                 <div class="checkbox">
                                     <label>
@@ -84,7 +84,12 @@
 
     <!-- Custom Theme JavaScript -->
     <script src="/static/dist/js/sb-admin-2.js"></script>
-
+    <script type="text/javascript"> 
+    {% if login_error_info %}
+		$("#username").parent().addClass("has-error");
+		$("#password").parent().addClass("has-error");
+	{% endif %}
+	</script>
 </body>
 
 </html>

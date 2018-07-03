@@ -12,11 +12,12 @@ from OpsManage.models import Log_Cron_Config
 from django.contrib.auth.decorators import permission_required
 from OpsManage.utils.ansible_api_v2 import ANSRunner
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from dao.assets import AssetsSource
 
 @login_required()
 @permission_required('OpsManage.can_add_cron_config',login_url='/noperm/') 
 def cron_add(request):
-    serverList = Server_Assets.objects.all()
+    serverList = AssetsSource().serverList()
     if request.method == "GET": 
         return render(request,'cron/cron_add.html',{"user":request.user,"serverList":serverList},
                                   )

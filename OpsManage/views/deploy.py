@@ -454,7 +454,10 @@ def deploy_log(request,page):
     if request.method == "GET":
         allProjectList = Log_Project_Config.objects.all().order_by('-id')[0:1000]
         for ds in allProjectList:
-            ds.project = Project_Config.objects.get(id=ds.project_id)
+            try:
+                ds.project = Project_Config.objects.get(id=ds.project_id)
+            except Exception,ex:
+                logger.info(msg="项目id: {ex}可能已经被删除了".format(ex=ex))
         paginator = Paginator(allProjectList, 25)          
         try:
             projectList = paginator.page(page)

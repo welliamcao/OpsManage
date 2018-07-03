@@ -121,7 +121,7 @@
 											{% csrf_token %}
 											<div class="form-group" >			 		             
 												<label><font color='red'>* </font>选择主机</label>	
-				                                 <select class="selectpicker" data-live-search="true"  data-size="5" name="ansible_server"  data-width="auto" id="host_list" required>
+				                                 <select class="selectpicker" data-live-search="true"  data-size="5" name="ansible_server"  data-width="100%" id="host_list" required>
 				                                 		<option name="server" value="" selected="selected">选择一个主机进行配置</option>
 				                                 	{% for ds in serverList %}
 				                                 		<option name="server" value="{{ds.id}}">{{ds.ip}} | {{ds.project}} | {{ds.service}}</option>

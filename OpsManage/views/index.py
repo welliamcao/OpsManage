@@ -119,7 +119,7 @@ def login(request):
             return HttpResponseRedirect('/user/center/',{"user":request.user})
         else:
             if request.method == "POST":
-                return render(request,'login.html',{"login_error_info":"用户名不错存在，或者密码错误！"},)  
+                return render(request,'login.html',{"login_error_info":"用户名不存在，或者密码错误！","username":username},)  
             else:
                 return render(request,'login.html') 
             
