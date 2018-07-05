@@ -645,7 +645,7 @@ def assets_update(request):
                     continue
                 serList.append(server_assets.ip)
                 if server_assets.keyfile == 1:resource.append({"ip": server_assets.ip, "port": int(server_assets.port),"username": server_assets.username})
-                else:resource.append({"ip": server_assets.ip, "port": server_assets.port,"username": server_assets.username, "password": server_assets.passwd})                    
+                else:resource.append({"ip": server_assets.ip, "port": int(server_assets.port),"username": server_assets.username, "password": server_assets.passwd})                
         ANS = ANSRunner(resource)
         ANS.run_model(host_list=serList,module_name='setup',module_args="")
         data = ANS.handle_cmdb_data(ANS.get_model_result())    

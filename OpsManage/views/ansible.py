@@ -43,8 +43,8 @@ def apps_model(request):
                 sList,resource = AssetsSource().group(group=request.POST.get('ansible_group'))
             elif request.POST.get('server_model') == 'service':
                 sList,resource = AssetsSource().service(business=request.POST.get('ansible_service')) 
-            elif request.POST.get('server_model') == 'inventory':
-                sList,resource = AssetsSource().inventory(inventory=request.POST.get('ansible_inventory'))                                             
+            elif request.POST.get('server_model') == 'inventory': 
+                sList,resource,groups = AssetsSource().inventory(inventory=request.POST.get('ansible_inventory'))         
             if len(request.POST.get('custom_model')) > 0:model_name = request.POST.get('custom_model')
             else:model_name = request.POST.get('ansible_model',None)
             if len(sList) > 0:
@@ -54,7 +54,7 @@ def apps_model(request):
                 DsRedis.OpsAnsibleModel.lpush(redisKey, "[Start] Ansible Model: {model}  ARGS:{args}".format(model=model_name,args=request.POST.get('ansible_args',"None")))
                 if request.POST.get('ansible_debug') == 'on':ANS = ANSRunner(resource,redisKey,logId,verbosity=4)
                 else:ANS = ANSRunner(resource,redisKey,logId)
-                ANS.run_model(host_list=sList,module_name=model_name,module_args=request.POST.get('ansible_args',""))
+                ANS.run_model(host_list=groups[:-1],module_name=model_name,module_args=request.POST.get('ansible_args',""))
                 DsRedis.OpsAnsibleModel.lpush(redisKey, "[Done] Ansible Done.")
                 return JsonResponse({'msg':"操作成功","code":200,'data':[]})
             else:

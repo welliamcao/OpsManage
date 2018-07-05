@@ -98,7 +98,7 @@ class AssetsSource(object):
                     data["port"] = int(assets.server_assets.port)
                     data["username"] = assets.server_assets.username
                     data["sudo_passwd"] = assets.server_assets.sudo_passwd
-                    if assets.server_assets.keyfile != 1:data["password"] =  assets.server_assets.passwd                         
+                    if assets.server_assets.keyfile == 0:data["password"] =  assets.server_assets.passwd                         
                 except Exception, ex:
                     logger.warn(msg="id:{assets}, error:{ex}".format(assets=assets.id,ex=ex))                    
             elif hasattr(assets,'network_assets'):
@@ -124,6 +124,7 @@ class AssetsSource(object):
     def inventory(self,inventory):
         sList = []
         resource = {} 
+        groups = ''
         try:
             inventory = Ansible_Inventory.objects.get(id=inventory)
         except Exception, ex: 
@@ -163,10 +164,11 @@ class AssetsSource(object):
                         logger.warn(msg="资产: {assets},转换host_vars失败:{ex}".format(assets=assets.id,ex=ex))                        
                 if serverIp not in sList:sList.append(serverIp)
                 hosts.append(data)
-            resource[ds.group_name]['hosts'] = hosts  
+            resource[ds.group_name]['hosts'] = hosts 
+            groups +=  ds.group_name + ','
             try:
                 if ds.ext_vars:resource[ds.group_name]['vars'] = eval(ds.ext_vars)  
             except Exception,ex: 
                 logger.warn(msg="资产组变量转换失败: {id} {ex}".format(id=inventory,ex=ex))
                 resource[ds.group_name]['vars'] = None
-        return sList, resource        
+        return sList, resource,groups       

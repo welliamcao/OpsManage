@@ -16,12 +16,11 @@ from OpsManage.data.DsMySQL import AnsibleSaveResult
 from OpsManage.utils.logger import logger
 
 
-
 class MyInventory(Inventory):  
     """ 
     this is my ansible inventory object. 
     """  
-    def __init__(self, resource, loader, variable_manager,host_list=[]):  
+    def __init__(self, resource ,loader, variable_manager,host_list=[]):  
         """ 
         resource的数据格式是一个列表字典，比如 
             { 
@@ -35,7 +34,7 @@ class MyInventory(Inventory):
         """  
         super(MyInventory, self).__init__(loader=loader, variable_manager=variable_manager, host_list=host_list)
         self.resource = resource  
-        self.dynamic_inventory()  
+        self.dynamic_inventory()
   
     def add_dynamic_group(self, hosts, groupname, groupvars=None):  
         """ 
@@ -91,7 +90,7 @@ class MyInventory(Inventory):
         elif isinstance(self.resource, dict):  
             for groupname, hosts_and_vars in self.resource.iteritems():
                 self.add_dynamic_group(hosts_and_vars.get("hosts"), groupname, hosts_and_vars.get("vars")) 
-
+                        
 
 class ModelResultsCollector(CallbackBase):  
   
@@ -433,8 +432,8 @@ class ANSRunner(object):
         run module from andible ad-hoc. 
         module_name: ansible module_name 
         module_args: ansible module args 
-        """  
-        inventory = MyInventory(self.resource, self.loader, self.variable_manager,host_list)
+        """ 
+        inventory = MyInventory(self.resource, self.loader, self.variable_manager)
         play_source = dict(  
                 name="Ansible Play",  
                 hosts=host_list,  
