@@ -100,7 +100,7 @@ def apps_upload(request):
                 sList,resource = AssetsSource().service(business=request.POST.get('ansible_service'))
                 playbook_server_value = request.POST.get('ansible_service')   
             elif request.POST.get('server_model') == 'inventory':
-                sList,resource = AssetsSource().inventory(inventory=request.POST.get('ansible_inventory')) 
+                sList,resource,groups  = AssetsSource().inventory(inventory=request.POST.get('ansible_inventory')) 
                 playbook_server_value = request.POST.get('ansible_inventory')                                      
         try:  
             playbook = Ansible_Playbook.objects.create(
@@ -160,7 +160,7 @@ def apps_online(request):
                 sList,resource = AssetsSource().service(business=request.POST.get('ansible_service')) 
                 playbook_server_value = request.POST.get('ansible_service')   
             elif request.POST.get('server_model') == 'inventory':
-                sList,resource = AssetsSource().inventory(inventory=request.POST.get('ansible_inventory')) 
+                sList,resource,groups  = AssetsSource().inventory(inventory=request.POST.get('ansible_inventory')) 
                 playbook_server_value = request.POST.get('ansible_inventory') 
         fileName = 'playbook/online-{ram}.yaml'.format(ram=uuid.uuid4().hex[0:8]) 
         filePath = os.getcwd() + '/upload/' + fileName
@@ -258,7 +258,7 @@ def apps_playbook_run(request,pid):
             playbook_file = os.getcwd() + '/upload/' + str(playbook.playbook_file)
             Assets = AssetsSource()
             if playbook.playbook_server_model == 'inventory':
-                sList, resource = Assets.inventory(inventory=playbook.playbook_server_value)
+                sList,resource,groups = Assets.inventory(inventory=playbook.playbook_server_value)
             else:
                 if numberList:serverList = [ s.playbook_server for s in numberList ]
                 else:serverList = request.POST.getlist('playbook_server')
@@ -362,7 +362,7 @@ def apps_playbook_modf(request,pid):
                 sList,resource = AssetsSource().service(business=request.POST.get('ansible_service'))
                 playbook_server_value = request.POST.get('ansible_service')  
             elif request.POST.get('server_model') == 'inventory':
-                sList,resource = AssetsSource().inventory(inventory=request.POST.get('ansible_inventory'))
+                sList,resource,groups = AssetsSource().inventory(inventory=request.POST.get('ansible_inventory'))
                 playbook_server_value = request.POST.get('ansible_inventory')                 
             if playbook.playbook_type == 1:
                 playbook_file = os.getcwd() + '/upload/' + str(playbook.playbook_file)
@@ -430,7 +430,7 @@ def apps_playbook_online_modf(request,pid):
                 sList,resource = AssetsSource().service(business=request.POST.get('ansible_service')) 
                 playbook_server_value = request.POST.get('ansible_service')
             elif request.POST.get('server_model') == 'inventory':
-                sList,resource = AssetsSource().inventory(inventory=request.POST.get('ansible_inventory')) 
+                sList,resource,groups = AssetsSource().inventory(inventory=request.POST.get('ansible_inventory')) 
                 playbook_server_value = request.POST.get('ansible_inventory')                 
         if request.POST.get('playbook_content'):
             playbook_file = os.getcwd() + '/upload/' + str(playbook.playbook_file)
