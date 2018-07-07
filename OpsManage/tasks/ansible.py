@@ -33,7 +33,7 @@ def AnsibleScripts(**kw):
                 logId = AnsibleRecord.Model.insert(user='celery',ans_model='script',ans_server=','.join(sList),ans_args=filePath)
             sList, resource = AssetsSource().queryAssetsByIp(ipList=sList)        
             ANS = ANSRunner(resource,redisKey=None,logId=logId)
-            ANS.run_model(host_list=sList,module_name='script',module_args=filePath)
+            ANS.run_model(host_list=sList,module_name='script',module_args="{filePath} {args}".format(filePath=filePath,args=script.script_args))
             return ANS.get_model_result()
     except Exception,e:
         print e
