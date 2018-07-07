@@ -47,7 +47,8 @@
 								<div class="col-sm-8">
 									 <select class="form-control" id="selstate" >
 									 	<option selected="selected" value="">请选择一个类型</option>
-									 	<option value="SUCCESS" name="state">SUCCESS</option>		
+									 	<option value="SUCCESS" name="state">SUCCESS</option>	
+									 	<option value="STARTED" name="state">STARTED</option>	
 									 	<option value="FAILURE" name="state">FAILURE</option>		
 									 	<option value="REVOKED" name="state">REVOKED</option>	
 									 	<option value="RECEIVED" name="state">RECEIVED</option>	
@@ -263,8 +264,8 @@
 	    range: "min",
 	    value: 0,
 	    min: 0,
-	    max: 100,
-	    values: [0,1000],
+	    max: 3600,
+	    values: [0,3600],
 	    slide: function (event, ui) {
 	        if (ui.values[0] != ui.values[1]) {
 	            $("#runtime").val(ui.values[0] + " - " + ui.values[1] + "秒");
@@ -425,9 +426,17 @@
 	function onBtnHandleTaskLog(obj, id,task_id,op){
 		var btnObj = $(obj);
 		btnObj.attr('disabled',true);
-		var txt=  "是否确认删除？";	
+		if (op == 'delete'){
+			var txt =  "是否确认删除("+ task_id +")？";
+			var title = '删除任务' 
+		}
+		else if(op == 'kill'){
+			var txt=  "是否终止任务("+ task_id +")？";
+			var title = '终止任务' 
+		}
+			
 		var option = {
-				title: "删除("+name+")",
+				title: title,
 				btn: parseInt("0011",2),
 				onOk: function(){
 					$.ajax({
@@ -442,7 +451,7 @@
 					      success:function(response){			            
 				                if (response["code"]=="200"){ 
 				                	window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.success);
-				                	location.reload();
+									
 				                }
 					        	else{
 					        		window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);

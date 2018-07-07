@@ -7,6 +7,7 @@ from django.contrib.auth.decorators import login_required
 from celery import task
 from celery.registry import tasks as cTasks
 from celery import registry
+from celery.task.control import revoke
 from celery.five import keys, items
 from django.contrib.auth.decorators import permission_required
 from OpsManage.utils.logger import logger
@@ -122,7 +123,7 @@ def task_view(request):
                      )    
     elif request.method == "POST":
         op = request.POST.get('op')
-        if op in ['view','delete'] and request.user.has_perm('djcelery.change_taskstate'):
+        if op in ['view','delete','kill'] and request.user.has_perm('djcelery.change_taskstate'):
             try:
                 task = {}
                 for ds in PeriodicTask.objects.all():
@@ -153,9 +154,16 @@ def task_view(request):
                 try:
                     taskLog.delete()
                     return  JsonResponse({"code":200,"data":None,"msg":"删除成功"})
-                except:
-                    return  JsonResponse({"code":500,"data":None,"msg":"日志删除失败"})
-        else:return  JsonResponse({"code":500,"data":None,"msg":"不支持的操作或者您没有权限操作操作此项。"})            
+                except Exception,ex:
+                    return  JsonResponse({"code":500,"data":ex,"msg":"日志删除失败"})
+            elif op == 'kill':
+                try:
+                    revoke(taskLog.task_id, terminate=True)
+                    return  JsonResponse({"code":200,"data":None,"msg":"任务终止成功"})
+                except Exception,ex:
+                    logger.warn(msg="终止任务失败: {ex}".format(ex=str(ex)))
+                    return  JsonResponse({"code":500,"data":ex,"msg":"任务终止成功"})                
+        else:return  JsonResponse({"code":500,"data":"终止任务失败: {ex}".format(ex=str(ex)),"msg":"不支持的操作或者您没有权限操作操作此项。"})            
     else:return  JsonResponse({"code":500,"data":None,"msg":"不支持的HTTP操作"})  
     
     
@@ -188,7 +196,10 @@ def task_search(request):
                                 <div>    
                                     <a data-toggle="modal" data-target="#myViewLogModal" href="javascript:" onclick="onBtnViewTaskLog(this,{id},'{task_id}','view')">
                                         <i class="fa fa-search-plus"></i>
-                                    </a>    
+                                    </a> 
+                                    <a  href="javascript:" onclick="onBtnHandleTaskLog(this,{id},'{task_id}','kill')">
+                                        <i class="fa fa-power-off"></i>
+                                    </a>                                        
                                     <a  href="javascript:" onclick="onBtnHandleTaskLog(this,{id},'{task_id}','delete')">
                                         <i class="fa fa-trash-o"></i>
                                     </a>                                                                                
