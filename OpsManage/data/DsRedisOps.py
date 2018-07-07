@@ -131,7 +131,6 @@ class DsRedis(object):
             except Exception, ex:
                 logger.warn(msg="Delete redis key failed: {ex}".format(ex=str(ex)))
                 return False      
-
             
     class OpsAnsiblePlayBookLock(object):  
         @staticmethod

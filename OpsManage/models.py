@@ -413,9 +413,10 @@ class Ansible_Playbook(models.Model):
         
 class Ansible_Script(models.Model): 
     script_name = models.CharField(max_length=50,verbose_name='脚本名称',unique=True)
-    script_uuid = models.CharField(max_length=50,verbose_name='唯一id')
-    script_server = models.TextField(max_length=200,verbose_name='目标机器',blank=True,null=True)
+    script_uuid = models.CharField(max_length=50,verbose_name='唯一id',blank=True,null=True)
+    script_server = models.TextField(verbose_name='目标机器',blank=True,null=True)
     script_file = models.FileField(upload_to = './script/',verbose_name='脚本路径')
+    script_args = models.TextField(blank=True,null=True,verbose_name='脚本参数')
     script_service = models.SmallIntegerField(verbose_name='授权业务',blank=True,null=True)
     script_group = models.SmallIntegerField(verbose_name='授权组',blank=True,null=True)
     script_type = models.CharField(max_length=50,verbose_name='脚本类型',blank=True,null=True)

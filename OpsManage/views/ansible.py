@@ -76,7 +76,6 @@ def ansible_run(request):
 @permission_required('OpsManage.can_add_ansible_playbook',login_url='/noperm/')
 def apps_upload(request):
     if request.method == "GET":
-#         serverList = Server_Assets.objects.all()
         serverList = AssetsSource().serverList()
         projectList = Project_Assets.objects.all()
         groupList = Group.objects.all()
@@ -302,9 +301,6 @@ def apps_playbook_run(request,pid):
             DsRedis.OpsAnsiblePlayBook.lpush(playbook.playbook_uuid, "[Done] Ansible Done.")
             #切换版本之后取消项目部署锁
             DsRedis.OpsAnsiblePlayBookLock.delete(redisKey=playbook.playbook_uuid+'-locked') 
-            #操作日志异步记录
-#             recordAnsiblePlaybook.delay(user=str(request.user),ans_id=playbook.id,ans_name=playbook.playbook_name,
-#                                         ans_content="执行Ansible剧本",uuid=playbook.playbook_uuid,ans_server=','.join(sList))
             return JsonResponse({'msg':"操作成功","code":200,'data':dataList,"statPer":statPer})        
         else:
             return JsonResponse({'msg':"剧本执行失败，{user}正在执行该剧本".format(user=DsRedis.OpsAnsiblePlayBookLock.get(playbook.playbook_uuid+'-locked')),"code":500,'data':[]}) 
@@ -561,20 +557,20 @@ def apps_script_online(request):
                     if server.server_assets.keyfile == 1:resource.append({"ip": server.server_assets.ip, "port": int(server.server_assets.port),"username": server.server_assets.username})
                     else:resource.append({"ip": server.server_assets.ip, "port": int(server.server_assets.port),"username": server.server_assets.username,"password": server.server_assets.passwd})   
                                                         
-            if len(sList) > 0 and request.POST.get('type') == 'run' and request.POST.get('script_file'):
+            if len(sList) > 0 and request.POST.get('type') == 'run' and request.POST.get('script_file'):             
                 filePath = saveScript(content=request.POST.get('script_file'),filePath='/tmp/script-{ram}'.format(ram=uuid.uuid4().hex[0:8]))
                 redisKey = request.POST.get('ans_uuid')
                 logId = AnsibleRecord.Model.insert(user=str(request.user),ans_model='script',ans_server=','.join(sList),ans_args=filePath)
                 DsRedis.OpsAnsibleModel.delete(redisKey)
-                DsRedis.OpsAnsibleModel.lpush(redisKey, "[Start] Ansible Model: {model}  Script:{args}".format(model='script',args=filePath))
+                DsRedis.OpsAnsibleModel.lpush(redisKey, "[Start] Ansible Model: {model}  Script:{filePath} {args}".format(model='script',filePath=filePath,args=request.POST.get('script_args')))
                 if request.POST.get('ansible_debug') == 'on':ANS = ANSRunner(resource,redisKey,logId,verbosity=4)
                 else:ANS = ANSRunner(resource,redisKey,logId)
-                ANS.run_model(host_list=sList,module_name='script',module_args=filePath)
+                ANS.run_model(host_list=sList,module_name='script',module_args="{filePath} {args}".format(filePath=filePath,args=request.POST.get('script_args')))
                 DsRedis.OpsAnsibleModel.lpush(redisKey, "[Done] Ansible Done.")
                 try:
                     os.remove(filePath)
                 except Exception, ex:
-                    logger.warn(msg="删除文件失败: {ex}".format(ex=ex))              
+                    logger.warn(msg="删除文件失败: {ex}".format(ex=ex))             
                 return JsonResponse({'msg':"操作成功","code":200,'data':[]})
         if request.POST.get('type') == 'save' and request.POST.get('script_file') and \
             ( request.user.has_perm('OpsManage.can_add_ansible_script') or request.user.has_perm('OpsManage.can_edit_ansible_script') ):
@@ -593,6 +589,7 @@ def apps_script_online(request):
                 Ansible_Script.objects.create(
                                               script_name=request.POST.get('script_name'),
                                               script_uuid=request.POST.get('ans_uuid'),
+                                              script_args=request.POST.get('script_args'),
                                               script_server=json.dumps(sList),
                                               script_group=group,
                                               script_file=fileName,
@@ -654,8 +651,7 @@ def apps_script_online_run(request,pid):
         script = Ansible_Script.objects.get(id=pid)
         numberList = json.loads(script.script_server)
     except:
-        return render(request,'apps/apps_script_modf.html',{"user":request.user,
-                                                         "errorInfo":"剧本不存在，可能已经被删除."},) 
+        return render(request,'apps/apps_script_modf.html',{"user":request.user,"errorInfo":"剧本不存在，可能已经被删除."},) 
     def saveScript(content,filePath):
         if os.path.isdir(os.path.dirname(filePath)) is not True:os.makedirs(os.path.dirname(filePath))#判断文件存放的目录是否存在，不存在就创建
         with open(filePath, 'w') as f:
@@ -685,8 +681,8 @@ def apps_script_online_run(request,pid):
         return render(request,'apps/apps_script_modf.html',{"user":request.user,"userList":userList,
                                                                   "script":script,"serverList":serverList,
                                                                   "groupList":groupList,"serviceList":serviceList,
-                                                                  "project":project,"projectList":projectList},
-                                  )
+                                                                  "project":project,"projectList":projectList,
+                                                                  "ans_uuid":uuid.uuid4(),})
     elif request.method == "POST" and request.user.has_perm('OpsManage.can_exec_ansible_script'):
         resource = []
         sList = []
@@ -722,6 +718,7 @@ def apps_script_online_run(request,pid):
                                               script_server=json.dumps(sList),
                                               script_group=request.POST.get('ansible_group',0),
                                               script_service=request.POST.get('ansible_service',0),
+                                              script_args=request.POST.get('script_args'),
                                               script_type=request.POST.get('server_model')
                                               )
             except Exception,ex:

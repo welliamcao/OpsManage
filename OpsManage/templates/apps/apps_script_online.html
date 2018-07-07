@@ -94,7 +94,11 @@
 											</div>
 										</div>                                                                 
 										<div id="compile-editor" class="ace_editor"></div> 
-										<br>                          
+										<br>   										
+                                        <div class="form-group">
+                                            <label>脚本参数</label>
+                                            <input class="form-control" name="script_args" id="script_args" placeholder="多个参数以空格分开">
+                                        </div>  										                       
 										<div class="form-group">
 											<label>Debug</label>									
 											<select class="form-control" name="ansible_debug" id="ansible_debug">
@@ -320,6 +324,7 @@ function oBtServiceSelect(model,ids){
 				'type':'run',
 				'script_name':document.getElementById("script_name").value,
 				'server_model':$('#server_model option:selected').val(),
+				'script_args':document.getElementById("script_args").value,
 				'ansible_service':$('#ansible_service option:selected').val(),
 				'ansible_group':$('#script_auth_group option:selected').val(),
 				'model':document.getElementById("model").value,
@@ -372,6 +377,7 @@ function oBtServiceSelect(model,ids){
 				'server_model':$('#server_model option:selected').val(),
 				'ansible_service':$('#ansible_service option:selected').val(),
 				'ansible_group':$('#script_auth_group option:selected').val(),
+				'script_args':document.getElementById("script_args").value,
 				'model':document.getElementById("model").value,
 				'ans_uuid':document.getElementById("ans_uuid").value,
 				'script_file':contents,

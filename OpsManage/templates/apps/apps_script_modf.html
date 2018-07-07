@@ -125,7 +125,11 @@
 											</div>
 										</div>                                                                 
 										<div id="compile-editor" class="ace_editor">{{script.script_contents}}</div> 
-										<br>                          
+										<br>   
+                                        <div class="form-group">
+                                            <label>脚本参数</label>
+                                            <input class="form-control" name="script_args" id="script_args" value="{{script.script_args|default:""}}" >
+                                        </div>  										                       
 										<div class="form-group">
 											<label>Debug</label>									
 											<select class="form-control" name="ansible_debug" id="ansible_debug">
@@ -134,7 +138,7 @@
 											</select>
 										</div> 											                 
 		                                <input  type="hidden"   class="form-control" id="model" name="model" value="model">
-		                                <input  type="hidden"   class="form-control" id="ans_uuid" name="ans_uuid" value="{{script.script_uuid}}">  
+		                                <input  type="hidden"   class="form-control" id="ans_uuid" name="ans_uuid" value="{{ans_uuid}}">  
                                         <button type="button" class="btn btn-default" {% if perms.OpsManage.can_edit_ansible_script %} onclick="saveAnsibleScript(this)" {% else %} disabled  {% endif %}>保存</button>
                                         <button type="button" class="btn btn-default" id="run_ansible_model" {% if perms.OpsManage.can_exec_ansible_script %} onclick="runAnsibleModel(this)" {% else %} disabled  {% endif %}>运行</button>		                                   
 		                                                               	
@@ -348,6 +352,7 @@ function setAceEditMode(model) {
 				'type':'run',
 				'script_name':document.getElementById("script_name").value,
 				'server_model':$('#server_model option:selected').val(),
+				'script_args':document.getElementById("script_args").value,
 				'ansible_service':$('#ansible_service option:selected').val(),
 				'ansible_group':$('#script_auth_group option:selected').val(),
 				'model':document.getElementById("model").value,
@@ -399,6 +404,7 @@ function setAceEditMode(model) {
 				'server_model':$('#server_model option:selected').val(),
 				'ansible_service':$('#ansible_service option:selected').val(),
 				'ansible_group':$('#script_auth_group option:selected').val(),
+				'script_args':document.getElementById("script_args").value,
 				'model':document.getElementById("model").value,
 				'ans_uuid':document.getElementById("ans_uuid").value,
 				'script_file':contents,
