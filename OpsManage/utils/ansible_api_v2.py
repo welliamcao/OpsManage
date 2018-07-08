@@ -55,7 +55,7 @@ class MyInventory(Inventory):
             username = host.get("username")  
             password = host.get("password")
             connection = host.get("connection",'smart')
-            sudo_pass = host.get("sudo_pass")
+            sudo_pass = host.get("sudo_passwd")
             if username == 'root':ssh_key = "/root/.ssh/id_rsa"
             else:ssh_key = "/home/{user}/.ssh/id_rsa".format(user=username)
             if not os.path.exists(ssh_key):ssh_key = host.get("ssh_key")  

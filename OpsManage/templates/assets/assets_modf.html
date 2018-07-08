@@ -278,10 +278,7 @@
 													 <div class="col-sm-6">
 													 	<input type="text" class="form-control" name="server_hostname" placeholder="Hostname"  class="input-xlarge" value="{{ asset_body.hostname|default:"" }}" />
 													 </div>
-												</div>					
-												
-						
-												
+												</div>																												
 							
 											</div>
 											<div class="form-group">
@@ -392,7 +389,13 @@
 															{% endfor %}		
 													</select>					 						 	  	
 												</div>
-											</div>	 					 											
+											</div>	 
+											<div class="form-group">
+												 <label class="col-sm-2 control-label">备注</label>
+												 <div class="col-sm-6">
+												 	<textarea type="text" class="form-control" id="asset_mark" name="asset_mark" placeholder="备注" value="" class="input-xlarge">{{ asset_main.mark|default:"" }}</textarea>
+												 </div>
+											</div>																 											
 											</div>
 											</fieldset>
 											
@@ -477,7 +480,13 @@
 												 <div class="col-sm-6">						
 												 	<textarea  class="form-control" rows="5" name="net_configure_detail" placeholder="配置说明"  id="configure_detail" value="{{ asset_body.configure_detail|default:"" }}"></textarea>
 												 </div>
-											</div>	
+											</div>
+											<div class="form-group">
+												 <label class="col-sm-2 control-label">备注</label>
+												 <div class="col-sm-6">
+												 	<textarea type="text" class="form-control" id="asset_mark" name="asset_mark" placeholder="备注" value="" class="input-xlarge">{{ asset_main.mark|default:"" }}</textarea>
+												 </div>
+											</div>													
 											</div>
 										{% endif %}
 											</fieldset>

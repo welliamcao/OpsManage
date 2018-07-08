@@ -34,26 +34,8 @@ def task_model(request):
                                               "regTaskList":regTaskList})  
     elif request.method == "POST":
         op = request.POST.get('op') 
-        if op in ['addCrontab','delCrontab','addInterval',
-                  'delInterval','addTask','editTask',
-                  'delTask'] and request.user.has_perm('djcelery.change_periodictask'):
-            if op == 'addCrontab':
-                try:
-                    CrontabSchedule.objects.create(minute=request.POST.get('minute'),hour=request.POST.get('hour'),
-                                                      day_of_week=request.POST.get('day_of_week'),
-                                                      day_of_month=request.POST.get('day_of_month'),
-                                                      month_of_year=request.POST.get('month_of_year'),
-                                                      )
-                    return  JsonResponse({"code":200,"data":None,"msg":"添加成功"})
-                except:
-                    return  JsonResponse({"code":500,"data":None,"msg":"添加失败"})
-            elif op == 'delCrontab':
-                try:
-                    CrontabSchedule.objects.get(id=request.POST.get('id')).delete()
-                    return  JsonResponse({"code":200,"data":None,"msg":"删除成功"})
-                except:
-                    return  JsonResponse({"code":500,"data":None,"msg":"删除失败"})  
-            elif op == 'addInterval':
+        if op in ['addInterval','delInterval','addTask','editTask','delTask'] and request.user.has_perm('djcelery.change_periodictask'): 
+            if op == 'addInterval':
                 try:
                     IntervalSchedule.objects.create(every=request.POST.get('every'),period=request.POST.get('period'))
                     return  JsonResponse({"code":200,"data":None,"msg":"添加成功"})

@@ -560,11 +560,13 @@ def asset_info(request, id,format=None):
                 dataList.append({"name":'操作系统',"value":assets.server_assets.system})
                 dataList.append({"name":'内核版本',"value":assets.server_assets.kernel})
                 dataList.append({"name":'主机名',"value":assets.server_assets.hostname})
+                dataList.append({"name":'资产备注',"value":assets.mark})
             else:
                 dataList.append({"name":'CPU型号',"value":assets.network_assets.cpu})
                 dataList.append({"name":'内存容量',"value":assets.network_assets.stone})
                 dataList.append({"name":'背板带宽',"value":assets.network_assets.bandwidth})
                 dataList.append({"name":'端口总数',"value":assets.network_assets.port_number})
+                dataList.append({"name":'资产备注',"value":assets.mark})
         except Exception ,ex:
             logger.warn(msg="获取资产信息失败: {ex}".format(ex=ex))
         return JsonResponse({"code":200,"msg":"success","data":dataList})   

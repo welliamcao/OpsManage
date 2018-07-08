@@ -33,6 +33,7 @@ class Assets(models.Model):
     business = models.SmallIntegerField(blank=True,null=True,verbose_name='业务类型')
     project = models.SmallIntegerField(blank=True,null=True,verbose_name='项目类型')
     host_vars = models.TextField(blank=True,null=True,verbose_name='ansible主机变量')
+    mark = models.TextField(blank=True,null=True,verbose_name='资产标示')
     create_date = models.DateTimeField(auto_now_add=True)
     update_date = models.DateTimeField(auto_now_add=True)
     class Meta:

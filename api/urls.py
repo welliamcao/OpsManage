@@ -3,7 +3,8 @@ from api.views import (wiki_api,assets_api,
                        deploy_api,cron_api,
                        logs_api,ansible_api,
                        db_api,users_api,
-                       orders_api,files_api)
+                       orders_api,files_api,
+                       task_api)
 urlpatterns = [
             url(r'assets/$', assets_api.asset_list), 
             url(r'assets/(?P<id>[0-9]+)/$', assets_api.asset_detail),
@@ -59,5 +60,7 @@ urlpatterns = [
             url(r'file/upload/$', files_api.upload_file_list), 
             url(r'file/upload/(?P<id>[0-9]+)/$', files_api.upload_file_detail),           
             url(r'file/download/$', files_api.download_file_list), 
-            url(r'file/download/(?P<id>[0-9]+)/$', files_api.download_file_detail),                                   
+            url(r'file/download/(?P<id>[0-9]+)/$', files_api.download_file_detail), 
+            url(r'task/crontab/$', task_api.task_crontab_list), 
+            url(r'task/crontab/(?P<id>[0-9]+)/$', task_api.task_crontab_detail),                                          
     ]    

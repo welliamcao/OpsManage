@@ -6,7 +6,7 @@ from wiki.models import *
 from orders.models import *
 from filemanage.models import *
 from django.contrib.auth.models import Group,User
-
+from djcelery.models  import CrontabSchedule,IntervalSchedule
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -70,7 +70,7 @@ class AssetsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Assets
         fields = ('id','assets_type','name','sn','buy_time','expire_date',
-                  'buy_user','management_ip','manufacturer','provider',
+                  'buy_user','management_ip','manufacturer','provider','mark',
                   'model','status','put_zone','group','business','project')  
                 
 
@@ -237,3 +237,14 @@ class AnsibleInventorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Ansible_Inventory
         fields = ('id','name', 'desc','user') 
+        
+        
+class TaskCrontabSerializer(serializers.ModelSerializer):
+    class  Meta:
+        model = CrontabSchedule
+        fields = ('id','minute', 'hour','day_of_week','day_of_month','month_of_year') 
+
+class TaskIntervalsSerializer(serializers.ModelSerializer):
+    class  Meta:
+        model = IntervalSchedule
+        fields = ('id','every', 'period')         
