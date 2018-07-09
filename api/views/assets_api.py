@@ -556,7 +556,7 @@ def asset_info(request, id,format=None):
                 dataList.append({"name":'CPU型号',"value":assets.server_assets.cpu})
                 dataList.append({"name":'CPU个数',"value":assets.server_assets.vcpu_number})
                 dataList.append({"name":'硬盘容量',"value":str(int(assets.server_assets.disk_total)/1024)+'GB'})
-                dataList.append({"name":'内存容量',"value":str(int(assets.server_assets.ram_total)/1024)+'GB'})
+                dataList.append({"name":'内存容量',"value":str(assets.server_assets.ram_total)+'MB'})
                 dataList.append({"name":'操作系统',"value":assets.server_assets.system})
                 dataList.append({"name":'内核版本',"value":assets.server_assets.kernel})
                 dataList.append({"name":'主机名',"value":assets.server_assets.hostname})

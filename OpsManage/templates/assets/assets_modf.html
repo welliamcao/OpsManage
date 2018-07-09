@@ -618,7 +618,8 @@ function getFormData (form, filler) {
 		var serverStart = name.indexOf("server_");
 		var netStart = name.indexOf("net_");
 		if (assetStart==0){
-			var asz = "assets."+name.replace("asset_","")+" = '" + value + "'";
+			var asz = "assets." + name.replace("asset_","")+" = '" + value + "'"
+			console.log(asz)
 			try {
 				eval(asz);
 			} catch (e) {
