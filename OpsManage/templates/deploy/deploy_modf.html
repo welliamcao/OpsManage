@@ -5,6 +5,8 @@
 <script src="http://cdn.bootcss.com/ace/1.2.4/ext-language_tools.js"></script>
 <script src="http://cdn.bootcss.com/ace/1.2.4/ext-old_ie.js"></script>
 <script src="http://cdn.bootcss.com/ace/1.2.4/theme-monokai.js"></script> 
+<link href="/static/dist/css/bootstrap-multiselect.css" rel="stylesheet">
+<script src="/static/dist/js/bootstrap-multiselect.js"></script>
 <style type="text/css">
 	#project_local_command {
 		/* position: absolute; */
@@ -164,12 +166,12 @@
                                      <div class="form-group">
                                             <label><font color='red'>* </font>目标服务器</label>
                                             <br>
-                                            <select multiple class="form-control"  data-live-search="true" name="server" id="server" required>
+                                            <select multiple class="form-control"   name="server" id="server" required>
                                             	{% for ds in serverList %}
                                             		{% if ds.count == 1 %}
-                                            			<option name="server" selected="selected"  value="{{ds.id}}">{{ds.ip}}</option>
+                                            			<option name="server" selected="selected"  value="{{ds.id}}">{{ds.ip}} | {{ds.project}} | {{ds.service}}</option>
                                             		{% else %}
-                                            			<option name="server" value="{{ds.id}}">{{ds.ip}}</option>
+                                            			<option name="server" value="{{ds.id}}">{{ds.ip}} | {{ds.project}} | {{ds.service}}</option>
                                             		{% endif %}
                                             	{% endfor %}
                                             </select>
@@ -244,7 +246,14 @@ $(function () { $("[data-toggle='tooltip']").tooltip(); });
 	window.wxc.xcConfirm("{{errorInfo}}", window.wxc.xcConfirm.typeEnum.error);
 {% endif %}
 
-
+$(document).ready(function() {
+    $('#server').multiselect({
+        enableClickableOptGroups: true,
+        enableCollapsibleOptGroups: true,
+        includeSelectAllOption: true,
+       	enableFiltering: true, 
+    });
+});
 
 var project_type = '{{project.project_type}}';
 function setCompileMode(id){

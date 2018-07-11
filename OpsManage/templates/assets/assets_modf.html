@@ -484,7 +484,7 @@
 											<div class="form-group">
 												 <label class="col-sm-2 control-label">备注</label>
 												 <div class="col-sm-6">
-												 	<textarea type="text" class="form-control" id="asset_mark" name="asset_mark" placeholder="备注" value="" class="input-xlarge">{{ asset_main.mark|default:"" }}</textarea>
+												 	<textarea  class="form-control" id="asset_mark" name="asset_mark" placeholder="备注" value="" class="input-xlarge">{{ asset_main.mark|default:"" }}</textarea>
 												 </div>
 											</div>													
 											</div>
@@ -597,6 +597,10 @@ function oBtAuthType() {
 }	
 
 
+$(document).ready(function() {
+    var mark = $('#asset_mark').val().replace(/<br\/>/g, "\n");
+    $('#asset_mark').text(mark)
+}); 
 
 
 function getFormData (form, filler) {
@@ -608,6 +612,11 @@ function getFormData (form, filler) {
 		var value = form[i].value;
 		if (name.length == 0)
 			continue;
+		try {
+			value  = value.replace(/\n/g,'<br/>');
+		}catch (e) {
+			alert(e);
+		}
 		if (value.length == 0) {
 			if ((typeof filler != 'string') || (filler.length == 0))
 				continue;
@@ -619,7 +628,7 @@ function getFormData (form, filler) {
 		var netStart = name.indexOf("net_");
 		if (assetStart==0){
 			var asz = "assets." + name.replace("asset_","")+" = '" + value + "'"
-			console.log(asz)
+			
 			try {
 				eval(asz);
 			} catch (e) {

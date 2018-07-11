@@ -473,6 +473,11 @@
 			var value = form[i].value;
 			if (name.length == 0)
 				continue;
+			try {
+				value  = value.replace(/\n/g,'<br/>');
+			}catch (e) {
+				alert(e);
+			}			
 			if (value.length == 0) {
 				if ((typeof filler != 'string') || (filler.length == 0))
 					continue;

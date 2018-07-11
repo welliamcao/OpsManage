@@ -19,18 +19,19 @@ from django.contrib.auth.decorators import permission_required
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from OpsManage.utils.logger import logger
 from OpsManage import settings
+from dao.assets import AssetsSource
 
 @login_required()
 @permission_required('OpsManage.can_add_project_config',login_url='/noperm/')
 def deploy_add(request):
     if request.method == "GET":
-        serverList = Server_Assets.objects.all()
+#         serverList = Server_Assets.objects.all()
         groupList = Group.objects.all()
         return render(request,'deploy/deploy_add.html',{"user":request.user,"groupList":groupList,
-                                                        "serverList":serverList,'baseAssets':getBaseAssets(),
+                                                        'baseAssets':getBaseAssets(),
                                                         "project_dir":settings.WORKSPACES})
     elif  request.method == "POST":
-        serverList = Server_Assets.objects.all()
+#         serverList = Server_Assets.objects.all()
         ipList = request.POST.get('server') 
         try:
             proAssets = Project_Assets.objects.get(id=request.POST.get('project_id'))
@@ -65,10 +66,9 @@ def deploy_add(request):
         if ipList:
             for sid in ipList.split(','):
                 try:
-                    server = Server_Assets.objects.get(id=sid)
-                    Project_Number.objects.create(dir=request.POST.get('dir'),
-                                                  server=server.ip,
-                                                  project=project)
+                    assets = Assets.objects.get(id=sid)
+                    if hasattr(assets,'server_assets'):
+                        Project_Number.objects.create(dir=request.POST.get('dir'),server=assets.server_assets.ip,project=project)
                 except Exception, ex:
                     project.delete()
                     logger.error(msg="部署项目添加失败: {ex}".format(ex=ex))
@@ -81,23 +81,21 @@ def deploy_modf(request,pid):
     try:
         project = Project_Config.objects.select_related().get(id=pid)
         tagret_server = Project_Number.objects.filter(project=project)
-        serverList = [ s.server_assets for s in Assets.objects.filter(project=project.project.id,assets_type__in=['server','vmser']) ]
     except Exception, ex:
         logger.error(msg="修改项目失败: {ex}".format(ex=ex))
         return render(request,'deploy/deploy_modf.html',{"user":request.user,
                                                          "errorInfo":"修改项目失败: {ex}".format(ex=ex)},
-                                )     
+                                )  
     if request.method == "GET": 
+        serverList = AssetsSource().serverList()
         serviceList = Service_Assets.objects.filter(project=project.project)
         groupList = Group.objects.all()
         server = [ s.server for s in tagret_server]
         for ds in serverList:
-            if ds.ip in server:ds.count = 1
-            else:ds.count = 0        
-        return render(request,'deploy/deploy_modf.html',
-                                  {"user":request.user,"project":project,"server":tagret_server,
-                                   "serverList":serverList,"groupList":groupList,"serviceList":serviceList},
-                                )         
+            if ds.get('ip') in server:ds['count'] = 1
+            else:ds['count'] = 0        
+        return render(request,'deploy/deploy_modf.html',{"user":request.user,"project":project,"server":tagret_server,
+                                                         "serverList":serverList,"groupList":groupList,"serviceList":serviceList},)         
     elif  request.method == "POST":
         ipList = request.POST.get('server',None)
         try:      
@@ -127,19 +125,19 @@ def deploy_modf(request,pid):
             postServerList = []
             for sid in ipList.split(','):
                 try:
-                    server = Server_Assets.objects.get(id=sid) 
-                    postServerList.append(server.ip) 
-                    if server.ip not in tagret_server_list:     
-                        Project_Number.objects.create(dir=request.POST.get('dir'),
-                                                      server=server.ip,
-                                                      project=project)    
-                    elif server.ip in tagret_server_list and request.POST.get('dir'):
-                        try:
-                            Project_Number.objects.filter(project=project,server=server.ip).update(dir=request.POST.get('dir'))  
-                        except Exception,e:
-                            print e
-                            pass                                          
-                except Exception,e:
+                    assets = Assets.objects.get(id=sid)
+                    if hasattr(assets,'server_assets'):
+                        postServerList.append(assets.server_assets.ip) 
+                        if assets.server_assets.ip not in tagret_server_list:     
+                            Project_Number.objects.create(dir=request.POST.get('dir'),
+                                                          server=assets.server_assets.ip,
+                                                          project=project)    
+                        elif assets.server_assets.ip in tagret_server_list and request.POST.get('dir'):
+                            try:
+                                Project_Number.objects.filter(project=project,server=assets.server_assets.ip).update(dir=request.POST.get('dir'))  
+                            except Exception,e:
+                                logger.warn(msg="部署项目修改目标服务器失败: {ex}".format(ex=ex))                                         
+                except Exception,ex:
                     logger.error(msg="部署项目修改失败: {ex}".format(ex=ex))
                     return JsonResponse({'msg':"部署项目修改失败: {ex}".format(ex=ex),"code":500,'data':[]}) 
             #清除目标主机 - 
