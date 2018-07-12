@@ -17,7 +17,7 @@ from django.views.decorators.csrf import csrf_exempt
 
 
 @login_required()
-@permission_required('OpsManage.can_add_wiki_post',login_url='/noperm/')
+@permission_required('wiki.can_add_wiki_post',login_url='/noperm/')
 def article_add(request):
     if request.method == "GET":
         tagList = Tag.objects.all()
@@ -71,7 +71,7 @@ def upload_image(request):
 
 
 @login_required()
-@permission_required('OpsManage.can_edit_wiki_post',login_url='/noperm/')
+@permission_required('wiki.can_edit_wiki_post',login_url='/noperm/')
 def article_edit(request,pid):
     try:
         article = Post.objects.select_related().get(id=pid)
@@ -120,7 +120,7 @@ def article_edit(request,pid):
         return  JsonResponse({'msg':"文章添加成功","code":200,'data':[]})        
 
 @login_required()
-@permission_required('OpsManage.can_read_wiki_post',login_url='/noperm/')
+@permission_required('wiki.can_read_wiki_post',login_url='/noperm/')
 def article_index(request):
     tagList = Tag.objects.all()
     categoryList = []
@@ -133,7 +133,7 @@ def article_index(request):
 
 
 @login_required()
-@permission_required('OpsManage.can_read_wiki_post',login_url='/noperm/')
+@permission_required('wiki.can_read_wiki_post',login_url='/noperm/')
 def article_show(request,pid):
     try:
         article = Post.objects.select_related().get(id=pid)
@@ -155,7 +155,7 @@ def article_show(request,pid):
                                                      "postList":postList,"dateList":dateList})
         
 @login_required()
-@permission_required('OpsManage.can_read_wiki_post',login_url='/noperm/')
+@permission_required('wiki.can_read_wiki_post',login_url='/noperm/')
 def article_category(request,pid):
     try:
         category = Category.objects.get(id=pid)
@@ -172,7 +172,7 @@ def article_category(request,pid):
     return render(request,'wiki/wiki_base.html',{"user":request.user,"postList":postList,"dateList":dateList,"tagList":tagList,"categoryList":categoryList})   
 
 @login_required()
-@permission_required('OpsManage.can_read_wiki_post',login_url='/noperm/')
+@permission_required('wiki.can_read_wiki_post',login_url='/noperm/')
 def article_tag(request,pid):
     try:
         tag = Tag.objects.get(id=pid)
@@ -189,7 +189,7 @@ def article_tag(request,pid):
     return render(request,'wiki/wiki_base.html',{"user":request.user,"postList":postList,"dateList":dateList,"tagList":tagList,"categoryList":categoryList})  
 
 @login_required()
-@permission_required('OpsManage.can_read_wiki_post',login_url='/noperm/')
+@permission_required('wiki.can_read_wiki_post',login_url='/noperm/')
 def article_archive(request,month):
     try:
         archiveDate =  base.getMonthFirstDayAndLastDay(month.split('/')[0],month.split('/')[1])
