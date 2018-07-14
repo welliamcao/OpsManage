@@ -8,6 +8,7 @@ from django.contrib.auth.decorators import permission_required
 from django.db.models import Q 
 from orders.models import Order_System
 from OpsManage.views import assets
+from django.http import QueryDict
 from OpsManage.models import (Server_Assets,Service_Assets,
                                 Assets,User_Server,Global_Config,
                                 Project_Assets)
@@ -17,8 +18,7 @@ def user_manage(request):
     if request.method == "GET":
         userList = User.objects.all()
         groupList = Group.objects.all()
-        return render(request,'users/user_manage.html',{"user":request.user,"userList":userList,"groupList":groupList},
-                                  )    
+        return render(request,'users/user_manage.html',{"user":request.user,"userList":userList,"groupList":groupList})    
         
         
 def register(request):
@@ -159,7 +159,19 @@ def user(request,uid):
         except Exception,e:
             return  render(request,'users/user_info.html',{"user":request.user,"errorInfo":"用户资料修改错误：%s" % str(e)})   
             
- 
+    elif request.method == "PUT" and request.user.is_superuser:
+        data = QueryDict(request.body)
+        password = data.get('password')
+        c_password = data.get('c_password')
+        if password == c_password:
+            try:
+                user = User.objects.get(id=uid)                  
+                user.set_password(password)
+                user.save()
+                return JsonResponse({"code":200,"data":None,"msg":"密码修改成功"})
+            except Exception,e:
+                return JsonResponse({"code":500,"data":None,"msg":"密码修改失败：%s" % str(e)}) 
+        else:return JsonResponse({"code":500,"data":None,"msg":"密码不一致，密码修改失败。"})   
 
     
     

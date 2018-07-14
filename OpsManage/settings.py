@@ -41,18 +41,18 @@ CELERY_IMPORTS = ("OpsManage.tasks.assets","OpsManage.tasks.ansible",
                   "OpsManage.tasks.sql","OpsManage.tasks.sched")
 CELERY_QUEUES = (
     Queue('default',Exchange('default'),routing_key='default'),
-    Queue('ansible',Exchange('ansible'),routing_key='ansible_#'),
+    Queue('ansible',Exchange('ansible'),routing_key='ansible'),
 )
 CELERY_ROUTES = {
     'OpsManage.tasks.sql.*':{'queue':'default','routing_key':'default'},
     'OpsManage.tasks.assets.*':{'queue':'default','routing_key':'default'},
     'OpsManage.tasks.cron.*':{'queue':'default','routing_key':'default'},
     'OpsManage.tasks.sched.*':{'queue':'default','routing_key':'default'},
-    'OpsManage.tasks.ansible.AnsibleScripts':{'queue':'ansible','routing_key':'ansible_scripts'},
-    'OpsManage.tasks.ansible.AnsiblePlayBook':{'queue':'ansible','routing_key':'ansible_playbook'},
+    'OpsManage.tasks.ansible.AnsibleScripts':{'queue':'ansible','routing_key':'ansible'},
+    'OpsManage.tasks.ansible.AnsiblePlayBook':{'queue':'ansible','routing_key':'ansible'},
 }
 CELERY_DEFAULT_QUEUE = 'default'
-CELERY_DEFAULT_EXCHANGE_TYPE = 'direct'
+CELERY_DEFAULT_EXCHANGE_TYPE = 'topic'
 CELERY_DEFAULT_ROUTING_KEY = 'default'
 
 
@@ -105,6 +105,7 @@ INSTALLED_APPS = (
     'wiki',
     'orders',
     'api',
+    'filemanage',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -192,6 +193,8 @@ SFTP_CONF = {
              'password':'welliam',
              'timeout':30
              }  #修改成能sftp登陆OpsManage的账户
+
+WORKSPACES = '/var/lib/opsmanage/workspaces/' 
 
 LOGIN_URL = '/login'
 

@@ -33,19 +33,25 @@
                                 	<br>
                                 	<br>
 									<div class="row">
-			                                <div class="col-lg-5">
+			                                <div class="col-lg-4">
 			                                <legend><i class="fa  fa-paper-plane"></i>Ansible服务器</legend>
 			                                    <form role="form" id="ansiblePlayBookRun" class="main form-horizontal" >{% csrf_token %}
 														<div class="form-group">
 															 <label class="col-sm-2 control-label">剧本名称</label>
-															 <div class="col-sm-6">											
+															 <div class="col-sm-10">											
 																<input  type="text"   class="form-control" placeholder="输入模块"  value="{{playbook.playbook_name}}" disabled>
 																<input  type="hidden"   class="form-control" name="ans_uuid" value="{{playbook.playbook_uuid}}">
 															</div>
 														</div> 																								
 														<div class="form-group">
+															{% if playbook.playbook_server_model == 'inventory' %}
+																<label class="col-sm-2 control-label">动态主机组</label>
+																<div class="col-sm-10"> 
+<!-- 																	<button type="button"  class="btn btn-default" data-toggle="modal" data-target="#myInventoryModal" onclick="getAnsiblePlayBookInventory(this,{{playbook.playbook_server_value}})"><i class="fa  fa-eye  "></i></button> -->
+																	<textarea class="form-control" rows="10" name="playbook_inventory" id="playbook_inventory" disabled></textarea>
+															{% else %}
 															 <label class="col-sm-2 control-label">服务器选择</label>
-															 <div class="col-sm-6"> 
+															 <div class="col-sm-10"> 
 					                                            	{% if numberList %}
 					                                            		<select multiple class="selectpicker" data-live-search="true" name="playbook_server"  disabled>
 					                                            		{% for ds in numberList %}
@@ -57,33 +63,34 @@
 <!-- 					                                            		<select multiple class="selectpicker" data-live-search="true" name="playbook_server" id="ansible_server"  required> -->
 					                                            		<select multiple data-live-search="true" name="playbook_server" id="ansible_server"  required>
 						                                            	{% for ds in serverList %}
-						                                            		<option name="playbook_server" value="{{ds.ip}}">{{ds.ip}}</option>
+						                                            		<option name="playbook_server" value="{{ds.ip}}">{{ds.ip}} | {{ds.project}} | {{ds.service}}</option>
 						                                            	{% endfor %}
 						                                            	</select>
 					                                            	{% endif %}
+					                                         {% endif %}  	
 					                                            <input  type="hidden"   class="form-control"  name="playbook_uuid" value="{{playbook.playbook_uuid}}">
 					                                            <input  type="hidden"   class="form-control"  name="model" value="playbook">
 															 </div>
 														</div>
 														<div class="form-group">
 															 <label class="col-sm-2 control-label">剧本文件</label>
-															 <div class="col-sm-6">											
+															 <div class="col-sm-10">											
 																<button type="button"  class="btn btn-default" data-toggle="modal" data-target="#myModal" onclick="getAnsiblePlayBookFile(this,{{playbook.id}})"><i class="fa  fa-eye  "></i></button>
 															</div>
 														</div> 			
 														<div id="custom_model" class="form-group">
 															 <label class="col-sm-2 control-label">剧本外部变量</label>
-															 <div class="col-sm-6">	
+															 <div class="col-sm-10">	
 															   	{% if playbook.playbook_vars %}										
-																	<textarea class="form-control" rows="10" name="playbook_vars" id="playbook_vars" disabled>{{playbook.playbook_vars}}</textarea>
+																	<textarea class="form-control" rows="5" name="playbook_vars" id="playbook_vars" disabled>{{playbook.playbook_vars}}</textarea>
 																{% else %}
-																	<textarea class="form-control" rows="10" name="playbook_vars" id="playbook_vars"></textarea>
+																	<textarea class="form-control" rows="5" name="playbook_vars" id="playbook_vars"></textarea>
 																{% endif %}
 															</div>
 														</div> 											
 														<div class="form-group">
 															 <label class="col-sm-2 control-label">Debug</label>
-															 <div class="col-sm-6">										
+															 <div class="col-sm-10">										
 																	<select class="form-control" name="ansible_debug">
 																		<option value="off" name="ansible_model">关闭</option>	
 																		<option value="on" name="ansible_model">开启</option> 	
@@ -99,7 +106,7 @@
 													</form>                                        
 			                                </div>
 			                                <!-- /.col-lg-6 (nested) -->
-			                                <div class="col-lg-7">
+			                                <div class="col-lg-8">
 			                                    <legend><i class="fa  fa-paper-plane-o"></i>执行结果</legend>
 												<pre>
 							                        <div id="result">
@@ -157,6 +164,32 @@
     </div>
 </div>
 
+<div class="modal fade" id="myInventoryModal" tabindex="-1" role="dialog" aria-labelledby="myInventoryModalLabel" aria-hidden="true">
+	<div class="modal-dialog" style="width:1280px;height:auto;">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+					&times;
+				</button>
+				<h4 class="modal-title" id="myInventoryModalLabel">
+					动态资产组
+				</h4>
+			</div>
+			<div class="modal-body">
+				<pre>
+					<div id="play_inventory_content">
+					</div>
+				</pre>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">关闭
+				</button>
+			</div>
+		</div><!-- /.modal-content -->
+	</div><!-- /.modal -->
+</div>
+
+
 <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
 	<div class="modal-dialog" style="width:1280px;height:auto;">
 		<div class="modal-content">
@@ -182,7 +215,7 @@
 	</div><!-- /.modal -->
 </div>
 
-
+<div style="visibility:hidden"><a id="scrollToTop"></a></div>
 <script type="text/javascript">	
 	{% if playbook.playbook_vars %}
 		var songResJson=JSON.parse(document.getElementById('playbook_vars').value);
@@ -190,6 +223,22 @@
 	{% endif %}
 	
 
+	$(document).ready(function(){ 
+
+			$.ajax({
+					url:'/api/inventory/'+ {{playbook.playbook_server_value}} +'/', //请求地址
+					type:"GET",  //提交类似
+				    processData: false,
+				    contentType: false,				
+					success:function(response){
+						if (response["code"] == 200){
+							$("#playbook_inventory").text(JSON.stringify(response["data"],null,2)); 	
+						}						
+					}
+	
+				});			
+	})	
+	
     $(document).ready(function() {
         $('#ansible_server').multiselect({
             enableClickableOptGroups: true,
@@ -199,7 +248,29 @@
         });
     });
     
-   
+
+	function getAnsiblePlayBookInventory(obj,id) {
+		var btnObj = $(obj);
+		$.ajax({
+			url:'/api/inventory/'+id+'/', //请求地址
+			type:"GET",  //提交类似
+			data:{
+				"id":id
+			},  //提交参数
+			success:function(response){
+				btnObj.removeAttr('disabled');
+				if (response["code"] == "200"){
+					btnObj.removeAttr('disabled');
+					$("#play_inventory_content").html( JSON.stringify(response["data"],null,4)); 
+				}
+				
+			},
+	    	error:function(response){
+	    		btnObj.removeAttr('disabled');
+	    		window.wxc.xcConfirm("查看失败", window.wxc.xcConfirm.typeEnum.error);
+	    	}
+		})
+	}    
 	
 	function getAnsiblePlayBookFile(obj,id) {
 		var btnObj = $(obj);
@@ -249,8 +320,9 @@
 	            data:$('#ansiblePlayBookRun').serialize(),
 	            success : function(result){
 	            	if (result["msg"] !== null ){
-	            		$("#result").append("<p>"+result["msg"]+"</p>"); 
-	            		if (result["msg"].indexOf("[Done]") == 0){
+	            		$("#result").append("<p>"+result["msg"]+"</p>");
+	            		document.getElementById("scrollToTop").scrollIntoView(); 
+	            		if (result["msg"].indexOf("[Done]") == 0){            			
 	            			clearInterval(interval);
 	            			window.wxc.xcConfirm("Ansible执行完成", window.wxc.xcConfirm.typeEnum.success);
 	            			btnObj.removeAttr('disabled');

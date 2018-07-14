@@ -350,9 +350,7 @@
 								<legend>
 									<i class="fa  fa-github-alt"></i> 以下为回滚SQL语句
 								</legend>	
-								<form role="form" method="post" id="rbk_sql_order">
-									<textarea class="form-control" rows="10" id="order_rollback" disabled>{% for ds in rollBackSql %}{{ ds }}{% endfor %}</textarea>
-								</form>	
+								<pre>{% for ds in rollBackSql %}<p>{{ ds }}</p>{% endfor %}</pre>
 													
 							</div>											
 							<!-- /.col-lg-6 (nested) -->

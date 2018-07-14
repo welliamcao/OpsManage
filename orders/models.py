@@ -28,7 +28,9 @@ class Order_System(models.Model):
              )
     TYPE = (
              (0,'SQL审核'),
-             (1,'代码部署'),            
+             (1,'代码部署'),         
+             (2,'文件上传'),    
+             (3,'文件下载'),                 
             )
     order_user = models.SmallIntegerField(verbose_name='工单申请人id')
     order_subject = models.CharField(max_length=200,blank=True,null=True,verbose_name='工单申请主题')   

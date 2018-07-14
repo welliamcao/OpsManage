@@ -32,10 +32,10 @@
 							<div class="form-group">
 								<label class="col-sm-3 control-label">申请人:</label>
 								<div class="col-sm-8">
-									 <select class="form-control" id="order_apply" >
+									 <select class="form-control" id="order_user" >
 									 	<option selected="selected" value="">请选择一个名称</option>
 									 	{% for ds in userList %}
-									 		<option value="{{ds.id}}" name="order_apply">{{ds.username}}</option>
+									 		<option value="{{ds.id}}" name="order_user">{{ds.username}}</option>
 									 	{% endfor %}			
 									</select>
 								</div>
@@ -83,7 +83,9 @@
 									 <select class="form-control" id="order_type" >
 									 	<option selected="selected" value="">请选择一个类型</option>
                                 			<option value="0" name="order_type">SQL更新</option>                    				
-                                			<option value="1" name="order_type">代码部署</option>																
+                                			<option value="1" name="order_type">代码部署</option>		
+                                			<option value="2" name="order_type">文件分发</option>		
+                                			<option value="3" name="order_type">文件下载</option>													
 									</select>
 								</div>
 							</div>
@@ -169,19 +171,19 @@
 
 <script type="text/javascript">
 
-	$('#order_apply').change(function () {
-	    if ($('#order_apply').val() != "") {
-	        $("#hdnorderapply").val($('#order_apply').val());
-	        var span = "<span class='label label-success' id='orderapply'>" + $("#order_apply").find("option:selected").text()
-	        + " <img alt='' src='/static/img/close.png' onclick='removeself(this)' /><input name='order_apply' type='hidden' value='"
-	        + $('#order_apply').val() + "' /></span> &nbsp;";
+	$('#order_user').change(function () {
+	    if ($('#order_user').val() != "") {
+	        $("#hdnorderapply").val($('#order_user').val());
+	        var span = "<span class='label label-success' id='orderapply'>" + $("#order_user").find("option:selected").text()
+	        + " <img alt='' src='/static/img/close.png' onclick='removeself(this)' /><input name='order_user' type='hidden' value='"
+	        + $('#order_user').val() + "' /></span> &nbsp;";
 	        if ($("#orderapply").length == 0) {
 	            $('#divSelectedType').append(span);
 	        }
 	        else {
-	            $("#orderapply").html($("#order_apply").find("option:selected").text()
-	             + " <img alt='' src='/static/img/close.png' onclick='removeself(this)' /><input name='order_apply' type='hidden' value='"
-	             + $('#order_apply').val() + "' /></span> &nbsp;");
+	            $("#orderapply").html($("#order_user").find("option:selected").text()
+	             + " <img alt='' src='/static/img/close.png' onclick='removeself(this)' /><input name='order_user' type='hidden' value='"
+	             + $('#order_user').val() + "' /></span> &nbsp;");
 	        }
 	        changepage(1);
 	    }

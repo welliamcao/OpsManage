@@ -4,8 +4,9 @@ from rest_framework import serializers
 from OpsManage.models import *
 from wiki.models import *
 from orders.models import *
+from filemanage.models import *
 from django.contrib.auth.models import Group,User
-
+from djcelery.models  import CrontabSchedule,IntervalSchedule
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -69,7 +70,7 @@ class AssetsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Assets
         fields = ('id','assets_type','name','sn','buy_time','expire_date',
-                  'buy_user','management_ip','manufacturer','provider',
+                  'buy_user','management_ip','manufacturer','provider','mark',
                   'model','status','put_zone','group','business','project')  
                 
 
@@ -85,8 +86,9 @@ class ProjectConfigSerializer(serializers.ModelSerializer):
         model = Project_Config
         fields = ('id','project_env','project_name','project_local_command',
                   'project_repo_dir','project_dir','project_exclude',
-                  'project_address','project_repertory','project_status',
-                  'project_remote_command','project_number')   
+                  "project_type",'project_address','project_repertory',
+                  'project_status','project_remote_command','project_user',
+                  'project_uuid','project_number')   
 
 class DeployLogsSerializer(serializers.ModelSerializer):
     class Meta:
@@ -211,4 +213,38 @@ class CategorySerializer(serializers.ModelSerializer):
 class PostSerializer(serializers.ModelSerializer):
     class Meta:
         model = Post
-        fields = ('id','title','content','category','author')   
+        fields = ('id','title','content','category','author')  
+
+
+class UploadFilesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UploadFiles
+        fields = ('file_path', 'file_type')  
+        
+class UploadFilesOrderSerializer(serializers.ModelSerializer):
+    files = UploadFilesSerializer(many=True)
+    class Meta:
+        model = FileUpload_Audit_Order
+        fields = ('id', 'dest_path', 'dest_server',
+                  'chown_user','chown_rwx','files')  
+        
+class DownloadFilesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FileDownload_Audit_Order
+        fields = ('id','order_content', 'dest_server','dest_path') 
+        
+class AnsibleInventorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Ansible_Inventory
+        fields = ('id','name', 'desc','user') 
+        
+        
+class TaskCrontabSerializer(serializers.ModelSerializer):
+    class  Meta:
+        model = CrontabSchedule
+        fields = ('id','minute', 'hour','day_of_week','day_of_month','month_of_year') 
+
+class TaskIntervalsSerializer(serializers.ModelSerializer):
+    class  Meta:
+        model = IntervalSchedule
+        fields = ('id','every', 'period')         

@@ -1,6 +1,7 @@
 #!/usr/bin/env python  
 # _#_ coding:utf-8 _*_ 
 '''版本控制方法'''
+import magic
 from random import choice
 import string,hashlib,calendar
 import commands,os,time,smtplib
@@ -8,7 +9,7 @@ from datetime import datetime,timedelta,date
 from email.mime.text import MIMEText
 from email.mime.application import MIMEApplication 
 from email.mime.multipart import MIMEMultipart
-
+from OpsManage.utils.logger import logger
 
 def file_iterator(file_name, chunk_size=512):
     f = open(file_name, "rb")
@@ -129,3 +130,13 @@ def getMonthFirstDayAndLastDay(year=None, month=None):
     firstDay = date(year=year, month=month, day=1)
     lastDay = date(year=year, month=month, day=monthRange)
     return firstDay, lastDay
+
+def getFileType(filePath):
+    try:
+        files = magic.Magic(uncompress=True,mime=True)
+        file_type = files.from_file(filePath)
+    except Exception,ex:
+        file_type = '未知'
+        logger.error("获取文件类型失败: {ex}".format(ex=ex))
+    return file_type
+    

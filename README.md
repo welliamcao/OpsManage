@@ -30,7 +30,7 @@
 一、安装Python
 ```
 # yum install zlib zlib-devel readline-devel sqlite-devel bzip2-devel openssl-devel gdbm-devel libdbi-devel ncurses-libs kernel-devel libxslt-devel libffi-devel python-devel mysql-devel zlib-devel mysql-server sshpass gcc git -y
-# wget http://mirrors.sohu.com/python/2.7.12/Python-2.7.12.tgz  #CentOS 7不要安装python2.7
+# wget http://mirrors.sohu.com/python/2.7.12/Python-2.7.12.tgz  #CentOS 7不用安装python2.7
 # tar -xzvf Python-2.7.12.tgz
 # cd Python-2.7.12
 # ./configure
@@ -163,6 +163,7 @@ SFTP_CONF = {
 # python manage.py makemigrations OpsManage
 # python manage.py makemigrations wiki
 # python manage.py makemigrations orders
+# python manage.py makemigrations filemanage
 # python manage.py migrate
 # python manage.py createsuperuser
 ```

@@ -156,7 +156,7 @@ class Inception():
                                    )
             cur = conn.cursor()
             ret = cur.execute(sql)
-            result = cur.fetchone()
+            result = cur.fetchall()
             cur.close()
             conn.close()
             return {"status":'success','data':result}

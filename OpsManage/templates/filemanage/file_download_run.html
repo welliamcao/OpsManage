@@ -1,0 +1,184 @@
+{% extends 'index.html' %}
+{% block ace-content %}
+<link href="https://cdn.bootcss.com/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css" rel="stylesheet">
+<script src="https://cdn.bootcss.com/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.js"></script>
+{% endblock %}
+{% block page-content %}
+<div id="page-wrapper">
+    <div class="row">
+         <div class="col-lg-12">
+              <h1 class="page-header"><i class="fa fa-file-pdf-o"></i> <code>文件下载</code>管理</h1>
+         </div>
+                <!-- /.col-lg-12 -->
+    </div>
+	<div class="row">
+		<div class="col-lg-12">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <i class="fa    fa-gears"></i>文件下载
+                        </div>
+                        <!-- /.panel-heading -->
+                        <div class="panel-body">
+									<div class="row">
+			                                <div class="col-lg-4">
+			                                <legend><i class="fa  fa-paper-plane"></i> OpsManage服务器</legend>
+			                                    <form role="form" id="downloadFileRun" class="main form-horizontal" >{% csrf_token %}
+														<div class="form-group">
+															 <label class="col-sm-2 control-label">功能描述</label>
+															 <div class="col-sm-6">											
+																<input  type="text"   class="form-control" placeholder="输入模块"  value="{{order.order_subject}}" disabled>
+																<input  type="hidden"   class="form-control" name="ans_uuid" value="{{ans_uuid}}">
+															</div>
+														</div> 																								
+														<div class="form-group">
+															 <label class="col-sm-2 control-label">服务器选择</label>
+															 <div class="col-sm-6"> 
+					                                            		<select multiple class="selectpicker" data-live-search="true" name="dest_server">
+					                                            		{% for ds in order.filedownload_audit_order.dest_server %}
+					                                            			<option name="dest_server" selected="selected" value="{{ds}}">{{ds}}</option>
+					                                            		{% endfor %}
+					                                            		</select>
+															 </div>
+														</div>	
+														<div class="form-group">
+															 <label class="col-sm-2 control-label">目标路径</label>
+															 <div class="col-sm-6">											
+																<input  type="text"   class="form-control" placeholder="目标路径"  value="{{order.filedownload_audit_order.dest_path}}" disabled>
+															</div>
+														</div> 																																																																																																										 											
+														<legend></legend>
+														<div class="form-group">
+															<label class="col-sm-3 control-label"></label>
+															<button type="button"  onclick="repealFromVaule(this)" class="btn btn-default" >撤销</button>
+															{% if order.order_status == 8 %}
+																<button type="button"  class="btn btn-default" onclick="runAnsiblePlayBook(this)" >执行</button>
+															{% elif order.order_status == 4 %}
+													 			<button type="button"  class="btn btn-default" disabled>未授权</button>
+													 		{% endif %}
+												 		</div>									 		
+													</form>                                        
+			                                </div>
+			                                <!-- /.col-lg-6 (nested) -->
+			                                <div class="col-lg-8">
+			                                    <legend><i class="fa  fa-paper-plane-o"></i> 下载远程文件</legend>
+							                        <div id="result">
+							                        </div>                                   
+			                            </div>
+	                            </div>
+                            </div>
+                          
+                        </div>
+                        <!-- /.panel-body -->
+    </div>
+</div>
+
+
+
+<script type="text/javascript">	
+	
+    
+	function runAnsiblePlayBook(obj) {
+		var btnObj = $(obj);
+		btnObj.attr('disabled',true);
+		var form = document.getElementById('downloadFileRun');
+		var post_data = {};
+		for (var i = 1; i < form.length; ++i) {
+			var name = form[i].name;
+			var value = form[i].value;
+			var project = name.indexOf("dest_server","file_path");
+			if ( project==0 && value.length==0 ){
+				window.wxc.xcConfirm("请注意必填项不能为空~", window.wxc.xcConfirm.typeEnum.error);
+				btnObj.removeAttr('disabled');
+				return false;
+			}
+		};
+		$("#result").html("服务器正在处理，请稍等。。。");
+		$.ajax({
+			url:'/file/download/run/'+ {{order.id}} +'/', //请求地址
+			type:"POST",  //提交类似
+			data:$('#downloadFileRun').serialize(),  //提交参数
+			success:function(response){
+				btnObj.removeAttr('disabled');
+				if (response["code"] == "500"){
+/* 					clearInterval(interval); */
+					btnObj.removeAttr('disabled');
+					window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
+				}
+				else{
+					var trHtml = '';
+					for (var i = 1; i < response["data"].length; ++i) {
+						if (response['data'][i]["islnk"] ){
+							var button = '<button type="button" class="btn btn-xs btn-default" disabled><abbr title="软连接不支持下载"><i class="fa  fa-cloud-download"></i></button>';
+						}else if(response['data'][i]["size"] > 500 ){
+							var button = '<button type="button" class="btn btn-xs btn-default" disabled><abbr title="文件过大不支持下载"><i class="fa  fa-cloud-download"></i></button>';
+						}else{
+							var button = '<button type="button" name="download_button" class="btn btn-xs btn-default" onclick="downLoadOrderFiles(this,\'' + response['data'][i]["path"] + '\',\'' + response['data'][i]["host"] +'\')"><abbr title="下载"><i class="fa  fa-cloud-download"></i></button>';
+						}
+						trHtml += '<tr><td>'+ i +'</td><td>'+ response['data'][i]["host"] +'</td><td>'+ response['data'][i]["path"] + '</td><td>' + response['data'][i]["size"] + '</td><td>'+ response['data'][i]["islnk"] + '</td><td class="text-center">'+ button +'</td></tr>'
+					};	
+					var vTableHtml = '<div id="result">' +
+										'<table class="table table-bordered" id="result-table">' + 
+											'<caption>选择文件进行下载</caption>' + 
+											'<thead>' + 
+												'<tr>'+
+													'<th>id</th>'+
+													'<th>主机</th>'+ 
+													'<th>文件路径</th>'+
+													'<th>文件大小(MB)</th>'+
+													'<th>是否软连接</th>'+
+													'<th>下载</th>'+
+													'</tr>'+
+											'</thead>'+
+											'<tbody>' + trHtml +
+											'</tbody>'+
+										'</table>'+
+									'</div>'
+					$("#result").html(vTableHtml);
+					$('#result-table').dataTable( {
+					    "order": [[ 3, 'desc' ], [ 3, 'desc' ]]
+					});
+				}
+			},
+	    	error:function(response){
+	    		btnObj.removeAttr('disabled');
+	    		window.wxc.xcConfirm("运行失败", window.wxc.xcConfirm.typeEnum.error);
+/* 	    		clearInterval(interval); */
+	    	}
+		})	
+	}	
+
+	var downLoadFile = function (options) {
+	    var config = $.extend(true, { method: 'post' }, options);
+	    var $iframe = $('<iframe id="down-file-iframe"/>');
+	    var $form = $("<form target='down-file-iframe' method=" + config.method + " />");
+	    $form.attr('action', config.url);
+	    for (var key in config.data) {
+	        $form.append('<input type="hidden" name="' + key + '" value="' + config.data[key] +  '"/>');
+	    }
+	    $form.append("{% csrf_token %}");
+	    $iframe.append($form);
+	    $(document.body).append($iframe);
+	    $form[0].submit();
+	    $iframe.remove();
+	}	
+	
+	function downLoadOrderFiles(obj,path,host){
+		$("button[name='download_button']").attr("disabled",true);
+	    var url = '/file/downloads/';	
+        var data = {
+				'id':{{order.id}},
+				'path':path,
+				'dest_server':host
+         };
+        downLoadFile({ //调用下载方法
+		        url:url,data:data
+		        }); 
+        $("button[name='download_button']").attr("disabled",false);
+		}
+	
+{% if errorInfo %}
+	window.wxc.xcConfirm("{{errorInfo}}", window.wxc.xcConfirm.typeEnum.error);
+{% endif %}
+</script>
+
+{% endblock %}

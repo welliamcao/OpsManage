@@ -9,5 +9,6 @@ media*
 .project
 .pydevproject
 *.log
+./logs/opsmanage.log
 .quarantine
 

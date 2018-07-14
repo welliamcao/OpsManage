@@ -9,7 +9,7 @@ from rest_framework.decorators import api_view
 from django.contrib.auth.decorators import permission_required
 
 @api_view(['GET', 'POST' ])
-@permission_required('OpsManage.can_add_wiki_tag',raise_exception=True)
+@permission_required('wiki.can_add_wiki_tag',raise_exception=True)
 def tag_list(request,format=None):
     if request.method == 'GET':      
         snippets = Tag.objects.all()
@@ -23,7 +23,7 @@ def tag_list(request,format=None):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET', 'PUT', 'DELETE'])
-@permission_required('OpsManage.can_change_wiki_tag',raise_exception=True)
+@permission_required('wiki.can_change_wiki_tag',raise_exception=True)
 def tag_detail(request, id,format=None):
     try:
         snippet = Tag.objects.get(id=id)
@@ -49,7 +49,7 @@ def tag_detail(request, id,format=None):
     
     
 @api_view(['GET', 'POST' ])
-@permission_required('OpsManage.can_add_wiki_category',raise_exception=True)
+@permission_required('wiki.can_add_wiki_category',raise_exception=True)
 def category_list(request,format=None):
     if request.method == 'GET':      
         snippets = Category.objects.all()
@@ -63,7 +63,7 @@ def category_list(request,format=None):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET', 'PUT', 'DELETE'])
-@permission_required('OpsManage.can_change_wiki_category',raise_exception=True)
+@permission_required('wiki.can_change_wiki_category',raise_exception=True)
 def category_detail(request, id,format=None):
     try:
         snippet = Category.objects.get(id=id)
@@ -82,13 +82,13 @@ def category_detail(request, id,format=None):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
      
     elif request.method == 'DELETE':
-        if not request.user.has_perm('OpsManage.can_delete_wiki_category'):
+        if not request.user.has_perm('wiki.can_delete_wiki_category'):
             return Response(status=status.HTTP_403_FORBIDDEN)
         snippet.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)     
     
 @api_view(['GET', 'PUT', 'DELETE'])
-@permission_required('OpsManage.can_delete_wiki_post',raise_exception=True)
+@permission_required('wiki.can_delete_wiki_post',raise_exception=True)
 def archive_detail(request, id,format=None):
     try:
         snippet = Post.objects.get(id=id)
@@ -107,7 +107,7 @@ def archive_detail(request, id,format=None):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
      
     elif request.method == 'DELETE':
-        if not request.user.has_perm('OpsManage.can_delete_wiki_post'):
+        if not request.user.has_perm('wiki.can_delete_wiki_post'):
             return Response(status=status.HTTP_403_FORBIDDEN)
         snippet.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)      

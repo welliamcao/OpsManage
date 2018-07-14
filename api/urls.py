@@ -3,7 +3,8 @@ from api.views import (wiki_api,assets_api,
                        deploy_api,cron_api,
                        logs_api,ansible_api,
                        db_api,users_api,
-                       orders_api)
+                       orders_api,files_api,
+                       task_api)
 urlpatterns = [
             url(r'assets/$', assets_api.asset_list), 
             url(r'assets/(?P<id>[0-9]+)/$', assets_api.asset_detail),
@@ -32,6 +33,8 @@ urlpatterns = [
             url(r'deploy/(?P<id>[0-9]+)/$', deploy_api.deploy_detail),    
             url(r'playbook/$', ansible_api.playbook_list),  
             url(r'playbook/(?P<id>[0-9]+)/$', ansible_api.playbook_detail),
+            url(r'inventory/(?P<id>[0-9]+)/$', ansible_api.inventory_detail),
+            url(r'host/vars/(?P<id>[0-9]+)/$', ansible_api.ansible_host_vars),
             url(r'logs/assets/(?P<id>[0-9]+)/$', assets_api.assetsLog_detail),
             url(r'logs/cron/(?P<id>[0-9]+)/$', cron_api.cronLogsdetail),
             url(r'logs/ansible/model/(?P<id>[0-9]+)/$', ansible_api.modelLogsdetail),
@@ -53,5 +56,11 @@ urlpatterns = [
             url(r'wiki/tag/(?P<id>[0-9]+)/$', wiki_api.tag_detail),
             url(r'wiki/category/$', wiki_api.category_list),
             url(r'wiki/category/(?P<id>[0-9]+)/$', wiki_api.category_detail),   
-            url(r'wiki/archive/(?P<id>[0-9]+)/$', wiki_api.archive_detail),                     
+            url(r'wiki/archive/(?P<id>[0-9]+)/$', wiki_api.archive_detail),   
+            url(r'file/upload/$', files_api.upload_file_list), 
+            url(r'file/upload/(?P<id>[0-9]+)/$', files_api.upload_file_detail),           
+            url(r'file/download/$', files_api.download_file_list), 
+            url(r'file/download/(?P<id>[0-9]+)/$', files_api.download_file_detail), 
+            url(r'task/crontab/$', task_api.task_crontab_list), 
+            url(r'task/crontab/(?P<id>[0-9]+)/$', task_api.task_crontab_detail),                                          
     ]    

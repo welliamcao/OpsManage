@@ -9,6 +9,7 @@ from django.conf import settings
 import MySQLdb  
 from MySQLdb.cursors import DictCursor  
 from DBUtils.PooledDB import PooledDB  
+from OpsManage.utils.logger import logger
 
 
 class APBase(object):
@@ -62,6 +63,7 @@ class MySQLPool(APBase):
                 APBase.MYSQL_POOLS[self.poolKeys] = pool   
                 return APBase.MYSQL_POOLS.get(self.poolKeys).connection()  
             except Exception, ex:
+                logger.error(msg="创建字典类型连接池失败: {ex}".format(ex=ex))
                 return str(ex)
             
     def _getTupleConn(self,host,port,user,passwd,dbName):
@@ -74,6 +76,7 @@ class MySQLPool(APBase):
                 APBase.MYSQL_POOLS[self.poolKeys] = pool   
                 return APBase.MYSQL_POOLS.get(self.poolKeys).connection()  
             except Exception, ex:
+                logger.error(msg="创建列表类型连接池失败: {ex}".format(ex=ex))
                 return str(ex)
    
     def queryAll(self,sql):
@@ -83,6 +86,7 @@ class MySQLPool(APBase):
             result = self._cursor.fetchall()   
             return (count,result)  
         except Exception,ex:
+            logger.error(msg="MySQL查询失败: {ex} sql:{sql}".format(ex=ex,sql=sql))
             return str(ex)
 
    
@@ -93,6 +97,7 @@ class MySQLPool(APBase):
             result = self._cursor.fetchone()   
             return (count,result)  
         except Exception,ex:
+            logger.error(msg="MySQL查询失败: {ex} sql:{sql}".format(ex=ex,sql=sql))
             return str(ex)
 
   
@@ -114,6 +119,7 @@ class MySQLPool(APBase):
             result = self._cursor.fetchmany(size=num) 
             return (count,result,colName) 
         except Exception,ex:
+            logger.error(msg="MySQL查询失败: {ex} sql:{sql}".format(ex=ex,sql=sql))
             return str(ex)   
     
     def execute(self,sql,num=1000):
@@ -129,6 +135,7 @@ class MySQLPool(APBase):
             self._conn.commit()
             return (count,result,colName) 
         except Exception, ex:
+            logger.error(msg="MySQL执行sql失败: {ex} sql:{sql}".format(ex=ex,sql=sql))
             return str(ex)
     
     def getStatus(self):
@@ -226,6 +233,7 @@ class MySQL(object):
             self._conn.commit()
             return (count,result,colName) 
         except Exception, ex:
+            logger.error(msg="MySQL执行失败: {ex} sql:{sql}".format(ex=ex,sql=sql))
             self.conn.rollback()
             count = 0 
             result = None
@@ -239,6 +247,7 @@ class MySQL(object):
             result = self._cursor.fetchall()   
             return count,result
         except Exception,ex:
+            logger.error(msg="MySQL查询失败: {ex} sql:{sql}".format(ex=ex,sql=sql))
             count = 0
             result = None
         finally:
@@ -250,6 +259,7 @@ class MySQL(object):
             result = self._cursor.fetchone()   
             return count,result 
         except Exception,ex:
+            logger.error(msg="MySQL查询失败: {ex} sql:{sql}".format(ex=ex,sql=sql))
             result = None
         finally:
             return result

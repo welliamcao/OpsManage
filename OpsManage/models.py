@@ -32,6 +32,8 @@ class Assets(models.Model):
     group = models.SmallIntegerField(blank=True,null=True,verbose_name='使用组')
     business = models.SmallIntegerField(blank=True,null=True,verbose_name='业务类型')
     project = models.SmallIntegerField(blank=True,null=True,verbose_name='项目类型')
+    host_vars = models.TextField(blank=True,null=True,verbose_name='ansible主机变量')
+    mark = models.TextField(blank=True,null=True,verbose_name='资产标示')
     create_date = models.DateTimeField(auto_now_add=True)
     update_date = models.DateTimeField(auto_now_add=True)
     class Meta:
@@ -270,6 +272,7 @@ class Project_Config(models.Model):
     project_env = models.CharField(max_length=50,verbose_name='项目环境',default=None)
     project_name =  models.CharField(max_length=100,verbose_name='项目名称',default=None)
     project_service = models.SmallIntegerField(verbose_name='业务类型')
+    project_type = models.CharField(max_length=10,verbose_name='编译类型')
     project_local_command = models.TextField(blank=True,null=True,verbose_name='部署服务器要执行的命令',default=None)
     project_repo_dir = models.CharField(max_length=100,verbose_name='本地仓库目录',default=None)
     project_dir = models.CharField(max_length=100,verbose_name='代码目录',default=None)
@@ -315,18 +318,12 @@ class Project_Number(models.Model):
     dir =  models.CharField(max_length=100,verbose_name='项目目录',default=None)
     class Meta:
         db_table = 'opsmanage_project_number'
-#         permissions = (
-#             ("can_read_project_number", "读取项目成员权限"),
-#             ("can_change_project_number", "更改项目成员权限"),
-#             ("can_add_project_number", "添加项目成员权限"),
-#             ("can_delete_project_number", "删除项目成员权限"),             
-#         )
         unique_together = (("project", "server"))
         verbose_name = '项目成员表'  
         verbose_name_plural = '项目成员表' 
         
     def __unicode__(self):
-        return '%s' % ( self.server)         
+        return '%s,%s' % ( self.server,self.dir)         
         
       
                         
@@ -417,9 +414,10 @@ class Ansible_Playbook(models.Model):
         
 class Ansible_Script(models.Model): 
     script_name = models.CharField(max_length=50,verbose_name='脚本名称',unique=True)
-    script_uuid = models.CharField(max_length=50,verbose_name='唯一id')
-    script_server = models.TextField(max_length=200,verbose_name='目标机器',blank=True,null=True)
+    script_uuid = models.CharField(max_length=50,verbose_name='唯一id',blank=True,null=True)
+    script_server = models.TextField(verbose_name='目标机器',blank=True,null=True)
     script_file = models.FileField(upload_to = './script/',verbose_name='脚本路径')
+    script_args = models.TextField(blank=True,null=True,verbose_name='脚本参数')
     script_service = models.SmallIntegerField(verbose_name='授权业务',blank=True,null=True)
     script_group = models.SmallIntegerField(verbose_name='授权组',blank=True,null=True)
     script_type = models.CharField(max_length=50,verbose_name='脚本类型',blank=True,null=True)
@@ -473,7 +471,45 @@ class Ansible_Playbook_Number(models.Model):
     def __unicode__(self):
         return '%s' % ( self.playbook_server)    
     
-     
+class Ansible_Inventory(models.Model):    
+    name = models.CharField(max_length=200,unique=True,verbose_name='资产名称')
+    desc = models.CharField(max_length=200,verbose_name='功能描述')
+    user =  models.SmallIntegerField(verbose_name='创建人')
+    create_time = models.DateTimeField(auto_now_add=True,blank=True,null=True,verbose_name='创建时间') 
+    class Meta:
+        db_table = 'opsmanage_ansible_inventory'
+        permissions = (
+            ("can_read_ansible_inventory", "读取Ansible资产权限"),
+            ("can_change_ansible_inventory", "更改Ansible资产权限"),
+            ("can_add_ansible_inventory", "添加Ansible资产权限"),
+            ("can_delete_ansible_inventory", "删除Ansible资产权限"),             
+        )
+        verbose_name = 'Ansible资产表'  
+        verbose_name_plural = 'Ansible资产表'
+
+# class Log_Ansible_Inventory(models.Model): 
+#     ans_user = models.CharField(max_length=50,verbose_name='使用用户',default=None)
+#     ans_content = models.CharField(max_length=500,default=None)
+#     create_time = models.DateTimeField(auto_now_add=True,blank=True,null=True,verbose_name='操作时间')
+#     class Meta:
+#         db_table = 'opsmanage_log_ansible_inventory'
+
+class Ansible_Inventory_Groups(models.Model):    
+    inventory = models.ForeignKey('Ansible_Inventory',related_name='inventory_group', on_delete=models.CASCADE)
+    group_name =  models.CharField(max_length=100,verbose_name='group name')
+    ext_vars = models.TextField(verbose_name='组外部变量',blank=True,null=True)
+    class Meta:
+        db_table = 'opsmanage_ansible_inventory_groups'
+        verbose_name = 'Ansible资产成员表'  
+        verbose_name_plural = 'Ansible资产成员表'
+        unique_together = (("inventory", "group_name"))
+
+class Ansible_Inventory_Groups_Server(models.Model):
+    groups = models.ForeignKey('Ansible_Inventory_Groups',related_name='inventory_group_server', on_delete=models.CASCADE)
+    server = models.SmallIntegerField(verbose_name='服务器')
+    class Meta:
+        db_table = 'opsmanage_ansible_inventory_groups_servers'
+        unique_together = (("groups", "server"))
     
 class Global_Config(models.Model):
     ansible_model = models.SmallIntegerField(verbose_name='是否开启ansible模块操作记录',blank=True,null=True)
@@ -484,7 +520,7 @@ class Global_Config(models.Model):
     server = models.SmallIntegerField(verbose_name='是否开启服务器命令记录',blank=True,null=True)
     email = models.SmallIntegerField(verbose_name='是否开启邮件通知',blank=True,null=True)
     webssh = models.SmallIntegerField(verbose_name='是否开启WebSSH',blank=True,null=True)
-    sql = models.SmallIntegerField(verbose_name='是否开启WebSSH',blank=True,null=True)
+    sql = models.SmallIntegerField(verbose_name='是否开启SQL更新通知',blank=True,null=True)
     class Meta:
         db_table = 'opsmanage_global_config'
     
@@ -592,7 +628,7 @@ class DataBase_Server_Config(models.Model):
             ("can_add_database_server_config", "添加数据库信息表权限"),
             ("can_delete_database_server_config", "删除数据库信息表权限"),              
         )
-        unique_together = (("db_port", "db_host","db_env"))
+        unique_together = (("db_port", "db_host","db_env","db_name"))
         verbose_name = '数据库信息表'  
         verbose_name_plural = '数据库信息表'
   

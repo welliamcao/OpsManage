@@ -31,7 +31,7 @@
 											<div class="form-group">
 												 <label class="col-sm-2 control-label">时</label>
 												 <div class="col-sm-6">
-												 	<input type="text" class="form-control" name="cron_hour" placeholder="0-23" value="" class="input-xlarge" required pattern="^(\*|\*\/[0-2]?[0-3]|[0-2]?[0-3]|)$"  title="正确格式：0-23 or * or */1" />
+												 	<input type="text" class="form-control" name="cron_hour" placeholder="0-23" value="" class="input-xlarge" required pattern="^(\*|\*\/[0-2]?[0-9]|[0-2]?[0-9]|)$"  title="正确格式：0-23 or * or */1" />
 												 </div>
 											</div>	
 					
@@ -86,13 +86,13 @@
 												
 											<div class="form-group">
 												 <label class="col-sm-2 control-label">服务器</label>
-												 <div class="col-sm-6">
-												   <select class="form-control" name="cron_server"  >
-												   		<option selected="selected" value="">请选择一台主机</option>
-															{% for ds in serverList %}
-																<option value="{{ds.id}}" name="cron_server">{{ds.ip}}</option>
-															{% endfor %}							   		
-													</select>							 	
+												 <div class="col-sm-6">	
+					                                 <select class="selectpicker" data-live-search="true"  data-size="5" name="cron_server"  data-width="100%"  required>
+					                                 		<option name="cron_server" value="" selected="selected">选择一个主机进行配置</option>
+					                                 	{% for ds in serverList %}
+					                                 		<option name="cron_server" value="{{ds.id}}">{{ds.ip}} | {{ds.project}} | {{ds.service}}</option>
+					                                 	{% endfor %}
+					                                 </select>																				 	
 												 </div>
 											</div>													
 												

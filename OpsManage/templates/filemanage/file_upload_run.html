@@ -1,0 +1,181 @@
+{% extends 'index.html' %}
+{% block ace-content %}
+<link href="https://cdn.bootcss.com/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css" rel="stylesheet">
+<script src="https://cdn.bootcss.com/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.js"></script>
+{% endblock %}
+{% block page-content %}
+<div id="page-wrapper">
+    <div class="row">
+         <div class="col-lg-12">
+              <h1 class="page-header"><i class="fa fa-file-pdf-o"></i> <code>文件分发</code>管理</h1>
+         </div>
+                <!-- /.col-lg-12 -->
+    </div>
+	<div class="row">
+		<div class="col-lg-12">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <i class="fa    fa-gears"></i>文件上传
+                        </div>
+                        <!-- /.panel-heading -->
+                        <div class="panel-body">
+									<div class="row">
+			                                <div class="col-lg-4">
+			                                <legend><i class="fa  fa-paper-plane"></i> OpsManage服务器</legend>
+			                                    <form role="form" id="uploadFileRun" class="main form-horizontal" >{% csrf_token %}
+														<div class="form-group">
+															 <label class="col-sm-2 control-label">功能描述</label>
+															 <div class="col-sm-6">											
+																<input  type="text"   class="form-control" placeholder="输入模块"  value="{{order.order_subject}}" disabled>
+																<input  type="hidden"   class="form-control" name="ans_uuid" value="{{ans_uuid}}">
+															</div>
+														</div> 																								
+														<div class="form-group">
+															 <label class="col-sm-2 control-label">服务器选择</label>
+															 <div class="col-sm-6"> 
+					                                            		<select multiple class="selectpicker" data-live-search="true" name="dest_server">
+					                                            		{% for ds in order.fileupload_audit_order.dest_server %}
+					                                            			<option name="dest_server" selected="selected" value="{{ds}}">{{ds}}</option>
+					                                            		{% endfor %}
+					                                            		</select>
+															 </div>
+														</div>
+														<div class="form-group">
+															 <label class="col-sm-2 control-label">源文件</label>
+															 <div class="col-sm-6">											
+			                                            		<select multiple class="selectpicker" data-live-search="true" name="file_path">
+			                                            		{% for ds in uploadfilesList %}
+			                                            			<option name="file_path" selected="selected" value="{{ds.id}}">{{ds.file_path}}</option>
+			                                            		{% endfor %}
+			                                            		</select>
+															</div>
+														</div> 	
+														<div class="form-group">
+															 <label class="col-sm-2 control-label">目标路径</label>
+															 <div class="col-sm-6">											
+																<input  type="text"   class="form-control" placeholder="目标路径"  value="{{order.fileupload_audit_order.dest_path}}" disabled>
+															</div>
+														</div> 	
+														<div class="form-group">
+															 <label class="col-sm-2 control-label">宿主</label>
+															 <div class="col-sm-6">											
+																<input  type="text"   class="form-control" placeholder="宿主"  value="{{order.fileupload_audit_order.chown_user}}" disabled>
+															</div>
+														</div> 	
+														<div class="form-group">
+															 <label class="col-sm-2 control-label">权限</label>
+															 <div class="col-sm-6">											
+																<input  type="text"   class="form-control" placeholder="宿主"  value="{{order.fileupload_audit_order.chown_rwx}}" disabled>
+															</div>
+														</div> 																																																						
+														<div class="form-group">
+															 <label class="col-sm-2 control-label">是否备份</label>
+															 <div class="col-sm-6">										
+																	<select class="form-control" name="backup">
+																		<option value="no" name="backup">关闭</option>	
+																		<option value="yes" selected="selected" name="backup">开启</option> 	
+																	</select>
+															</div>
+														</div> 																																																				 											
+														<legend></legend>
+														<div class="form-group">
+															<label class="col-sm-3 control-label"></label>
+															<button type="button"  onclick="repealFromVaule(this)" class="btn btn-default" >撤销</button>
+															{% if order.order_status == 8 %}
+																<button type="button"  class="btn btn-default" onclick="runAnsiblePlayBook(this)" >执行</button>
+															{% elif order.order_status == 4 %}
+													 			<button type="button"  class="btn btn-default" disabled>未授权</button>
+													 		{% endif %}
+												 		</div>									 		
+													</form>                                        
+			                                </div>
+			                                <!-- /.col-lg-6 (nested) -->
+			                                <div class="col-lg-8">
+			                                    <legend><i class="fa  fa-paper-plane-o"></i> 执行结果</legend>
+												<pre>
+							                        <div id="result">
+							                        </div>
+							                    </pre>                                      
+			                                <!-- /.col-lg-6 (nested) -->
+			                            </div>
+	                            </div>
+                            </div>
+                          
+                        </div>
+                        <!-- /.panel-body -->
+    </div>
+</div>
+
+
+<div style="visibility:hidden"><a id="scrollToTop"></a></div>
+<script type="text/javascript">	
+	
+    
+	function runAnsiblePlayBook(obj) {
+		var btnObj = $(obj);
+		btnObj.attr('disabled',true);
+		var form = document.getElementById('uploadFileRun');
+		var post_data = {};
+		for (var i = 1; i < form.length; ++i) {
+			var name = form[i].name;
+			var value = form[i].value;
+			var project = name.indexOf("dest_server","file_path");
+			if ( project==0 && value.length==0 ){
+				window.wxc.xcConfirm("请注意必填项不能为空~", window.wxc.xcConfirm.typeEnum.error);
+				btnObj.removeAttr('disabled');
+				return false;
+			}
+		};
+		$("#result").html("服务器正在处理，请稍等。。。");
+		/* 轮训获取结果 开始  */
+	   var interval = setInterval(function(){  
+	        $.ajax({  
+	            url : '/apps/run/',  
+	            type : 'post', 
+	            data:$('#uploadFileRun').serialize(),
+	            success : function(result){
+	            	if (result["msg"] !== null ){
+	            		$("#result").append("<p>"+result["msg"]+"</p>"); 
+	            		document.getElementById("scrollToTop").scrollIntoView(); 
+	            		if (result["msg"].indexOf("[Done]") == 0){            			
+	            			clearInterval(interval);
+	            			window.wxc.xcConfirm("Ansible执行完成", window.wxc.xcConfirm.typeEnum.success);
+	            			btnObj.removeAttr('disabled');
+	            		}
+	            	}
+	            },
+		    	error:function(response){
+		    		btnObj.removeAttr('disabled');
+		    		clearInterval(interval);
+		    	}	            
+	        });  
+	    },1000); 
+// 	    /* 轮训获取结果结束  */
+		$.ajax({
+			url:'/file/upload/run/'+ {{order.id}} +'/', //请求地址
+			type:"POST",  //提交类似
+			data:$('#uploadFileRun').serialize(),  //提交参数
+			success:function(response){
+				btnObj.removeAttr('disabled');
+				if (response["code"] == "500"){
+					clearInterval(interval);
+					btnObj.removeAttr('disabled');
+					window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
+				}				
+			},
+	    	error:function(response){
+	    		btnObj.removeAttr('disabled');
+	    		window.wxc.xcConfirm("运行失败", window.wxc.xcConfirm.typeEnum.error);
+	    		clearInterval(interval);
+	    	}
+		})	
+	}	
+
+
+	
+{% if errorInfo %}
+	window.wxc.xcConfirm("{{errorInfo}}", window.wxc.xcConfirm.typeEnum.error);
+{% endif %}
+</script>
+
+{% endblock %}

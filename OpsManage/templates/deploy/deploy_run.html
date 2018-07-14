@@ -1,4 +1,10 @@
 {% extends 'index.html' %}
+{% block ace-content %}
+<link href="/static/dist/css/smart_wizard.css" rel="stylesheet" type="text/css" />
+<link href="/static/dist/css/smart_wizard_theme_circles.css" rel="stylesheet" type="text/css" />
+<link href="/static/dist/css/smart_wizard_theme_arrows.css" rel="stylesheet" type="text/css" />
+<link href="/static/dist/css/smart_wizard_theme_dots.css" rel="stylesheet" type="text/css" />
+{% endblock %}
 {% block page-content %}
 <div id="page-wrapper">
     <div class="row">
@@ -15,7 +21,7 @@
                         </div>
                         <div class="panel-body">
                             <div class="row">
-                                <div class="col-lg-6">
+                                <div class="col-lg-4">
                                 <legend><i class="fa  fa-paper-plane"></i>部署服务器</legend>
                                     <form role="form" id="deployRun" class="main form-horizontal" >{% csrf_token %}
 										<fieldset>															
@@ -107,12 +113,33 @@
 										</form>                                        
                                 </div>
                                 <!-- /.col-lg-6 (nested) -->
-                                <div class="col-lg-6">
-                                    <legend><i class="fa  fa-paper-plane-o"></i>部署结果</legend>
-									<div class="well well-lg">
-				                        <div id="result">
-				                        </div>
-				                    </div>                                       
+                                <div class="col-lg-8">
+                                    <legend><i class="fa  fa-paper-plane-o"></i>部署结果</legend>       
+								    <div class="form-group">
+								
+								        <!-- SmartWizard html -->
+								        <div id="smartwizard">
+								            <ul>
+								                <li><a href="#get_code">获取代码<br /><small>pull code</small></a></li>
+								                {% if project.project_type == 'compile' %}
+								                <li><a href="#deploy_code">编译代码<br /><small>deploy code</small></a></li>
+								                {% endif %}
+								                <li><a href="#tar_code">打包代码<br /><small>pack code</small></a></li>
+								                <li><a href="#rsync_code">部署代码<br /><small>rsync code</small></a></li>
+								                {% if project.project_remote_command %}
+												<li><a href="#cmd_code">执行命令<br /><small>remote command</small></a></li>
+												{% endif %}
+								            </ul>								
+								        </div>
+								        <br>
+
+	  									<div class="well well-lg" style="background:#000000; color:#ADFF2F">
+						                        <div id="result">
+						                        </div>
+					                    </div>
+							
+								
+								    </div>				                                                   
                                 <!-- /.col-lg-6 (nested) -->
                             </div>
                             <!-- /.row (nested) -->
@@ -124,8 +151,30 @@
                 <!-- /.col-lg-12 -->
             </div>
 </div>
-
+<div style="visibility:hidden"><a id="scrollToTop"></a></div>
+<script type="text/javascript" src="/static/dist/js/jquery.smartWizard.min.js"></script>
 <script type="text/javascript">
+
+
+		$(document).ready(function(){
+		
+		    // Step show event
+		    $("#smartwizard").on("showStep", function(e, anchorObject, stepNumber, stepDirection, stepPosition) {
+
+		    });
+		
+		
+		    // Smart Wizard
+		    $('#smartwizard').smartWizard({
+		            selected: 0,
+		            theme: 'arrows',
+		            transitionEffect:'fade',
+		            showStepURLhash: true,
+		
+		    });
+		
+
+		});
 
 	function oBtBranchChoice() {
 		   var obj = document.getElementById("branch_choice"); 
@@ -168,6 +217,7 @@
 	function runDeploy(obj) {
 		var btnObj = $(obj);
 		btnObj.attr('disabled',true);
+		$('#smartwizard').smartWizard("reset");
 		var form = document.getElementById('deployRun');
 		var post_data = {};
 		for (var i = 1; i < form.length; ++i) {
@@ -176,6 +226,7 @@
 			var project = name.indexOf("project_");
 			if ( project==0 && value.length==0){
 				window.wxc.xcConfirm("请注意必填项不能为空~", window.wxc.xcConfirm.typeEnum.error);
+				btnObj.removeAttr('disabled');
 				return false;
 			}
 			else if (name.length > 0 && value.length > 0){
@@ -183,16 +234,30 @@
 			};
 			
 		};
-		$("#result").html("服务器正在处理，请稍等。。。");
+ 		$("#result").html("服务器正在处理，请稍等。。。"); 
 		/* 轮训获取结果 开始  */
 	   var interval = setInterval(function(){  
 	        $.ajax({  
 	            url : '/deploy_result/{{project.id}}/',  
 	            type : 'post', 
-	            data:post_data,
+	            data:post_data, 
 	            success : function(result){
 	            	if (result["msg"] !== null ){
+						if(result["msg"].indexOf("[Pack start") == 0){
+	            			$('#smartwizard').smartWizard("next");
+	            		}
+						{% if project.project_type == 'compile' %}
+						else if(result["msg"].indexOf("[DEPLOY start") == 0){
+	            			$('#smartwizard').smartWizard("next");
+	            		}
+						{% endif %}
+						else if(result["msg"].indexOf("[RSYNC start") == 0){
+	            			$('#smartwizard').smartWizard("next");
+	            		}else if(result["msg"].indexOf("[CMD start") == 0){
+	            			$('#smartwizard').smartWizard("next");
+	            		}
 	            		$("#result").append("<p>"+result["msg"]+"</p>"); 
+	            		document.getElementById("scrollToTop").scrollIntoView(); 
 	            		if (result["msg"].indexOf("[Done]") == 0){
 	            			clearInterval(interval);
 	            			window.wxc.xcConfirm("项目部署成功", window.wxc.xcConfirm.typeEnum.success);

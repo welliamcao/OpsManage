@@ -186,6 +186,7 @@
                         <li>
                             <a href="#"><i class="fa fa-sitemap fa-fw"></i> 应用部署<span class="fa arrow"></span></a>
                             <ul class="nav nav-second-level">
+                            	<li><a href="/apps/inventory/">动态资产</a></li>
                                 <li>
                                     <a href="/apps/model">运行模块</a>
                                 </li>
@@ -232,16 +233,7 @@
 										<li><a href="/db/config/">基础配置</a></li>
 										<li><a href="/db/sql/ops/">管理入口</a></li>											
 									</ul>
-								</li>	
-<!-- 								<li><a href="#">Redis<span class="fa arrow"></span></a>	
-								<li><a href="#">MongoDB<span class="fa arrow"></span></a> -->
-<!-- 								<li><a href="#">SQL管理<span class="fa arrow"></span></a>
-									<ul class="nav nav-third-level">
-										<li><a href="/db/sql/order/audit/">上线申请</a></li>
-										<li><a href="/db/sql/order/list/1/">工单列表</a></li>
-										<li><a href="/db/sql/order/search/">工单查询</a></li>
-									</ul>
-								</li> -->															
+								</li>															
 								<li><a href="/db/sql/logs/1/">操作日志</a></li>
 							</ul> <!-- /.nav-second-level --></li>		                        
                         {% if user.is_superuser %}
@@ -265,6 +257,8 @@
 									<ul class="nav nav-third-level">
 										<li><a href="/order/deploy/apply/">代码部署</a></li>
 										<li><a href="/order/sql/apply/">上线SQL</a></li>
+										<li><a href="/order/file/upload/list/1/">文件分发</a></li>
+										<li><a href="/order/file/download/list/1/">文件下载</a></li>
 									</ul></li>
 								<li><a href="/order/list/1/">工单列表</a></li>
 								<li><a href="/order/search/">工单查询</a></li>
@@ -692,32 +686,32 @@
                 </div>
 	 </div>
 	 
-                            <div class="modal fade" id="myAssetsImportModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-                                <div class="modal-dialog">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                                            <h4 class="modal-title" id="myModalLabel">Excel文件批量导入资产</h4>
-                                        </div>
-                                        <form role="form" method="post" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"  enctype="multipart/form-data" action='/assets_import/' class="main form-horizontal">{% csrf_token %}
-	                                        <div class="modal-body">
-	                                            	<div class="form-group">
-													 <label class="col-sm-2 control-label">上传文件</label>
-													 <div class="col-sm-6">
-													 	<input type="file" name="import_file"  placeholder="上传excel文件" required/>
-													 </div>
-												</div>
-	                                            
-	                                        <div class="modal-footer">
-	                                            <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
-	                                            <button type="submit" class="btn btn-primary">导入</button>
-	                                        </div>
-                                        </form>
-                                    </div>
-                                    <!-- /.modal-content -->
-                                </div>
-                                <!-- /.modal-dialog -->
-                            </div>
+        <div class="modal fade" id="myAssetsImportModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title" id="myModalLabel">Excel文件批量导入资产</h4>
+                    </div>
+                    <form role="form" method="post" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"  enctype="multipart/form-data" action='/assets_import/' class="main form-horizontal">{% csrf_token %}
+                     <div class="modal-body">
+                         	<div class="form-group">
+								 <label class="col-sm-2 control-label">上传文件</label>
+								 <div class="col-sm-6">
+								 	<input type="file" name="import_file"  placeholder="上传excel文件" required/>
+								 </div>
+							</div>
+                         
+                     <div class="modal-footer">
+                         <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                         <button type="submit" class="btn btn-primary">导入</button>
+                     </div>
+                    </form>
+                </div>
+                <!-- /.modal-content -->
+           </div>
+           <!-- /.modal-dialog -->
+       </div>                                                       
 	 
 </div>
 	
@@ -960,13 +954,12 @@
 		    		}	
 		    		msg = '成功：'+ '<br>' + sip + '<br>' + '失败：'+ '<br>' + fip;	
  			    	if (response['code']==200){
-			    		window.wxc.xcConfirm(msg, window.wxc.xcConfirm.typeEnum.success);
+			    		 window.wxc.xcConfirm(msg, window.wxc.xcConfirm.typeEnum.success);
 			    	}
 			    	else{
 			    		window.wxc.xcConfirm(msg, window.wxc.xcConfirm.typeEnum.error);
 			    	}
-				    btnObj.removeAttr('disabled');
-/* 	              	location.reload('/apps/');	 */			            
+				    btnObj.removeAttr('disabled');		            
 			      },
 	              error:function(response){
 	            	btnObj.removeAttr('disabled');

@@ -12,11 +12,12 @@ from OpsManage.models import Log_Cron_Config
 from django.contrib.auth.decorators import permission_required
 from OpsManage.utils.ansible_api_v2 import ANSRunner
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from dao.assets import AssetsSource
 
 @login_required()
 @permission_required('OpsManage.can_add_cron_config',login_url='/noperm/') 
 def cron_add(request):
-    serverList = Server_Assets.objects.all()
+    serverList = AssetsSource().serverList()
     if request.method == "GET": 
         return render(request,'cron/cron_add.html',{"user":request.user,"serverList":serverList},
                                   )
@@ -55,8 +56,8 @@ def cron_add(request):
         if  int(cron_status) == 1: 
             try:
                 sList = [server.ip]
-                if server.keyfile == 1:resource = [{"hostname": server.ip, "port": int(server.port),"username": server.username}] 
-                else:resource = [{"hostname": server.ip, "port": int(server.port),"username": server.username,"password": server.passwd}]              
+                if server.keyfile == 1:resource = [{"ip": server.ip, "port": int(server.port),"username": server.username}] 
+                else:resource = [{"ip": server.ip, "port": int(server.port),"username": server.username,"password": server.passwd}]              
                 ANS = ANSRunner(resource)
                 if cron.cron_script:
                     src = os.getcwd() + '/' + str(cron.cron_script)
@@ -140,8 +141,8 @@ def cron_mod(request,cid):
                                   )  
         try:
             sList = [cron.cron_server.ip]
-            if cron.cron_server.keyfile == 1:resource = [{"hostname": cron.cron_server.ip, "port": int(cron.cron_server.port),"username": cron.cron_server.username}] 
-            else:resource = [{"hostname": cron.cron_server.ip, "port": int(cron.cron_server.port),
+            if cron.cron_server.keyfile == 1:resource = [{"ip": cron.cron_server.ip, "port": int(cron.cron_server.port),"username": cron.cron_server.username}] 
+            else:resource = [{"ip": cron.cron_server.ip, "port": int(cron.cron_server.port),
                          "username": cron.cron_server.username,"password": cron.cron_server.passwd}]    
             cron = Cron_Config.objects.get(id=cid)
             if request.FILES.get('cron_script'):
@@ -170,8 +171,8 @@ def cron_mod(request,cid):
         try:
             recordCron.delay(cron_user=str(request.user),cron_id=cid,cron_name=cron.cron_name,cron_content="删除计划任务",cron_server=cron.cron_server.ip)
             sList = [cron.cron_server.ip]
-            if cron.cron_server.keyfile == 1:resource = [{"hostname": cron.cron_server.ip, "port": int(cron.cron_server.port),"username": cron.cron_server.username}] 
-            else:resource = [{"hostname": cron.cron_server.ip, "port": int(cron.cron_server.port),
+            if cron.cron_server.keyfile == 1:resource = [{"ip": cron.cron_server.ip, "port": int(cron.cron_server.port),"username": cron.cron_server.username}] 
+            else:resource = [{"ip": cron.cron_server.ip, "port": int(cron.cron_server.port),
                          "username": cron.cron_server.username,"password": cron.cron_server.passwd}]    
             ANS = ANSRunner(resource)  
             ANS.run_model(host_list=sList,module_name="cron",module_args="""name={name} state=absent""".format(name=cron.cron_name))    
@@ -217,8 +218,8 @@ def cron_config(request):
                     recordCron.delay(cron_user=str(request.user),cron_id=cron.id,cron_name=cron.cron_name,cron_content="导入计划任务",cron_server=server.ip)
                     if  int(cron.cron_status) == 1: 
                         sList = [server.ip]
-                        if server.keyfile == 1:resource = [{"hostname": server.ip, "port": int(server.port),"username": server.username}] 
-                        else:resource = [{"hostname": server.ip, "port": int(server.port),"username": server.username,"password": server.passwd}]                
+                        if server.keyfile == 1:resource = [{"ip": server.ip, "port": int(server.port),"username": server.username}] 
+                        else:resource = [{"ip": server.ip, "port": int(server.port),"username": server.username,"password": server.passwd}]                
                         ANS = ANSRunner(resource)
                         ANS.run_model(host_list=sList,module_name="cron",module_args="""name={name} minute='{minute}' hour='{hour}' day='{day}'
                                                                                      weekday='{weekday}' month='{month}' user='{user}' job='{job}'""".format(name=cron.cron_name,minute=cron.cron_minute,

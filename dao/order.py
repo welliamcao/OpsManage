@@ -68,9 +68,11 @@ class Order(object):
             endTime = int(ms+'31')
             data = dict()
             data['date'] = ms
-            for tp in [0,1]:
+            for tp in [0,1,2,3]:
                 if tp == 1:order_type = 'code'
-                else:order_type = 'sql'
+                elif tp==0:order_type = 'sql'
+                elif tp==2:order_type = 'upload'
+                elif tp==3:order_type = 'download'
                 sql = """SELECT id,IFNULL(count(0),0) as count from opsmanage_order_system WHERE date_format(create_time,"%%Y%%m%%d") >= {startTime} and 
                         date_format(create_time,"%%Y%%m%%d") <= {endTime} and order_type='{tp}'""".format(startTime=startTime,endTime=endTime,tp=tp)
                 userData = Order_System.objects.raw(sql) 

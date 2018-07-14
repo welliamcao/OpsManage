@@ -82,21 +82,26 @@
 <link rel="stylesheet" href="/static/dist/css/jquery.dataTables.min.css">
 <script src="/static/js/jquery.dataTables.min.js"></script>
 <style type="text/css">
-pre {
-	overflow: auto;
-	white-space: normal;
-	white-space: pre-wrap; /* css-3 */
-	white-space: -moz-pre-wrap; /* Mozilla, since 1999 */
-	white-space: -pre-wrap; /* Opera 4-6 */
-	white-space: -o-pre-wrap; /* Opera 7 */
-	word-wrap: break-word; /* Internet Explorer 5.5+ */
-	border: 1px solid #ccc;
-	padding: 5px;
-	margin: 10px;
-	font-family: Consolas, monospace;
-	color: #ADFF2F;
-	background-color: #000000;
-}
+	pre {
+		overflow: auto;
+		white-space: normal;
+		white-space: pre-wrap; /* css-3 */
+		white-space: -moz-pre-wrap; /* Mozilla, since 1999 */
+		white-space: -pre-wrap; /* Opera 4-6 */
+		white-space: -o-pre-wrap; /* Opera 7 */
+		word-wrap: break-word; /* Internet Explorer 5.5+ */
+		border: 1px solid #ccc;
+		padding: 5px;
+		margin: 10px;
+		font-family: Consolas, monospace;
+		color: #ADFF2F;
+		background-color: #000000;
+	}
+  .dropdown-menu {
+		max-height: 500px;
+		overflow-y: auto;
+		overflow-x: hidden;
+	} 
 </style>
 
 </head>
@@ -190,6 +195,7 @@ pre {
 						<li><a href="#"><i class="fa fa-sitemap fa-fw"></i> 应用部署<span
 								class="fa arrow"></span></a>
 							<ul class="nav nav-second-level">
+								<li><a href="/apps/inventory/">动态资产</a></li>
 								<li><a href="/apps/model/">运行模块</a></li>
 								<li><a href="#">脚本工具<span class="fa arrow"></span></a>
 									<ul class="nav nav-third-level">
@@ -197,7 +203,7 @@ pre {
 										<li><a href="/apps/script/list/">脚本列表</a></li>
 									</ul></li>
 								<li><a href="#">剧本配置<span class="fa arrow"></span></a>
-									<ul class="nav nav-third-level">
+									<ul class="nav nav-third-level">										
 										<li><a href="/apps/playbook/upload/">上传剧本</a></li>
 										<li><a href="/apps/playbook/online/">在线编辑</a></li>
 										<li><a href="/apps/">剧本列表</a></li>
@@ -215,16 +221,7 @@ pre {
 										<li><a href="/db/config/">基础配置</a></li>
 										<li><a href="/db/sql/ops/">管理入口</a></li>											
 									</ul>
-								</li>	
-<!-- 								<li><a href="#">Redis<span class="fa arrow"></span></a>	
-								<li><a href="#">MongoDB<span class="fa arrow"></span></a> -->
-<!-- 								<li><a href="#">SQL管理<span class="fa arrow"></span></a>
-									<ul class="nav nav-third-level">
-										<li><a href="/db/sql/order/audit/">上线申请</a></li>
-										<li><a href="/db/sql/order/list/1/">工单列表</a></li>
-										<li><a href="/db/sql/order/search/">工单查询</a></li>
-									</ul>
-								</li>	 -->														
+								</li>														
 								<li><a href="/db/sql/logs/1/">操作日志</a></li>
 							</ul> <!-- /.nav-second-level --></li>							
 						{% if user.is_superuser %}
@@ -248,6 +245,8 @@ pre {
 									<ul class="nav nav-third-level">
 										<li><a href="/order/deploy/apply/">代码部署</a></li>
 										<li><a href="/order/sql/apply/">上线SQL</a></li>
+										<li><a href="/order/file/upload/list/1/">文件分发</a></li>
+										<li><a href="/order/file/download/list/1/">文件下载</a></li>
 									</ul></li>
 								<li><a href="/order/list/1/">工单列表</a></li>
 								<li><a href="/order/search/">工单查询</a></li>
@@ -313,7 +312,7 @@ pre {
 								</div>
 							</div>
 						</div>
-						<a href="/deploy_order/1/">
+						<a href="/deploy_list/">
 							<div class="panel-footer">
 								<span class="pull-left">查看所有</span> <span class="pull-right"><i
 									class="fa fa-arrow-circle-right"></i></span>
@@ -484,8 +483,16 @@ pre {
 										<div class="timeline-body">
 											<p><strong>申请人：</strong>{{ ds.order_user }}</p>
 											<p><strong>执行人：</strong>{{ ds.order_executor }}</p>
-											<p><strong>工单类型：</strong><code>{{ ds.order_type }}</code></p>
-											<p><strong>工单内容：</strong>{{ ds.order_content }}</p>
+												{% if ds.order_type == 1 %}
+													<p><strong>工单类型：</strong><code>代码更新</code></p>
+												{% elif ds.order_type == 2 %}
+													<p><strong>工单类型：</strong><code>文件分发</code></p>
+												{% elif ds.order_type == 0 %}
+													<p><strong>工单类型：</strong><code>SQL更新</code></p>
+												{% elif ds.order_type == 3 %}
+													<p><strong>工单类型：</strong><code>文件下载</code></p>											
+												{% endif %}	
+											<p><strong>工单内容：</strong>{{ ds.order_content }}</p>											
 										</div>
 									</div>
 								</li> {% elif ds.order_status == 7 or ds.order_status == 9 %}
@@ -503,7 +510,15 @@ pre {
 										<div class="timeline-body">
 											<p><strong>申请人：</strong>{{ ds.order_user }}</p>
 											<p><strong>执行人：</strong>{{ ds.order_executor }}</p>
-											<p><strong>工单类型：</strong><code>{{ ds.order_type }}</code></p>
+												{% if ds.order_type == 1 %}
+													<p><strong>工单类型：</strong><code>代码更新</code></p>
+												{% elif ds.order_type == 2 %}
+													<p><strong>工单类型：</strong><code>文件分发</code></p>
+												{% elif ds.order_type == 0 %}
+													<p><strong>工单类型：</strong><code>SQL更新</code></p>
+												{% elif ds.order_type == 3 %}
+													<p><strong>工单类型：</strong><code>文件下载</code></p>											
+												{% endif %}	
 											<p><strong>工单内容：</strong>{{ ds.order_content }}</p>
 										</div>
 									</div>
@@ -523,7 +538,15 @@ pre {
 											<div class="timeline-body">
 												<p><strong>申请人：</strong>{{ ds.order_user }}</p>												
 												<p><strong>执行人：</strong>{{ ds.order_executor }}</p>
-												<p><strong>工单类型：</strong><code>{{ ds.order_type }}</code></p>
+												{% if ds.order_type == 1 %}
+													<p><strong>工单类型：</strong><code>代码更新</code></p>
+												{% elif ds.order_type == 2 %}
+													<p><strong>工单类型：</strong><code>文件分发</code></p>
+												{% elif ds.order_type == 0 %}
+													<p><strong>工单类型：</strong><code>SQL更新</code></p>
+												{% elif ds.order_type == 3 %}
+													<p><strong>工单类型：</strong><code>文件下载</code></p>											
+												{% endif %}	
 												<p><strong>工单内容：</strong>{{ ds.order_content }}</p>
 											</div>
 										</div>

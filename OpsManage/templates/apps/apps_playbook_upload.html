@@ -2,8 +2,7 @@
 {% block ace-content %}
 <link href="/static/dist/css/fileinput.css" media="all" rel="stylesheet" type="text/css" />
 <script src="/static/dist/js/fileinput.js" type="text/javascript"></script>
-<!-- <link href="/static/dist/css/bootstrap-multiselect.css" rel="stylesheet">
-<script src="/static/dist/js/bootstrap-multiselect.js"></script> -->
+<script type="text/javascript" src="/static/dist/js/bootstrap-notify.js"></script>
 {% endblock %}
 {% block page-content %}
 <div id="page-wrapper">
@@ -50,6 +49,7 @@
 											<select class="form-control" name="server_model" id="server_model" onchange="javascript:oBtAnsibleServerl();" required>
 												<option name="server_model" value="" selected="selected">请选择一个类型</option>
 												<option value="service" name="server_model">产品线</option>
+												<option value="inventory" name="server_model">动态主机组</option>
 												<option value="group" name="server_model">使用部门</option>
 												<option value="custom" name="server_model">自定义</option> 	
 											</select>		
@@ -73,6 +73,16 @@
 											</div>	
 										</div>	 
                                         
+                                         <div id="inventory_server" class="form-group" style="display:none;">
+                                            <label>动态主机组<i class="fa fa-info-circle" data-toggle="tooltip"  title="根据动态资产添加选择服务器"></i></label>
+		                                       <select class="form-control" name="ansible_inventory" id="ansible_inventory" onchange="javascript:oBtInventorySelect(this);">
+		                                       		<option name="ansible_inventory" value="">选择一个业务类型</option>
+		                                           	{% for ds in inventoryList %}
+		                                            	<option name="ansible_inventory" value="{{ds.id}}">{{ds.name}}</option>
+		                                           {% endfor %}
+		                                      </select>
+                                        </div>                                         
+                                        
                                          <div id="group_server" class="form-group" style="display:none;">
                                             <label>服务器使用组<i class="fa fa-info-circle" data-toggle="tooltip"  title="根据服务器分配的用户组选择服务器"></i></label>
 		                                       <select class="form-control" name="ansible_group">
@@ -87,7 +97,7 @@
                                             <label>勾选目标服务器<i class="fa fa-info-circle" data-toggle="tooltip"  title="自定选择服务器"></i></label>
                                             <select multiple  name="playbook_server" class="form-control" id="ansible_server">
                                             	{% for ds in serverList %}
-                                            		<option name="playbook_server"  value="{{ds.id}}">{{ds.ip}}</option>
+                                            		<option name="playbook_server"  value="{{ds.id}}">{{ds.ip}} | {{ds.project}} | {{ds.service}}</option>
                                             	{% endfor %}
                                             </select>
                                         </div>                                          
@@ -137,14 +147,42 @@
 {% endif %}
 $(function () { $("[data-toggle='tooltip']").tooltip(); });
 
-/* $(document).ready(function() {
-    $('#ansible_server').multiselect({
-        enableClickableOptGroups: true,
-        enableCollapsibleOptGroups: true,
-        includeSelectAllOption: true,
-       	enableFiltering: true,          	
-    });
-});  */
+function oBtInventorySelect(obj){
+	   var obj = document.getElementById("ansible_inventory"); 
+	   var index = obj.selectedIndex;
+	   var sId = obj.options[index].value; 
+	   if ( sId  > 0){	 
+			$.ajax({
+				dataType: "JSON",
+				url: "/api/inventory/" + sId +"/", //请求地址
+				type:"GET",  //提交类似
+				success:function(response){
+					if ( JSON.stringify(response["data"]) != '{}'){
+						$.notify({
+							title: "<strong>发现资产:</strong>",
+							message:  "<pre>" + JSON.stringify(response["data"],null,4) + "</pre>",
+						},
+						{
+							type: 'success',
+							timer: 3000,
+							delay: 30000
+						});	
+					}
+					else {
+						$.notify({
+							title: "<strong>Ops：</strong>",
+							message: "该条件下未发现资产~"
+						},
+						{
+							type: 'danger'
+						});
+					}
+				
+						
+				},
+			});	
+	   }
+}
 
 
 $("#playbook_file").fileinput({
@@ -171,21 +209,31 @@ function oBtAnsibleServerl(){
 		   document.getElementById("group_server").style.display = "";
 		   document.getElementById("custom_server").style.display = "none";
 		   document.getElementById("project_server").style.display = "none";
+		   document.getElementById("inventory_server").style.display = "none";
 	   }
 	   else if (value=="custom"){
 		   document.getElementById("group_server").style.display = "none";
 		   document.getElementById("custom_server").style.display = "";
 		   document.getElementById("project_server").style.display = "none";
+		   document.getElementById("inventory_server").style.display = "none";
 	   }
 	   else if (value=="service"){
 		   document.getElementById("group_server").style.display = "none";
 		   document.getElementById("custom_server").style.display = "none";
 		   document.getElementById("project_server").style.display = "";
-	   }	   
+		   document.getElementById("inventory_server").style.display = "none";
+	   }	
+	   else if (value=="inventory"){
+		   document.getElementById("group_server").style.display = "none";
+		   document.getElementById("custom_server").style.display = "none";
+		   document.getElementById("project_server").style.display = "none";
+		   document.getElementById("inventory_server").style.display = "";
+	   }		   
 	   else {
 		   document.getElementById("group_server").style.display = "none";
 		   document.getElementById("custom_server").style.display = "none"; 
 		   document.getElementById("project_server").style.display = "none";
+		   document.getElementById("inventory_server").style.display = "none";
 	   }	
 }
 

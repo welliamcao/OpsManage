@@ -169,8 +169,8 @@ def assets_facts(request,args=None):
         if genre == 'setup':
             try:
                 server_assets = Server_Assets.objects.get(id=request.POST.get('server_id'))
-                if server_assets.keyfile == 1:resource = [{"hostname": server_assets.ip, "port": int(server_assets.port),"username": server_assets.username}] 
-                else:resource = [{"hostname": server_assets.ip, "port": server_assets.port,"username": server_assets.username, "password": server_assets.passwd}]
+                if server_assets.keyfile == 1:resource = [{"ip": server_assets.ip, "port": int(server_assets.port),"username": server_assets.username,"sudo_passwd":server_assets.sudo_passwd}] 
+                else:resource = [{"ip": server_assets.ip, "port": server_assets.port,"username": server_assets.username, "password": server_assets.passwd,"sudo_passwd":server_assets.sudo_passwd}]
             except Exception,ex:
                 logger.error(msg="更新资产失败: {ex}".format(ex=str(ex)))
                 return  JsonResponse({'msg':"数据更新失败-查询不到该主机资料~","code":502})
@@ -229,8 +229,8 @@ def assets_facts(request,args=None):
             try:
                 server_assets = Server_Assets.objects.get(id=server_id)
                 assets = Assets.objects.get(id=server_assets.assets_id)
-                if server_assets.keyfile == 1:resource = [{"hostname": server_assets.ip, "port": int(server_assets.port),"username": server_assets.username}] 
-                else:resource = [{"hostname": server_assets.ip, "port": server_assets.port,"username": server_assets.username, "password": server_assets.passwd}]
+                if server_assets.keyfile == 1:resource = [{"ip": server_assets.ip, "port": int(server_assets.port),"username": server_assets.username,"sudo_passwd":server_assets.sudo_passwd}] 
+                else:resource = [{"ip": server_assets.ip, "port": server_assets.port,"username": server_assets.username, "password": server_assets.passwd,"sudo_passwd":server_assets.sudo_passwd}]
             except Exception,e:
                 logger.error(msg="更新硬件信息失败: {ex}".format(ex=ex))
                 return  JsonResponse({'msg':"数据更新失败-查询不到该主机资料~","code":502})
@@ -644,8 +644,8 @@ def assets_update(request):
                     if server_assets.ip not in fList:fList.append(server_assets.ip) 
                     continue
                 serList.append(server_assets.ip)
-                if server_assets.keyfile == 1:resource.append({"hostname": server_assets.ip, "port": int(server_assets.port),"username": server_assets.username})
-                else:resource.append({"hostname": server_assets.ip, "port": server_assets.port,"username": server_assets.username, "password": server_assets.passwd})                    
+                if server_assets.keyfile == 1:resource.append({"ip": server_assets.ip, "port": int(server_assets.port),"username": server_assets.username,"sudo_passwd":server_assets.sudo_passwd})
+                else:resource.append({"ip": server_assets.ip, "port": int(server_assets.port),"username": server_assets.username, "password": server_assets.passwd,"sudo_passwd":server_assets.sudo_passwd})                
         ANS = ANSRunner(resource)
         ANS.run_model(host_list=serList,module_name='setup',module_args="")
         data = ANS.handle_cmdb_data(ANS.get_model_result())    
@@ -823,12 +823,32 @@ def assets_server(request):
             dataList = []
             if request.POST.get('query') == 'service':
                 for ser in Assets.objects.filter(business=request.POST.get('id')):#,assets_type__in=['server','vmser','switch','route']):
-                    if ser.assets_type in ['server','vmser']:dataList.append({"id":ser.server_assets.id,"ip":ser.server_assets.ip})
-                    elif ser.assets_type in ['switch','route']:dataList.append({"id":ser.network_assets.id,"ip":ser.network_assets.ip}) 
+                    try:
+                        project = Project_Assets.objects.get(id=ser.project).project_name
+                    except Exception,ex:
+                        project = '未知'
+                        logger.warn(msg="查询主机产品线信息失败: {ex}".format(ex=str(ex)))  
+                    try:
+                        service = Service_Assets.objects.get(id=ser.business).service_name
+                    except Exception,ex:
+                        service = '未知'
+                        logger.warn(msg="查询主机业务类型失败: {ex}".format(ex=str(ex)))                          
+                    if ser.assets_type in ['server','vmser']:dataList.append({"id":ser.server_assets.id,"ip":ser.server_assets.ip,"project":project,"service":service})
+                    elif ser.assets_type in ['switch','route']:dataList.append({"id":ser.network_assets.id,"ip":ser.network_assets.ip,"project":project,"service":service}) 
             elif request.POST.get('query') == 'group':
                 for ser in Assets.objects.filter(group=request.POST.get('id')):#assets_type__in=['server','vmser','switch','route']):
-                    if ser.assets_type in ['server','vmser']:dataList.append({"id":ser.server_assets.id,"ip":ser.server_assets.ip})
-                    elif ser.assets_type in ['switch','route']:dataList.append({"id":ser.network_assets.id,"ip":ser.network_assets.ip})                 
+                    try:
+                        project = Project_Assets.objects.get(id=ser.project).project_name
+                    except Exception,ex:
+                        project = '未知'
+                        logger.warn(msg="查询主机产品线信息失败: {ex}".format(ex=str(ex)))  
+                    try:
+                        service = Service_Assets.objects.get(id=ser.business).service_name
+                    except Exception,ex:
+                        service = '未知'
+                        logger.warn(msg="查询主机业务类型失败: {ex}".format(ex=str(ex)))                     
+                    if ser.assets_type in ['server','vmser']:dataList.append({"id":ser.server_assets.id,"ip":ser.server_assets.ip,"project":project,"service":service})
+                    elif ser.assets_type in ['switch','route']:dataList.append({"id":ser.network_assets.id,"ip":ser.network_assets.ip,"project":project,"service":service})              
             return JsonResponse({'msg':"主机查询成功","code":200,'data':dataList})  
         else:JsonResponse({'msg':"不支持的操作","code":500,'data':[]})  
     else:
@@ -846,13 +866,14 @@ def assets_groups(request,id):
     for ds in serviceList:
         dataList = []
         for ser in Assets.objects.select_related().filter(business=ds.id):
-            if ser.server_assets.ram_total: ser.server_assets.ram_total =  str(int(ser.server_assets.ram_total) / 1024) + 'GB'
-            else:ser.server_assets.ram_total = '0GB'
-            if ser.server_assets.disk_total: 
-                disk_total =  int(ser.server_assets.disk_total) / 1024 / 1024
-                if disk_total > 1:ser.server_assets.disk_total = str(int(ser.server_assets.disk_total) / 1024 / 1024) + 'TB'
-                else:ser.server_assets.disk_total =  str(int(ser.server_assets.disk_total) / 1024) +  'GB'
-            else:ser.server_assets.disk_total = '0GB'
+            if hasattr(ser,'server_assets'):
+                if ser.server_assets.ram_total: ser.server_assets.ram_total =  str(int(ser.server_assets.ram_total) / 1024) + 'GB'
+                else:ser.server_assets.ram_total = '0GB'
+                if ser.server_assets.disk_total: 
+                    disk_total =  int(ser.server_assets.disk_total) / 1024 / 1024
+                    if disk_total > 1:ser.server_assets.disk_total = str(int(ser.server_assets.disk_total) / 1024 / 1024) + 'TB'
+                    else:ser.server_assets.disk_total =  str(int(ser.server_assets.disk_total) / 1024) +  'GB'
+                else:ser.server_assets.disk_total = '0GB'  
             dataList.append(ser)
             ds.host = dataList
     totalServer = Assets.objects.filter(project=id).count()

@@ -1,0 +1,552 @@
+{% extends 'index.html' %}
+{% block ace-content %}
+<!-- ACE Editor -->   
+<link href="/static/dist/css/bootstrap-multiselect.css" rel="stylesheet">
+<script src="/static/dist/js/bootstrap-multiselect.js"></script>
+<script type="text/javascript" src="/static/dist/js/bootstrap-notify.js"></script>
+<link href="/static/dist/css/fileinput.css" media="all" rel="stylesheet" type="text/css" />
+<script src="/static/dist/js/fileinput.js" type="text/javascript"></script>
+<style type="text/css"> 
+	td.details-control {
+	    background: url('/static/img/details_open.png') no-repeat center center;
+	    cursor: pointer;
+	}
+	tr.shown td.details-control {
+	    background: url('/static/img/details_close.png') no-repeat center center;
+	} 
+</style>	
+{% endblock %}
+{% block page-content %}
+
+<div id="page-wrapper">
+            <div class="row">
+                <div class="col-lg-12">
+                    <h1 class="page-header"><i class="fa fa-file-pdf-o"></i> 文件分发申请</h1>
+                </div>
+                <!-- /.col-lg-12 -->
+            </div>  
+            <div class="row">	
+				 <div class="col-lg-12" id="add_file_order" style="display:none;">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            	<i class="fa  fa-rss"></i> 工单申请
+                        </div>
+                        <div class="panel-body">
+							<div class="col-lg-6">
+								<legend>
+									<i class="fa  fa-paper-plane"></i> 文件工单
+								</legend>
+								<form role="form" method="post" id="audit_fileupload_order" enctype="multipart/form-data">
+									{% csrf_token %}
+									<div class="form-group">
+	 									<label><font color='red'>* </font>工单主题<i class="fa fa-info-circle" data-toggle="tooltip" title="主题"></i></label>
+										<input class="form-control" rows="3" id="order_subject"></input>
+									</div>								
+									<div class="form-group">
+	 									<label><font color='red'>* </font>工单内容<i class="fa fa-info-circle" data-toggle="tooltip" title="说明用途"></i></label>
+										<textarea class="form-control" rows="3" id="order_content"></textarea>
+									</div>									
+									<div class="form-group">
+										<label><font color='red'>* </font>上传文件<i class="fa fa-info-circle" data-toggle="tooltip" title="申请上传的文件"></i></label>
+										<input type="file" class="file" id="order_files" data-show-upload="false" data-show-caption="true" multiple  value="" />						
+									</div>														
+									<lable id="auditContol"><button type="button" class="btn btn-default" onclick="auditSqlOrder(this,'audit')" >上传</button></lable>
+									<button type="reset" class="btn btn-default">撤销</button>
+							</div>
+							<!-- /.col-lg-6 (nested) -->
+							<div class="hr hr32 hr-dotted"></div>
+							<div class="col-lg-6">
+								<legend>
+									<i class="fa  fa-paper-plane-o"></i> 目标服务器选择
+								</legend>  
+								<div class="form-group" >			 		             
+									<label><font color='red'>* </font>动态主机</label>	
+									<select class="form-control" name="server_model" id="server_model" onchange="javascript:oBtAnsibleServerl();">
+										<option value="" name="server_model" selected="selected">选择一个类型</option>
+										<option value="service" name="server_model">产品线类型</option>															
+										<option value="group" name="server_model">使用部门</option>	
+										<option value="custom" name="server_model">自定义</option> 	
+									</select>		
+								</div>		
+								<div id='project_server'  style="display:none;">
+									<div class="form-group">
+										 <label>所属产品线</label>
+	                                     <select class="form-control" name="ansible_project"  id="ansible_project" onchange="javascript:oBtProjectSelect();" required>
+	                                     	<option name="project" value="" selected="selected">请选择一个产品线</option>
+	                                     	{% for ds in projectList %}
+	                                     		<option name="project" value="{{ds.id}}">{{ds.project_name}}</option>
+	                                     	{% endfor %}
+	                                     </select>
+									</div>										
+									<div class="form-group">
+								 		<label>业务类型</label>
+	                                    <select class="form-control" name="ansible_service"  id="ansible_service" onchange="javascript:oBtServiceSelect('service','ansible_service');" required>
+											<option name="ansible_service" value="" selected="selected">请选择一个应用类型</option>
+	                                    </select>
+									</div>	
+								</div>											
+								<div id="group_server" class="form-group" style="display:none;">
+									 <label>使用部门</label>
+	                                 <select class="form-control" name="ansible_group"  id="ansible_group" onchange="javascript:oBtServiceSelect('group','ansible_group');" required>
+	                                 	<option name="ansible_group" value="" selected="selected">请选择使用组</option>
+	                                 	{% for ds in groupList %}
+	                                 		<option name="group" value="{{ds.id}}">{{ds.name}}</option>
+	                                 	{% endfor %}
+	                                 </select>
+								</div>																																				
+								<div id="custom_server" class="form-group" style="display:none;">
+									 <label>服务器选择</label>
+	                                 <select multiple name="ansible_server"  id="ansible_server" required>
+	                                 	{% for ds in serverList %}
+	                                 		<option name="server" value="{{ds.id}}">{{ds.ip}} | {{ds.project}} | {{ds.service}}</option>
+	                                 	{% endfor %}
+	                                 </select>
+								</div>	
+								<div class="form-group">
+										<label><font color='red'>* </font>上传路径<i class="fa fa-info-circle" data-toggle="tooltip" title="上传到目标服务器的路径"></i></label>
+									<input class="form-control" id="dest_path" value="/usr/local/src/"></input>
+	
+								</div>	
+								<div class="form-group">
+										<label><font color='red'>* </font>文件宿主<i class="fa fa-info-circle" data-toggle="tooltip" title="上传文件在目标服务器的所有者"></i></label>
+									<input class="form-control" id="chown_user" value="root"></input>
+								</div>
+								<div class="form-group">
+										<label><font color='red'>* </font>文件权限<i class="fa fa-info-circle" data-toggle="tooltip" title="上传文件在目标服务器的权限"></i></label>
+									<input class="form-control" id="chown_rwx" value="0755"></input>
+								</div>																															
+								<div class="form-group">
+									<label><font color='red'>* </font>授权人<i class="fa fa-info-circle"
+										data-toggle="tooltip" title="工单发送给谁授权"></i></label> 
+										<select class="form-control" data-live-search="true" id="order_executor" name="order_executor" required> 
+											<option name="order_executor" value="">选择一个授权人</option> 
+											{% for ds in userList %}
+												<option name="order_executor" value="{{ds.id}}">{{ds.username}}</option> 
+											{% endfor %}
+										</select>								
+									<p class="help-block">例如：admin</p>
+								</div>
+							</div>					
+							<!-- /.col-lg-6 (nested) -->
+							<div class="hr hr32 hr-dotted"></div>
+							</form>
+							</div>
+						</div>            
+					</div>            			 					           
+                 <div class="col-lg-12">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            	<i class="fa  fa-paper-plane-o  "></i> 申请记录
+                        </div>
+                        <!-- /.panel-heading -->
+                        <div class="panel-body">
+                        	<div>
+                        		<button type="button" class="btn btn-xs btn-default" id="add_file_order_button"><i class="glyphicon glyphicon-plus"></i></button>
+                        	</div>
+							<table  width="100%" class="table table-striped table-bordered table-hover dataTable no-footer" id="taskTableList">	
+						        <thead>
+						            <tr>
+						                <th class="text-center">详细</th>
+						                <th class="text-center">ID</th>
+						                <th class="text-center">用途描述</th>
+						                <th class="text-center">文件路径</th>
+						                <th class="text-center">宿主</th>
+						                <th class="text-center">权限</th>
+						                <th class="text-center">状态</th>
+						                <th class="text-center">申请时间</th>
+										<th class="text-center">操作</th>
+						            </tr>
+						        </thead>
+						        <tfoot>
+						            <tr>
+						                <th class="text-center">详细</th>
+						                <th class="text-center">ID</th>
+						                <th class="text-center">用途描述</th>
+						                <th class="text-center">文件路径</th>
+						                <th class="text-center">宿主</th>
+						                <th class="text-center">权限</th>
+						                <th class="text-center">状态</th>
+						                <th class="text-center">申请时间</th>						                
+										<th class="text-center">操作</th>
+						            </tr>
+						        </tfoot>													
+		                                <tbody>
+	                                	{% for ds in uploadList %}
+	                                		<tr>
+		                                		<td class="text-center">                                		
+		                                		</td>	                                		
+		                                		<td class="text-center">
+		                                			{{ds.fileupload_audit_order.id}}	
+		                                		</td>    
+		                                		<td class="text-center">
+		                                			{{ds.order_subject}}	
+		                                		</td>   		                                		                            			
+		                                		<td class="text-center">
+	                                				{{ds.fileupload_audit_order.dest_path}}
+		                                		</td>			                                		                                		
+		                                		<td class="text-center">
+		                                			{{ds.fileupload_audit_order.chown_user}}
+		                                		</td>
+		                                		<td class="text-center">
+		                                			{{ds.fileupload_audit_order.chown_rwx}}
+		                                		</td>	
+		                                		<td class="text-center">
+                             					{% if ds.order_status == 0 %}
+                                					<span class="label label-success">已通过</span>                                			
+                                				{% elif ds.order_status == 1 %}
+                                					<span class="label label-danger">已拒绝</span>
+                                				{% elif ds.order_status == 2 %}
+                                					<span class="label label-info">审核中</span>
+                                				{% elif ds.order_status == 3 %}
+                                					<span class="label label-success">已部署</span>  
+                                				{% elif ds.order_status == 4 %}
+                                					<span class="label label-info">待授权</span>     
+                                				{% elif ds.order_status == 5 %}
+                                					<span class="label label-success">已执行</span>                                 					                            					
+                                				{% elif ds.order_status == 6 %}
+                                					<span class="label label-default">已回滚</span>     
+                                				{% elif ds.order_status == 7 %}
+                                					<span class="label label-danger">已撤回</span>   
+                                				{% elif ds.order_status == 8 %}
+                                					<span class="label label-warning">已授权</span>                                  					                             					                         					
+                                				{% else %}
+                                					<span class="label label-danger">已失败</span>
+                                				{% endif %}
+		                                		</td>   
+		                                		<td class="text-center">
+		                                			{{ds.create_time|date:"Y/m/d H:i  "}}	
+		                                		</td>   		                                			                                		
+		                                		<td class="text-center">
+													<div>
+														<div class="btn-group">	
+																<a href="/file/upload/run/{{ds.id}}/"">
+							                                		<button class="btn btn-default btn-xs">					                                					
+																		<i class="glyphicon glyphicon-play-circle  bigger-110  bigger-110 icon-only"></i>
+																	</button>
+																</a>	
+														</div>																																																																							
+															
+													</div>  	                                			
+		                                		</td>	
+	                                		</tr>                                			                                		                                			                                			                                			                                		
+	                                	{% endfor %}
+	                                </tbody>	                                																				                                   
+	                       	</table>
+										{% if uploadList %}
+											<ul class="pagination">
+											        {% if uploadList.has_previous %}
+											            <li><a href="/order/file/upload/list/{{ projectList.previous_page_number }}/">&laquo;</a></li>
+											        {% endif %}
+											        {% for page in uploadList.paginator.page_range %}
+											        	{% if uploadList.number == page %}
+											        		<li class="disabled"><a href="/order/file/upload/list/{{page}}/">{{page}}</a></li>
+											        	{% else %}
+											        		<li><a href="/order/file/upload/list/{{page}}/">{{page}}</a></li>
+											        	{% endif %}
+											        {% endfor %}
+											        {% if uploadList.has_next %}
+											            <li><a href="/order/file/upload/list/{{ uploadList.next_page_number }}/">&raquo;</a></li>
+											        {% endif %}
+											</ul>
+                     		            {% endif %}		                       	
+                            <!-- /.table-responsive -->
+                        </div>
+                        <!-- /.panel-body -->
+                    </div>
+                    <!-- /.panel -->
+                </div>
+            </div>                    
+</div>
+
+
+
+
+<script type="text/javascript"> 
+
+$(function(){  
+    $('#add_file_order_button').click(function(){//点击a标签  
+        if($('#add_file_order').is(':hidden')){
+        	$('#add_file_order').show();
+        }
+        else{
+        	$('#add_file_order').hide();
+        }  
+    })
+})  
+
+$(document).ready(function() {
+    $('#ansible_server').multiselect({
+        enableClickableOptGroups: true,
+        enableCollapsibleOptGroups: true,
+        includeSelectAllOption: true,
+       	enableFiltering: true,            
+    });
+});
+
+	$("#order_files").fileinput({
+/* 		uploadUrl: '/order/file/upload/apply/',  */
+    showUpload: false,
+    showCaption: false,
+    browseClass: "btn btn-primary btn-md",
+    fileType: "any",
+    previewFileIcon: "<i class='glyphicon glyphicon-king'></i>",
+    overwriteInitial: false,
+    maxFileSize: 50000,
+    maxFileCount:10,
+	    dropZoneTitle:"拖拽文件上传...",
+    dropZoneEnabled: true,
+    slugCallback: function(filename) {
+        return filename.replace('(', '_').replace(']', '_');
+    }	    
+}); 
+
+
+
+function oBtAnsibleServerl(){
+	   var obj = document.getElementById("server_model"); 
+	   var index = obj.selectedIndex;
+	   var value = obj.options[index].value; 
+	   if (value=="group"){
+		   document.getElementById("group_server").style.display = "";
+		   document.getElementById("custom_server").style.display = "none";
+		   document.getElementById("project_server").style.display = "none";
+	   }
+	   else if (value=="custom"){
+		   document.getElementById("group_server").style.display = "none";
+		   document.getElementById("custom_server").style.display = "";
+		   document.getElementById("project_server").style.display = "none";
+	   }
+	   else if (value=="service"){
+		   document.getElementById("group_server").style.display = "none";
+		   document.getElementById("custom_server").style.display = "none";
+		   document.getElementById("project_server").style.display = "";
+	   }	   
+	   else {
+		   document.getElementById("group_server").style.display = "none";
+		   document.getElementById("custom_server").style.display = "none"; 
+		   document.getElementById("project_server").style.display = "none";
+	   }	
+}
+
+
+function oBtProjectSelect(){
+	   $('#ansible_service').removeAttr("disabled");
+	   var obj = document.getElementById("ansible_project"); 
+	   var index = obj.selectedIndex;
+	   var projectId = obj.options[index].value; 
+	   if ( projectId > 0){	 
+			$.ajax({
+				dataType: "JSON",
+				url:'/api/project/'+ projectId + '/', //请求地址
+				type:"GET",  //提交类似
+				success:function(response){
+					var binlogHtml = '<select class="form-control" name="ansible_service" id="ansible_service" onchange="javascript:oBtServiceSelect();" required><option selected="selected" name="ansible_service" value="">请选择业务类型</option>'
+					var selectHtml = '';
+					for (var i=0; i <response["service_assets"].length; i++){
+						 selectHtml += '<option name="ansible_service" value="'+ response["service_assets"][i]["id"] +'">' + response["service_assets"][i]["service_name"] + '</option>' 
+					};                        
+					binlogHtml =  binlogHtml + selectHtml + '</select>';
+					document.getElementById("ansible_service").innerHTML= binlogHtml;	
+						
+				},
+			});	
+	   }
+	   else{
+		   $('#ansible_service').attr("disabled",true);
+	   }
+
+}
+
+function oBtServiceSelect(model,ids){
+	   var obj = document.getElementById(ids); 
+	   var index = obj.selectedIndex;
+	   var sId = obj.options[index].value; 
+	   if ( sId  > 0){	 
+			$.ajax({
+				dataType: "JSON",
+				url:'/assets_server/', //请求地址
+				type:"POST",  //提交类似
+				data:{
+					"query":model,
+					"id":sId
+				},
+				success:function(response){
+					var sHtml = '';
+					for (var i=0; i <response["data"].length; i++){
+						sHtml += '<br>' + response["data"][i]["ip"]  
+					};  
+					if ( sHtml.length > 0){
+						$.notify({
+							title: "<strong>发现主机:</strong>",
+							message: sHtml
+						},
+						{
+							type: 'info'
+						});	
+						$('#run_ansible_model').removeAttr("disabled");
+					}
+					else {
+						$.notify({
+							title: "<strong>Ops：</strong>",
+							message: "该条件下未发现主机资源~"
+						},
+						{
+							type: 'danger'
+						});
+						$('#run_ansible_model').attr("disabled",true);
+					}
+				
+						
+				},
+			});	
+	   }
+	   else{
+		   $('#server option:selected').empty();
+		   $('#server').attr("disabled",true);
+	   }
+
+}
+
+
+
+
+function auditSqlOrder(obj,op) {	
+	var btnObj = $(obj);
+	var required = ["dest_path","order_executor","dest_path","chown_user","chown_rwx","server_model","order_files","order_content"];
+    var formData = new FormData();
+	var fileSelect = document.getElementById('order_files');
+	var files = fileSelect.files;		
+	for (var i = 0; i < files.length; i++) {
+		  var file = files[i];
+		  formData.append('order_files', file, file.name);
+	}			
+	btnObj.attr('disabled',true);
+			var form = document.getElementById('audit_fileupload_order');
+		for (var i = 0; i < form.length; ++i) {
+			var name = form[i].name;
+			var value = form[i].value;	
+			idx = $.inArray(name, required);						
+			if (idx >= 0 && value.length == 0){
+				window.wxc.xcConfirm("请注意必填项不能为空~", window.wxc.xcConfirm.typeEnum.error);
+				btnObj.removeAttr('disabled');
+				return false;
+			};					
+		};
+		var serverList = new Array();
+		$("#ansible_server option:selected").each(function () {
+			serverList.push($(this).val())
+		})
+		for (var i = 0; i < files.length; i++) {
+			  var file = files[i];
+			  formData.append('order_files[]', file, file.name);
+		}			
+	    formData.append('order_subject',$('#order_subject').val());
+	    formData.append('dest_path',$('#dest_path').val());
+	    formData.append('chown_user',$('#chown_user').val());
+	    formData.append('chown_rwx',$('#chown_rwx').val());
+	    formData.append('order_content',$('#order_content').val());
+	    formData.append('server_model',$('#server_model option:selected').val());
+	    formData.append('service',$('#ansible_service option:selected').val());
+	    formData.append('group',$('#ansible_group option:selected').val());
+	    formData.append('server',serverList);
+	    formData.append('order_executor',$('#order_executor option:selected').val());
+		$.ajax({
+/* 				dataType: "JSON", */
+			url:'/order/file/upload/apply/', //请求地址
+			type:"POST",  //提交类似
+		    processData: false,
+		    contentType: false,				
+			data:formData,  //提交参数
+			success:function(response){
+				btnObj.removeAttr('disabled');				
+				if (response["code"] == 200){
+					window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.success);
+				}
+				else {
+					window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
+				};
+			},
+	    	error:function(response){
+	    		btnObj.removeAttr('disabled');
+	    		window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
+	    	}
+		});	
+	}
+	
+function format ( data ) {
+	var serHtml = '';
+	serList = JSON.parse(data["dest_server"]);
+	for  (var i=0; i <serList.length; i++){
+		serHtml += serList[i] + ',';
+	}
+    var trHtml = '<tr><td>目标目录:</td><td>'+ data["dest_path"]  + '</td><td>目标服务器:</td><td>'+ serHtml.substring(0,serHtml.length-1) +'</td></tr>'	;
+	for (var i=0; i <data["files"].length; i++){	
+		trHtml += '<tr><td>名称:</td><td>'+ data["files"][i]["file_path"].replace("/upload/file/upload/","") +'</td><td>类型:</td><td>'+ data["files"][i]["file_type"] +'</td></tr>'			        
+	};	
+    var vHtml = '<fieldset>' +
+    			'<legend>文件上传信息</legend>' +
+    				'<table cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;word-break:break-all; word-wrap:break-all;">'+
+    				  trHtml  +
+    				'</table>'
+			'</fieldset>'; 				
+    return vHtml;
+}	
+	 
+
+	$(document).ready(function() {
+	    var table = $('#taskTableList').DataTable( {
+/* 	        "ajax": "../ajax/data/objects.txt", */
+	        "columns": [
+	            {
+	                "className":      'details-control',
+	                "orderable":      false,
+	                "data":           null,
+	                "defaultContent": ''
+	            },
+	            { "data": "id" },
+	            { "data": "用途描述" },
+	            { "data": "文件路径" },
+	            { "data": "宿主"},
+	            { "data": "权限" },
+	            { "data": "状态" },
+	            { "data": "申请时间" },
+	            { "data": "操作" }       
+	        ],
+	        "order": [[8, 'asc']]
+	    } );    
+	    
+	    // Add event listener for opening and closing details
+	    $('#taskTableList tbody').on('click', 'td.details-control', function () {
+	    	var dataList = [];
+	        var tr = $(this).closest('tr');
+	        var row = table.row( tr );
+	        dbId = row.data()["id"];
+	        $.ajax({
+	            url : "/api/file/upload/"+dbId+"/",
+	            type : "GET",
+	            async : false,
+	            data : {"id":dbId},
+	            dataType : "json",
+	            success : function(result) {
+	            	dataList = result;
+	            }
+	        });	        
+/* 	    	console.log(dataList); */
+	        if ( row.child.isShown() ) {
+	            // This row is already open - close it
+	            row.child.hide();
+	            tr.removeClass('shown');
+	        }
+	        else {
+	            // Open this row
+	            row.child( format(dataList) ).show();
+	            tr.addClass('shown');
+	        }
+	    } );
+	} );	
+
+	
+		
+	
+</script>
+{% endblock %}

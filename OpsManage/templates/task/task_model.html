@@ -33,9 +33,9 @@
 										<th class="center">序号</th>
 										<th class="center">分</th>
 										<th class="hidden-xs center">时</th>
-										<th class="hidden-480 center">天</th>
-										<th class="center">周</th>
-										<th class="center">年</th>
+										<th class="hidden-480 center">周</th>
+										<th class="center">天</th>
+										<th class="center">月</th>
 										<th class="center">操作</th>
 									</tr>
 								</thead>
@@ -50,11 +50,13 @@
 										<td class="center">{{ ds.day_of_month }}</td>
 										<td class="center">{{ ds.month_of_year }}</td>
 										<td class="center">
-
+											<button class="btn btn-xs btn-default" data-toggle="modal"  data-target="#editCrontabModal" onclick="onBtnEditCrontab(this,'{{ds.id}}')">
+		                                    	<i class="fa fa-edit"></i>
+		                                    </button>										
 											<button class="btn btn-xs btn-default"
 												onclick="onBtnHandleCrontab(this,'{{ds.id}}','delCrontab')">
 												<i class="fa fa-trash-o"></i>
-											</button>
+											</button>											
 										</td>
 									</tr>
 									{% endfor %}
@@ -554,7 +556,7 @@
 						</div>
 						<div class="form-group">
 							<label class="col-sm-3 control-label no-padding-right"
-								for="form-field-4"><strong>月</strong></label>
+								for="form-field-4"><strong>天</strong></label>
 
 							<div class="col-sm-3">
 								<input class="form-control" type="text" value="*" placeholder="*"
@@ -564,7 +566,7 @@
 
 						<div class="form-group">
 							<label class="col-sm-3 control-label no-padding-right"
-								for="form-field-4"><strong>年</strong></label>
+								for="form-field-4"><strong>月</strong></label>
 
 							<div class="col-sm-3">
 								<input class="form-control" type="text" value="*" placeholder="*"
@@ -587,6 +589,29 @@
 		<!-- /.modal -->
 	</div>
 
+	<div class="modal fade" id="editCrontabModal" tabindex="-1" role="dialog" aria-labelledby="editCrontabModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal"
+						aria-hidden="true">&times;</button>
+					<h4 class="modal-title" id="editCrontabModalLabel">修改Crontab调度
+					</h4>
+				</div>
+				<div id='editCrontab'>
+					<div class="modal-body">
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">关闭
+						</button>
+						<button type="button" class="btn btn-primary" onclick="editCrontab(this,'editCrontab')">修改</button>
+					</div>
+				</div>
+			</div>
+			<!-- /.modal-content -->
+		</div>
+		<!-- /.modal -->
+	</div>
 
 	<!-- Interval模态框（Modal） -->
 	<div class="modal fade" id="addIntervalModal" tabindex="-1"
@@ -595,8 +620,7 @@
 		<div class="modal-dialog">
 			<div class="modal-content">
 				<div class="modal-header">
-					<button type="button" class="close" data-dismiss="modal"
-						aria-hidden="true">&times;</button>
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
 					<h4 class="modal-title" id="addIntervalModalLabel">
 						添加Interval调度</h4>
 				</div>
@@ -686,52 +710,76 @@
 		var btnObj = $(obj);
 		btnObj.attr('disabled', true);
 		var server_data = {};
-		var required = [ 'minute', 'hour', "day_of_week", "day_of_month",
-				"month_of_year" ]; /* 必填项列表 */
+		var required = [ 'minute', 'hour', "day_of_week", "day_of_month","month_of_year" ]; /* 必填项列表 */
 		var form = document.getElementById('addCrontab');
 		for (var i = 0; i < form.length; ++i) {
 			var name = form[i].name;
 			var value = form[i].value;
 			idx = $.inArray(name, required);
 			if (idx >= 0 && value.length == 0) {
-				window.wxc.xcConfirm("请注意必填项不能为空~",
-						window.wxc.xcConfirm.typeEnum.error);
+				window.wxc.xcConfirm("请注意必填项不能为空~",window.wxc.xcConfirm.typeEnum.error);
 				btnObj.removeAttr('disabled');
 				return false;
 			}
-			;
 			if (value.length != 0 && name.length != 0) {
 				server_data[name] = value;
 			}
-			;
 		}
 		;
-		server_data['op'] = op
 		$.ajax({
 			dataType : "JSON",
-			url : '/task_model/', //请求地址
+			url : '/api/task/crontab/', //请求地址
 			type : "POST", //提交类似
 			data : server_data, //提交参数
 			success : function(response) {
 				btnObj.removeAttr('disabled');
-				if (response["code"] == 200) {
-					window.wxc.xcConfirm(response["msg"],
-							window.wxc.xcConfirm.typeEnum.success);
-					location.reload();
-				} else {
-					window.wxc.xcConfirm(response["msg"],
-							window.wxc.xcConfirm.typeEnum.error);
-				}
-				
+				window.wxc.xcConfirm("添加成功",window.wxc.xcConfirm.typeEnum.success);
+				location.reload();				
 			},
 			error : function(response) {
 				btnObj.removeAttr('disabled');
-				window.wxc.xcConfirm(response["data"],
-						window.wxc.xcConfirm.typeEnum.error);
+				window.wxc.xcConfirm("添加失败",window.wxc.xcConfirm.typeEnum.error);
 			}
 		});
 	}
 
+	function editCrontab(obj, id) {
+		var btnObj = $(obj);
+		btnObj.attr('disabled', true);
+		var server_data = {};
+		server_data['id'] = id;
+		var required = [ 'minute', 'hour', "day_of_week", "day_of_month","month_of_year" ]; /* 必填项列表 */
+		var form = document.getElementById('editCrontabForm_' + id);
+		for (var i = 0; i < form.length; ++i) {
+			var name = form[i].name;
+			var value = form[i].value;
+			idx = $.inArray(name, required);
+			if (idx >= 0 && value.length == 0) {
+				window.wxc.xcConfirm("请注意必填项不能为空~",window.wxc.xcConfirm.typeEnum.error);
+				btnObj.removeAttr('disabled');
+				return false;
+			}
+			if (value.length != 0 && name.length != 0) {
+				server_data[name] = value;
+			}
+		}
+		$.ajax({
+			dataType : "JSON",
+			url : '/api/task/crontab/'+ id +'/', //请求地址
+			type : "PUT", //提交类似
+			data : server_data, //提交参数
+			success : function(response) {
+				btnObj.removeAttr('disabled');
+				window.wxc.xcConfirm("修改成功",window.wxc.xcConfirm.typeEnum.success);
+				location.reload();
+			},
+			error : function(response) {
+				btnObj.removeAttr('disabled');
+				window.wxc.xcConfirm("修改失败",window.wxc.xcConfirm.typeEnum.error);
+			}
+		});
+	}	
+	
 	function addInterval(obj, op) {
 		var btnObj = $(obj);
 		btnObj.attr('disabled', true);
@@ -788,25 +836,18 @@
 			btn : parseInt("0011", 2),
 			onOk : function() {
 				$.ajax({
-					type : 'POST',
-					url : '/task_model/',
+					type : 'DELETE',
+					url : '/api/task/crontab/'+ id +'/',
 					data : {
 						"id" : id,
 						"op" : op,
 					},
 					success : function(response) {
-						if (response["code"] == "200") {
-							window.wxc.xcConfirm(response["msg"],window.wxc.xcConfirm.typeEnum.success);
+							window.wxc.xcConfirm("删除成功",window.wxc.xcConfirm.typeEnum.success);
 							location.reload();
-						} else {
-							window.wxc.xcConfirm(response["msg"],
-									window.wxc.xcConfirm.typeEnum.error);
-						}
-						
 					},
 					error : function(response) {
-						window.wxc.xcConfirm("操作失败",
-								window.wxc.xcConfirm.typeEnum.error);
+						window.wxc.xcConfirm("操作失败",window.wxc.xcConfirm.typeEnum.error);
 					},
 				});
 			},
@@ -818,6 +859,64 @@
 		window.wxc.xcConfirm(txt, "custom", option);
 	}
 	
+	function onBtnEditCrontab(obj, id) {
+		$.ajax({
+			type : 'GET',
+			url : '/api/task/crontab/'+ id +'/',
+			success : function(response) {
+				console.log(response);	
+				var modalHtml = '<div id="editCrontab"><div class="modal-body">' + 
+									'<form class="form-horizontal" id="editCrontabForm_'+ response['id']  +'">' + 		
+										'<div class="form-group">' + 
+											'<label class="col-sm-3 control-label no-padding-right" for="form-field-4">' + 
+											'<strong>分</strong></label>' + 
+											'<div class="col-sm-3">' + 
+												'<input class="form-control" type="text" value="' + response['minute'] + '" placeholder="*/5" name="minute" />' + 
+											'</div>' + 
+										'</div>' + 
+										'<div class="form-group">' + 
+											'<label class="col-sm-3 control-label no-padding-right" for="form-field-4">' + 
+											'<strong>时</strong></label>' + 
+											'<div class="col-sm-3">' + 
+												'<input class="form-control" type="text" value="' + response['hour'] + '" placeholder="*" name="hour" />' + 
+											'</div>' + 
+										'</div>' + 
+										'<div class="form-group">' + 
+											'<label class="col-sm-3 control-label no-padding-right" for="form-field-4">' + 
+											 '<strong>周</strong></label>' + 
+											'<div class="col-sm-3">' + 
+												'<input class="form-control" type="text" value="' + response['day_of_week'] + '" placeholder="*" name="day_of_week" />' + 
+											'</div>' + 
+										'</div>' + 
+										'<div class="form-group">' + 
+											'<label class="col-sm-3 control-label no-padding-right" for="form-field-4">' + 
+											'<strong>天</strong></label>' + 
+											'<div class="col-sm-3">' + 
+												'<input class="form-control" type="text" value="' + response['day_of_month'] + '" placeholder="*" name="day_of_month" />' + 
+											'</div>' + 
+										'</div>' + 
+										'<div class="form-group">' + 
+											'<label class="col-sm-3 control-label no-padding-right" for="form-field-4">' + 
+											'<strong>月</strong></label>' + 
+											'<div class="col-sm-3">' + 
+												'<input class="form-control" type="text" value="' + response['month_of_year'] + '" placeholder="*" name="month_of_year" />' + 
+											'</div>' + 
+										'</div>' + 
+									'</form>' + 
+								'</div>' +
+								'<div class="modal-footer">' +
+								'<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>' +
+								'<button type="button" class="btn btn-primary" onclick="editCrontab(this,'+ response['id'] + ')">修改</button>' +
+							'</div>'									
+				document.getElementById("editCrontab").innerHTML= modalHtml;
+			},
+			error : function(response) {
+				window.wxc.xcConfirm("操作失败",window.wxc.xcConfirm.typeEnum.error);
+			},
+		});		
+	}
+	
+
 	
 	function addTask(obj,op) {	
 		var btnObj = $(obj);

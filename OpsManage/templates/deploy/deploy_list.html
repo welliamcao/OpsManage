@@ -1,4 +1,15 @@
 {% extends 'index.html' %}
+{% block ace-content %}
+<style type="text/css"> 
+	td.details-control {
+	    background: url('/static/img/details_open.png') no-repeat center center;
+	    cursor: pointer;
+	}
+	tr.shown td.details-control {
+	    background: url('/static/img/details_close.png') no-repeat center center;
+	} 
+</style>	
+{% endblock %}
 {% block page-content %}
 <div id="page-wrapper">
     <div class="row">
@@ -109,13 +120,13 @@
                             <table width="100%" class="table table-striped table-bordered table-hover" id="deployTableList">
                                 <thead>
                                     <tr>
+                                    	<th>详情</th>
+                                    	<th>ID</th>
                                     	<th>产品线</th>
                                     	<th>项目名称</th>
                                     	<th>项目环境</th>
                                         <th>仓库目录</th>
                                         <th>仓库地址</th>
-                                        <th>排除文件</th>
-                                        <th>目标服务器</th>
                                         <th>激活状态</th>
                                         <th class="text-center">操作</th>
                                     </tr>
@@ -123,6 +134,8 @@
                                 <tbody>
                                 	{% for ds in deployList %}
                                 		<tr class="odd gradeX">
+                                			<td></td>
+                                			<td>{{ds.id}} </td>
                                 			<td>{{ds.project.project_name}} </td>
                                 			<td>{{ds.project_name}} </td>
                                 			<td>
@@ -139,25 +152,8 @@
                                 			</td>
                                 			<td>{{ds.project_address}} </td>
                                 			<td>
-												<button type="button" class="btn btn-default" title="文件列表" data-container="body" data-toggle="popover" data-placement="top" data-content="{{ds.project_exclude}}">
-                                    				排除文件
-                                				</button>                                			
-                                				
-                                			</td>
-                                			<td>
-												<button type="button" class="btn btn-default" title="成员"  
-														data-container="body" data-toggle="popover" data-placement="top" 
-														data-content="
-														{% for ds in ds.number %}
-															{{ds.server}}<br>
-														{% endfor %} 
-														" data-html="true">
-													目标服务器
-												</button>                                			
-                                			</td>
-                                			<td>
                                 				{% if ds.project_status == 0 %}
-                                					<button  type="button" class="btn btn-outline btn-warning" onclick="initProject(this,'{{ds.project.project_name}}',{{ds.id}})">未初始化</button>
+                                					<button  type="button" class="btn btn-outline btn-warning" onclick="initProject(this,'{{ds.project_name}}',{{ds.id}})">未初始化</button>
                                 				{% else %}
                                 					<button  type="button" class="btn btn-outline btn-success">已初始化</button>
                                 				{% endif %}
@@ -222,10 +218,83 @@
     </div>  
 <script type="text/javascript">
 
+	function format ( data ) {
+		var serHtml = '';
+		serList = data["project_number"];
+		for  (var i=0; i <serList.length; i++){
+			serHtml += serList[i].split(',')[0] + ',';
+			var remote_dir = serList[i].split(',')[1]
+		}
+	    var trHtml = '<tr><td>打包目录:</td><td>'+ data["project_dir"]  + '</td><td>源代码目录:</td><td>'+ data["project_repo_dir"] +'</td></tr>'	;
+	    trHtml += '<tr><td>远程命令:</td><td>'+ data["project_remote_command"]  + '</td><td>目标服务器:</td><td>'+ serHtml.substring(0,serHtml.length-1) +'</td></tr>';
+	    trHtml += '<tr><td>远程路径:</td><td>'+ remote_dir  + '</td><td>目录宿主:</td><td>'+ data["project_user"] +'</td></tr>';	
+	    trHtml += '<tr><td>排除文件:</td><td>'+ data["project_exclude"]  + '</td><td>项目uuid::</td><td>'+ data["project_uuid"] +'</td></tr>';	    
+		if (data["project_type"]=='compile'){
+			trHtml += '<tr><td>编译类型:</td><td>编译型</td><td>编译命令:</td><td>'+ data["project_local_command"].replace(/\r\n/g,'<br>') +'</td></tr>';	   
+		}else{
+			trHtml += '<tr><td>编译类型:</td><td>非编译型</td><td>编译命令:</td><td></td></tr>';	   
+		}	    
+	    var vHtml = '<fieldset>' +
+	    			'<legend>'+ data["project_name"] +'部署信息</legend>' +
+	    				'<table cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;word-break:break-all; word-wrap:break-all;">'+
+	    				  trHtml  +
+	    				'</table>'
+				'</fieldset>'; 				
+	    return vHtml;
+	}	
+
+	$(document).ready(function() {
+	    var table = $('#deployTableList').DataTable( {
+	/* 	        "ajax": "../ajax/data/objects.txt", */
+	        "columns": [
+	            {
+	                "className":      'details-control',
+	                "orderable":      false,
+	                "data":           null,
+	                "defaultContent": ''
+	            },
+	            { "data": "id" },
+	            { "data": "产品线" },
+	            { "data": "项目名称" },
+	            { "data": "项目环境"},
+	            { "data": "仓库目录" },
+	            { "data": "仓库地址" },
+	            { "data": "激活状态" },
+	            { "data": "操作" }       
+	        ],
+	        "order": [[2, 'asc']]
+	    } );    
+	    
+	    // Add event listener for opening and closing details
+	    $('#deployTableList tbody').on('click', 'td.details-control', function () {
+	    	var dataList = [];
+	        var tr = $(this).closest('tr');
+	        var row = table.row( tr );
+	        dbId = row.data()["id"];
+	        $.ajax({
+	            url : "/api/deploy/"+dbId+"/",
+	            type : "GET",
+	            async : false,
+	            data : {"id":dbId},
+	            dataType : "json",
+	            success : function(result) {
+	            	dataList = result;
+	            }
+	        });	        
+	/* 	    	console.log(dataList); */
+	        if ( row.child.isShown() ) {
+	            // This row is already open - close it
+	            row.child.hide();
+	            tr.removeClass('shown');
+	        }
+	        else {
+	            // Open this row
+	            row.child( format(dataList) ).show();
+	            tr.addClass('shown');
+	        }
+	    } );
+	} );
     
-    $(document).ready(function() {
-        $('#deployTableList').DataTable();
-    } );    
     
     $(function () { 
     	$("[data-toggle='popover']").popover();

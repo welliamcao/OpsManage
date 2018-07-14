@@ -12,12 +12,12 @@ from OpsManage.models import (Ansible_Playbook,Ansible_Playbook_Number,
                               Log_Ansible_Model,Log_Ansible_Playbook,
                               Ansible_CallBack_Model_Result,Service_Assets,
                               Ansible_CallBack_PlayBook_Result,Assets,
-                              Ansible_Script,Project_Assets)
+                              Ansible_Script,Project_Assets,Ansible_Inventory,
+                              Ansible_Inventory_Groups,Ansible_Inventory_Groups_Server)
 from OpsManage.data.DsMySQL import AnsibleRecord
 from django.contrib.auth.decorators import permission_required
 from OpsManage.utils.logger import logger
 from dao.assets import AssetsSource
-
 
 @login_required()
 @permission_required('OpsManage.can_read_ansible_model',login_url='/noperm/')
@@ -27,20 +27,24 @@ def apps_model(request):
         serverList = AssetsSource().serverList()
         groupList = Group.objects.all()
         serviceList = Service_Assets.objects.all()
+        inventoryList = Ansible_Inventory.objects.all()
         return render(request,'apps/apps_model.html',{"user":request.user,"ans_uuid":uuid.uuid4(),
                                                             "serverList":serverList,"groupList":groupList,
-                                                            "serviceList":serviceList,"projectList":projectList})
+                                                            "serviceList":serviceList,"projectList":projectList,
+                                                            "inventoryList":inventoryList})
     elif  request.method == "POST" and request.user.has_perm('OpsManage.can_exec_ansible_model'):
         resource = []
         sList = []
-        if request.POST.get('server_model') in ['service','group','custom']:
+        if request.POST.get('server_model') in ['service','group','custom','inventory']:
             if request.POST.get('server_model') == 'custom':
                 serverList = request.POST.getlist('ansible_server')
                 sList,resource = AssetsSource().custom(serverList)
             elif request.POST.get('server_model') == 'group':
                 sList,resource = AssetsSource().group(group=request.POST.get('ansible_group'))
             elif request.POST.get('server_model') == 'service':
-                sList,resource = AssetsSource().service(business=request.POST.get('ansible_service'))                                
+                sList,resource = AssetsSource().service(business=request.POST.get('ansible_service')) 
+            elif request.POST.get('server_model') == 'inventory': 
+                sList,resource,groups = AssetsSource().inventory(inventory=request.POST.get('ansible_inventory'))
             if len(request.POST.get('custom_model')) > 0:model_name = request.POST.get('custom_model')
             else:model_name = request.POST.get('ansible_model',None)
             if len(sList) > 0:
@@ -50,6 +54,7 @@ def apps_model(request):
                 DsRedis.OpsAnsibleModel.lpush(redisKey, "[Start] Ansible Model: {model}  ARGS:{args}".format(model=model_name,args=request.POST.get('ansible_args',"None")))
                 if request.POST.get('ansible_debug') == 'on':ANS = ANSRunner(resource,redisKey,logId,verbosity=4)
                 else:ANS = ANSRunner(resource,redisKey,logId)
+                if request.POST.get('server_model') == 'inventory':sList = groups[:-1]
                 ANS.run_model(host_list=sList,module_name=model_name,module_args=request.POST.get('ansible_args',""))
                 DsRedis.OpsAnsibleModel.lpush(redisKey, "[Done] Ansible Done.")
                 return JsonResponse({'msg':"操作成功","code":200,'data':[]})
@@ -71,32 +76,19 @@ def ansible_run(request):
 @permission_required('OpsManage.can_add_ansible_playbook',login_url='/noperm/')
 def apps_upload(request):
     if request.method == "GET":
-#         serverList = Server_Assets.objects.all()
         serverList = AssetsSource().serverList()
         projectList = Project_Assets.objects.all()
         groupList = Group.objects.all()
         userList = User.objects.all()
+        inventoryList = Ansible_Inventory.objects.all()
         serviceList = Service_Assets.objects.all()
         return render(request,'apps/apps_playbook_upload.html',{"user":request.user,"userList":userList,
                                                             "serverList":serverList,"groupList":groupList,
-                                                            "serviceList":serviceList,"projectList":projectList},
+                                                            "serviceList":serviceList,"projectList":projectList,
+                                                            "inventoryList":inventoryList},
                                   )
     elif request.method == "POST":   
-#         sList = []
-        if request.POST.get('server_model') in ['service','group','custom']:  
-#             if request.POST.get('server_model') == 'custom':
-#                 for sid in request.POST.getlist('playbook_server'):
-#                     server = Server_Assets.objects.get(id=sid)
-#                     sList.append(server.ip)
-#                 playbook_server_value = None
-#             elif request.POST.get('server_model') == 'group':
-#                 serverList = Assets.objects.filter(group=request.POST.get('ansible_group'))
-#                 sList = [  s.server_assets.ip for s in serverList ]
-#                 playbook_server_value = request.POST.get('ansible_group')
-#             elif request.POST.get('server_model') == 'service':
-#                 serverList = Assets.objects.filter(business=request.POST.get('ansible_service'))
-#                 sList = [  s.server_assets.ip for s in serverList ]   
-#                 playbook_server_value = request.POST.get('ansible_service')     
+        if request.POST.get('server_model') in ['service','group','custom','inventory']:       
             if request.POST.get('server_model') == 'custom':
                 serverList = request.POST.getlist('playbook_server')
                 sList,resource = AssetsSource().custom(serverList)
@@ -106,7 +98,10 @@ def apps_upload(request):
                 playbook_server_value = request.POST.get('ansible_group')
             elif request.POST.get('server_model') == 'service':
                 sList,resource = AssetsSource().service(business=request.POST.get('ansible_service'))
-                playbook_server_value = request.POST.get('ansible_service')                        
+                playbook_server_value = request.POST.get('ansible_service')   
+            elif request.POST.get('server_model') == 'inventory':
+                sList,resource,groups  = AssetsSource().inventory(inventory=request.POST.get('ansible_inventory')) 
+                playbook_server_value = request.POST.get('ansible_inventory')                                      
         try:  
             playbook = Ansible_Playbook.objects.create(
                                             playbook_name = request.POST.get('playbook_name'),
@@ -145,14 +140,16 @@ def apps_online(request):
         userList = User.objects.all()
         serviceList = Service_Assets.objects.all()
         projectList = Project_Assets.objects.all()
+        inventoryList = Ansible_Inventory.objects.all()
         return render(request,'apps/apps_playbook_online.html',{"user":request.user,"userList":userList,
                                                             "serverList":serverList,"groupList":groupList,
-                                                            "serviceList":serviceList,"projectList":projectList},
+                                                            "serviceList":serviceList,"projectList":projectList,
+                                                            "inventoryList":inventoryList},
                                   )
     elif request.method == "POST": 
         sList = []
         playbook_server_value = None
-        if request.POST.get('server_model') in ['service','group','custom']:    
+        if request.POST.get('server_model') in ['service','group','custom','inventory']:    
             if request.POST.get('server_model') == 'custom':
                 serverList = request.POST.getlist('playbook_server[]')
                 sList,resource = AssetsSource().custom(serverList)
@@ -162,6 +159,9 @@ def apps_online(request):
             elif request.POST.get('server_model') == 'service':
                 sList,resource = AssetsSource().service(business=request.POST.get('ansible_service')) 
                 playbook_server_value = request.POST.get('ansible_service')   
+            elif request.POST.get('server_model') == 'inventory':
+                sList,resource,groups  = AssetsSource().inventory(inventory=request.POST.get('ansible_inventory')) 
+                playbook_server_value = request.POST.get('ansible_inventory') 
         fileName = 'playbook/online-{ram}.yaml'.format(ram=uuid.uuid4().hex[0:8]) 
         filePath = os.getcwd() + '/upload/' + fileName
         if request.POST.get('playbook_content'):
@@ -247,7 +247,7 @@ def apps_playbook_run(request,pid):
       
     if request.method == "GET":
         return render(request,'apps/apps_playbook.html',{"user":request.user,"playbook":playbook,
-                                                             "serverList":serverList,"numberList":numberList},
+                                                        "serverList":serverList,"numberList":numberList},
                                   ) 
     elif request.method == "POST" and request.user.has_perm('OpsManage.can_exec_ansible_playbook'):
         if DsRedis.OpsAnsiblePlayBookLock.get(redisKey=playbook.playbook_uuid+'-locked') is None:#判断剧本是否有人在执行
@@ -256,9 +256,13 @@ def apps_playbook_run(request,pid):
             #删除旧的执行消息
             DsRedis.OpsAnsiblePlayBook.delete(playbook.playbook_uuid)            
             playbook_file = os.getcwd() + '/upload/' + str(playbook.playbook_file)
-            if numberList:serverList = [ s.playbook_server for s in numberList ]
-            else:serverList = request.POST.getlist('playbook_server')
-            sList, resource = AssetsSource().queryAssetsByIp(ipList=serverList)                  
+            Assets = AssetsSource()
+            if playbook.playbook_server_model == 'inventory':
+                sList,resource,groups = Assets.inventory(inventory=playbook.playbook_server_value)
+            else:
+                if numberList:serverList = [ s.playbook_server for s in numberList ]
+                else:serverList = request.POST.getlist('playbook_server')
+                sList, resource = Assets.queryAssetsByIp(ipList=serverList)                  
             if playbook.playbook_vars:playbook_vars = playbook.playbook_vars
             else:playbook_vars = request.POST.get('playbook_vars')
             try:
@@ -269,7 +273,7 @@ def apps_playbook_run(request,pid):
                 DsRedis.OpsAnsiblePlayBookLock.delete(redisKey=playbook.playbook_uuid+'-locked')
                 return JsonResponse({'msg':"{ex}".format(ex=ex),"code":500,'data':[]})
             logId = AnsibleRecord.PlayBook.insert(user=str(request.user),ans_id=playbook.id,ans_name=playbook.playbook_name,
-                                        ans_content="执行Ansible剧本",ans_server=','.join(sList))   
+                                        ans_content="执行Ansible剧本",ans_server=','.join(sList)) 
             #执行ansible playbook
             if request.POST.get('ansible_debug') == 'on':ANS = ANSRunner(resource,redisKey=playbook.playbook_uuid,logId=logId,verbosity=4)
             else:ANS = ANSRunner(resource,redisKey=playbook.playbook_uuid,logId=logId)                   
@@ -297,9 +301,6 @@ def apps_playbook_run(request,pid):
             DsRedis.OpsAnsiblePlayBook.lpush(playbook.playbook_uuid, "[Done] Ansible Done.")
             #切换版本之后取消项目部署锁
             DsRedis.OpsAnsiblePlayBookLock.delete(redisKey=playbook.playbook_uuid+'-locked') 
-            #操作日志异步记录
-#             recordAnsiblePlaybook.delay(user=str(request.user),ans_id=playbook.id,ans_name=playbook.playbook_name,
-#                                         ans_content="执行Ansible剧本",uuid=playbook.playbook_uuid,ans_server=','.join(sList))
             return JsonResponse({'msg':"操作成功","code":200,'data':dataList,"statPer":statPer})        
         else:
             return JsonResponse({'msg':"剧本执行失败，{user}正在执行该剧本".format(user=DsRedis.OpsAnsiblePlayBookLock.get(playbook.playbook_uuid+'-locked')),"code":500,'data':[]}) 
@@ -315,6 +316,7 @@ def apps_playbook_modf(request,pid):
                                                          "errorInfo":"剧本不存在，可能已经被删除."}, 
                                   )    
     if request.method == "GET":
+        inventoryList = Ansible_Inventory.objects.all()
         numberList =[ s.playbook_server for s in numberList ]
         serverList = AssetsSource().serverList()
         projectList = Project_Assets.objects.all()
@@ -339,12 +341,13 @@ def apps_playbook_modf(request,pid):
             project = None                
         return render(request,'apps/apps_playbook_modf.html',{"user":request.user,"userList":userList,"projectList":projectList,
                                                                   "playbook":playbook,"serverList":serverList,"project":project,
-                                                                  "groupList":groupList,"serviceList":serviceList},
+                                                                  "groupList":groupList,"serviceList":serviceList,
+                                                                  "inventoryList":inventoryList},
                                   )
     elif request.method == "POST":
         sList = []
         playbook_server_value = None
-        if request.POST.get('server_model') in ['service','group','custom']:       
+        if request.POST.get('server_model') in ['service','group','custom','inventory']:       
             if request.POST.get('server_model') == 'custom':
                 if playbook.playbook_type == 1:serverList = request.POST.getlist('playbook_server[]')
                 else:serverList = request.POST.getlist('playbook_server')
@@ -355,6 +358,9 @@ def apps_playbook_modf(request,pid):
             elif request.POST.get('server_model') == 'service':
                 sList,resource = AssetsSource().service(business=request.POST.get('ansible_service'))
                 playbook_server_value = request.POST.get('ansible_service')  
+            elif request.POST.get('server_model') == 'inventory':
+                sList,resource,groups = AssetsSource().inventory(inventory=request.POST.get('ansible_inventory'))
+                playbook_server_value = request.POST.get('ansible_inventory')                 
             if playbook.playbook_type == 1:
                 playbook_file = os.getcwd() + '/upload/' + str(playbook.playbook_file)
                 with open(playbook_file, 'w') as f:
@@ -410,7 +416,7 @@ def apps_playbook_online_modf(request,pid):
     if request.method == "POST":
         playbook_server_value = None
         sList = []
-        if request.POST.get('server_model') in ['service','group','custom']:              
+        if request.POST.get('server_model') in ['service','group','custom','inventory']:              
             if request.POST.get('server_model') == 'custom':
                 serverList = request.POST.getlist('playbook_server[]')
                 sList,resource = AssetsSource().custom(serverList)
@@ -420,6 +426,9 @@ def apps_playbook_online_modf(request,pid):
             elif request.POST.get('server_model') == 'service':
                 sList,resource = AssetsSource().service(business=request.POST.get('ansible_service')) 
                 playbook_server_value = request.POST.get('ansible_service')
+            elif request.POST.get('server_model') == 'inventory':
+                sList,resource,groups = AssetsSource().inventory(inventory=request.POST.get('ansible_inventory')) 
+                playbook_server_value = request.POST.get('ansible_inventory')                 
         if request.POST.get('playbook_content'):
             playbook_file = os.getcwd() + '/upload/' + str(playbook.playbook_file)
             with open(playbook_file, 'w') as f:
@@ -464,8 +473,8 @@ def apps_playbook_online_modf(request,pid):
 @login_required(login_url='/login')  
 def ansible_log(request):
     if request.method == "GET":
-        modelList = Log_Ansible_Model.objects.all().order_by('-id')[0:120]
-        playbookList = Log_Ansible_Playbook.objects.all().order_by('-id')[0:120]
+        modelList = Log_Ansible_Model.objects.all().order_by('-id')[0:500]
+        playbookList = Log_Ansible_Playbook.objects.all().order_by('-id')[0:500]
         return render(request,'apps/apps_log.html',{"user":request.user,"modelList":modelList,
                                                             "playbookList":playbookList},
                                   )
@@ -498,7 +507,7 @@ def ansible_log_view(request,model,id):
 @permission_required('OpsManage.can_read_ansible_script',login_url='/noperm/')
 def apps_script_online(request):
     if request.method == "GET":
-        serverList = Server_Assets.objects.all()
+        serverList = AssetsSource().serverList()
         groupList = Group.objects.all()
         serviceList = Service_Assets.objects.all()
         projectList = Project_Assets.objects.all()
@@ -516,52 +525,25 @@ def apps_script_online(request):
         if request.POST.get('server_model') in ['service','group','custom']:
             if request.POST.get('server_model') == 'custom':
                 serverList = request.POST.getlist('ansible_server[]')
-                for server in serverList:
-                    server_assets = Server_Assets.objects.get(id=server)
-                    sList.append(server_assets.ip)
-                    if server_assets.keyfile == 1:resource.append({"hostname": server_assets.ip, "port": int(server_assets.port),"username": server_assets.username})
-                    else:resource.append({"hostname": server_assets.ip, "port": int(server_assets.port),"username": server_assets.username,"password": server_assets.passwd})
+                sList,resource = AssetsSource().custom(serverList=serverList)
             elif request.POST.get('server_model') == 'group':
-                try:
-                    serverList = Assets.objects.filter(group=request.POST.get('ansible_group',0),assets_type__in=["server","vmser"])
-                except:
-                    serverList = []                
-                for server in serverList:
-                    try:
-                        sList.append(server.server_assets.ip)
-                    except Exception, ex:
-                        logger.warn(msg="获取组信息失败: {ex}".format(ex=ex))
-                        continue
-                    if server.server_assets.keyfile == 1:resource.append({"hostname": server.server_assets.ip, "port": int(server.server_assets.port),"username": server.server_assets.username})
-                    else:resource.append({"hostname": server.server_assets.ip, "port": int(server.server_assets.port),"username": server.server_assets.username,"password": server.server_assets.passwd})  
+                sList,resource = AssetsSource().group(group=request.POST.get('ansible_group',0))  
             elif request.POST.get('server_model') == 'service':
-                try:
-                    serverList = Assets.objects.filter(business=int(request.POST.get('ansible_service',0)),assets_type__in=["server","vmser"])
-                except:
-                    serverList = []
-                for server in serverList:
-                    try:
-                        sList.append(server.server_assets.ip)
-                    except Exception, ex:
-                        logger.warn(msg="获取业务信息失败: {ex}".format(ex=ex))
-                        continue                   
-                    if server.server_assets.keyfile == 1:resource.append({"hostname": server.server_assets.ip, "port": int(server.server_assets.port),"username": server.server_assets.username})
-                    else:resource.append({"hostname": server.server_assets.ip, "port": int(server.server_assets.port),"username": server.server_assets.username,"password": server.server_assets.passwd})   
-                                                        
-            if len(sList) > 0 and request.POST.get('type') == 'run' and request.POST.get('script_file'):
+                sList,resource = AssetsSource().service(business=request.POST.get('ansible_service'))                                                       
+            if len(sList) > 0 and request.POST.get('type') == 'run' and request.POST.get('script_file'):             
                 filePath = saveScript(content=request.POST.get('script_file'),filePath='/tmp/script-{ram}'.format(ram=uuid.uuid4().hex[0:8]))
                 redisKey = request.POST.get('ans_uuid')
                 logId = AnsibleRecord.Model.insert(user=str(request.user),ans_model='script',ans_server=','.join(sList),ans_args=filePath)
                 DsRedis.OpsAnsibleModel.delete(redisKey)
-                DsRedis.OpsAnsibleModel.lpush(redisKey, "[Start] Ansible Model: {model}  Script:{args}".format(model='script',args=filePath))
+                DsRedis.OpsAnsibleModel.lpush(redisKey, "[Start] Ansible Model: {model}  Script:{filePath} {args}".format(model='script',filePath=filePath,args=request.POST.get('script_args')))
                 if request.POST.get('ansible_debug') == 'on':ANS = ANSRunner(resource,redisKey,logId,verbosity=4)
                 else:ANS = ANSRunner(resource,redisKey,logId)
-                ANS.run_model(host_list=sList,module_name='script',module_args=filePath)
+                ANS.run_model(host_list=sList,module_name='script',module_args="{filePath} {args}".format(filePath=filePath,args=request.POST.get('script_args')))
                 DsRedis.OpsAnsibleModel.lpush(redisKey, "[Done] Ansible Done.")
                 try:
                     os.remove(filePath)
                 except Exception, ex:
-                    logger.warn(msg="删除文件失败: {ex}".format(ex=ex))              
+                    logger.warn(msg="删除文件失败: {ex}".format(ex=ex))             
                 return JsonResponse({'msg':"操作成功","code":200,'data':[]})
         if request.POST.get('type') == 'save' and request.POST.get('script_file') and \
             ( request.user.has_perm('OpsManage.can_add_ansible_script') or request.user.has_perm('OpsManage.can_edit_ansible_script') ):
@@ -580,6 +562,7 @@ def apps_script_online(request):
                 Ansible_Script.objects.create(
                                               script_name=request.POST.get('script_name'),
                                               script_uuid=request.POST.get('ans_uuid'),
+                                              script_args=request.POST.get('script_args'),
                                               script_server=json.dumps(sList),
                                               script_group=group,
                                               script_file=fileName,
@@ -641,8 +624,7 @@ def apps_script_online_run(request,pid):
         script = Ansible_Script.objects.get(id=pid)
         numberList = json.loads(script.script_server)
     except:
-        return render(request,'apps/apps_script_modf.html',{"user":request.user,
-                                                         "errorInfo":"剧本不存在，可能已经被删除."},) 
+        return render(request,'apps/apps_script_modf.html',{"user":request.user,"errorInfo":"剧本不存在，可能已经被删除."},) 
     def saveScript(content,filePath):
         if os.path.isdir(os.path.dirname(filePath)) is not True:os.makedirs(os.path.dirname(filePath))#判断文件存放的目录是否存在，不存在就创建
         with open(filePath, 'w') as f:
@@ -650,10 +632,10 @@ def apps_script_online_run(request,pid):
         return filePath         
     if request.method == "GET":
         projectList = Project_Assets.objects.all()
-        serverList = Server_Assets.objects.all()
+        serverList = AssetsSource().serverList()
         for ds in serverList:
-            if ds.ip in numberList:ds.count = 1
-            else:ds.count = 0
+            if ds.get('ip') in numberList:ds['count'] = 1
+            else:ds['count'] = 0
         script_file = os.getcwd() + '/' + str(script.script_file)
         if os.path.exists(script_file):
             content = ''
@@ -672,9 +654,9 @@ def apps_script_online_run(request,pid):
         return render(request,'apps/apps_script_modf.html',{"user":request.user,"userList":userList,
                                                                   "script":script,"serverList":serverList,
                                                                   "groupList":groupList,"serviceList":serviceList,
-                                                                  "project":project,"projectList":projectList},
-                                  )
-    elif request.method == "POST"and request.user.has_perm('OpsManage.can_exec_ansible_script'):
+                                                                  "project":project,"projectList":projectList,
+                                                                  "ans_uuid":uuid.uuid4(),})
+    elif request.method == "POST" and request.user.has_perm('OpsManage.can_exec_ansible_script'):
         resource = []
         sList = []
         if request.POST.get('server_model') in ['service','group','custom']:
@@ -683,14 +665,14 @@ def apps_script_online_run(request,pid):
                 for server in serverList:
                     server_assets = Server_Assets.objects.get(id=server)
                     sList.append(server_assets.ip)
-                    if server_assets.keyfile == 1:resource.append({"hostname": server_assets.ip, "port": int(server_assets.port),"username": server_assets.username})
-                    else:resource.append({"hostname": server_assets.ip, "port": int(server_assets.port),"username": server_assets.username,"password": server_assets.passwd})
+                    if server_assets.keyfile == 1:resource.append({"ip": server_assets.ip, "port": int(server_assets.port),"username": server_assets.username})
+                    else:resource.append({"ip": server_assets.ip, "port": int(server_assets.port),"username": server_assets.username,"password": server_assets.passwd})
             elif request.POST.get('server_model') == 'group':
                 serverList = Assets.objects.filter(group=request.POST.get('ansible_group'),assets_type__in=["server","vmser"])
                 for server in serverList:
                     sList.append(server.server_assets.ip)
-                    if server.server_assets.keyfile == 1:resource.append({"hostname": server.server_assets.ip, "port": int(server.server_assets.port),"username": server.server_assets.username})
-                    else:resource.append({"hostname": server.server_assets.ip, "port": int(server.server_assets.port),"username": server.server_assets.username,"password": server.server_assets.passwd})  
+                    if server.server_assets.keyfile == 1:resource.append({"ip": server.server_assets.ip, "port": int(server.server_assets.port),"username": server.server_assets.username})
+                    else:resource.append({"ip": server.server_assets.ip, "port": int(server.server_assets.port),"username": server.server_assets.username,"password": server.server_assets.passwd})  
             elif request.POST.get('server_model') == 'service':
                 serverList = Assets.objects.filter(business=request.POST.get('ansible_service'),assets_type__in=["server","vmser"])
                 for server in serverList:
@@ -699,8 +681,8 @@ def apps_script_online_run(request,pid):
                     except Exception, ex:
                         logger.warn(msg="获取业务失败: {ex}".format(ex=ex))  
                         continue
-                    if server.server_assets.keyfile == 1:resource.append({"hostname": server.server_assets.ip, "port": int(server.server_assets.port),"username": server.server_assets.username})
-                    else:resource.append({"hostname": server.server_assets.ip, "port": int(server.server_assets.port),"username": server.server_assets.username,"password": server.server_assets.passwd})     
+                    if server.server_assets.keyfile == 1:resource.append({"ip": server.server_assets.ip, "port": int(server.server_assets.port),"username": server.server_assets.username})
+                    else:resource.append({"ip": server.server_assets.ip, "port": int(server.server_assets.port),"username": server.server_assets.username,"password": server.server_assets.passwd})     
         if request.POST.get('type') == 'save' and request.POST.get('script_file'): 
             filePath = os.getcwd() + '/' + str(script.script_file)
             saveScript(content=request.POST.get('script_file'),filePath=filePath)
@@ -709,6 +691,7 @@ def apps_script_online_run(request,pid):
                                               script_server=json.dumps(sList),
                                               script_group=request.POST.get('ansible_group',0),
                                               script_service=request.POST.get('ansible_service',0),
+                                              script_args=request.POST.get('script_args'),
                                               script_type=request.POST.get('server_model')
                                               )
             except Exception,ex:
@@ -717,3 +700,134 @@ def apps_script_online_run(request,pid):
             return JsonResponse({'msg':"保存成功","code":200,'data':[]})    
         else:
             return JsonResponse({'msg':"操作失败，不支持的操作类型，或者您没有权限执行","code":500,'data':[]})    
+        
+        
+@login_required()
+@permission_required('OpsManage.can_read_ansible_inventory',login_url='/noperm/')
+def ansible_inventory(request):  
+    if request.method == "GET":
+        inventoryList = [] 
+        for ds in Ansible_Inventory.objects.all():
+            try:
+                ds.user = User.objects.get(id=ds.user).username
+            except Exception,ex:
+                logger.warn(msg="查询用户信息失败: {ex}".format(ex=str(ex)))
+            inventoryList.append(ds)
+        serverList = AssetsSource().serverList()
+        return  render(request,'apps/apps_inventory.html',{"user":request.user,"serverList":serverList,
+                                                           "inventoryList":inventoryList},
+                                  )
+    elif request.method == "POST"  and request.user.has_perm('OpsManage.can_add_ansible_inventory'):
+        try:
+            Ansible_Inventory.objects.create(name=request.POST.get('inventory_name'),
+                                             desc=request.POST.get('inventory_desc'),
+                                             user=request.user.id)
+        except Exception,ex:
+            logger.error(msg="添加动态资产组失败: {ex}".format(ex=str(ex)))
+            return JsonResponse({'msg':"添加动态资产组失败: {ex}".format(ex=ex),"code":500,'data':[]})    
+        return JsonResponse({'msg':"添加成功","code":200,'data':[]}) 
+    
+@login_required()
+@permission_required('OpsManage.can_read_ansible_inventory',login_url='/noperm/')
+def ansible_inventory_modf(request,id): 
+    if request.method == "GET":
+        try:
+            inventory = Ansible_Inventory.objects.get(id=id)
+        except Exception,ex:
+            logger.warn(msg="获取资产组失败: {ex}".format(ex=str(ex)))
+        serverList = AssetsSource().serverList()               
+        return  render(request,'apps/apps_inventory_modf.html',{"user":request.user,"serverList":serverList,"inventory":inventory})
+    
+    elif request.method == "POST"  and request.user.has_perm('OpsManage.can_add_ansible_inventory'):
+        try:
+            Ansible_Inventory.objects.create(name=request.POST.get('inventory_name'),
+                                             desc=request.POST.get('inventory_desc'),
+                                             user=request.user.id)
+        except Exception,ex:
+            logger.error(msg="添加动态资产组失败: {ex}".format(ex=str(ex)))
+            return JsonResponse({'msg':"添加动态资产组失败: {ex}".format(ex=ex),"code":500,'data':[]})    
+        return JsonResponse({'msg':"添加成功","code":200,'data':[]}) 
+    
+    
+    
+@login_required()
+@permission_required('OpsManage.can_add_ansible_inventory',login_url='/noperm/')
+def ansible_inventory_groups(request,id):  
+    if request.method == "POST":
+        try:
+            inventory = Ansible_Inventory.objects.get(id=id)
+        except Exception,ex:  
+            return JsonResponse({'msg':"获取动态资产组失败: {ex}".format(ex=ex),"code":500,'data':[]})
+        try:
+            ext_vars = eval(request.POST.get('ext_vars'))
+        except Exception,ex:
+            ext_vars = None
+            logger.error(msg="添加资产组，转化外部变量失败: {ex}".format(ex=str(ex)))
+        try:
+            inventoryGroups = Ansible_Inventory_Groups.objects.create(inventory=inventory,
+                                             group_name=request.POST.get('group_name'),
+                                             ext_vars=ext_vars)
+        except Exception,ex:
+            logger.error(msg="添加资产组失败: {ex}".format(ex=str(ex)))
+            return JsonResponse({'msg':"添加资产组失败: {ex}".format(ex=ex),"code":500,'data':[]})   
+        try:
+            for aid in request.POST.get('server_list').split(','):
+                Ansible_Inventory_Groups_Server.objects.create(groups=inventoryGroups,server=aid)
+        except Exception,ex:
+            inventoryGroups.delete()
+            logger.error(msg="添加资产组成员失败: {ex}".format(ex=str(ex)))
+            return JsonResponse({'msg':"添加资产组成员失败: {ex}".format(ex=ex),"code":500,'data':[]})    
+        return JsonResponse({'msg':"添加成功","code":200,'data':[]}) 
+      
+    
+@login_required()
+@permission_required('OpsManage.can_read_ansible_inventory',login_url='/noperm/')
+def ansible_inventory_groups_server(request,id):
+    try:
+        groups = Ansible_Inventory_Groups.objects.get(id=id)
+    except Exception,ex:
+        logger.error(msg="查询资产组失败: {ex}".format(ex=str(ex)))
+        return JsonResponse({'msg':"查询资产组失败: {ex}".format(ex=ex),"code":500,'data':[]})    
+    if request.method == "GET": 
+        serverList = AssetsSource().serverList()   
+        dataList = []
+        inventoryGroupsServerLists =  Ansible_Inventory_Groups_Server.objects.filter(groups=groups) 
+        for ser in  serverList:
+            ser['select'] = 0
+            for ds in inventoryGroupsServerLists:
+                if ds.server == ser.get('id'):ser['select'] = 1
+            dataList.append(ser)
+        return JsonResponse({'msg':"查询成功","code":200,'data':dataList})   
+    elif request.method == "POST":
+        try:
+            if request.POST.get('ext_vars',None):ext_vars = eval(request.POST.get('ext_vars',None))
+            else:ext_vars = None
+        except Exception,ex:
+            logger.error(msg="修改资产组失败，外部变量格式错误: {ex}".format(ex=str(ex)))
+            return JsonResponse({'msg':"修改资产组失败，外部变量格式错误: {ex}".format(ex=str(ex)),"code":500,'data':[]}) 
+        numberList = Ansible_Inventory_Groups_Server.objects.filter(groups=groups)
+        tagret_server_list = [ s.server for s in numberList ]
+        postServerList = []
+        for server in request.POST.get('server_list').split(','):
+            try:
+                postServerList.append(int(server)) 
+                if int(server) not in tagret_server_list:
+                    Ansible_Inventory_Groups_Server.objects.create(groups=groups,server=server)                        
+            except Exception,ex:
+                logger.error(msg="修改资产组成员失败: {ex}".format(ex=str(ex)))
+                return JsonResponse({'msg':"修改资产组成员失败: {ex}".format(ex=ex),"code":500,'data':[]})
+        #清除目标主机 - 
+        delList = list(set(tagret_server_list).difference(set(postServerList)))
+        for server in delList:
+            Ansible_Inventory_Groups_Server.objects.filter(groups=groups,server=server).delete() 
+        try:
+            groups.group_name = request.POST.get('group_name')
+            groups.ext_vars = ext_vars
+            groups.save()
+        except Exception,ex:
+            logger.error(msg="修改资产组成员失败: {ex}".format(ex=str(ex)))
+            return JsonResponse({'msg':"修改资产组成员失败: {ex}".format(ex=ex),"code":500,'data':[]})
+        return JsonResponse({'msg':"修改成功","code":200,'data':[]}) 
+    elif request.method == "DELETE" and request.user.has_perm('OpsManage.can_delete_ansible_inventory'):
+        groups.delete()
+        return JsonResponse({'msg':"删除成功","code":200,'data':[]})      

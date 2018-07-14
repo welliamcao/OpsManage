@@ -21,6 +21,10 @@
 				              </li>
 				              <li><a href="#profile" data-toggle="tab"><i class="fa    fa-linux"></i> 主机</a>
 				              </li>
+				              {% if user_info.id !=  request.user.id and request.user.is_superuser %}
+							  <li><a href="#cpassword" data-toggle="tab"><i class="fa   fa-lock"></i> 重置密码</a>
+				              </li>     
+				              {% endif %}         
 				           </ul>
 				
 				                            
@@ -204,6 +208,46 @@
 				                   		</div>
 				              		</div>
 				              	</div>
+				              {% if user_info.id !=  request.user.id and request.user.is_superuser %}	
+				              <div class="tab-pane fade" id="cpassword">
+				                   <div class="row">
+				                   		<div class="col-sm-2"></div>
+				                   		<div class="col-sm-8">
+				                   			<br>
+											<form role="form" method="post" id="modfPasswd" class="main form-horizontal" >{% csrf_token %}			
+												<div class="form-group">
+													<label class="col-sm-2 control-label"><i class="fa fa-lock"></i></label>
+													<div class="col-sm-4">
+														<input type="password" class="form-control" placeholder="Password" id="password" name="password" />
+													</div>
+												</div>
+												<div class="form-group">
+													<label class="col-sm-2 control-label"><i class="fa fa-retweet"></i></label>
+													<div class="col-sm-4">
+														<input type="password" class="form-control" placeholder="Repeat password" id="c_password" name="c_password"/>
+													</div>
+												</div>																																											
+												
+												<div class="hr hr32 hr-dotted"></div>                                        
+												<div class="form-group">
+													<div class="col-md-offset-3 col-md-9">
+														<button class="btn btn-default" type="buttun" onclick="modfUserPasswd(this)">
+															<i class="fa fa-check"></i>
+																			提交
+														</button>						
+																		&nbsp; &nbsp; &nbsp;
+														<button class="btn btn-default" type="reset">
+															<i class="fa fa-undo"></i>
+																			撤销
+														</button>
+													</div>
+												</div>
+											</form>				                   			
+										</div>
+
+				                   </div>
+				              </div>
+				              {% endif %}				              	
 				           </div>
 
 
@@ -227,6 +271,50 @@
 {% if errorInfo %}
 	window.wxc.xcConfirm("{{errorInfo}}", window.wxc.xcConfirm.typeEnum.error);
 {% endif %}
+
+	function modfUserPasswd(obj) {
+		var btnObj = $(obj);
+		btnObj.attr('disabled',true);
+ 		var post_data = {}; 
+		var form = document.getElementById('modfPasswd');
+		var required = ["c_password","password"];
+		for (var i = 1; i < form.length; ++i) {
+			var name = form[i].name;
+			var value = form[i].value;
+			idx = $.inArray(name, required);
+			if (idx >= 0  && value.length == 0){
+				window.wxc.xcConfirm("密码不能为空", window.wxc.xcConfirm.typeEnum.error);
+				return false;
+			}
+			else{
+				post_data[name] = value;
+			};
+			
+		};
+		$.ajax({
+			dataType: "JSON",
+			url:'/user/{{user_info.id}}/', //请求地址
+			type:"PUT",  //提交类似
+			data:post_data, //提交参数
+			success:function(response){
+				btnObj.removeAttr('disabled');
+				if (response["code"] == "500"){
+					btnObj.removeAttr('disabled');
+					window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
+				}
+				else {
+					btnObj.removeAttr('disabled');
+					window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.success);					
+				}
+			},
+	    	error:function(response){
+	    		btnObj.removeAttr('disabled');
+	    		window.wxc.xcConfirm("密码修改失败", window.wxc.xcConfirm.typeEnum.error);
+	//	    		location.reload();
+	    	}
+		})	
+	}
+
 	function oBtwebsshServerl(){
 		   var obj = document.getElementById("server_model"); 
 		   var index = obj.selectedIndex;
