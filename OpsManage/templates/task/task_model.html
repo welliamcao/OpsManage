@@ -831,13 +831,18 @@
 	function onBtnHandleCrontab(obj, id, op) {
 		var btnObj = $(obj);
 		var txt = "是否确认删除？";
+		if (op=='delCrontab'){
+			var url = '/api/task/crontab/'+ id +'/'
+		}else if(op=='delInterval'){
+			var url = '/api/task/intervals/'+ id +'/'
+		}
 		var option = {
 			title : "删除(" + id + ")",
 			btn : parseInt("0011", 2),
 			onOk : function() {
 				$.ajax({
 					type : 'DELETE',
-					url : '/api/task/crontab/'+ id +'/',
+					url : url,
 					data : {
 						"id" : id,
 						"op" : op,
