@@ -71,7 +71,7 @@ def cronLogsdetail(request, id,format=None):
         return Response(serializer.data)
      
     elif request.method == 'DELETE':
-        if not request.user.has_perm('OpsManage.can_delete_log_cron_config'):
+        if not request.user.has_perm('OpsManage.can_delete_cron_config'):
             return Response(status=status.HTTP_403_FORBIDDEN)
         snippet.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)  

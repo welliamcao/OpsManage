@@ -48,7 +48,7 @@ def deploy_detail(request, id,format=None):
         return Response(status=status.HTTP_204_NO_CONTENT) 
     
 @api_view(['GET', 'DELETE'])
-@permission_required('OpsManage.delete_log_project_config',raise_exception=True)
+@permission_required('OpsManage.can_delete_project_config',raise_exception=True)
 def deployLogs_detail(request, id,format=None):
     """
     Retrieve, update or delete a server assets instance.
@@ -63,7 +63,7 @@ def deployLogs_detail(request, id,format=None):
         return Response(serializer.data)
      
     elif request.method == 'DELETE':
-        if not request.user.has_perm('OpsManage.delete_log_project_config'):
+        if not request.user.has_perm('OpsManage.can_delete_project_config'):
             return Response(status=status.HTTP_403_FORBIDDEN)
         snippet.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)     
