@@ -1,7 +1,7 @@
 from django.conf.urls import url
 from .views import (wiki_api,assets_api,deploy_api,cron_api,
                        logs_api,ansible_api,db_api,users_api,
-                       orders_api,files_api,task_api,config_api)
+                       orders_api,files_api,task_api)
 urlpatterns = [
             url(r'^assets/(?P<id>[0-9]+)/$', assets_api.asset_detail),
             url(r'^assets/info/(?P<id>[0-9]+)/$', assets_api.asset_info),            
