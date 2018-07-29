@@ -366,7 +366,7 @@ def assets_import(request):
                     elif assets.get('assets_type') in ['switch','route','printer','scanner','firewall','storage','wifi']:
                         Network_Assets.objects.filter(assets=assetsObj).update(**net_assets)
                 except  Exception,ex:
-                    print ex
+                    logger.warn(msg="批量更新资产失败: {ex}".format(ex=str(ex)))
             else:
                 try:
                     assetsObj = Assets.objects.create(**assets)   

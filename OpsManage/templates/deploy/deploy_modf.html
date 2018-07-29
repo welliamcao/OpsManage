@@ -117,14 +117,17 @@
                                             		<option value="">选择上线版本控制类型</option>
                                             		<option selected="selected" value="branch" name="project_model">Branch</option>
                                             		<option value="tag" name="project_model">Tag</option>
+                                            		<option value="trunk" name="project_model">Trunk</option>
                                             	{% elif project.project_model == 'tag' %} 	
                                             		<option value="">选择上线版本控制类型</option>
                                             		<option value="branch" name="project_model">Branch</option>
                                             		<option selected="selected" value="tag" name="project_model">Tag</option> 
-                                            	{% else %}
+                                            		<option value="trunk" name="project_model">Trunk</option>
+                                            	{% elif project.project_model == 'trunk' %}
                                             		<option selected="selected" value="">选择上线版本控制类型</option>
                                             		<option value="branch" name="project_model">Branch</option>
-                                            		<option value="tag" name="project_model">Tag</option>                                             		
+                                            		<option value="tag" name="project_model">Tag</option>   
+                                            		<option value="trunk" selected="selected" name="project_model">Trunk</option>                                          		
                                             	{% endif %}                                            	
                                             </select>
                                         </div>   

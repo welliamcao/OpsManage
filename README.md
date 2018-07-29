@@ -29,7 +29,7 @@
 ## 安装环境配置
 一、安装Python
 ```
-# yum install zlib zlib-devel readline-devel sqlite-devel bzip2-devel openssl-devel gdbm-devel libdbi-devel ncurses-libs kernel-devel libxslt-devel libffi-devel python-devel mysql-devel zlib-devel mysql-server sshpass gcc git -y
+# yum install zlib zlib-devel readline-devel sqlite-devel bzip2-devel openssl-devel gdbm-devel libdbi-devel ncurses-libs kernel-devel libxslt-devel libffi-devel python-devel zlib-devel  sshpass gcc git -y
 # wget http://mirrors.sohu.com/python/2.7.12/Python-2.7.12.tgz  #CentOS 7不用安装python2.7
 # tar -xzvf Python-2.7.12.tgz
 # cd Python-2.7.12
@@ -95,19 +95,20 @@ bind 你的服务器ip地址
 # mv redis-3.2.8 /usr/local/redis
 # /usr/local/redis/src/redis-server /usr/local/redis/redis.conf
 ```
-六、配置MySQL
+六、安装MySQL
 ```
+# yum install http://www.percona.com/downloads/percona-release/redhat/0.1-6/percona-release-0.1-6.noarch.rpm
+# yum install Percona-Server-server-56
 # vim /etc/my.cnf
 [mysqld]
 character_set_server = utf8
 添加以上字段
-```
-```
-# mysql -uroot -p
+# /etc/init.d/mysqld restart     	#centos 6
+# systemctl start mysql.service 	#centos 7
+# mysql -uroot -p  				#初始密码为空，直接回车就行
 mysql> create database opsmanage DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
 mysql> grant all privileges on opsmanage.* to root@'%' identified by 'password';
 mysql>\q
-# /etc/init.d/mysqld restart
 ```
 七、配置OpsManage
 ```

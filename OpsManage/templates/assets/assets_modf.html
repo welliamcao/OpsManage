@@ -543,7 +543,8 @@ function addAssetsData(obj) {
 		var name = form[i].name;
 		var value = form[i].value;
 		var assetStart = name.indexOf("asset_");
-		if (assetStart==0 && value.length == 0){
+		if (assetStart==0 && value.length == 0 && name !=="asset_mark"){
+			$("[name='"+ name +"']").parent().addClass("has-error");
 			window.wxc.xcConfirm("请注意必填项不能为空~", window.wxc.xcConfirm.typeEnum.error);
 			return false;
 		}

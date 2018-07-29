@@ -227,6 +227,7 @@ def deploy_run(request,pid):
     if request.method == "GET":
         if project.project_model == 'branch':bList = version.branch(path=project.project_repo_dir) 
         elif project.project_model == 'tag':bList = version.tag(path=project.project_repo_dir) 
+        else:bList = version.trunk(path=project.project_repo_dir) 
         if project.project_env == 'uat':
             return render(request,'deploy/deploy_run.html',{"user":request.user,
                                                              "project":project,"serverList":serverList,
@@ -283,7 +284,7 @@ def deploy_run(request,pid):
                 DsRedis.OpsDeploy.lpush(project.project_uuid, data="[PULL start get code on server]") 
                 project_content = "部署项目"
                 #判断版本上线类型再切换分支到指定的分支/Tag
-                if project.project_model == 'branch':
+                if project.project_model == 'branch' or project.project_repertory == 'svn':
                     bName = request.POST.get('project_branch')
                     result = version.checkOut(path=project.project_repo_dir, name=bName)
                     DsRedis.OpsDeploy.lpush(project.project_uuid, data="[PULL] Switched to branch %s" % bName)

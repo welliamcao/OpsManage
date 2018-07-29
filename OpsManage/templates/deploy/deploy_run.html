@@ -82,12 +82,16 @@
 												 </div>
 											</div>	
 											{% else %}
-												<div class="form-group" style="display:none;">
-													 <label class="col-sm-2 control-label">分支</label>
-													 <div class="col-sm-6">													   
-														<input type="hidden" name="project_branch"	value="trunk" disabled/>					 	
-													 </div>
-												</div>													
+											<div class="form-group" style="display: none;>
+												 <label class="col-sm-2 control-label">分支</label>
+												 <div class="col-sm-6">
+												   <select class="form-control" name="project_branch" >
+														<option value="trunk" {% if project.project_model == 'trunk' and  project.project_repertory == 'svn' %} selected="selected" {% endif %} name="project_branch">trunk</option>	
+														<option value="branch"  name="project_branch" {% if project.project_model == 'branch' and  project.project_repertory == 'svn' %} selected="selected" {% endif %} >branch</option>			
+														<option value="tags"  name="project_branch" {% if project.project_model == 'tag' and  project.project_repertory == 'svn' %} selected="selected" {% endif %} >tags</option>		   		
+													</select>							 	
+												 </div>
+											</div>													
 												
 												<div class="form-group">
 													 <label class="col-sm-2 control-label">版本选择</label>
