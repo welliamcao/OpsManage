@@ -46,7 +46,7 @@ def AnsiblePlayBook(**kw):
     try:
         if kw.has_key('playbook_id'):
             playbook = Ansible_Playbook.objects.get(id=kw.get('playbook_id'))
-            filePath = os.getcwd()  + str(playbook.playbook_file)
+            filePath = os.getcwd() + '/upload/' + str(playbook.playbook_file)
             if kw.has_key('hosts'):
                 try:
                     sList = list(kw.get('hosts'))
