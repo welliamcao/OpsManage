@@ -63,7 +63,7 @@ def AnsiblePlayBook(**kw):
                                             ans_content=u"执行Ansible剧本",ans_server=','.join(sList)) 
             sList, resource = AssetsSource().queryAssetsByIp(ipList=sList)       
             ANS = ANSRunner(resource,redisKey=None,logId=logId)
-            ANS.run_playbook(host_list=sList, playbook_path=filePath)
+            ANS.run_playbook(host_list=sList, playbook_path=filePath,extra_vars=playbook.playbook_vars)
             return ANS.get_playbook_result()
     except Exception,e:
         print e

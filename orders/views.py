@@ -43,11 +43,11 @@ def deploy_apply(request,pid):
     if request.method == "GET":
         vList = None
         version.pull(path=project.project_repo_dir)
-        if project.project_model == 'branch':
+        if project.project_model == "branch" or project.project_repertory == 'svn':
             #获取最新版本
             bList = version.branch(path=project.project_repo_dir) 
             vList = version.log(path=project.project_repo_dir, number=50)
-        elif project.project_model == 'tag':
+        elif project.project_model == "tag":
             bList = version.tag(path=project.project_repo_dir) 
         audit_group = Group.objects.get(id=project.project_audit_group)
         userList = [ u for u in audit_group.user_set.values()]
