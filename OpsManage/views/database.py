@@ -22,7 +22,7 @@ from django.http import StreamingHttpResponse,HttpResponse
 from OpsManage.utils.logger import logger
 
 @login_required()
-@permission_required('OpsManage.can_add_database_server_config',login_url='/noperm/')
+@permission_required('OpsManage.can_read_database_server_config',login_url='/noperm/')
 def db_config(request):
     if request.method == "GET":
         groupList = Group.objects.all()
@@ -311,7 +311,7 @@ def db_sqlorder_osc(request,id):
  
         
 @login_required()
-@permission_required('OpsManage.can_add_database_server_config',login_url='/noperm/')
+@permission_required('OpsManage.can_read_database_server_config',login_url='/noperm/')
 def db_ops(request): 
     if request.method == "GET":
         dataBaseList = DataBase_Server_Config.objects.all()
