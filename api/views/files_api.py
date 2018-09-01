@@ -38,7 +38,7 @@ def upload_file_detail(request, id,format=None):
     
     
 @api_view(['GET', 'POST' ])
-@permission_required('filemanage.can_read_fileupdownload_audit_order',raise_exception=True)
+@permission_required('filemanage.can_add_filedownload_audit_order',raise_exception=True)
 def download_file_list(request,format=None):  
     if request.method == 'GET':     
         snippets = FileDownload_Audit_Order.objects.all()
@@ -52,7 +52,7 @@ def download_file_list(request,format=None):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET', 'PUT', 'DELETE'])
-@permission_required('filemanage.can_change_fileupdownload_audit_order',raise_exception=True)
+@permission_required('filemanage.can_read_filedownload_audit_order',raise_exception=True)
 def download_file_detail(request, id,format=None):  
     try:
         snippet = FileDownload_Audit_Order.objects.get(id=id)

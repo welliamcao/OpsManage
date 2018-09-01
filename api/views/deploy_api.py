@@ -26,7 +26,7 @@ def deploy_list(request,format=None):
         
     
 @api_view(['GET', 'PUT', 'DELETE'])
-@permission_required('OpsManage.can_delete_project_config',raise_exception=True)
+@permission_required('OpsManage.can_read_project_config',raise_exception=True)
 def deploy_detail(request, id,format=None):
     """
     Retrieve, update or delete a server assets instance.

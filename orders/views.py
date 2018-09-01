@@ -362,7 +362,7 @@ def file_upload_list(request,page):
 
    
 @login_required()
-@permission_required('filemanage.can_add_fileupload_audit_order',login_url='/noperm/')
+@permission_required('filemanage.can_read_fileupload_audit_order',login_url='/noperm/')
 def file_upload_audit(request):
     if request.method == "POST":  
         try:
