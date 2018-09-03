@@ -951,6 +951,24 @@
                     changepage(1);
                 }
             }) 
+            //系统类型
+            $('#selSystem').change(function () {
+                if ($('#selSystem').val() != "") {
+                    $("#hdnProject").val($('#selSystem').val());
+                    var span = "<span class='label label-success' id='spanSelinux'>" + $("#selSystem").find("option:selected").text()
+                    + " <img alt='' src='/static/img/close.png' onclick='removeself(this)' /><input name='system' type='hidden' value='"
+                    + $('#selSystem').val() + "' /></span> &nbsp;";
+                    if ($("#spanSelinux").length == 0) {
+                        $('#divSelectedType').append(span);
+                    }
+                    else {
+                        $("#spanSelinux").html($("#selSystem").find("option:selected").text()
+                         + " <img alt='' src='/static/img/close.png' onclick='removeself(this)' /><input name='system' type='hidden' value='"
+                         + $('#selSystem').val() + "' /></span> &nbsp;");
+                    }
+                    changepage(1);
+                }
+            }) 
 			//内核版本
             $('#selKernel').change(function () {
                 if ($('#selKernel').val() != "") {
