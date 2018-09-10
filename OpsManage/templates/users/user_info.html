@@ -19,7 +19,7 @@
 				           <ul class="nav nav-tabs">
 				              <li class="active"><a href="#home" data-toggle="tab"><i class="fa   fa-user"></i> 权限</a>
 				              </li>
-				              <li><a href="#profile" data-toggle="tab"><i class="fa    fa-linux"></i> 主机</a>
+				              <!-- <li><a href="#profile" data-toggle="tab"><i class="fa    fa-linux"></i> 主机</a> -->
 				              </li>
 				              {% if user_info.id !=  request.user.id and request.user.is_superuser %}
 							  <li><a href="#cpassword" data-toggle="tab"><i class="fa   fa-lock"></i> 重置密码</a>

@@ -94,7 +94,6 @@ urlpatterns = [
     url(r'^user/center/$',users.user_center),
     url(r'^user/server/(?P<uid>[0-9]+)/$',users.user_server),
     url(r'^group/(?P<gid>[0-9]+)/$',users.group),
-    url(r'^webssh/(?P<sid>[0-9]+)/$',wssh.wssh),
     url(r'^roles/',elfinder.finder),
     url(r'^elfinder/',include('elfinder.urls')),
     url(r'^wiki/',include('wiki.urls')),
