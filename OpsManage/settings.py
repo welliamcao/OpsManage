@@ -100,7 +100,6 @@ INSTALLED_APPS = (
     'rest_framework',
     'djcelery',
     'channels',
-    'elfinder',
     'storages',
     'wiki',
     'orders',
