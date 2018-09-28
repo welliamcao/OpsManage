@@ -56,14 +56,14 @@ def index(request):
             order.order_url = '/file/download/run/{id}/'.format(id=order.id)
             order.order_content = order.filedownload_audit_order.order_content                    
         else:order.order_content = '未知'
-	try:
-	    order.order_user = User.objects.get(id=order.order_user).username
-	except:
-	    order.order_user = '未知'
-	try:
-	    order.order_executor = User.objects.get(id=order.order_executor).username
-	except:
-	    order.order_executor = '未知'
+        try:
+            order.order_user = User.objects.get(id=order.order_user).username
+        except:
+            order.order_user = '未知'
+        try:
+            order.order_executor = User.objects.get(id=order.order_executor).username
+        except:
+            order.order_executor = '未知'
     #月度更新频率统计
     monthList = [ base.getDaysAgo(num)[0:6] for num in (0,30,60,90,120,150,180) ][::-1]
     monthDataList = []
