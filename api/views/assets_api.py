@@ -51,11 +51,14 @@ def project_detail(request, id,format=None):
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
      
-    elif request.method == 'DELETE' and request.user.has_perm('OpsManage.can_delete_rroject_assets'):
-        if not request.user.has_perm('OpsManage.can_delete_rroject_Assets'):
+    elif request.method == 'DELETE':
+        if request.user.has_perm('OpsManage.can_delete_project_Assets'):
+            project_name = snippet.project_name
+            snippet.delete()
+            recordAssets.delay(user=str(request.user),content="删除产品线名称：{project_name}".format(project_name=project_name),type="project",id=id)
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        else:
             return Response(status=status.HTTP_403_FORBIDDEN)
-        snippet.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)   
 
 @api_view(['GET', 'POST' ])
 @permission_required('OpsManage.can_add_service_assets',raise_exception=True)
@@ -112,12 +115,13 @@ def service_detail(request, id,format=None):
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
      
-    elif request.method == 'DELETE' and request.user.has_perm('OpsManage.can_delete_assets'):
-        if not request.user.has_perm('OpsManage.can_delete_service_assets'):
+    elif request.method == 'DELETE':
+        if request.user.has_perm('OpsManage.can_delete_service_assets'):
+            snippet.delete()
+            recordAssets.delay(user=str(request.user),content="删除业务类型：{service_name}".format(service_name=snippet.service_name),type="service",id=id)
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        else:
             return Response(status=status.HTTP_403_FORBIDDEN)
-        snippet.delete()
-        recordAssets.delay(user=str(request.user),content="删除业务类型：{service_name}".format(service_name=snippet.service_name),type="service",id=id)
-        return Response(status=status.HTTP_204_NO_CONTENT)   
   
 @api_view(['GET', 'DELETE'])
 @permission_required('OpsManage.read_log_assets',raise_exception=True)
@@ -189,9 +193,10 @@ def group_detail(request, id,format=None):
     elif request.method == 'DELETE':
         if not request.user.has_perm('Opsmanage.delete_group'):  
             return Response(status=status.HTTP_403_FORBIDDEN)
-        snippet.delete()
-        recordAssets.delay(user=str(request.user),content="删除用户组：{group_name}".format(group_name=snippet.name),type="group",id=id)        
-        return Response(status=status.HTTP_204_NO_CONTENT)     
+        else:
+            snippet.delete()
+            recordAssets.delay(user=str(request.user),content="删除用户组：{group_name}".format(group_name=snippet.name),type="group",id=id)
+            return Response(status=status.HTTP_204_NO_CONTENT)
 
 @api_view(['GET', 'POST' ])
 @permission_required('OpsManage.can_add_zone_assets',raise_exception=True)
@@ -239,9 +244,10 @@ def zone_detail(request, id,format=None):
     elif request.method == 'DELETE':
         if not request.user.has_perm('OpsManage.can_delete_zone_assets'):
             return Response(status=status.HTTP_403_FORBIDDEN)
-        snippet.delete()
-        recordAssets.delay(user=str(request.user),content="删除机房资产：{zone_name}".format(zone_name=snippet.zone_name),type="zone",id=id) 
-        return Response(status=status.HTTP_204_NO_CONTENT)   
+        else:
+            snippet.delete()
+            recordAssets.delay(user=str(request.user),content="删除机房资产：{zone_name}".format(zone_name=snippet.zone_name),type="zone",id=id)
+            return Response(status=status.HTTP_204_NO_CONTENT)
     
 @api_view(['GET', 'POST' ])
 @permission_required('OpsManage.can_add_line_assets',raise_exception=True)
@@ -288,9 +294,10 @@ def line_detail(request, id,format=None):
     elif request.method == 'DELETE':
         if not request.user.has_perm('OpsManage.can_delete_line_assets'):            
             return Response(status=status.HTTP_403_FORBIDDEN)
-        snippet.delete()
-        recordAssets.delay(user=str(request.user),content="删除出口线路：{line_name}".format(line_name=snippet.line_name),type="line",id=id) 
-        return Response(status=status.HTTP_204_NO_CONTENT)  
+        else:
+            snippet.delete()
+            recordAssets.delay(user=str(request.user),content="删除出口线路：{line_name}".format(line_name=snippet.line_name),type="line",id=id)
+            return Response(status=status.HTTP_204_NO_CONTENT)
     
 @api_view(['GET', 'POST' ])
 @permission_required('OpsManage.can_add_raid_assets',raise_exception=True)
@@ -337,9 +344,10 @@ def raid_detail(request, id,format=None):
     elif request.method == 'DELETE':
         if not request.user.has_perm('OpsManage.can_delete_raid_assets'):
             return Response(status=status.HTTP_403_FORBIDDEN)
-        snippet.delete()
-        recordAssets.delay(user=str(request.user),content="删除Raid类型：{raid_name}".format(raid_name=snippet.raid_name),type="raid",id=id) 
-        return Response(status=status.HTTP_204_NO_CONTENT)  
+        else:
+            snippet.delete()
+            recordAssets.delay(user=str(request.user),content="删除Raid类型：{raid_name}".format(raid_name=snippet.raid_name),type="raid",id=id)
+            return Response(status=status.HTTP_204_NO_CONTENT)
                 
 
 @api_view(['GET', 'POST' ])
@@ -386,9 +394,10 @@ def asset_detail(request, id,format=None):
     elif request.method == 'DELETE':
         if not request.user.has_perm('OpsManage.delete_asset_assets'):
             return Response(status=status.HTTP_403_FORBIDDEN)
-        snippet.delete()
-        recordAssets.delay(user=str(request.user),content="删除资产：{name}".format(name=snippet.name),type="assets",id=id) 
-        return Response(status=status.HTTP_204_NO_CONTENT) 
+        else:
+            snippet.delete()
+            recordAssets.delay(user=str(request.user),content="删除资产：{name}".format(name=snippet.name),type="assets",id=id)
+            return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 @api_view(['GET', 'POST' ])
@@ -455,14 +464,15 @@ def asset_server_detail(request, id,format=None):
     elif request.method == 'DELETE':
         if not request.user.has_perm('OpsManage.can_delete_server_assets'):
             return Response(status=status.HTTP_403_FORBIDDEN)
-        snippet.delete()
-        try:
-            assets_snippet = Assets.objects.get(id=snippet.assets.id)
-            assets_snippet.delete()
-            recordAssets.delay(user=str(request.user),content="删除服务器资产：{ip}".format(ip=snippet.ip),type="server",id=id)
-        except Assets.DoesNotExist:
-            pass       
-        return Response(status=status.HTTP_204_NO_CONTENT)         
+        else:
+            snippet.delete()
+            try:
+                assets_snippet = Assets.objects.get(id=snippet.assets.id)
+                assets_snippet.delete()
+                recordAssets.delay(user=str(request.user),content="删除服务器资产：{ip}".format(ip=snippet.ip),type="server",id=id)
+            except Assets.DoesNotExist:
+                pass
+            return Response(status=status.HTTP_204_NO_CONTENT)
    
     
 @api_view(['GET', 'POST' ])
@@ -528,14 +538,15 @@ def asset_net_detail(request, id,format=None):
     elif request.method == 'DELETE':
         if not request.user.has_perm('OpsManage.delete_net_assets'):
             return Response(status=status.HTTP_403_FORBIDDEN)
-        snippet.delete()
-        try:
-            assets_snippet = Assets.objects.get(id=snippet.assets.id)
-            assets_snippet.delete()
-            recordAssets.delay(user=str(request.user),content="删除网络设备资产：{ip}".format(ip=snippet.ip),type="net",id=id)
-        except Assets.DoesNotExist:
-            pass       
-        return Response(status=status.HTTP_204_NO_CONTENT) 
+        else:
+            snippet.delete()
+            try:
+                assets_snippet = Assets.objects.get(id=snippet.assets.id)
+                assets_snippet.delete()
+                recordAssets.delay(user=str(request.user),content="删除网络设备资产：{ip}".format(ip=snippet.ip),type="net",id=id)
+            except Assets.DoesNotExist:
+                pass
+            return Response(status=status.HTTP_204_NO_CONTENT)
     
 
 @api_view(['GET', 'POST'])
