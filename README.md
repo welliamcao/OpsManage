@@ -27,7 +27,7 @@
 [传送门](http://47.75.140.140:8896)
 ```
 用户:demo 密码：demo
-正在开发v3.0，demo环境关闭.
+正在开发v3.0，demo环境暂时关闭.
 ```
 ## QQ交流群
 ![image](https://github.com/welliamcao/OpsManage/blob/master/demo_imgs/qq_group.png)
