@@ -1,3 +1,4 @@
+# 按需安装
 supervisor
 mysql-replication
 pymysql

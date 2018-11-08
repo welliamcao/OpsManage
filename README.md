@@ -230,7 +230,7 @@ stopsignal=QUIT
 numprocs=1
 
 启动celery
-# /usr/local/bin/supervisord -c /etc/supervisord.conf
+# systemctl start supervisord
 # supervisorctl status #要检查是否都是running状态
 ```
 
