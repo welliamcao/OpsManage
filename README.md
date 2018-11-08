@@ -13,7 +13,7 @@
 ## OpsManage环境要求
  * 编程语言：Python 2.7
  * 操作系统：CentOS 6+
- * Ansible版本：2.0 + 
+ * Ansible版本：2.0 +
  * 部署平台及节点服务器：Rsync 3+
  * MySQL版本：5.1-5.6
 
@@ -32,103 +32,58 @@
 ## QQ交流群
 ![image](https://github.com/welliamcao/OpsManage/blob/master/demo_imgs/qq_group.png)
 
-## 安装环境配置
-一、安装Python
+## 安装环境配置(基于 CentOS7 )
+一、安装依赖
 ```
-# yum install zlib zlib-devel readline-devel sqlite-devel bzip2-devel openssl-devel gdbm-devel libdbi-devel ncurses-libs kernel-devel libxslt-devel libffi-devel python-devel zlib-devel  sshpass gcc git -y
-# yum install http://www.percona.com/downloads/percona-release/redhat/0.1-6/percona-release-0.1-6.noarch.rpm
-# yum install Percona-Server-server-56 install Percona-Server-devel-56
-# wget http://mirrors.sohu.com/python/2.7.12/Python-2.7.12.tgz  #CentOS 7不用安装python2.7
-# tar -xzvf Python-2.7.12.tgz
-# cd Python-2.7.12
-# ./configure
-# make all
-# make install
-# make clean
-# make distclean 
-# mv /usr/bin/python /usr/bin/python2.6.6  
-# ln -s /usr/local/bin/python2.7 /usr/bin/python 
-# vi /usr/bin/yum  
-将文件头部的
-#!/usr/bin/python
-
-改成
-#!/usr/bin/python2.6.6
+# yum -y update
+# yum -y install epel-release
+# yum -y install zlib zlib-devel readline-devel bzip2-devel openssl-devel gdbm-devel libdbi-devel ncurses-libs kernel-devel libxslt-devel libffi-devel python-devel zlib-devel sshpass gcc git mariadb-devel
 ```
-二、安装easy_install
+二、安装pip
 ```
-# wget --no-check-certificate  https://pypi.python.org/packages/f7/94/eee867605a99ac113c4108534ad7c292ed48bf1d06dfe7b63daa51e49987/setuptools-28.0.0.tar.gz#md5=9b23df90e1510c7353a5cf07873dcd22
-# tar -xzvf setuptools-28.0.0.tar.gz
-# cd setuptools-28.0.0
-# python  setup.py  install
+# yum -y install python-pip
 ```
 
-三、安装pip
-```
-# wget --no-check-certificate https://github.com/pypa/pip/archive/1.5.5.tar.gz -O pip-1.5.5.tar.gz
-# tar -xzvf pip-1.5.5.tar.gz
-# cd pip-1.5.5/
-# python setup.py install
-# pip install -U pip 
-```
-
-四、安装模块
+三、安装模块
 ```
 # cd /mnt/
 # git clone https://github.com/welliamcao/OpsManage.git
 # cd /mnt/OpsManage/
 # pip install -r requirements.txt  #注意，如果出现错误不要跳过，请根据错误信息尝试解决
-# easy_install paramiko==2.4.1
 ```
 
-五、安装Redis
+四、安装Redis
 ```
-# wget http://download.redis.io/releases/redis-3.2.8.tar.gz
-# tar -xzvf redis-3.2.8.tar.gz
-# cd redis-3.2.8
-# make
-# make install
-# vim redis.conf
+# yum -y insatall redis
+# systemctl enable redis
+# systemctl start redis
 ```
-修改以下配置
+
+五、安装MySQL
 ```
-daemonize yes
-loglevel warning
-logfile "/var/log/redis.log"
-bind 你的服务器ip地址
-例如： bind 127.0.0.1 192.168.88.201
+# yum -y install mariadb mariadb-devel mariadb-server
+# systemctl enabled mysql.service
+# systemctl start mysql.service
+# mysql -uroot  # 初始密码为空
+> create database opsmanage DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
+> grant all privileges on opsmanage.* to opsmanage@'127.0.0.1' identified by 'weakPassword';
+> quit
 ```
-```
-# cd ../
-# mv redis-3.2.8 /usr/local/redis
-# /usr/local/redis/src/redis-server /usr/local/redis/redis.conf
-```
-六、安装MySQL
-```
-# vim /etc/my.cnf
-[mysqld]
-character_set_server = utf8
-添加以上字段
-# /etc/init.d/mysqld restart     	#centos 6
-# systemctl start mysql.service 	#centos 7
-# mysql -uroot -p  				#初始密码为空，直接回车就行
-mysql> create database opsmanage DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
-mysql> grant all privileges on opsmanage.* to root@'%' identified by 'password';
-mysql>\q
-```
-七、配置OpsManage
+六、配置OpsManage
 ```
 # cd /mnt/OpsManage/OpsManage
 # vim settings.py
-BROKER_URL =  redis://192.168.1.233:6379/3 #修改成自己的配置，格式是redis://[:password]@host:port/db
-REDSI_KWARGS_LPUSH = {"host":'192.168.1.233','port':6379,'db':3} #修改成自己的配置
+BROKER_URL =  redis://127.0.0.1:6379/3  # 如果redis在其他的服务器，请修改成自己的配置，格式是redis://[:password]@host:port/db
+REDSI_KWARGS_LPUSH = {"host":'127.0.0.1','port':6379,'db':3}  # 如果redis在其他的服务器，请修改
+SECRET_KEY = 'kd8f&jx1h^1m-uldfdo3d#10d9mbc-ijjz!tozusy@aw#h+875'  # 请随意输入随机字符串（推荐字符大于等于 50位）
+DEBUG = False  # 生成环境推荐关闭，需要通过 nginx 代理访问
 DATABASES = {
     'default': {
         'ENGINE':'django.db.backends.mysql',
         'NAME':'opsmanage',
-        'USER':'root',		#修改成自己的配置
-        'PASSWORD':'welliam',	#修改成自己的配置
-        'HOST':'192.168.1.233', #修改成自己的配置
+        'USER':'opsmanage',	 # 修改成自己的配置
+        'PASSWORD':'weakPassword',	# 修改成自己的配置
+        'HOST':'127.0.0.1',  # 修改成自己的配置
         'PORT': 3306
 #         'ENGINE': 'django.db.backends.sqlite3',
 #         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
@@ -137,7 +92,7 @@ DATABASES = {
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': ["/mnt/OpsManage/OpsManage/static/",'/mnt/OpsManage/OpsManage/templates/'], #修改成自己的配置
+        'DIRS': ["/mnt/OpsManage/OpsManage/static/",'/mnt/OpsManage/OpsManage/templates/'],  # 如果安装路径不是/mnt，请修改成自己的路径
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -150,21 +105,21 @@ TEMPLATES = [
     },
 ]
 STATICFILES_DIRS = (
-     '/mnt/OpsManage/OpsManage/static/',	#修改成自己的配置
+     '/mnt/OpsManage/OpsManage/static/',	# 如果安装路径不是/mnt，请修改成自己的路径
     )
 TEMPLATE_DIRS = (
 #     os.path.join(BASE_DIR,'mysite\templates'),
-    '/mnt/OpsManage/OpsManage/templates/',	#修改成自己的配置
+    '/mnt/OpsManage/OpsManage/templates/',	# 如果安装路径不是/mnt，请修改成自己的路径
 )
 SFTP_CONF = {
              'port':22,
              'username':'root',
              'password':'welliam',
              'timeout':30
-             }  #修改成自己的配置
+             }  # 请修改成有权限连接到OpsManage服务器的用户
 
 ```
-八、生成数据表与管理员账户
+七、生成数据表与管理员账户
 ```
 # cd /mnt/OpsManage/
 # python manage.py makemigrations OpsManage
@@ -174,10 +129,52 @@ SFTP_CONF = {
 # python manage.py migrate
 # python manage.py createsuperuser
 ```
-九、启动部署平台
+八、启动部署平台
 ```
 # cd /mnt/OpsManage/
-# python manage.py runserver 0.0.0.0:8000
+# python manage.py runserver 0.0.0.0:8000  # 如果8000端口被其他端口占用，请修改成其他的端口
+```
+九、设置Nginx代理 (新开一个终端)
+```
+# yum -y install nginx
+# vi /etc/nginx/nginx.conf
+修改下面
+server {
+        listen       80 default_server;  # 对外端口
+        listen       [::]:80 default_server;
+        server_name  _;  # 如果有域名就修改成自己的域名
+        root         /usr/share/nginx/html;
+
+        # Load configuration files for the default server block.
+        include /etc/nginx/default.d/*.conf;
+
+        location / {
+            proxy_pass http://localhost:8000;  # 如果OpsManage端口不是8000，请修改
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header Host $host;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        }
+
+        location /static/ {
+            root /mnt/OpsManage/OpsManage/;  # 静态资源，如果修改安装目录，此处需要修改
+        }
+
+        error_page 404 /404.html;
+            location = /40x.html {
+        }
+
+        error_page 500 502 503 504 /50x.html;
+            location = /50x.html {
+        }
+    }
+```
+启动Nginx
+```
+# systemctl enable nginx
+# firewall-cmd --zone=public --add-port=80/tcp --permanent  # 如果端口不是80，请修改
+# firewall-cmd --reload
+# setsebool -P httpd_can_network_connect 1  # selinux放行nginx
+# systemctl start nginx
 ```
 十、配置证书认证
 ```
@@ -186,6 +183,8 @@ SFTP_CONF = {
 ```
 十一、配置Celery异步任务系统
 ```
+# yum -y install supervisor
+# systemctl enable supervisord
 # echo_supervisord_conf > /etc/supervisord.conf
 # export PYTHONOPTIMIZE=1
 # vim /etc/supervisord.conf
@@ -210,7 +209,6 @@ redirect_stderr=true
 stopsignal=QUIT
 numprocs=1
 
-
 [program:celery-beat]
 command=/usr/bin/python manage.py celery beat
 directory=/mnt/OpsManage
@@ -230,7 +228,6 @@ autorestart=true
 redirect_stderr=true
 stopsignal=QUIT
 numprocs=1
-
 
 启动celery
 # /usr/local/bin/supervisord -c /etc/supervisord.conf
