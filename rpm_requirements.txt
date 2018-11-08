@@ -1,0 +1,10 @@
+supervisor
+mysql-replication
+pymysql
+redis
+MySQL-python
+DBUtils
+xlrd
+chardet
+requests
+xlwt
