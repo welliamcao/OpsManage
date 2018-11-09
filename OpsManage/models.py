@@ -685,4 +685,12 @@ class SQL_Audit_Control(models.Model):
             ("can_delete_sql_audit_control", "删除SQL审核配置权限"),              
         )
         verbose_name = 'SQL审核配置'  
-        verbose_name_plural = 'SQL审核配置' 
+        verbose_name_plural = 'SQL审核配置'
+
+
+class GameServer_Config(models.Model):
+    ip = models.IPAddressField(verbose_name="游戏服所在服务器IP地址")
+    name = models.CharField(blank=True,null=True,verbose_name="游戏服名称")
+    pwd = models.CharField(verbose_name="游戏服Server程序路径")
+    proramname = models.CharField(blank=True,null=True,verbose_name="游戏服Server程序名称")
+     = models.ForeignKey()

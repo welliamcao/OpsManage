@@ -60,7 +60,7 @@ def cron_add(request):
                 else:resource = [{"ip": server.ip, "port": int(server.port),"username": server.username,"password": server.passwd}]              
                 ANS = ANSRunner(resource)
                 if cron.cron_script:
-                    src = os.getcwd() + '/' + str(cron.cron_script)
+                    src = os.getcwd() + '/upload/' + str(cron.cron_script)
                     file_args = """src={src} dest={dest} owner={user} group={user} mode=755""".format(src=src,dest=cron.cron_script_path,user=cron.cron_user)
                     ANS.run_model(host_list=sList,module_name="copy",module_args=file_args)        
                     result = ANS.handle_model_data(ANS.get_model_result(), 'copy',file_args) 
@@ -151,7 +151,7 @@ def cron_mod(request,cid):
             if  cron.cron_status == 0:ANS.run_model(host_list=sList,module_name="cron",module_args="""name={name} state=absent""".format(name=cron.cron_name))       
             else:
                 if cron.cron_script:
-                    src = os.getcwd() + '/' + str(cron.cron_script)
+                    src = os.getcwd() + '/upload/' + str(cron.cron_script)
                     file_args = """src={src} dest={dest} owner={user} group={user} mode=755""".format(src=src,dest=cron.cron_script_path,user=cron.cron_user)
                     ANS.run_model(host_list=sList,module_name="copy",module_args=file_args)  
                 cron_args = """name={name} minute='{minute}' hour='{hour}' day='{day}'
