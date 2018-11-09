@@ -689,8 +689,33 @@ class SQL_Audit_Control(models.Model):
 
 
 class GameServer_Config(models.Model):
-    ip = models.IPAddressField(verbose_name="游戏服所在服务器IP地址")
     name = models.CharField(blank=True,null=True,verbose_name="游戏服名称")
-    pwd = models.CharField(verbose_name="游戏服Server程序路径")
-    proramname = models.CharField(blank=True,null=True,verbose_name="游戏服Server程序名称")
-     = models.ForeignKey()
+    game_pwd = models.CharField(verbose_name="游戏服GameServer程序路径")
+    game_programname = models.CharField(verbose_name="游戏服GameServer程序名称")
+    gate_pwd = models.CharField(verbose_name="游戏服Gateway程序路径")
+    gate_programname = models.CharField(verbose_name="游戏服Gateway程序名称")
+    ip = models.ForeignKey('Server_Assets')
+    class Meta:
+        db_table = 'opsmanage_gameserver_config'
+        permissions = (
+            ("can_read_gameserver_config","读取游戏服配置权限"),
+            ("can_change_gameserver_config","更改游戏服配置权限"),
+            ("can_add_gameserver_config","增加游戏服配置权限"),
+            ("can_delete_gameserver_config","删除游戏服配置权限"),
+        )
+        verbose_name = '游戏服配置表'
+        verbose_name_plural = '游戏服配置表'
+
+
+class GameServer_Update_List(models.Model):
+    sourceip = models.IPAddressField(verbose_name="更新源IP地址")
+    targetip = models.IPAddressField(verbose_name="更新目标IP地址")
+    souce_path = models.CharField(verbose_name="更新源路径")
+    target_path = models.CharField(verbose_name='更新目标路径')
+    ocudate = models.DateTimeField(blank=True,null=True,verbose_name="程序预定更新时间")
+
+
+class Log_GameServer_Update(models.Model):
+    
+
+class Log_GameServer_Config(models.Model):
