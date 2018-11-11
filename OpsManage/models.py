@@ -689,11 +689,11 @@ class SQL_Audit_Control(models.Model):
 
 
 class GameServer_Config(models.Model):
-    name = models.CharField(blank=True,null=True,verbose_name="游戏服名称")
-    game_pwd = models.CharField(verbose_name="游戏服GameServer程序路径")
-    game_programname = models.CharField(verbose_name="游戏服GameServer程序名称")
-    gate_pwd = models.CharField(verbose_name="游戏服Gateway程序路径")
-    gate_programname = models.CharField(verbose_name="游戏服Gateway程序名称")
+    #serverid = models.IntegerField(verbose_name="游戏服serverid")
+    #areaid = models.IntegerField(verbose_name="游戏服areaid")
+    name = models.CharField(max_length=100,blank=True,null=True,verbose_name="游戏服名称")
+    game_path = models.CharField(unique=True,max_length=100,verbose_name="游戏服GameServer程序路径")
+    gate_path = models.CharField(unique=True,max_length=100,verbose_name="游戏服Gateway程序路径")
     ip = models.ForeignKey('Server_Assets')
     class Meta:
         db_table = 'opsmanage_gameserver_config'
@@ -703,19 +703,44 @@ class GameServer_Config(models.Model):
             ("can_add_gameserver_config","增加游戏服配置权限"),
             ("can_delete_gameserver_config","删除游戏服配置权限"),
         )
+        #unique_together = (("serverid","areaid"))
+        unique_together = (("game_path","ip"))
         verbose_name = '游戏服配置表'
         verbose_name_plural = '游戏服配置表'
 
 
 class GameServer_Update_List(models.Model):
-    sourceip = models.IPAddressField(verbose_name="更新源IP地址")
+    exec_type_choices = (
+        ('updateGa', u'更新程序'),
+        ('upstaticfi', u'更新静态配置'),
+        ('updynamicfi', u'更新动态配置'),
+        ('extracmd', u'特殊更新命令'),
+    )
+    type = models.CharField(choices=exec_type_choices,verbose_name="操作类型")
+    sourceip = models.IPAddressField(null=True,blank=True,verbose_name="更新源IP地址")
     targetip = models.IPAddressField(verbose_name="更新目标IP地址")
-    souce_path = models.CharField(verbose_name="更新源路径")
-    target_path = models.CharField(verbose_name='更新目标路径')
-    ocudate = models.DateTimeField(blank=True,null=True,verbose_name="程序预定更新时间")
+    souce_path = models.CharField(null=True,blank=True,max_length=100,verbose_name="更新源路径")
+    target_path = models.CharField(max_length=100,verbose_name='更新目标路径')
+    ocudate = models.DateTimeField(blank=True,null=True,verbose_name="预定执行时间")
+    class Meta:
+        db_table = 'opsmanage_gsupdate_list'
+        permision = (
+            ("can_exec_gameserver_update", "执行游戏更新权限"),
+            ("can_change_gsupdate_list", "更改游戏服配置权限"),
+            ("can_add_gsupdate_list", "增加游戏服配置权限"),
+            ("can_delete_gsupdate_list", "删除游戏服配置权限"),
+        )
+        unique_together = (("target_path","ocudate"))
+        verbose_name = '游戏服更新列表'
+        verbose_name_plural = '游戏服更新列表'
 
+class Log_GameServer(models.Model):
 
-class Log_GameServer_Update(models.Model):
-    
-
-class Log_GameServer_Config(models.Model):
+    user = models.CharField(max_length=100,verbose_name="执行操作的用户")
+    createtime = models.DateTimeField(verbose_name="执行操作的时间")
+    name = models.CharField(max_length=100,verbose_name="执行操作的类型")
+    content = models.TextField(verbose_name="详细操作内容")
+    class Meta:
+        db_table = 'opmanase_log_gameserver'
+        verbose_name = '游戏服操作记录表'
+        verbose_name_plural = '游戏服操作记录表'
