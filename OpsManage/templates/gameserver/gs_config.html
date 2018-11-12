@@ -109,13 +109,10 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                	{% for gs in gs_list %}
+                                	{% for ip in ips %}
                                             <tr class="odd gradeX">
                                                 <td></td>
-                                                <td>{% if gs.ip not in ips %}
-                                                        {{}}
-                                                    {% endif %}
-                                                </td>
+                                                <td>{{ip}}</td>
                                                 <td>{{ds.project.project_name}} </td>
                                                 <td>{{ds.project_name}} </td>
                                                 <td>
