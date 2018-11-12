@@ -695,6 +695,7 @@ class GameServer_Config(models.Model):
     game_path = models.CharField(unique=True,max_length=100,verbose_name="游戏服GameServer程序路径")
     gate_path = models.CharField(unique=True,max_length=100,verbose_name="游戏服Gateway程序路径")
     ip = models.ForeignKey('Server_Assets')
+    state = models.BooleanField(default=True,verbose_name="上线状态")
     class Meta:
         db_table = 'opsmanage_gameserver_config'
         permissions = (

@@ -25,7 +25,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 @permission_required()
 def gameserver_list(request,page):
     if request.method == "GET":
-        gameserverconfig = GameServer_Config.objects.select_related().all()[0:100]
+        gameserverconfig = GameServer_Config.objects.select_related().all()[0:200]
         pageinter = Paginator(gameserverconfig,10)
         try:
             gs_list = pageinter.page(page)
