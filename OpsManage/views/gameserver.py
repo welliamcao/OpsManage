@@ -25,8 +25,17 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 @permission_required()
 def gameserver_list(request,page):
     if request.method == "GET":
-        gameserverconfig = GameServer_Config.objects.select_related().all()[0:200]
+        ips = []
+        gshost = {}
+        gameserverconfig = GameServer_Config.objects.select_related().all()[0:300]
         pageinter = Paginator(gameserverconfig,10)
+        for ip in ips:
+            business = Assets.objects.get(ip=ip).business
+            hostname = Server_Assets.objects.get(ip=ip).hostname
+            system = Server_Assets.objects.get(ip=ip).system
+            onlinegame = GameServer_Config.objects.filter(state=True,ip=ip).count()
+            status = Assets.objects.get(ip=ip).status
+
         try:
             gs_list = pageinter.page(page)
         except PageNotAnInteger:
