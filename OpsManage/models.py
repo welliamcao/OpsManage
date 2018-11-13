@@ -717,15 +717,15 @@ class GameServer_Update_List(models.Model):
         ('updynamicfi', u'更新动态配置'),
         ('extracmd', u'特殊更新命令'),
     )
-    type = models.CharField(choices=exec_type_choices,verbose_name="操作类型")
-    sourceip = models.IPAddressField(null=True,blank=True,verbose_name="更新源IP地址")
-    targetip = models.IPAddressField(verbose_name="更新目标IP地址")
+    type = models.CharField(max_length=100,choices=exec_type_choices,verbose_name="操作类型")
+    sourceip = models.GenericIPAddressField(null=True,blank=True,verbose_name="更新源IP地址")
+    targetip = models.GenericIPAddressField(verbose_name="更新目标IP地址")
     souce_path = models.CharField(null=True,blank=True,max_length=100,verbose_name="更新源路径")
     target_path = models.CharField(max_length=100,verbose_name='更新目标路径')
     ocudate = models.DateTimeField(blank=True,null=True,verbose_name="预定执行时间")
     class Meta:
         db_table = 'opsmanage_gsupdate_list'
-        permision = (
+        permissions = (
             ("can_exec_gameserver_update", "执行游戏更新权限"),
             ("can_change_gsupdate_list", "更改游戏服配置权限"),
             ("can_add_gsupdate_list", "增加游戏服配置权限"),
@@ -742,6 +742,6 @@ class Log_GameServer(models.Model):
     name = models.CharField(max_length=100,verbose_name="执行操作的类型")
     content = models.TextField(verbose_name="详细操作内容")
     class Meta:
-        db_table = 'opmanase_log_gameserver'
+        db_table = 'opsmanage_log_gameserver'
         verbose_name = '游戏服操作记录表'
         verbose_name_plural = '游戏服操作记录表'
