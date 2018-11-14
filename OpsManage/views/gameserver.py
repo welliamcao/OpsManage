@@ -50,3 +50,6 @@ def gameserver_list(request):
             }
         )
     return render(request,'gameserver/gs_config.html',{"user":request.user,"gshost":gshost})
+def gamehost_facts(){
+
+}
