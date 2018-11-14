@@ -18,7 +18,7 @@ from django.conf.urls import url,include
 from django.contrib import admin
 from OpsManage.views import (index,assets,cron,deploy,
                              ansible,users,task,
-                             database,elfinder)
+                             database,gameserver,elfinder)
 from OpsManage.views.elfinder import finder
 from rest_framework.urlpatterns import format_suffix_patterns
 urlpatterns = [
@@ -43,6 +43,7 @@ urlpatterns = [
     url(r'^assets/batch/delete/',assets.assets_delete),
     url(r'^assets/batch/dumps/',assets.assets_dumps),    
     url(r'^assets/groups/(?P<id>[0-9]+)/$',assets.assets_groups),
+    url(r'^gs_config',gameserver.GameServer_Config),
     url(r'^cron_add',cron.cron_add),
     url(r'^cron_list/(?P<page>[0-9]+)/$',cron.cron_list),
     url(r'^cron_config',cron.cron_config),

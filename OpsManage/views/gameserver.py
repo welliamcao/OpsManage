@@ -22,29 +22,31 @@ from dao.assets import AssetsSource
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 @login_required()
-@permission_required()
-def gameserver_list(request,page):
-    if request.method == "GET":
-        gshost = []
-        gameserverconfig = GameServer_Config.objects.select_related().all()[0:300]
-        ips = GameServer_Config.objects.values_list("ip",flat=True).distinct()
-        for ip in ips:
-            business = Assets.objects.get(ip=ip).business
-            hostname = Server_Assets.objects.get(ip=ip).hostname
-            system = Server_Assets.objects.get(ip=ip).system
-            onlinegame = GameServer_Config.objects.filter(state=True,ip=ip).count()
-            status = Assets.objects.get(ip=ip).status
-            game = GameServer_Config.objects.filter(ip=ip).values_list("name",flat=True)
-            gshost.append(
-                {"business":business,
-                 "hostname":hostname,
-                 "ip":ip,
-                 "system":system,
-                 "onlinegame":onlinegame,
-                 "game":game,
-                 "status":status,
-                }
-            )
-        return render(request,'gameserver/gs_config.html',{"user":request.user,"gshost":gshost})
-    if request.method == "POST":
-        request.POST.get()
+@permission_required('OpsManage.can_change_gameserver_config',login_url='/noperm/')
+def gameserver_list(request):
+    gshost = []
+    gameserverconfig = GameServer_Config.objects.select_related().all()[0:300]
+    ips = GameServer_Config.objects.values_list("ip",flat=True).distinct()
+    for ip in ips:
+        aid = Assets.objects.get(ip=ip).id
+        sid = Server_Assets.objects.get(ip=ip).id
+        business = Assets.objects.get(ip=ip).business
+        hostname = Server_Assets.objects.get(ip=ip).hostname
+        system = Server_Assets.objects.get(ip=ip).system
+        onlinegame = GameServer_Config.objects.filter(state=True,ip=ip).count()
+        status = Assets.objects.get(ip=ip).status
+        game = GameServer_Config.objects.filter(ip=ip).values_list("name",flat=True)
+        gshost.append(
+            {
+                "aid":aid,
+                "sid":sid,
+                "business":business,
+                "hostname":hostname,
+                "ip":ip,
+                "system":system,
+                "onlinegame":onlinegame,
+                "game":game,
+                "status":status,
+            }
+        )
+    return render(request,'gameserver/gs_config.html',{"user":request.user,"gshost":gshost})
