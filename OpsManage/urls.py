@@ -44,7 +44,7 @@ urlpatterns = [
     url(r'^assets/batch/dumps/',assets.assets_dumps),    
     url(r'^assets/groups/(?P<id>[0-9]+)/$',assets.assets_groups),
     url(r'^gs_config',gameserver.GameServer_Config),
-    url(r'^gamehost_facts',gameserver.gamehost_facts()),
+    url(r'^gamehost_facts',gameserver.gamehost_facts),
     url(r'^cron_add',cron.cron_add),
     url(r'^cron_list/(?P<page>[0-9]+)/$',cron.cron_list),
     url(r'^cron_config',cron.cron_config),
