@@ -630,7 +630,7 @@ class ANSRunner(object):
                     else:
                         data['status'] = 'failed'
                     data_list.append(data)
-            elif success:
+            if success:
                 for x,y in success.items(): 
                     data = {}                    
                     data['ip'] = x
@@ -663,7 +663,7 @@ class ANSRunner(object):
                         data['status'] = 'succeed'
                     data_list.append(data) 
                     
-            elif failed:
+            if failed:
                 for x,y in failed.items():   
                     data = {}                  
                     data['ip'] = x
@@ -703,10 +703,10 @@ if __name__ == '__main__':
 #                     } 
 #                 } 
     
-    rbt = ANSRunner(resource,redisKey='1')
-    rbt.run_model(host_list=["192.168.1.235","192.168.1.234","192.168.1.233"],module_name='yum',module_args="name=htop state=present")
+#     rbt = ANSRunner(resource,redisKey='1')
+#     rbt.run_model(host_list=["192.168.1.235","192.168.1.234","192.168.1.233"],module_name='shell',module_args="1.sh")
 #     data = rbt.get_model_result()
-#     print data
+#     print(data)
 #     print data
 #     print rbt.handle_model_data(data, 'synchronize', module_args='src=/data/webserver/VManagePlatform/ dest=/data/webserver/VManagePlatform/ compress=yes delete=yes recursive=yes')
     #rbt.run_model(host_list=["192.168.1.34","192.168.1.130","192.168.1.1"],module_name='ping',module_args="")
@@ -715,4 +715,4 @@ if __name__ == '__main__':
 #     data = rbt.get_playbook_result()
 #     print data
 #     print rbt.handle_playbook_data_to_html(data)
-    #print rbt.handle_model_data(module_name='copy',module_args="src=/root/git.log dest=/tmp/test.txt",data=data)
+#     print(rbt.handle_model_data(module_name='shell',module_args="1.sh",data=data))
