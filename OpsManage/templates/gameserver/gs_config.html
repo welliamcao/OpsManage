@@ -28,7 +28,7 @@
                                     <i class="fa fa-desktop fa-5x"></i>
                                 </div>
                                 <div class="col-xs-9 text-right">
-                                    <div class="huge">{{totalProject}}</div>
+                                    <div class="huge">{{totalGame}}</div>
                                     <div>总游戏服数</div>
                                 </div>
                             </div>
@@ -50,7 +50,7 @@
                                     <i class="fa fa-laptop fa-5x"></i>
                                 </div>
                                 <div class="col-xs-9 text-right">
-                                    <div class="huge">{{uatProject}}</div>
+                                    <div class="huge">{{onlineGame}}</div>
                                     <div>已上线</div>
                                 </div>
                             </div>
@@ -72,7 +72,7 @@
                                     <i class="fa fa-mobile-phone fa-5x"></i>
                                 </div>
                                 <div class="col-xs-9 text-right">
-                                    <div class="huge">{{sitProject}}</div>
+                                    <div class="huge">{{offlineGame}}</div>
                                     <div>已下架</div>
                                 </div>
                             </div>
@@ -91,15 +91,20 @@
          <div class="col-lg-12">
                     <div class="panel panel-default">
                         <div class="panel-heading">
+							    <div class="btn-group btn-group-xs pull-right">
+							    	<button type="button" class="btn btn-default"><a href="#" data-toggle="modal" data-target="#myAssetsImportModal"><i class="fa fa-pencil fa-fw"></i>批量导入</a></button>
+							    	<button type="button" class="btn btn-default" onclick="fcDumpsAssetsData(this)"><i class="fa fa-refresh fa-fw"></i>导出excl</button>
+								    <button type="button" class="btn btn-default" onclick="updateAllAssets(this,'update')"><i class="fa fa-refresh fa-fw"></i>批量更新</button>
+								</div>
                             	<i class="fa fa-database"></i>明细清单
                         </div>
-                        <!-- /.panel-heading -->
                         <div class="panel-body">
                             <table width="100%" class="table table-striped table-bordered table-hover" id="ghostTableList">
                                 <thead>
                                     <tr>
-                                        <th class="text-center">详情</th>>
+                                        <th class="text-center">详情</th>
                                         <th class="text-center"><input type="checkbox" onclick="checkAllBox()"/>全选</th>
+                                        <th class="text-center">资产ID</th>
                                         <th class="text-center">产品线</th>
                                     	<th class="text-center">主机名称</th>
                                     	<th class="text-center">主机IP</th>
@@ -112,6 +117,7 @@
                                         <tr>
                                             <th class="text-center">详情</th>
                                             <th class="text-center">全选</th>
+                                            <th class="text-center">资产ID</th>
                                             <th class="text-center">产品线</th>
                                             <th class="text-center">主机名称</th>
                                             <th class="text-center">主机IP</th>
@@ -123,65 +129,66 @@
                                     </tfoot>
                                 </thead>
                                 <tbody>
-                                	{% for gs in gs_host %}
-                                            <tr class="odd gradeX">
-                                                <td></td>
-                                                <td class="text-center"><input type="checkbox" value={{gs.aid}} name="ckbox"/></td>
-                                                <td>{{gs.business}} </td>
-                                                <td>{{gs.hostname}} </td>
-                                                <td>{{gs.ip}}</td>
-                                                <td>{{gs.system}}</td>
-                                                <td>{{gs.onlinegame}} </td>
-                                                <td>{{gs.game}}</td>
-                                                <td class="text-center">
-									         		{% if gs.status == 0 %}
-									         			<button  type="button" class="btn btn-outline btn-success">已上线</button>
-									         		{% elif gs.status == 1 %}
-									         			<button  type="button" class="btn btn-outline btn-primary">已下线</button>
-									         		{% elif gs.status == 2 %}
-									         			<button  type="button" class="btn btn-outline btn-warning">维修中</button>
-									         		{% elif gs.status == 3 %}
-									         			<button  type="button" class="btn btn-outline btn-info">已入库</button>
-									         		{% elif gs.status == 4 %}
-									         			<button  type="button" class="btn btn-outline btn-default">未使用</button>
-									         		{% endif %}
-									            </td>
-                                                <td class="text-center">
-                                                    <a href="/assets_view/{{gs.aid}}" style="text-decoration:none;"><button  type="button" class="btn btn-default"><abbr title="查看详细信息"><i class="glyphicon glyphicon-info-sign"></i></abbr></button></a>
-                                                    <div class="btn-group">
-                                                       <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                                                           <span class="glyphicon glyphicon-refresh"></span>
-                                                           <span class="caret"></span>
-                                                       </button>
-                                                        <ul class="dropdown-menu" role="menu">
-                                                            <li>
-                                                                <a href="javascript:" onclick='gamehostUpdate(this,{{gs.sid}},"{{gs.ip}}","setup")'>更新主体信息</a>
-                                                            </li>
-                                                            <li>
-													      	    <a href="javascript:" onclick='gamehostUpdate(this,{{gs.sid}},"{{gs.ip}}","syncdata")'>扫描游戏信息</a>
-                                                            </li>
-                                                        </ul>
-                                                    </div>
+                                	{% for gs in gshost %}
+                                        <tr class="odd gradeX">
+                                            <td class="text-center">{{gs.game}}</td>
+                                            <td class="text-center"><input type="checkbox" value={{gs.aid}} name="ckbox"/></td>
+                                            <td class="text-center">{{gs.sid}}</td>
+                                            <td class="text-center">{{gs.business}} </td>
+                                            <td class="text-center">{{gs.hostname}} </td>
+                                            <td class="text-center">{{gs.ip}}</td>
+                                            <td class="text-center">{{gs.system}}</td>
+                                            <td class="text-center">{{gs.onlinegame}} </td>
+                                            <td class="text-center">
+                                                {% if gs.status == 0 %}
+                                                    <button  type="button" class="btn btn-outline btn-success">激活</button>
+                                                {% elif gs.status == 1 %}
+                                                    <button  type="button" class="btn btn-outline btn-primary">未激活</button>
+                                                {% elif gs.status == 2 %}
+                                                    <button  type="button" class="btn btn-outline btn-warning">维修中</button>
+                                                {% elif gs.status == 3 %}
+                                                    <button  type="button" class="btn btn-outline btn-info">已入库</button>
+                                                {% elif gs.status == 4 %}
+                                                    <button  type="button" class="btn btn-outline btn-default">未使用</button>
+                                                {% endif %}
+                                            </td>
+                                            <td class="text-center">
+                                                <a href="/assets_view/{{gs.aid}}" style="text-decoration:none;"><button  type="button" class="btn btn-default"><abbr title="查看详细信息"><i class="glyphicon glyphicon-info-sign"></i></abbr></button></a>
+                                                <div class="btn-group">
+                                                   <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                                       <span class="glyphicon glyphicon-refresh"></span>
+                                                       <span class="caret"></span>
+                                                   </button>
+                                                    <ul class="dropdown-menu" role="menu">
+                                                        <li>
+                                                            <a href="javascript:" onclick='gamehostUpdate(this,{{gs.sid}},"{{gs.ip}}","setup")'>更新主体信息</a>
+                                                        </li>
+                                                        <li>
+                                                            <a href="javascript:" onclick='gamehostUpdate(this,{{gs.sid}},"{{gs.ip}}","syncdata")'>扫描游戏信息</a>
+                                                        </li>
+                                                    </ul>
+                                                </div>
 
-                                                    <a href="/assets_mod/{{gs.aid}}" style="text-decoration:none;"><button  type="button" class="btn btn-default"><abbr title="修改资料"><i class="glyphicon glyphicon-edit"></button></i></abbr></a>
-                                                </td>
-                                            </tr>
-                                        {% endfor %}
+                                                <a href="/assets_mod/{{gs.aid}}" style="text-decoration:none;"><button  type="button" class="btn btn-default"><abbr title="修改资料"><i class="glyphicon glyphicon-edit"></button></i></abbr></a>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
                                 </tbody>
                             </table>
-                            <!-- /.table-responsive -->
+
                             <div class="well">
                                 <h4>添加说明</h4>
                                 <p>没有任何游戏的新云主机在添加第一个游戏后会添加在列表里。</p>
                                 <a class="btn btn-default btn-lg btn-block" target="_blank" href="/gs_add"><i class="fa fa-plus-circle "></i>添加新的游戏服</a>
                             </div>
                         </div>
-                        <!-- /.panel-body -->
+
                     </div>
-                    <!-- /.panel -->
+
                 </div>
     </div>  
 <script type="text/javascript">
+    var selectState = false;
     function checkAllBox(){
 	  	var qcheck=document.getElementsByName("ckbox");
 	  	for (var i = 0; i < qcheck.length; i++)
@@ -190,6 +197,20 @@
 		    checkbox.checked = !selectState;
 		  }
 	  	selectState = !selectState;
+	}
+
+	function format ( dataList ) {
+	    var trHtml = '';
+		for (var i=0; i <dataList.length; i++){
+			trHtml += '<tr><td>'+ dataList[i]["name"] +':</td>'+ '<td>'+ dataList[i]["value"] +'</td></tr>'
+		};
+ 	    var vHtml = '<fieldset>' +
+		    			'<legend>硬件信息</legend>' +
+		    				'<table cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">'+
+		    				  trHtml  +
+		    				'</table>'
+					'</fieldset>';
+	    return vHtml;
 	}
 
     $(document).ready(function() {
@@ -203,6 +224,7 @@
 	                "defaultContent": ''
 	            },
 	            { "data": "全选" },
+                { "data": "资产ID"},
 	            { "data": "产品线" },
 	            { "data": "主机名称" },
 	            { "data": "主机IP" },
@@ -215,16 +237,16 @@
 	    } );
 
 	    // Add event listener for opening and closing details
-	    $('#ghostTableList tbody').on('click', 'td.details-control', function () {
+        $('#ghostTableList tbody').on('click', 'td.details-control', function () {
 	    	var dataList = [];
 	        var tr = $(this).closest('tr');
 	        var row = table.row( tr );
-	        aId = row.data()["资产ID"];
+	        sId = row.data()["资产ID"];
 	        $.ajax({
-	            url : "/api/assets/info/"+aId+"/",
-	            type : "post",
-	            async : false,
-	            data : {"id":aId},
+	            url : "/gs_details/"+sId+"/",
+	            type : "get",
+	            async : true,
+	            data : {"id":sId},
 	            dataType : "json",
 	            success : function(result) {
 	            	dataList = result.data;
@@ -242,6 +264,7 @@
 	            tr.addClass('shown');
 	        }
 	    } );
+
 	} );
 
     function gamehostUpdate(obj, id,ip,type){
