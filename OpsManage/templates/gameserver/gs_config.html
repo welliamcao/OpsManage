@@ -202,14 +202,41 @@
 	function format ( dataList ) {
 	    var trHtml = '';
 		for (var i=0; i <dataList.length; i++){
-			trHtml += '<tr><td>'+ dataList[i]["name"] +':</td>'+ '<td>'+ dataList[i]["value"] +'</td></tr>'
+		    if (dataList[i]["state"] == 1)
+            {
+                var state = '<button  type="button" class="btn btn-outline btn-success">已上架</button>'
+            }
+            else
+            {
+                var state = '<button  type="button" class="btn btn-outline btn-primary">已下架</button>'
+            }
+			 trHtml +=  '<tr class="odd gradeX">'
+                            +'<td class="text-center">'+dataList[i]["name"]+'</td>'
+                            +'<td class="text-center">'+dataList[i]["game_path"]+'</td>'
+                            +'<td class="text-center">'+dataList[i]["gate_path"]+'</td>'
+                            +'<td class="text-center">'+state+'</td>'
+                            +'<td class="text-center">'
+                                +'<button  type="button" class="btn btn-default" onclick="editGameserver(this,'+dataList[i]["id"]+')"><abbr title=><i class="glyphicon glyphicon-edit"></i></abbr></button>'
+                                +'<a href="/gs_delete/'+dataList[i]["id"]+'" style="text-decoration:none;"><button  type="button" class="btn btn-default"><i class="glyphicon glyphicon-trash"></i></button></a>'
+                            +'</td>'
+                        +'</tr>'
 		};
- 	    var vHtml = '<fieldset>' +
-		    			'<legend>硬件信息</legend>' +
-		    				'<table cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">'+
-		    				  trHtml  +
-		    				'</table>'
-					'</fieldset>';
+ 	    var vHtml = '<table width="100%" class="table table-striped table-bordered table-hover" id="gsTableList">'
+                                +'<thead><tr>'
+                                        +'<th class="text-center">游戏名称</th>'
+                                        +'<th class="text-center">GateWay地址</th>'
+                                        +'<th class="text-center">GameServer地址</th>'
+                                    	+'<th class="text-center">已上架</th>'
+                                        +'<th class="text-center">操作</th>'
+                                    +'</tr><tfoot><tr>'
+                                        +'<th class="text-center">游戏名称</th>'
+                                        +'<th class="text-center">GateWay地址</th>'
+                                        +'<th class="text-center">GameServer地址</th>'
+                                    	+'<th class="text-center">已上架</th>'
+                                        +'<th class="text-center">操作</th>'
+                                        +'</tr></tfoot></thead><tbody>'
+                                	+trHtml+
+                                '</tbody></table>';
 	    return vHtml;
 	}
 
@@ -246,7 +273,6 @@
 	            url : "/gs_details/"+sId+"/",
 	            type : "get",
 	            async : true,
-	            data : {"id":sId},
 	            dataType : "json",
 	            success : function(result) {
 	            	dataList = result.data;
