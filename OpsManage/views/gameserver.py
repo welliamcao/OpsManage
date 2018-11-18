@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # _#_ coding:utf-8 _*_
 import json
-from django.http import HttpResponseRedirect,JsonResponse
+from django.http import HttpResponse,JsonResponse
 from django.core import serializers
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
@@ -56,14 +56,25 @@ def gamehost_list(request):
 @login_required()
 @permission_required('OpsManage.can_read_gameserver_config')
 def gameserver_details(request,id):
-    gameserver_list = GameServer_Config.objects.all()[0:300]
+    gameserver_list = GameServer_Config.objects.all()
     if request.method == "GET" :
+
         #rungame = ANSRunner.run_model()
-        gameserver_list.filter(ip__assets_id=id)
-        data = serializers.serialize("json",gameserver_list)
-    if request.method == "POST" and request.user.has_perm('OpsManage.can_change_gameserver_config'):
-        pass
-    if request.method == "DELETE" and request.user.has_perm('OpsManage.can_delete_gameserver_config'):
-        pass
-
-
+        gslist = gameserver_list.filter(ip__assets_id=id)
+        data = []
+        for gs in gslist:
+            data.append({"name":gs.name,"game_path":gs.game_path,"gate_path":gs.gate_path,"state":gs.state,"gid":gs.id})
+        return JsonResponse({"code": 200, "msg": "success", "data": data})
+    if request.method == "POST":
+        if not request.user.has_perm('OpsManage.can_change_gameserver_config'):
+            pass
+    if request.method == "DELETE":
+        if not request.user.has_perm('OpsManage.can_delete_gameserver_config'):
+            return HttpResponse(status=403)
+        else:
+            try:
+                gameserver = gameserver_list.get(id=id)
+            except:
+                return HttpResponse(status=404)
+            gameserver.delete()
+            return HttpResponse(status=200)

@@ -92,7 +92,6 @@
                     <div class="panel panel-default">
                         <div class="panel-heading">
 							    <div class="btn-group btn-group-xs pull-right">
-							    	<button type="button" class="btn btn-default"><a href="#" data-toggle="modal" data-target="#myAssetsImportModal"><i class="fa fa-pencil fa-fw"></i>批量导入</a></button>
 							    	<button type="button" class="btn btn-default" onclick="fcDumpsAssetsData(this)"><i class="fa fa-refresh fa-fw"></i>导出excl</button>
 								    <button type="button" class="btn btn-default" onclick="updateAllAssets(this,'update')"><i class="fa fa-refresh fa-fw"></i>批量更新</button>
 								</div>
@@ -178,7 +177,7 @@
 
                             <div class="well">
                                 <h4>添加说明</h4>
-                                <p>没有任何游戏的新云主机在添加第一个游戏后会添加在列表里。</p>
+                                <p>没有任何游戏的新云主机在添加第一个游戏后会更新显示在列表里。</p>
                                 <a class="btn btn-default btn-lg btn-block" target="_blank" href="/gs_add"><i class="fa fa-plus-circle "></i>添加新的游戏服</a>
                             </div>
                         </div>
@@ -202,24 +201,23 @@
 	function format ( dataList ) {
 	    var trHtml = '';
 		for (var i=0; i <dataList.length; i++){
-		    if (dataList[i]["state"] == 1)
+		    if (dataList[i]["state"] == true )
             {
                 var state = '<button  type="button" class="btn btn-outline btn-success">已上架</button>'
             }
             else
             {
-                var state = '<button  type="button" class="btn btn-outline btn-primary">已下架</button>'
+                var state = '<button  type="button" class="btn btn-outline btn-danger">已下架</button>'
             }
-			 trHtml +=  '<tr class="odd gradeX">'
-                            +'<td class="text-center">'+dataList[i]["name"]+'</td>'
+			 trHtml +=  '<td class="text-center">'+dataList[i]["name"]+'</td>'
                             +'<td class="text-center">'+dataList[i]["game_path"]+'</td>'
                             +'<td class="text-center">'+dataList[i]["gate_path"]+'</td>'
                             +'<td class="text-center">'+state+'</td>'
                             +'<td class="text-center">'
-                                +'<button  type="button" class="btn btn-default" onclick="editGameserver(this,'+dataList[i]["id"]+')"><abbr title=><i class="glyphicon glyphicon-edit"></i></abbr></button>'
-                                +'<a href="/gs_delete/'+dataList[i]["id"]+'" style="text-decoration:none;"><button  type="button" class="btn btn-default"><i class="glyphicon glyphicon-trash"></i></button></a>'
+                                +'<button  type="button" class="btn btn-default" onclick="editGameserver(this,'+dataList[i]["gid"]+')"><abbr title="编辑"><i class="glyphicon glyphicon-edit"></i></abbr></button>'
+                                +'<button  type="button" class="btn btn-default" onclick="deleteGameserver(this,'+dataList[i]["gid"]+')"><abbr title="删除"><i class="glyphicon glyphicon-trash"></i></abbr></button>'
                             +'</td>'
-                        +'</tr>'
+
 		};
  	    var vHtml = '<table width="100%" class="table table-striped table-bordered table-hover" id="gsTableList">'
                                 +'<thead><tr>'
@@ -235,8 +233,10 @@
                                     	+'<th class="text-center">已上架</th>'
                                         +'<th class="text-center">操作</th>'
                                         +'</tr></tfoot></thead><tbody>'
-                                	+trHtml+
-                                '</tbody></table>';
+                                            +'<tr class="odd gradeX">'
+                                	            +trHtml
+                                            +'</tr>'
+                                +'</tbody></table>';
 	    return vHtml;
 	}
 
@@ -270,9 +270,9 @@
 	        var row = table.row( tr );
 	        sId = row.data()["资产ID"];
 	        $.ajax({
-	            url : "/gs_details/"+sId+"/",
+	            url : "/gs_config/"+sId+"/",
 	            type : "get",
-	            async : true,
+	            async : false,
 	            dataType : "json",
 	            success : function(result) {
 	            	dataList = result.data;
@@ -288,14 +288,30 @@
 	            // Open this row
 	            row.child( format(dataList) ).show();
 	            tr.addClass('shown');
+                $('#gsTableList').DataTable( {
+/* 	        "ajax": "../ajax/data/objects.txt", */
+                    "searching" : false,
+                    "info" : false,
+                    "lengthChange" : false,
+                    "paging" : false,
+                    "columns": [
+                        { "data": "游戏名称" },
+                        { "data": "GateWay地址"},
+                        { "data": "GameServer地址" },
+                        { "data": "已上架" },
+                        { "data": "操作" }
+                    ],
+                    "order": [[2, 'asc']]
+	    } )
 	        }
+
 	    } );
 
 	} );
 
     function gamehostUpdate(obj, id,ip,type){
 			var btnObj = $(obj);
-			var txt=  "是否确认更新？";
+			var txt=  "是否确认更新？(会覆盖现有的配置和信息)";
 			if (type==="setup"){
                 var retitle="更新主机"+ip+")硬件信息"
                 var reurl='/assets_facts/'
@@ -337,6 +353,39 @@
 				}
 			window.wxc.xcConfirm(txt, "custom", option);
 		}
+
+    function deleteGameserver(obj,id){
+    var txt=  "是否确认删除？";
+    var btnObj = $(obj);
+    btnObj.attr('disabled',true);
+    var option = {
+        title: "删除当前游戏服？",
+        btn: parseInt("0011",2),
+        onOk: function(){
+            $.ajaxSetup({
+                data: {csrfmiddlewaretoken: '{{ csrf_token }}' },
+            });
+            $.ajax({
+                  type: 'DELETE',
+                  url: '/gs_details/'+id+'/',
+                  success:function(response){
+                          btnObj.removeAttr('disabled');
+                          window.wxc.xcConfirm("删除成功", window.wxc.xcConfirm.typeEnum.success);
+                          location.reload('/assets_list/');
+                  },
+                  error:function(response){
+                          btnObj.removeAttr('disabled');
+                          window.wxc.xcConfirm(response.responseText, window.wxc.xcConfirm.typeEnum.error);
+                    }
+                });
+            },
+            onCancel:function(){
+            },
+            onClose:function(){
+            }
+        }
+    window.wxc.xcConfirm(txt, "custom", option);
+    }
 
 </script>
 {% endblock %}
