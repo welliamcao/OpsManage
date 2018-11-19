@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # _#_ coding:utf-8 _*_
 import json
+
+from django.forms import model_to_dict
 from django.http import HttpResponse,JsonResponse
 from django.core import serializers
 from django.shortcuts import render
@@ -21,6 +23,27 @@ from dao.assets import AssetsSource
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 @login_required()
+@permission_required('OpsManage.can_add_gameserver_config',login_url='/noperm/')
+def gameserver_add(request):
+    serverList = AssetsSource().serverList()
+    return render(request,'gameserver/gs_add.html',{"user":request.user,"serverList":serverList})
+    if request.method == "POST":
+        try:
+            server = Server_Assets.objects.get(id=request.POST.get('game_server'))
+        except Server_Assets.DoesNotExist:
+            return HttpResponse(status=404)
+        try:
+            gameserver = GameServer_Config.objects.create(
+                name = request.POST.get("gamename"),
+                game_path = request.POST.get("gamepath"),
+                gate_path = request.POST.get("gatepath"),
+                state = request.POST.get("state"),
+                ip = server.ip
+            )
+        except:
+            return HttpResponse(status=500)
+
+@login_required()
 @permission_required('OpsManage.can_read_gameserver_config',login_url='/noperm/')
 def gamehost_list(request):
     gshost = []
@@ -36,11 +59,11 @@ def gamehost_list(request):
         system = Server_Assets.objects.get(ip=ip).system
         gonlinegame = GameServer_Config.objects.filter(state=True,ip__ip=ip).count()
         status = Assets.objects.get(id=aid).status
-        game = list(GameServer_Config.objects.filter(ip__ip=ip).values_list("name",flat=True))
+        game =GameServer_Config.objects.filter(ip__ip=ip).values_list("name",flat=True)
         onlinegame = onlinegame+gonlinegame
         gshost.append(
             {
-                'game': game,
+                'game': ",".join(game),
                 'aid':aid,
                 'sid':sid,
                 'business':business,
@@ -65,16 +88,32 @@ def gameserver_details(request,id):
         for gs in gslist:
             data.append({"name":gs.name,"game_path":gs.game_path,"gate_path":gs.gate_path,"state":gs.state,"gid":gs.id})
         return JsonResponse({"code": 200, "msg": "success", "data": data})
-    if request.method == "POST":
+    elif request.method == "POST":
         if not request.user.has_perm('OpsManage.can_change_gameserver_config'):
-            pass
-    if request.method == "DELETE":
+            return HttpResponse(status=404)
+        else:
+            try:
+                server = Server_Assets.objects.get(id=request.POST.get('game_server'))
+            except Server_Assets.DoesNotExist:
+                return HttpResponse(status=404)
+            gameserver = GameServer_Config(
+                name=request.POST.get("name"),
+                game_path=request.POST.get("gamepath"),
+                gate_path=request.POST.get("gatepath"),
+                state=request.POST.get("state"),
+                ip=server.ip
+            )
+            try:
+                gameserver.save()
+            except:
+                return HttpResponse(status=500)
+    elif request.method == "DELETE":
         if not request.user.has_perm('OpsManage.can_delete_gameserver_config'):
             return HttpResponse(status=403)
         else:
             try:
                 gameserver = gameserver_list.get(id=id)
-            except:
+            except gameserver.DoesNotExist:
                 return HttpResponse(status=404)
             gameserver.delete()
             return HttpResponse(status=200)

@@ -701,8 +701,8 @@ class GameServer_Config(models.Model):
         permissions = (
             ("can_read_gameserver_config","读取游戏服配置权限"),
             ("can_change_gameserver_config","更改游戏服配置权限"),
-            ("can_add_gameserver_config","增加游戏服配置权限"),
             ("can_delete_gameserver_config","删除游戏服配置权限"),
+            ("can_add_gameserver_config","添加游戏服配置权限"),
         )
         #unique_together = (("serverid","areaid"))
         unique_together = (("game_path","ip"))
@@ -727,9 +727,9 @@ class GameServer_Update_List(models.Model):
         db_table = 'opsmanage_gsupdate_list'
         permissions = (
             ("can_exec_gameserver_update", "执行游戏更新权限"),
-            ("can_change_gsupdate_list", "更改游戏服配置权限"),
-            ("can_add_gsupdate_list", "增加游戏服配置权限"),
-            ("can_delete_gsupdate_list", "删除游戏服配置权限"),
+            ("can_change_gsupdate_list", "更改更新列表权限"),
+            ("can_add_gsupdate_list", "增加更新列表权限"),
+            ("can_delete_gsupdate_list", "删除更新列表权限"),
         )
         unique_together = (("target_path","ocudate"))
         verbose_name = '游戏服更新列表'

@@ -111,6 +111,7 @@
                                         <th class="text-center">在运行游戏</th>
                                         <th class="text-center">激活状态</th>
                                         <th class="text-center">操作</th>
+                                        <th class="text-center" style="display: none"></th>
                                     </tr>
                                     <tfoot>
                                         <tr>
@@ -124,35 +125,36 @@
                                             <th class="text-center">在运行游戏</th>
                                             <th class="text-center">激活状态</th>
                                             <th class="text-center">操作</th>
+                                            <th class="text-center" style="display: none"></th>
                                         </tr>
                                     </tfoot>
                                 </thead>
                                 <tbody>
-                                	{% for gs in gshost %}
+                                	{% for hs in gshost %}
                                         <tr class="odd gradeX">
-                                            <td class="text-center">{{gs.game}}</td>
-                                            <td class="text-center"><input type="checkbox" value={{gs.aid}} name="ckbox"/></td>
-                                            <td class="text-center">{{gs.sid}}</td>
-                                            <td class="text-center">{{gs.business}} </td>
-                                            <td class="text-center">{{gs.hostname}} </td>
-                                            <td class="text-center">{{gs.ip}}</td>
-                                            <td class="text-center">{{gs.system}}</td>
-                                            <td class="text-center">{{gs.onlinegame}} </td>
+                                            <td></td>
+                                            <td class="text-center"><input type="checkbox" value={{hs.aid}} name="ckbox"/></td>
+                                            <td class="text-center">{{hs.sid}}</td>
+                                            <td class="text-center">{{hs.business}} </td>
+                                            <td class="text-center">{{hs.hostname}} </td>
+                                            <td class="text-center">{{hs.ip}}</td>
+                                            <td class="text-center">{{hs.system}}</td>
+                                            <td class="text-center">{{hs.onlinegame}} </td>
                                             <td class="text-center">
-                                                {% if gs.status == 0 %}
+                                                {% if hs.status == 0 %}
                                                     <button  type="button" class="btn btn-outline btn-success">激活</button>
-                                                {% elif gs.status == 1 %}
+                                                {% elif hs.status == 1 %}
                                                     <button  type="button" class="btn btn-outline btn-primary">未激活</button>
-                                                {% elif gs.status == 2 %}
+                                                {% elif hs.status == 2 %}
                                                     <button  type="button" class="btn btn-outline btn-warning">维修中</button>
-                                                {% elif gs.status == 3 %}
+                                                {% elif hs.status == 3 %}
                                                     <button  type="button" class="btn btn-outline btn-info">已入库</button>
-                                                {% elif gs.status == 4 %}
+                                                {% elif hs.status == 4 %}
                                                     <button  type="button" class="btn btn-outline btn-default">未使用</button>
                                                 {% endif %}
                                             </td>
                                             <td class="text-center">
-                                                <a href="/assets_view/{{gs.aid}}" style="text-decoration:none;"><button  type="button" class="btn btn-default"><abbr title="查看详细信息"><i class="glyphicon glyphicon-info-sign"></i></abbr></button></a>
+                                                <a href="/assets_view/{{hs.aid}}" style="text-decoration:none;"><button  type="button" class="btn btn-default"><abbr title="查看详细信息"><i class="glyphicon glyphicon-info-sign"></i></abbr></button></a>
                                                 <div class="btn-group">
                                                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
                                                        <span class="glyphicon glyphicon-refresh"></span>
@@ -160,16 +162,17 @@
                                                    </button>
                                                     <ul class="dropdown-menu" role="menu">
                                                         <li>
-                                                            <a href="javascript:" onclick='gamehostUpdate(this,{{gs.sid}},"{{gs.ip}}","setup")'>更新主体信息</a>
+                                                            <a href="javascript:" onclick='gamehostUpdate(this,{{hs.sid}},"{{hs.ip}}","setup")'>更新主体信息</a>
                                                         </li>
                                                         <li>
-                                                            <a href="javascript:" onclick='gamehostUpdate(this,{{gs.sid}},"{{gs.ip}}","syncdata")'>扫描游戏信息</a>
+                                                            <a href="javascript:" onclick='gamehostUpdate(this,{{hs.sid}},"{{hs.ip}}","syncdata")'>扫描游戏信息</a>
                                                         </li>
                                                     </ul>
                                                 </div>
 
-                                                <a href="/assets_mod/{{gs.aid}}" style="text-decoration:none;"><button  type="button" class="btn btn-default"><abbr title="修改资料"><i class="glyphicon glyphicon-edit"></button></i></abbr></a>
+                                                <a href="/assets_mod/{{hs.aid}}" style="text-decoration:none;"><button  type="button" class="btn btn-default"><abbr title="修改资料"><i class="glyphicon glyphicon-edit"></button></i></abbr></a>
                                             </td>
+                                            <td class="text-center" style="display: none">{{hs.game}}</td>
                                         </tr>
                                     {% endfor %}
                                 </tbody>
@@ -226,7 +229,7 @@
                                         +'<th class="text-center">GameServer地址</th>'
                                     	+'<th class="text-center">已上架</th>'
                                         +'<th class="text-center">操作</th>'
-                                    +'</tr><tfoot><tr>'
+                                    +'</tr><tfoot style="display: none"><tr>'
                                         +'<th class="text-center">游戏名称</th>'
                                         +'<th class="text-center">GateWay地址</th>'
                                         +'<th class="text-center">GameServer地址</th>'
@@ -258,7 +261,8 @@
 	            { "data": "操作系统" },
 	            { "data": "在运行游戏" },
 	            { "data": "激活状态" },
-	            { "data": "操作" }
+	            { "data": "操作" },
+                { "data": ""}
 	        ],
 	        "order": [[2, 'asc']]
 	    } );
@@ -374,8 +378,11 @@
                           location.reload('/assets_list/');
                   },
                   error:function(response){
-                          btnObj.removeAttr('disabled');
-                          window.wxc.xcConfirm(response.responseText, window.wxc.xcConfirm.typeEnum.error);
+                      if (response.status=="404"){err="ID不存在，资源可能已删除"}
+                      else if (response.status=="403"){err="没有删除权限，请联系管理员"}
+                      btnObj.removeAttr('disabled');
+                      window.wxc.xcConfirm(err, window.wxc.xcConfirm.typeEnum.error);
+                      location.reload('/assets_list/');
                     }
                 });
             },

@@ -43,6 +43,7 @@ urlpatterns = [
     url(r'^assets/batch/delete/',assets.assets_delete),
     url(r'^assets/batch/dumps/',assets.assets_dumps),    
     url(r'^assets/groups/(?P<id>[0-9]+)/$',assets.assets_groups),
+    url(r'^gs_add/$',gameserver.gameserver_add),
     url(r'^gs_config/$',gameserver.gamehost_list),
     url(r'^gs_config/(?P<id>[0-9]+)/$',gameserver.gameserver_details),
     url(r'^gs_details/(?P<id>[0-9]+)/$',gameserver.gameserver_details),
