@@ -25,7 +25,7 @@
                                 <div class="col-lg-8">
 									<fieldset>
 									<legend>游戏服录入</legend>
-										<form role="form" method="post" id="addAssets" class="main form-horizontal" >{% csrf_token %}
+										<form role="form" method="post" id="addGame" class="main form-horizontal" >{% csrf_token %}
 										<fieldset>
                                             <div class="form-group">
 												 <label class="col-sm-2 control-label">服务器</label>
@@ -49,14 +49,14 @@
 											<div class="form-group">
 												 <label class="col-sm-2 control-label">网关GateWay地址</label>
 												 <div class="col-sm-6">
-                                                     <input type="text" class="form-control" name="asset_sn" placeholder="例：/data/108-西昌2/GateWay/GateWay_xichang108_" value="" class="input-xlarge"  required/>
+                                                     <input type="text" class="form-control" name="gatepath" placeholder="例：/data/108-西昌2/GateWay/" value="" class="input-xlarge"  required/>
 												 </div>
 											</div>	
 					
 											<div class="form-group">
-												 <label class="col-sm-2 control-label">游戏程序GameServer地址</label>
+												 <label class="col-sm-2 control-label">游戏GameServer地址</label>
 												 <div class="col-sm-6">
-                                                     <input type="text" class="form-control" name="asset_sn" placeholder="例：/data/108-西昌2/GameServer/GameServer_xichang108_" value="" class="input-xlarge"  required/>
+                                                     <input type="text" class="form-control" name="gatepath" placeholder="例：/data/108-西昌2/GameServer/" value="" class="input-xlarge"  required/>
 												 </div>
 											</div>		
 					
@@ -182,31 +182,6 @@
 			return net;
 		}
 	}
-	
-	var assets = ['asset_assets_type','asset_name','asset_sn','asset_expire_date','asset_buy_time','asset_buy_user','asset_management_ip','asset_manufacturer','asset_provider','asset_model','asset_status','asset_put_zone','asset_group','asset_business','asset_project'];
-	function oBtAssetsType() {
-		   var obj = document.getElementById("assets_type_select"); 
-		   var index = obj.selectedIndex;
-		   var value = obj.options[index].value; 
-		   if (value=="server"){
-			   document.getElementById("asset_net_chioce").style.display = "none";
-			   document.getElementById("asset_server_chioce").style.display = "";  
-			   document.getElementById("asset_vmserver_chioce").style.display = "";	
-			   assets = ['asset_assets_type','asset_name','asset_sn','asset_expire_date','asset_buy_time','asset_buy_user','asset_management_ip','asset_manufacturer','asset_provider','asset_model','asset_status','asset_put_zone','asset_group','asset_business','asset_project'];
-		   }
-		   else if (value=="vmser"){
-			   document.getElementById("asset_server_chioce").style.display = "";  
-			   document.getElementById("asset_net_chioce").style.display = "none";		
-			   document.getElementById("asset_vmserver_chioce").style.display = "none";	
-			   assets = ['asset_assets_type','asset_name','asset_status','asset_put_zone','asset_group','asset_business'];
-		   }		   
- 		   else {
-			   document.getElementById("asset_net_chioce").style.display = "";
-			   document.getElementById("asset_server_chioce").style.display = "none";	
-			   document.getElementById("asset_vmserver_chioce").style.display = "";	
-			   assets = ['asset_assets_type','asset_name','asset_sn','asset_expire_date','asset_buy_time','asset_buy_user','asset_management_ip','asset_manufacturer','asset_provider','asset_model','asset_status','asset_put_zone','asset_group','asset_business','asset_project'];
-		   }
-	}
 
 	function oBtAuthType() {
 		   var obj = document.getElementById("auth_type_select"); 
@@ -220,8 +195,8 @@
 		   }
 	}	
 	
-	function addAssetsData(obj) {
-		var form = document.getElementById('addAssets');
+	function addGameServerData(obj) {
+		var form = document.getElementById('addGame');
 		for (var i = 0; i < form.length; ++i) {
 			var name = form[i].name;
 			var value = form[i].value;
