@@ -111,7 +111,7 @@
                                         <th class="text-center">在运行游戏</th>
                                         <th class="text-center">激活状态</th>
                                         <th class="text-center">操作</th>
-                                        <th class="text-center" style="display: none"></th>
+                                        <th class="text-center"></th>
                                     </tr>
                                     <tfoot>
                                         <tr>
@@ -125,7 +125,7 @@
                                             <th class="text-center">在运行游戏</th>
                                             <th class="text-center">激活状态</th>
                                             <th class="text-center">操作</th>
-                                            <th class="text-center" style="display: none"></th>
+                                            <th class="text-center"></th>
                                         </tr>
                                     </tfoot>
                                 </thead>
@@ -172,7 +172,7 @@
 
                                                 <a href="/assets_mod/{{hs.aid}}" style="text-decoration:none;"><button  type="button" class="btn btn-default"><abbr title="修改资料"><i class="glyphicon glyphicon-edit"></button></i></abbr></a>
                                             </td>
-                                            <td class="text-center" style="display: none">{{hs.game}}</td>
+                                            <td class="text-center">{{hs.game}}</td>
                                         </tr>
                                     {% endfor %}
                                 </tbody>
@@ -181,7 +181,7 @@
                             <div class="well">
                                 <h4>添加说明</h4>
                                 <p>没有任何游戏的新云主机在添加第一个游戏后会更新显示在列表里。</p>
-                                <a class="btn btn-default btn-lg btn-block" target="_blank" href="/gs_add"><i class="fa fa-plus-circle "></i>添加新的游戏服</a>
+                                <a class="btn btn-default btn-lg btn-block" href="/gs_add"><i class="fa fa-plus-circle "></i>添加新的游戏服</a>
                             </div>
                         </div>
 
@@ -262,7 +262,10 @@
 	            { "data": "在运行游戏" },
 	            { "data": "激活状态" },
 	            { "data": "操作" },
-                { "data": ""}
+                {
+                    "data": "游戏名称",
+                    "visible":false
+                }
 	        ],
 	        "order": [[2, 'asc']]
 	    } );

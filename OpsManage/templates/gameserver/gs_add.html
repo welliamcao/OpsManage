@@ -201,27 +201,20 @@
 			var name = form[i].name;
 			var value = form[i].value;
 			var assetStart = name.indexOf("asset_");
-			if (assetStart==0 && value.length == 0 && assets.indexOf(name)>=0 ){
+			if (value.length == 0){
 				$("[name='"+ name +"']").parent().addClass("has-error");
 				window.wxc.xcConfirm("请注意必填项不能为空~", window.wxc.xcConfirm.typeEnum.error);
 				return false;
-			}else if (assetStart==0 && value.length > 0){
+			}else if (value.length > 0){
 				$("[name='"+ name +"']").parent().removeClass("has-error");
 				$("[name='"+ name +"']").parent().addClass("has-success");
 			}
 			
 		};
-		var asset_data = getFormData(document.getElementById('addAssets'),''); 
 		var btnObj = $(obj);
-		if (asset_data.assets.assets_type=="server" || asset_data.assets.assets_type=="vmser"){
-			var putUrl = '/api/server/';
-		}
-		else {
-			var putUrl = '/api/net/';
-		}
 		$.ajax({
 			dataType: "JSON",
-			url:putUrl, //请求地址
+			url:/gs_add/, //请求地址
 			type:"POST",  //提交类似
 			contentType: "application/json",
 			data: JSON.stringify({
@@ -242,8 +235,6 @@
 	    	}
 		})	
 	}	
-	
-    $(".form_datetime").datetimepicker({format: 'yyyy-mm-dd'});
 
 	
 </script>
