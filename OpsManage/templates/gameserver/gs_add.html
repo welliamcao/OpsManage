@@ -42,21 +42,21 @@
 											<div class="form-group">
 												 <label class="col-sm-2 control-label">游戏名称</label>
 												 <div class="col-sm-6">
-												 	<input type="text" class="form-control" id="ganename" name="ganename" placeholder="例：108-西昌2" value="" class="input-xlarge"/>
+												 	<input type="text" class="form-control" id="gamename" name="ganename" placeholder="例：108-西昌2" value="" class="input-xlarge"/>
 												 </div>
 											</div>
 
 											<div class="form-group">
 												 <label class="col-sm-2 control-label">网关GateWay地址</label>
 												 <div class="col-sm-6">
-                                                     <input type="text" class="form-control" name="gatepath" placeholder="例：/data/108-西昌2/GateWay/" value="" class="input-xlarge"  required/>
+                                                     <input type="text" class="form-control" name="gate_path" placeholder="例：/data/108-西昌2/GateWay" value="" class="input-xlarge"  required/>
 												 </div>
 											</div>	
 					
 											<div class="form-group">
 												 <label class="col-sm-2 control-label">游戏GameServer地址</label>
 												 <div class="col-sm-6">
-                                                     <input type="text" class="form-control" name="gatepath" placeholder="例：/data/108-西昌2/GameServer/" value="" class="input-xlarge"  required/>
+                                                     <input type="text" class="form-control" name="gate_path" placeholder="例：/data/108-西昌2/GameServer" value="" class="input-xlarge"  required/>
 												 </div>
 											</div>		
 					
@@ -125,9 +125,7 @@
 	}	
 	
 	function getFormData (form, filler) {
-		var assets = {};
-		var server = {};
-		var net = {};
+		var gameserver = {};
 		for (var i = 0; i < form.length; ++i) {
 			var name = form[i].name;
 			var value = form[i].value;
@@ -144,43 +142,16 @@
 				else
 					value = filler;
 			}
-			var assetStart = name.indexOf("asset_");
-			var serverStart = name.indexOf("server_");
-			var netStart = name.indexOf("net_");
-			if (assetStart==0){
-				var asz = "assets."+name.replace("asset_","")+" = '" + value + "'";
+			var pathend = name.indexOf("_path");
+			if (pathend!=0){
 				try {
-					eval(asz);
+					value.replace(/\/$/,'<br/>');
 				} catch (e) {
 					alert(e);
 				}
 			}
-			else if(serverStart==0){
-				var ssz = "server."+name.replace("server_","")+" = '" + value + "'";
-				try {
-					eval(ssz);
-				} catch (e) {
-					alert(e);
-				}
-			}			
-			else if(netStart==0){
-				var nsz = "net."+name.replace("net_","")+" = '" + value + "'";
-				try {
-					eval(nsz);
-				} catch (e) {
-					alert(e);
-				}
-			}
-			
 		}
-		if (assets.assets_type == "server" || assets.assets_type=="vmser"){
-			server.assets = assets;
-			return server;		
-		}
-		else {
-			net.assets = assets;
-			return net;
-		}
+        return net;
 	}
 
 	function oBtAuthType() {
@@ -200,7 +171,6 @@
 		for (var i = 0; i < form.length; ++i) {
 			var name = form[i].name;
 			var value = form[i].value;
-			var assetStart = name.indexOf("asset_");
 			if (value.length == 0){
 				$("[name='"+ name +"']").parent().addClass("has-error");
 				window.wxc.xcConfirm("请注意必填项不能为空~", window.wxc.xcConfirm.typeEnum.error);
@@ -211,6 +181,7 @@
 			}
 			
 		};
+		var gs_data = getFormData(document.getElementById('addGame'),'');
 		var btnObj = $(obj);
 		$.ajax({
 			dataType: "JSON",
@@ -218,7 +189,7 @@
 			type:"POST",  //提交类似
 			contentType: "application/json",
 			data: JSON.stringify({
-				'data':asset_data
+				'data':gs_data
 			}),  //提交参数
 			success:function(response){
 				window.wxc.xcConfirm("资产添加成功", window.wxc.xcConfirm.typeEnum.success);
