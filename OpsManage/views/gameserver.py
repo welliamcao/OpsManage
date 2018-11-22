@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 # _#_ coding:utf-8 _*_
 import json
-
-from django.forms import model_to_dict
 from django.http import HttpResponse,JsonResponse
 from django.core import serializers
 from django.shortcuts import render
@@ -25,29 +23,33 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 @login_required()
 @permission_required('OpsManage.can_add_gameserver_config',login_url='/noperm/')
 def gameserver_add(request):
-    serverList = AssetsSource().serverList()
-    return render(request,'gameserver/gs_add.html',{"user":request.user,"serverList":serverList})
-    if request.method == "POST":
+    if request.method == "GET":
+        serverList = AssetsSource().serverList()
+
+        return render(request,'gameserver/gs_add.html',{"user":request.user,"serverList":serverList})
+    elif request.method == "POST":
         try:
-            server = Server_Assets.objects.get(id=request.POST.get('game_server'))
-        except Server_Assets.DoesNotExist:
-            return HttpResponse(status=404)
+            server = Server_Assets.objects.get(id=request.POST.get("game_server"));
+        except:
+            return HttpResponse(content="主机ID不存在，可能已被删除", status=404)
         try:
             gameserver = GameServer_Config.objects.create(
                 name = request.POST.get("gamename"),
-                game_path = request.POST.get("gamepath"),
-                gate_path = request.POST.get("gatepath"),
+                game_path = request.POST.get("game_path"),
+                gate_path = request.POST.get("gate_path"),
                 state = request.POST.get("state"),
-                ip = server.ip
+                ip = server
             )
-        except:
-            return HttpResponse(status=500)
+            return HttpResponse(status=201)
+        except Exception, ex:
+            if 1062 in ex:ex="添加失败，游戏服已存在"
+            return HttpResponse(content=ex,status=500)
 
 @login_required()
 @permission_required('OpsManage.can_read_gameserver_config',login_url='/noperm/')
 def gamehost_list(request):
     gshost = []
-    ips = GameServer_Config.objects.values_list("ip__ip",flat=True)
+    ips = GameServer_Config.objects.values_list("ip__ip",flat=True).distinct()
     totalgame = GameServer_Config.objects.all().count()
     onlinegame = 0
     offlinegame = GameServer_Config.objects.filter(state=False).count()
@@ -59,11 +61,11 @@ def gamehost_list(request):
         system = Server_Assets.objects.get(ip=ip).system
         gonlinegame = GameServer_Config.objects.filter(state=True,ip__ip=ip).count()
         status = Assets.objects.get(id=aid).status
-        game =GameServer_Config.objects.filter(ip__ip=ip).values_list("name",flat=True)
+        game =list(GameServer_Config.objects.filter(ip__ip=ip).values_list("name",flat=True))
         onlinegame = onlinegame+gonlinegame
         gshost.append(
             {
-                'game': ",".join(game),
+                'game': ",".join(str(game)),
                 'aid':aid,
                 'sid':sid,
                 'business':business,

@@ -188,7 +188,8 @@
                     </div>
 
                 </div>
-    </div>  
+    </div>
+</div>>
 <script type="text/javascript">
     var selectState = false;
     function checkAllBox(){
@@ -212,14 +213,16 @@
             {
                 var state = '<button  type="button" class="btn btn-outline btn-danger">已下架</button>'
             }
-			 trHtml +=  '<td class="text-center">'+dataList[i]["name"]+'</td>'
-                            +'<td class="text-center">'+dataList[i]["game_path"]+'</td>'
-                            +'<td class="text-center">'+dataList[i]["gate_path"]+'</td>'
-                            +'<td class="text-center">'+state+'</td>'
-                            +'<td class="text-center">'
-                                +'<button  type="button" class="btn btn-default" onclick="editGameserver(this,'+dataList[i]["gid"]+')"><abbr title="编辑"><i class="glyphicon glyphicon-edit"></i></abbr></button>'
-                                +'<button  type="button" class="btn btn-default" onclick="deleteGameserver(this,'+dataList[i]["gid"]+')"><abbr title="删除"><i class="glyphicon glyphicon-trash"></i></abbr></button>'
-                            +'</td>'
+			 trHtml +=  '<tr class="odd gradeX">'
+                            +'<td class="text-center">'+dataList[i]["name"]+'</td>'
+                                +'<td class="text-center">'+dataList[i]["game_path"]+'</td>'
+                                +'<td class="text-center">'+dataList[i]["gate_path"]+'</td>'
+                                +'<td class="text-center">'+state+'</td>'
+                                +'<td class="text-center">'
+                                    +'<button  type="button" class="btn btn-default" onclick="editGameserver(this,'+dataList[i]["gid"]+')"><abbr title="编辑"><i class="glyphicon glyphicon-edit"></i></abbr></button>'
+                                    +'<button  type="button" class="btn btn-default" onclick="deleteGameserver(this,'+dataList[i]["gid"]+')"><abbr title="删除"><i class="glyphicon glyphicon-trash"></i></abbr></button>'
+                                +'</td>'
+                                +'</tr>'
 
 		};
  	    var vHtml = '<table width="100%" class="table table-striped table-bordered table-hover" id="gsTableList">'
@@ -236,9 +239,7 @@
                                     	+'<th class="text-center">已上架</th>'
                                         +'<th class="text-center">操作</th>'
                                         +'</tr></tfoot></thead><tbody>'
-                                            +'<tr class="odd gradeX">'
-                                	            +trHtml
-                                            +'</tr>'
+                                            +trHtml
                                 +'</tbody></table>';
 	    return vHtml;
 	}
@@ -377,15 +378,19 @@
                   url: '/gs_details/'+id+'/',
                   success:function(response){
                           btnObj.removeAttr('disabled');
-                          window.wxc.xcConfirm("删除成功", window.wxc.xcConfirm.typeEnum.success);
-                          location.reload('/assets_list/');
+                          var r=confirm("删除成功！");
+                          if (r==true) {
+                              location.reload('/gs_config/');
+                          }
                   },
                   error:function(response){
                       if (response.status=="404"){err="ID不存在，资源可能已删除"}
                       else if (response.status=="403"){err="没有删除权限，请联系管理员"}
                       btnObj.removeAttr('disabled');
-                      window.wxc.xcConfirm(err, window.wxc.xcConfirm.typeEnum.error);
-                      location.reload('/assets_list/');
+                      var r=confirm(err);
+                          if (r==true) {
+                              location.reload('/gs_config/');
+                          }
                     }
                 });
             },
