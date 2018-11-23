@@ -135,11 +135,11 @@
                                             <td></td>
                                             <td class="text-center"><input type="checkbox" value={{hs.aid}} name="ckbox"/></td>
                                             <td class="text-center">{{hs.sid}}</td>
-                                            <td class="text-center">{{hs.business}} </td>
-                                            <td class="text-center">{{hs.hostname}} </td>
+                                            <td class="text-center">{{hs.business}}</td>
+                                            <td class="text-center">{{hs.hostname}}</td>
                                             <td class="text-center">{{hs.ip}}</td>
                                             <td class="text-center">{{hs.system}}</td>
-                                            <td class="text-center">{{hs.onlinegame}} </td>
+                                            <td class="text-center">{{hs.onlinegame}}</td>
                                             <td class="text-center">
                                                 {% if hs.status == 0 %}
                                                     <button  type="button" class="btn btn-outline btn-success">激活</button>
@@ -170,7 +170,7 @@
                                                     </ul>
                                                 </div>
 
-                                                <a href="/assets_mod/{{hs.aid}}" style="text-decoration:none;"><button  type="button" class="btn btn-default"><abbr title="修改资料"><i class="glyphicon glyphicon-edit"></button></i></abbr></a>
+                                                <a href="/assets_mod/{{hs.aid}}" style="text-decoration:none;"><button  type="button" class="btn btn-default"><abbr title="修改资料"><i class="glyphicon glyphicon-edit"></i></abbr></button></a>
                                             </td>
                                             <td class="text-center">{{hs.game}}</td>
                                         </tr>
@@ -189,7 +189,7 @@
 
                 </div>
     </div>
-</div>>
+</div>
 <script type="text/javascript">
     var selectState = false;
     function checkAllBox(){
@@ -205,24 +205,28 @@
 	function format ( dataList ) {
 	    var trHtml = '';
 		for (var i=0; i <dataList.length; i++){
-		    if (dataList[i]["state"] == true )
+		    if (dataList[i]["state"] == 1 )
             {
                 var state = '<button  type="button" class="btn btn-outline btn-success">已上架</button>'
             }
-            else
+            else if (dataList[i]["state"] == 0)
             {
                 var state = '<button  type="button" class="btn btn-outline btn-danger">已下架</button>'
             }
-			 trHtml +=  '<tr class="odd gradeX">'
+            else
+            {
+                var state = '<button  type="button" class="btn btn-outline btn-danger">未上架</button>'
+            }
+			 trHtml +=  +'<tr class="odd gradeX">'
                             +'<td class="text-center">'+dataList[i]["name"]+'</td>'
-                                +'<td class="text-center">'+dataList[i]["game_path"]+'</td>'
                                 +'<td class="text-center">'+dataList[i]["gate_path"]+'</td>'
+                                +'<td class="text-center">'+dataList[i]["game_path"]+'</td>'
                                 +'<td class="text-center">'+state+'</td>'
                                 +'<td class="text-center">'
-                                    +'<button  type="button" class="btn btn-default" onclick="editGameserver(this,'+dataList[i]["gid"]+')"><abbr title="编辑"><i class="glyphicon glyphicon-edit"></i></abbr></button>'
+                                    +'<a href="/gs_modf/'+dataList[i]["gid"]+'"><button  type="button" class="btn btn-default"><abbr title="编辑"><i class="glyphicon glyphicon-edit"></i></abbr></button></a>'
                                     +'<button  type="button" class="btn btn-default" onclick="deleteGameserver(this,'+dataList[i]["gid"]+')"><abbr title="删除"><i class="glyphicon glyphicon-trash"></i></abbr></button>'
                                 +'</td>'
-                                +'</tr>'
+                        +'</tr>'
 
 		};
  	    var vHtml = '<table width="100%" class="table table-striped table-bordered table-hover" id="gsTableList">'
@@ -239,7 +243,7 @@
                                     	+'<th class="text-center">已上架</th>'
                                         +'<th class="text-center">操作</th>'
                                         +'</tr></tfoot></thead><tbody>'
-                                            +trHtml
+                                	            +trHtml
                                 +'</tbody></table>';
 	    return vHtml;
 	}
@@ -378,18 +382,18 @@
                   url: '/gs_details/'+id+'/',
                   success:function(response){
                           btnObj.removeAttr('disabled');
-                          var r=confirm("删除成功！");
-                          if (r==true) {
-                              location.reload('/gs_config/');
+                          var r=confirm("删除成功!");
+                          if (r==true)
+                          {
+                                location.reload('/gs_config/');
                           }
                   },
                   error:function(response){
-                      if (response.status=="404"){err="ID不存在，资源可能已删除"}
-                      else if (response.status=="403"){err="没有删除权限，请联系管理员"}
                       btnObj.removeAttr('disabled');
-                      var r=confirm(err);
-                          if (r==true) {
-                              location.reload('/gs_config/');
+                      var r=confirm(response.responseText);
+                          if (r==true)
+                          {
+                                location.reload('/gs_config/');
                           }
                     }
                 });

@@ -47,6 +47,39 @@ def gameserver_add(request):
 
 @login_required()
 @permission_required('OpsManage.can_read_gameserver_config',login_url='/noperm/')
+def gameserver_modify(request,gid):
+    if request.method == "GET":
+        serverList = AssetsSource().serverList()
+        try:
+            gameserver = GameServer_Config.objects.get(id=gid)
+        except :
+            return HttpResponse(status=404)
+        for gs in serverList:
+            if gs["ip"] == gameserver.ip.ip:
+                gshost = gs
+        return render(request, 'gameserver/gs_modf.html', {"serverList":serverList, "user":request.user, "gameserver":gameserver, "gshost":gshost})
+    elif request.method =="POST":
+        if not request.user.has_perm('OpsManage.can_change_gameserver_config'):
+            return HttpResponse(status=403)
+        else:
+            try:
+                server = Server_Assets.objects.get(id=request.POST.get('game_server'))
+            except Exception, ex:
+                return HttpResponse(content=ex,status=404)
+            gameserver = GameServer_Config(
+                name=request.POST.get("name"),
+                game_path=request.POST.get("gamepath"),
+                gate_path=request.POST.get("gatepath"),
+                state=request.POST.get("state"),
+                ip=server.ip
+            )
+            try:
+                gameserver.save()
+            except Exception, ex:
+                return HttpResponse(content=ex,status=500)
+
+@login_required()
+@permission_required('OpsManage.can_read_gameserver_config',login_url='/noperm/')
 def gamehost_list(request):
     gshost = []
     ips = GameServer_Config.objects.values_list("ip__ip",flat=True).distinct()
@@ -90,32 +123,13 @@ def gameserver_details(request,id):
         for gs in gslist:
             data.append({"name":gs.name,"game_path":gs.game_path,"gate_path":gs.gate_path,"state":gs.state,"gid":gs.id})
         return JsonResponse({"code": 200, "msg": "success", "data": data})
-    elif request.method == "POST":
-        if not request.user.has_perm('OpsManage.can_change_gameserver_config'):
-            return HttpResponse(status=404)
-        else:
-            try:
-                server = Server_Assets.objects.get(id=request.POST.get('game_server'))
-            except Server_Assets.DoesNotExist:
-                return HttpResponse(status=404)
-            gameserver = GameServer_Config(
-                name=request.POST.get("name"),
-                game_path=request.POST.get("gamepath"),
-                gate_path=request.POST.get("gatepath"),
-                state=request.POST.get("state"),
-                ip=server.ip
-            )
-            try:
-                gameserver.save()
-            except:
-                return HttpResponse(status=500)
     elif request.method == "DELETE":
         if not request.user.has_perm('OpsManage.can_delete_gameserver_config'):
-            return HttpResponse(status=403)
+            return HttpResponse(content="没有权限，请联系管理员",status=403)
         else:
             try:
                 gameserver = gameserver_list.get(id=id)
             except gameserver.DoesNotExist:
-                return HttpResponse(status=404)
+                return HttpResponse(content="ID不存在，游戏服可能已被删除，",status=404)
             gameserver.delete()
             return HttpResponse(status=200)

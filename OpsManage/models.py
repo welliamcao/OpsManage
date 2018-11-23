@@ -691,11 +691,16 @@ class SQL_Audit_Control(models.Model):
 class GameServer_Config(models.Model):
     #serverid = models.IntegerField(verbose_name="游戏服serverid")
     #areaid = models.IntegerField(verbose_name="游戏服areaid")
+    state_type_choices =(
+        (-1,u'未上线'),
+        (0,u'已下线'),
+        (1,u'已上线'),
+    )
     name = models.CharField(max_length=100,blank=True,null=True,verbose_name="游戏服名称")
     game_path = models.CharField(unique=True,max_length=100,verbose_name="游戏服GameServer程序路径")
     gate_path = models.CharField(unique=True,max_length=100,verbose_name="游戏服Gateway程序路径")
     ip = models.ForeignKey('Server_Assets')
-    state = models.BooleanField(default=True,verbose_name="上线状态")
+    state = models.SmallIntegerField(choices=state_type_choices,verbose_name="上线状态")
     class Meta:
         db_table = 'opsmanage_gameserver_config'
         permissions = (

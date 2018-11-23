@@ -7,7 +7,7 @@
 <div id="page-wrapper">
             <div class="row">
                 <div class="col-lg-12">
-                    <h1 class="page-header"><i class="fa  fa-desktop"></i> 游戏录入</h1>
+                    <h1 class="page-header"><i class="fa  fa-desktop"></i> 游戏编辑</h1>
                 </div>
                 <!-- /.col-lg-12 -->
             </div>
@@ -16,7 +16,7 @@
                 <div class="col-lg-12">
                     <div class="panel panel-default">
                         <div class="panel-heading">
-                           	 游戏服录入
+                           	 游戏服编辑
                         </div>
                         <div class="panel-body">
                             <div class="row">
@@ -30,7 +30,7 @@
 												 <label class="col-sm-2 control-label">服务器</label>
 												 <div class="col-sm-6">
 					                                 <select class="selectpicker" data-live-search="true"  data-size="5" name="game_server"  data-width="100%"  required>
-					                                 		<option name="game_server" value="" selected="selected">选择一个主机进行配置</option>
+					                                 		<option name="game_server" value="{{ gshost.id }}" selected="selected">{{ gshost.ip }} | {{ gshost.project }} | {{ gshost.service }}</option>
 					                                 	{% for ds in serverList %}
 					                                 		<option name="game_server" value="{{ds.id}}">{{ds.ip}} | {{ds.project}} | {{ds.service}}</option>
 					                                 	{% endfor %}
@@ -41,21 +41,21 @@
 											<div class="form-group">
 												 <label class="col-sm-2 control-label">游戏名称</label>
 												 <div class="col-sm-6">
-												 	<input type="text" class="form-control" id="gamename" name="ganename" placeholder="例：108-西昌2" value="" class="input-xlarge"/>
+												 	<input type="text" class="form-control" id="gamename" name="ganename" placeholder="例：108-西昌2" value="{{ gameserver.name }}" class="input-xlarge"/>
 												 </div>
 											</div>
 
 											<div class="form-group">
 												 <label class="col-sm-2 control-label">网关GateWay地址</label>
 												 <div class="col-sm-6">
-                                                     <input type="text" class="form-control" name="gate_path" placeholder="例：/data/108-西昌2/GateWay" value="" class="input-xlarge"  required/>
+                                                     <input type="text" class="form-control" name="gate_path" placeholder="例：/data/108-西昌2/GateWay" value="{{ gameserver.gate_path }}" class="input-xlarge"  required/>
 												 </div>
 											</div>	
 					
 											<div class="form-group">
 												 <label class="col-sm-2 control-label">游戏GameServer地址</label>
 												 <div class="col-sm-6">
-                                                     <input type="text" class="form-control" name="game_path" placeholder="例：/data/108-西昌2/GameServer" value="" class="input-xlarge"  required/>
+                                                     <input type="text" class="form-control" name="game_path" placeholder="例：/data/108-西昌2/GameServer" value="{{ gameserver.game_path }}" class="input-xlarge"  required/>
 												 </div>
 											</div>		
 					
@@ -63,9 +63,19 @@
 												 <label class="col-sm-2 control-label">上线状态</label>
 												 <div class="col-sm-6">
 												   <select class="form-control" name="state"  >
-												   		<option selected="selected" value="-1">未上线</option>
-                                                        <option  value="0">已下架</option>
-														<option  value="1">已上线</option>
+                                                       {% if gameserver.state == -1 %}
+                                                           <option  value="-1" selected="selected">未上线</option>
+                                                           <option  value="0">已下架</option>
+                                                           <option  value="1">已上线</option>
+                                                           {% elif gameserver.state == 0 %}
+                                                           <option  value="-1">未上线</option>
+                                                            <option  value="0" selected="selected">已下架</option>
+                                                           <option  value="1">已上线</option>
+                                                           {% elif gameserver.state == 1 %}
+														    <option  value="1" selected="selected">已上线</option>
+                                                           <option  value="-1">未上线</option>
+                                                           <option  value="0">已下架</option>
+                                                       {% endif %}
 													</select>
 												 </div>
 											</div>
@@ -75,7 +85,7 @@
 											<div class="form-group">
 											<label class="col-sm-3 control-label"></label>
 											<button type="reset"  class="btn btn-default" >撤销操作</button>
-									 		<button type="button" class="btn btn-default" onclick="addGameServerData(this)" >确认提交</button>
+									 		<button type="button" class="btn btn-default" onclick="addGameServerData(this,{{ gameserver.id }})" >确认提交</button>
 									 		</div>
 									 		
 										</form>	
@@ -98,9 +108,8 @@
 
 
 <script type="text/javascript">
-	
 	function getFormData (form, filler) {
-		var gamedata = new FormData();
+		var gamedata = {};
 		for (var i = 0; i < form.length; ++i) {
 			var name = form[i].name;
 			var value = form[i].value;
@@ -125,26 +134,31 @@
 					alert(e);
 				}
 			}
-            gamedata.append(name,value)
+			var obj = "gamedata."+name+" = '" + value + "'";
+            try {
+                eval(obj);
+            } catch (e) {
+                alert(e);
+            };
 		}
         return gamedata;
 	}
 
-	function addGameServerData(obj) {
+	function addGameServerData(obj,gid) {
 		var gs_data = getFormData(document.getElementById('addGame'),'');
 		var btnObj = $(obj);
 		$.ajax({
-			url:/gs_add/, //请求地址
+            url:'/gs_modf/'+gid+'/', //请求地址
 			type:"POST",  //提交类似
             processData: false,
             contentType:false,
 			data:gs_data,  //提交参数
 			success:function(response){
-				window.wxc.xcConfirm("资产添加成功", window.wxc.xcConfirm.typeEnum.success);
+				window.wxc.xcConfirm("资产修改成功", window.wxc.xcConfirm.typeEnum.success);
 			},
 	    	error:function(response){
 				$.notify({
-					title: "<strong>资产添加错误:</strong><br>",
+					title: "<strong>资产修改错误:</strong><br>",
 					message:response.responseText
 				},
 				{
