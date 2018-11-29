@@ -47,7 +47,7 @@ def gameserver_add(request):
 
 @login_required()
 @permission_required('OpsManage.can_read_gameserver_config',login_url='/noperm/')
-def gameserver_modify(request,gid):
+def gameserver_modify(request,gid=None):
     if request.method == "GET":
         serverList = AssetsSource().serverList()
         try:
@@ -74,7 +74,7 @@ def gameserver_modify(request,gid):
                 ip=server.ip
             )
             try:
-                gameserver.save()
+                gameserver.save
             except Exception, ex:
                 return HttpResponse(content=ex,status=500)
 
@@ -133,3 +133,26 @@ def gameserver_details(request,id):
                 return HttpResponse(content="ID不存在，游戏服可能已被删除，",status=404)
             gameserver.delete()
             return HttpResponse(status=200)
+
+@login_required()
+@permission_required('OpsManage.can_change_gameserver_config')
+def gamehost_facts(request):
+    if request.method == "POST":
+        gamelist
+        try:
+            server_assets = Server_Assets.objects.get(id=id)
+            if server_assets.keyfile == 1:
+                resource = [{"ip": server_assets.ip, "port": int(server_assets.port), "username": server_assets.username,
+                             "sudo_passwd": server_assets.sudo_passwd}]
+            else:
+                resource = [{"ip": server_assets.ip, "port": server_assets.port, "username": server_assets.username,
+                             "password": server_assets.passwd, "sudo_passwd": server_assets.sudo_passwd}]
+        except Exception,ex:
+            return HttpResponse(content=ex,status=403)
+        filter = "old|OLD|Old|lost|下线"
+        ANS = ANSRunner(resource)
+        ANS.run_model(host_list=[server_assets.ip], module_name='raw', module_args="ls /data |grep -v '{0}'".format(filter))
+        data = ANS.handle_model_data(ANS.get_model_result())
+        for game in data:
+            
+            

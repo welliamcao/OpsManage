@@ -120,7 +120,7 @@
 			var pathend = name.indexOf("_path");
 			if (pathend!=0){
 				try {
-					value.replace(/\/$/,'');
+					value.replace(/~\/$/,'');
 				} catch (e) {
 					alert(e);
 				}
