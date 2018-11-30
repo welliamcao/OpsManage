@@ -135,12 +135,10 @@ def gameserver_details(request,id):
             return HttpResponse(status=200)
 
 @login_required()
-@permission_required('OpsManage.can_change_gameserver_config')
 def gamehost_facts(request):
-    if request.method == "POST":
-        gamelist
+    if request.method == "POST" and request.user.has_perm('OpsManage.can_change_gameserver_config'):
         try:
-            server_assets = Server_Assets.objects.get(id=id)
+            server_assets = Server_Assets.objects.get(id=request.POST.get("server_id"))
             if server_assets.keyfile == 1:
                 resource = [{"ip": server_assets.ip, "port": int(server_assets.port), "username": server_assets.username,
                              "sudo_passwd": server_assets.sudo_passwd}]
@@ -148,11 +146,32 @@ def gamehost_facts(request):
                 resource = [{"ip": server_assets.ip, "port": server_assets.port, "username": server_assets.username,
                              "password": server_assets.passwd, "sudo_passwd": server_assets.sudo_passwd}]
         except Exception,ex:
-            return HttpResponse(content=ex,status=403)
+            return HttpResponse(status=404)
         filter = "old|OLD|Old|lost|下线"
         ANS = ANSRunner(resource)
-        ANS.run_model(host_list=[server_assets.ip], module_name='raw', module_args="ls /data |grep -v '{0}'".format(filter))
-        data = ANS.handle_model_data(ANS.get_model_result())
-        for game in data:
-            
-            
+        ANS.run_model(host_list=[server_assets.ip], module_name='raw',
+                      module_args="find /data -type f Gate* |grep -v '{0}'|xargs -I {{}} dirname {{}}".format(filter))
+        Gatedata = ANS.handle_model_data(ANS.get_model_result(),"raw")
+        ANS.run_model(host_list=[server_assets.ip], module_name='raw',
+                      module_args="find /data -type f Game* |grep -v '{0}'|xargs -I {{}} dirname {{}}".format(filter))
+        Gamedata = ANS.handle_model_data(ANS.get_model_result(),"raw")
+        if Gatedata:
+            for gate in Gatedata:
+                Gatelist = gate.get("msg").split("<br>")
+        if Gamedata:
+            for game in Gamedata:
+                Gamelist = game.get("msg").split("<br>")
+        for gate in Gatelist:
+            for game in Gamelist:
+                gamename = game.split("/")[1]
+                if gate.split("/")[1] == gamename:
+                    try:
+                        GameServer_Config.objects.create(
+                            name=gamename,
+                            gate_path=gate,
+                            game_path=game,
+                            ip=server_assets
+                        )
+                    except Exception,ex:
+                        return HttpResponse(status=500)
+    else:return HttpResponse(status=403)

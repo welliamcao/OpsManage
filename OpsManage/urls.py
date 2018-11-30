@@ -48,6 +48,7 @@ urlpatterns = [
     url(r'^gs_config/$',gameserver.gamehost_list),
     url(r'^gs_config/(?P<id>[0-9]+)/$',gameserver.gameserver_details),
     url(r'^gs_details/(?P<id>[0-9]+)/$',gameserver.gameserver_details),
+    url(r'^gs_facts/',gameserver.gamehost_facts),
     url(r'^cron_add',cron.cron_add),
     url(r'^cron_list/(?P<page>[0-9]+)/$',cron.cron_list),
     url(r'^cron_config',cron.cron_config),
