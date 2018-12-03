@@ -74,7 +74,7 @@ def gameserver_modify(request,gid=None):
                 ip=server.ip
             )
             try:
-                gameserver.save
+                gameserver.save()
             except Exception, ex:
                 return HttpResponse(content=ex,status=500)
 
@@ -146,14 +146,14 @@ def gamehost_facts(request):
                 resource = [{"ip": server_assets.ip, "port": server_assets.port, "username": server_assets.username,
                              "password": server_assets.passwd, "sudo_passwd": server_assets.sudo_passwd}]
         except Exception,ex:
-            return HttpResponse(status=404)
+            return  JsonResponse({'msg':"获取资产信息失败，可能主机已被删除","code":404})
         filter = "old|OLD|Old|lost|下线"
         ANS = ANSRunner(resource)
         ANS.run_model(host_list=[server_assets.ip], module_name='raw',
-                      module_args="find /data -type f Gate* |grep -v '{0}'|xargs -I {{}} dirname {{}}".format(filter))
+                      module_args="find /data -type f -name 'Gate*' |grep -vE '{0}'|xargs dirname".format(filter))
         Gatedata = ANS.handle_model_data(ANS.get_model_result(),"raw")
         ANS.run_model(host_list=[server_assets.ip], module_name='raw',
-                      module_args="find /data -type f Game* |grep -v '{0}'|xargs -I {{}} dirname {{}}".format(filter))
+                      module_args="find /data -type f -name 'Game*' |grep -vE '{0}'|xargs dirname".format(filter))
         Gamedata = ANS.handle_model_data(ANS.get_model_result(),"raw")
         if Gatedata:
             for gate in Gatedata:
@@ -163,8 +163,8 @@ def gamehost_facts(request):
                 Gamelist = game.get("msg").split("<br>")
         for gate in Gatelist:
             for game in Gamelist:
-                gamename = game.split("/")[1]
-                if gate.split("/")[1] == gamename:
+                gamename = game.split("/")[2]
+                if gate.split("/")[2] == gamename:
                     try:
                         GameServer_Config.objects.create(
                             name=gamename,
@@ -173,5 +173,6 @@ def gamehost_facts(request):
                             ip=server_assets
                         )
                     except Exception,ex:
-                        return HttpResponse(status=500)
-    else:return HttpResponse(status=403)
+                        return JsonResponse({'msg': ex, "code": 500})
+        return JsonResponse({'msg':"同步成功","code":200})
+    else:return  JsonResponse({'msg':"没有权限，请联系管理员","code":403})
