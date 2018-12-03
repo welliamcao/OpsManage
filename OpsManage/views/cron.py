@@ -19,8 +19,7 @@ from dao.assets import AssetsSource
 def cron_add(request):
     serverList = AssetsSource().serverList()
     if request.method == "GET": 
-        return render(request,'cron/cron_add.html',{"user":request.user,"serverList":serverList},
-                                  )
+        return render(request,'cron/cron_add.html',{"user":request.user,"serverList":serverList})
     elif request.method == "POST":
         cron_status = request.POST.get('cron_status',0)
         try:

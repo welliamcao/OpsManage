@@ -630,7 +630,7 @@ class ANSRunner(object):
                     else:
                         data['status'] = 'failed'
                     data_list.append(data)
-            elif success:
+            if success:
                 for x,y in success.items(): 
                     data = {}                    
                     data['ip'] = x
@@ -663,7 +663,7 @@ class ANSRunner(object):
                         data['status'] = 'succeed'
                     data_list.append(data) 
                     
-            elif failed:
+            if failed:
                 for x,y in failed.items():   
                     data = {}                  
                     data['ip'] = x
