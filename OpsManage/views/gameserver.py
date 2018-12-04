@@ -162,17 +162,30 @@ def gamehost_facts(request):
             for game in Gamedata:
                 Gamelist = game.get("msg").split("<br>")
         for gate in Gatelist:
-            for game in Gamelist:
-                gamename = game.split("/")[2]
-                if gate.split("/")[2] == gamename:
-                    try:
-                        GameServer_Config.objects.create(
-                            name=gamename,
-                            gate_path=gate,
-                            game_path=game,
-                            ip=server_assets
-                        )
-                    except Exception,ex:
-                        return JsonResponse({'msg': ex, "code": 500})
+            gatename = gate.split("/")
+            if len(gatename)>3:
+                for game in Gamelist:
+                    gamename = game.split("/")
+                    if len(gamename)>3:
+                        if gatename[2] == gamename[2]:
+                            try:
+                                GameServer_Config.objects.update_or_create(
+                                    name=gamename[2],
+                                    gate_path=gate,
+                                    game_path=game,
+                                    ip=server_assets
+                                )
+                            except Exception,ex:
+                                return JsonResponse({'msg': ex, "code": 500})
         return JsonResponse({'msg':"同步成功","code":200})
     else:return  JsonResponse({'msg':"没有权限，请联系管理员","code":403})
+@login_required()
+@permission_required('OpsManage.can_read_gameserver_config',login_url='/noperm/')
+def reupdate(request):
+    if request.method == "GET":
+        data = []
+        gameupdate = {}
+        updateobj = GameServer_Update_List.objects.all()
+        for alist in updateobj:
+            data.append({"listid":alist.listid,"oderid":alist.orderid,"type":alist.type,"souce":alist.sourceip,"target":alist.})
+        return render(request,'gameserver/reupdate.html')

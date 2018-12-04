@@ -721,7 +721,10 @@ class GameServer_Update_List(models.Model):
         ('upstaticfi', u'更新静态配置'),
         ('updynamicfi', u'更新动态配置'),
         ('extracmd', u'特殊更新命令'),
+        ('reboot',u'重启程序')
     )
+    listid = models.PositiveIntegerField(verbose_name="清单顺序ID")
+    orderid = models.PositiveIntegerField(verbose_name="操作项顺序ID")
     type = models.CharField(max_length=100,choices=exec_type_choices,verbose_name="操作类型")
     sourceip = models.GenericIPAddressField(null=True,blank=True,verbose_name="更新源IP地址")
     targetip = models.GenericIPAddressField(verbose_name="更新目标IP地址")
@@ -736,7 +739,7 @@ class GameServer_Update_List(models.Model):
             ("can_add_gsupdate_list", "增加更新列表权限"),
             ("can_delete_gsupdate_list", "删除更新列表权限"),
         )
-        unique_together = (("target_path","ocudate"))
+        unique_together = (("target_path","targetip"))
         verbose_name = '游戏服更新列表'
         verbose_name_plural = '游戏服更新列表'
 
