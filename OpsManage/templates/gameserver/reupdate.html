@@ -69,7 +69,43 @@
 				</h4>
 			</div>
 			<div class="modal-body">
-
+                <div class="row">
+                    <form class="form-horizontal" role="form" id="zone_assets">
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>选择更新源</strong></label>
+                            <div class="col-sm-6">
+                                <select class="selectpicker" data-live-search="true"  data-size="5" name="souceserver"  data-width="100%"  required>
+                                    <option name="souceserver" value="" selected="selected">选择更新源</option>
+                                    {% for gs in gslist %}
+                                        <option id="source" name="souceserver" value="{{gs.id}}">{{gs.name}} | {{gs.gamepath}} | {{gs.server}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <label class="col-sm-2">
+                            <input type="checkbox" id="isGateWay">
+                                网关
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>机房网段</strong></label>
+                            <div class="col-sm-6">
+                                <input class="form-control" type="text" name="zone_network" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>机房联系人</strong></label>
+                            <div class="col-sm-6">
+                                <input class="form-control" type="text" name="zone_contact" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>联系人号码</strong></label>
+                            <div class="col-sm-6">
+                                <input class="form-control" type="text" name="zone_number" />
+                            </div>
+                        </div>
+				</form>
+                </div>
 			</div>
 			<div class="modal-footer">
 				<button type="button" class="btn btn-default" data-dismiss="modal">关闭
@@ -82,6 +118,10 @@
 	</div><!-- /.modal -->
 </div>
 <script type="text/javascript">
+$("#isGateWay").change(function() {
+    ;
+source
+});
 function addUPdate(obj,type){
 
 }

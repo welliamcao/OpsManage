@@ -186,11 +186,11 @@ def gamehost_facts(request):
 @permission_required('OpsManage.can_add_gsupdate_list',login_url='/noperm/')
 def reupdate(request):
     if request.method == "GET":
-        data = []
+        gslist = []
         gameserver = GameServer_Config.objects.all()
         for game in gameserver:
-            data.append({"name":game.name,"gatepath":game.gate_path,"gamepath":game.game_path,'server':game.ip.ip})
-        return render(request,'gameserver/reupdate.html'{})
+            gslist.append({"id":game.id,"name":game.name,"gatepath":game.gate_path,"gamepath":game.game_path,'server':game.ip.ip})
+        return render(request,'gameserver/reupdate.html',{"gslist":gslist})
 
 def uplist_modify(request):
     if request.method == "GET":
