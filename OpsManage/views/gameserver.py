@@ -57,7 +57,8 @@ def gameserver_modify(request,gid=None):
         for gs in serverList:
             if gs["ip"] == gameserver.ip.ip:
                 gshost = gs
-        return render(request, 'gameserver/gs_modf.html', {"serverList":serverList, "user":request.user, "gameserver":gameserver, "gshost":gshost})
+        return render(request, 'gameserver/gs_modf.html', {"serverList":serverList, "user":request.user,
+                                                           "gameserver":gameserver, "gshost":gshost})
     elif request.method =="POST":
         if not request.user.has_perm('OpsManage.can_change_gameserver_config'):
             return HttpResponse(status=403)
@@ -109,7 +110,8 @@ def gamehost_list(request):
                 'status':status,
             }
         )
-    return render(request,'gameserver/gs_config.html',{"user":request.user,"totalGame":totalgame,"onlineGame":onlinegame,"offlineGame":offlinegame,"gshost":gshost},)
+    return render(request,'gameserver/gs_config.html',{"user":request.user,"totalGame":totalgame,"onlineGame":onlinegame,
+                                                       "offlineGame":offlinegame,"gshost":gshost},)
 
 @login_required()
 @permission_required('OpsManage.can_read_gameserver_config')
@@ -179,13 +181,22 @@ def gamehost_facts(request):
                                 return JsonResponse({'msg': ex, "code": 500})
         return JsonResponse({'msg':"同步成功","code":200})
     else:return  JsonResponse({'msg':"没有权限，请联系管理员","code":403})
+
 @login_required()
-@permission_required('OpsManage.can_read_gameserver_config',login_url='/noperm/')
+@permission_required('OpsManage.can_add_gsupdate_list',login_url='/noperm/')
 def reupdate(request):
+    if request.method == "GET":
+        data = []
+        gameserver = GameServer_Config.objects.all()
+        for game in gameserver:
+            data.append({"name":game.name,"gatepath":game.gate_path,"gamepath":game.game_path,'server':game.ip.ip})
+        return render(request,'gameserver/reupdate.html'{})
+
+def uplist_modify(request):
     if request.method == "GET":
         data = []
         gameupdate = {}
         updateobj = GameServer_Update_List.objects.all()
         for alist in updateobj:
-            data.append({"listid":alist.listid,"oderid":alist.orderid,"type":alist.type,"souce":alist.sourceip,"target":alist.})
-        return render(request,'gameserver/reupdate.html')
+            data.append({"listid":alist.listid,"oderid":alist.orderid,"type":alist.type,"souce":alist.sourceip,"target":alist.targetip,
+                         "soucepath":alist.souce_path,"targetpath":alist.target_path,"ocudate":alist.ocudate})

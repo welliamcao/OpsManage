@@ -6,7 +6,7 @@
     <div id="page-wrapper">
     <div class="row">
          <div class="col-lg-12">
-              <h1 class="page-header"><i class="fa  fa-wrench"></i> 任务添加中心</h1>
+              <h1 class="page-header"><i class="fa  fa-wrench"></i> 更新计划中心</h1>
          </div>
                 <!-- /.col-lg-12 -->
     </div>
@@ -14,91 +14,37 @@
                 <div class="col-lg-12">
                     <div class="panel panel-default">
                         <div class="panel-heading">
-                           	 添加任务
+                           	 添加列表
                         </div>
                         <div class="panel-body">
                             <div class="row">
-                            	<div class="col-lg-3">
-                            	</div>
-                                <div class="col-lg-6">
-                                <legend>计划任务配置 - 必填信息</legend>
-                                    <form role="form" method="post" id="addCrontab" class="main form-horizontal" enctype="multipart/form-data" >{% csrf_token %}
-										<fieldset>															
-                                             <table width="100%" class="table table-striped table-bordered table-hover" id="ghostTableList">
-                                                <thead></thead>
-                                                <tbody>
-                                                    {% for hs in gshost %}
-                                                        <tr class="odd gradeX">
-                                                            <td></td>
-                                                            <td class="text-center"><input type="checkbox" value={{hs.aid}} name="ckbox"/></td>
-                                                            <td class="text-center">{{hs.sid}}</td>
-                                                            <td class="text-center">{{hs.business}}</td>
-                                                            <td class="text-center">{{hs.hostname}}</td>
-                                                            <td class="text-center">{{hs.ip}}</td>
-                                                            <td class="text-center">{{hs.system}}</td>
-                                                            <td class="text-center">{{hs.onlinegame}}</td>
-                                                            <td class="text-center">
-                                                                {% if hs.status == 0 %}
-                                                                    <button  type="button" class="btn btn-outline btn-success">激活</button>
-                                                                {% elif hs.status == 1 %}
-                                                                    <button  type="button" class="btn btn-outline btn-primary">未激活</button>
-                                                                {% elif hs.status == 2 %}
-                                                                    <button  type="button" class="btn btn-outline btn-warning">维修中</button>
-                                                                {% elif hs.status == 3 %}
-                                                                    <button  type="button" class="btn btn-outline btn-info">已入库</button>
-                                                                {% elif hs.status == 4 %}
-                                                                    <button  type="button" class="btn btn-outline btn-default">未使用</button>
-                                                                {% endif %}
-                                                            </td>
-                                                            <td class="text-center">
-                                                                <a href="/assets_view/{{hs.aid}}" style="text-decoration:none;"><button  type="button" class="btn btn-default"><abbr title="查看详细信息"><i class="glyphicon glyphicon-info-sign"></i></abbr></button></a>
-                                                                <div class="btn-group">
-                                                                   <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                                                                       <span class="glyphicon glyphicon-refresh"></span>
-                                                                       <span class="caret"></span>
-                                                                   </button>
-                                                                    <ul class="dropdown-menu" role="menu">
-                                                                        <li>
-                                                                            <a href="javascript:" onclick='gamehostUpdate(this,{{hs.sid}},"{{hs.ip}}","setup")'>更新主体信息</a>
-                                                                        </li>
-                                                                        <li>
-                                                                            <a href="javascript:" onclick='gamehostUpdate(this,{{hs.sid}},"{{hs.ip}}","syncdata")'>扫描游戏信息</a>
-                                                                        </li>
-                                                                    </ul>
-                                                                </div>
-
-                                                                <a href="/assets_mod/{{hs.aid}}" style="text-decoration:none;"><button  type="button" class="btn btn-default"><abbr title="修改资料"><i class="glyphicon glyphicon-edit"></i></abbr></button></a>
-                                                            </td>
-                                                            <td class="text-center">{{hs.game}}</td>
-                                                        </tr>
-                                                    {% endfor %}
-                                                </tbody>
-                                            </table>
-											</fieldset>
-											<legend></legend>
-											<div class="form-group">
-											<label class="col-sm-3 control-label"></label>
-											<button type="reset"   class="btn btn-default" >撤销操作</button>
-									 		<button type="submit"  class="btn btn-default" >确认提交</button>
-									 		</div>
-									 		
-										</form>	
+                                <div class="col-lg-6" style="float: left">
+                                <legend>可选操作</legend>
+                                    <button class="btn btn-default btn-lg btn-block" data-toggle="modal" data-target="#updateGa"><i class="fa fa-plus-circle "></i>添加程序更新</button>
+                                    <button class="btn btn-default btn-lg btn-block" data-toggle="modal" data-target="#upstaticfi"><i class="fa fa-plus-circle "></i>添加添加静态配置更新</button>
+                                    <button class="btn btn-default btn-lg btn-block" data-toggle="modal" data-target="#updynamicfi"><i class="fa fa-plus-circle "></i>添加动态配置更新</button>
+                                    <button class="btn btn-default btn-lg btn-block" data-toggle="modal" data-target="#reboot"><i class="fa fa-plus-circle "></i>重启程序</button>
+                                    <button class="btn btn-default btn-lg btn-block" data-toggle="modal" data-target="#extracmd"><i class="fa fa-plus-circle "></i>自定义更新命令</button>
                                 </div>
                                 <!-- /.col-lg-6 (nested) -->
-                                <div class="col-lg-6">
-                                <legend>计划任务配置 - 必填信息</legend>
+                                <div class="col-lg-6" style="float: right">
+                                <legend>计划列表</legend>
                                     <form role="form" method="post" id="addCrontab" class="main form-horizontal" enctype="multipart/form-data" >{% csrf_token %}
 										<fieldset>
+                                             <table width="100%" class="table table-striped table-bordered table-hover" id="updatelist">
+                                                <thead></thead>
+                                                 <tbody>
 
+                                                 </tbody>
+                                            </table>
 											</fieldset>
-											<legend></legend>
 											<div class="form-group">
 											<label class="col-sm-3 control-label"></label>
 											<button type="reset"   class="btn btn-default" >撤销操作</button>
 									 		<button type="submit"  class="btn btn-default" >确认提交</button>
 									 		</div>
 
-										</form>
+                                    </form>
                                 </div>
                                 <!-- /.col-lg-6 (nested) -->
                             </div>
@@ -111,54 +57,39 @@
                 <!-- /.col-lg-12 -->
             </div>    
 </div>
+<div class="modal fade" id="updateGa" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+					&times;
+				</button>
+				<h4 class="modal-title" id="myModalLabel">
+					添加程序更新
+				</h4>
+			</div>
+			<div class="modal-body">
 
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">关闭
+				</button>
+				<button type="button" class="btn btn-primary" onclick="addUPdate(this,updateGa)">
+					添加至列表
+				</button>
+			</div>
+		</div><!-- /.modal-content -->
+	</div><!-- /.modal -->
+</div>
 <script type="text/javascript">
+function addUPdate(obj,type){
 
+}
 $(document).ready(function()
 {
 
-    var updateOutput = function(e)
-    {
-        var list   = e.length ? e : $(e.target),
-            output = list.data('output');
-        if (window.JSON) {
-            output.val(window.JSON.stringify(list.nestable('serialize')));//, null, 2));
-        } else {
-            output.val('JSON browser support required for this demo.');
-        }
-    };
-
-    // activate Nestable for list 1
-    $('#nestable').nestable({
-        group: 1
-    })
-    .on('change', updateOutput);
-
-    // activate Nestable for list 2
-    $('#nestable2').nestable({
-        group: 1
-    })
-    .on('change', updateOutput);
-
-    // output initial serialised data
-    updateOutput($('#nestable').data('output', $('#nestable-output')));
-    updateOutput($('#nestable2').data('output', $('#nestable2-output')));
-
-    $('#nestable-menu').on('click', function(e)
-    {
-        var target = $(e.target),
-            action = target.data('action');
-        if (action === 'expand-all') {
-            $('.dd').nestable('expandAll');
-        }
-        if (action === 'collapse-all') {
-            $('.dd').nestable('collapseAll');
-        }
     });
 
-    $('#nestable3').nestable();
-
-});
 	  {% if errorInfo %}
 	  	window.wxc.xcConfirm("{{errorInfo}}", window.wxc.xcConfirm.typeEnum.error);
 	  {% endif %}
