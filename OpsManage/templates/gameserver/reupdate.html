@@ -74,17 +74,14 @@
                         <div class="form-group">
                             <label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>选择更新源</strong></label>
                             <div class="col-sm-6">
-                                <select class="selectpicker" data-live-search="true"  data-size="5" name="souceserver"  data-width="100%"  required>
+                                <select class="selectpicker" id="source" data-live-search="true"  data-size="5" name="souceserver"  data-width="100%"  required>
                                     <option name="souceserver" value="" selected="selected">选择更新源</option>
                                     {% for gs in gslist %}
-                                        <option id="source" name="souceserver" value="{{gs.id}}">{{gs.name}} | {{gs.gamepath}} | {{gs.server}}</option>
+                                        <option name="souceserver" value="{{gs.id}}">{{gs.name}} | {{gs.gamepath}} | {{gs.server}}</option>
+                                        <option name="souceserver" value="{{gs.id}}">{{gs.name}} | {{gs.gatepath}} | {{gs.server}}</option>
                                     {% endfor %}
                                 </select>
                             </div>
-                            <label class="col-sm-2">
-                            <input type="checkbox" id="isGateWay">
-                                网关
-                            </label>
                         </div>
                         <div class="form-group">
                             <label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>机房网段</strong></label>
@@ -118,15 +115,20 @@
 	</div><!-- /.modal -->
 </div>
 <script type="text/javascript">
-$("#isGateWay").change(function() {
-    ;
-source
-});
 function addUPdate(obj,type){
 
 }
 $(document).ready(function()
 {
+    $.ajax({
+        url : "/gs_config/"+gid+"/",
+        type : "post",
+        async : true,
+        dataType : "json",
+        success : function(result) {
+            dataList = result.data;
+        }
+        })
 
     });
 
