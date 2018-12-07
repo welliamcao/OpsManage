@@ -192,6 +192,26 @@ def reupdate(request):
             gslist.append({"id":game.id,"name":game.name,"gatepath":game.gate_path,"gamepath":game.game_path,'server':game.ip.ip})
         return render(request,'gameserver/reupdate.html',{"gslist":gslist})
 
+def showfile(request):
+    if request.method == "POST":
+        gameserver = GameServer_Config.objects.get(id=request.POST.get("gid"))
+        gamehost = gameserver.ip
+        if gamehost.keyfile == 1:
+            resource = [
+                {"ip": gamehost.ip, "port": int(gamehost.port), "username": gamehost.username,
+                 "sudo_passwd": gamehost.sudo_passwd}]
+        else:
+            resource = [{"ip": gamehost.ip, "port": gamehost.port, "username": gamehost.username,
+                         "password": gamehost.passwd, "sudo_passwd": gamehost.sudo_passwd}]
+        if request.POST.get("type") == "gatepath":
+            path=gameserver.gate_path
+        else:
+            path=gameserver.game_path
+        ANS = ANSRunner(resource)
+        ANS.run_model(host_list=[gamehost.ip], module_name='raw',
+                      module_args="ls {0}|xargs -I {} stat ./{} |awk '/$0~/Modify/{print $2,$3}".format(path))
+
+
 def uplist_modify(request):
     if request.method == "GET":
         data = []

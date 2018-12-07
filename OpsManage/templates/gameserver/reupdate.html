@@ -118,13 +118,17 @@
 function addUPdate(obj,type){
 
 }
-$(document).ready(function()
+$("#source").onchange(function()
 {
     $.ajax({
-        url : "/gs_config/"+gid+"/",
+        url : "/reupdate/showfile/",
         type : "post",
         async : true,
         dataType : "json",
+        data:{
+            "gid":gid,
+            "type":type
+        },
         success : function(result) {
             dataList = result.data;
         }
