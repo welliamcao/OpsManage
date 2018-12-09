@@ -115,7 +115,7 @@
 	</div><!-- /.modal -->
 </div>
 <script type="text/javascript">
-function addUPdate(obj,type){
+function addUPdate(obj,ptype){
 
 }
 $("#source").onchange(function()
@@ -127,7 +127,7 @@ $("#source").onchange(function()
         dataType : "json",
         data:{
             "gid":gid,
-            "type":type
+            "ptype":ptype
         },
         success : function(result) {
             dataList = result.data;

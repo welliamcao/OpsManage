@@ -211,10 +211,14 @@ def showfile(request):
         ANS = ANSRunner(resource)
         ANS.run_model(host_list=[gamehost.ip], module_name='raw',
                       module_args="find {0} -maxdepth 1 -type f |xargs -I {} stat -c '%n,%y,%s' {}".format(path))
-        filedata = ANS.handle_model_data(ANS.get_model_result(),"raw")
-        if filedata:
-            for filestat in filedata:
-                filestat.get("msg").split(",")
+        predata = ANS.handle_model_data(ANS.get_model_result(),"raw")
+        if predata:
+            for filedata in predata:
+                filestat = filestat.get("msg").split(",")
+                filestat[3] = format(filestat[3]/1024/1024,'.2f')
+                stat = dict(zip(["name","mtime","size"],filestat))
+                Gastat.append(stat)
+
 
 
 def uplist_modify(request):
