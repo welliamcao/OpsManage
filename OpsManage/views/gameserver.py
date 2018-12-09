@@ -194,6 +194,7 @@ def reupdate(request):
 
 def showfile(request):
     if request.method == "POST":
+        Gastat = []
         gameserver = GameServer_Config.objects.get(id=request.POST.get("gid"))
         gamehost = gameserver.ip
         if gamehost.keyfile == 1:
@@ -209,7 +210,11 @@ def showfile(request):
             path=gameserver.game_path
         ANS = ANSRunner(resource)
         ANS.run_model(host_list=[gamehost.ip], module_name='raw',
-                      module_args="ls {0}|xargs -I {} stat ./{} |awk '/$0~/Modify/{print $2,$3}".format(path))
+                      module_args="find {0} -maxdepth 1 -type f |xargs -I {} stat -c '%n,%y,%s' {}".format(path))
+        filedata = ANS.handle_model_data(ANS.get_model_result(),"raw")
+        if filedata:
+            for filestat in filedata:
+                filestat.get("msg").split(",")
 
 
 def uplist_modify(request):
