@@ -50,7 +50,7 @@ urlpatterns = [
     url(r'^gs_details/(?P<id>[0-9]+)/$',gameserver.gameserver_details),
     url(r'^gs_facts/',gameserver.gamehost_facts),
     url(r'^reupdate/$',gameserver.reupdate),
-    url(r'^reupdate/showfile/',gameserver.reupdate),
+    url(r'^reupdate/showfile/',gameserver.showfile),
     url(r'^cron_add',cron.cron_add),
     url(r'^cron_list/(?P<page>[0-9]+)/$',cron.cron_list),
     url(r'^cron_config',cron.cron_config),

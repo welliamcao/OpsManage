@@ -195,7 +195,7 @@ def reupdate(request):
 def showfile(request):
     if request.method == "POST":
         Gastat = []
-        gameserver = GameServer_Config.objects.get(id=request.POST.get("gid"))
+        gameserver = GameServer_Config.objects.get(id=int(request.POST.get("gid")))
         gamehost = gameserver.ip
         if gamehost.keyfile == 1:
             resource = [
@@ -204,20 +204,24 @@ def showfile(request):
         else:
             resource = [{"ip": gamehost.ip, "port": gamehost.port, "username": gamehost.username,
                          "password": gamehost.passwd, "sudo_passwd": gamehost.sudo_passwd}]
-        if request.POST.get("type") == "gatepath":
+        if request.POST.get("ptype") == "gate":
             path=gameserver.gate_path
-        else:
+        elif request.POST.get("ptype") == "game":
             path=gameserver.game_path
         ANS = ANSRunner(resource)
         ANS.run_model(host_list=[gamehost.ip], module_name='raw',
-                      module_args="find {0} -maxdepth 1 -type f |xargs -I {} stat -c '%n,%y,%s' {}".format(path))
+                      module_args="cd {0} && find ./ -maxdepth 1 -type f |xargs -I {{}} stat -c '%n,%y,%s' {{}}".format(path))
         predata = ANS.handle_model_data(ANS.get_model_result(),"raw")
         if predata:
-            for filedata in predata:
-                filestat = filestat.get("msg").split(",")
-                filestat[3] = format(filestat[3]/1024/1024,'.2f')
-                stat = dict(zip(["name","mtime","size"],filestat))
-                Gastat.append(stat)
+            for x in predata:
+                datalist = x.get("msg").split("<br>")
+                for filedata in datalist:
+                    filestat = filedata.split(",")
+                    if len(filestat)==3:
+                        stat = dict(zip(["name","mtime","size"],filestat))
+                        stat["size"]='%.2fM'%(float(stat["size"])/1024/1024)
+                        Gastat.append(stat)
+        return JsonResponse({"code": 200, "msg": "success", "data": Gastat})
 
 
 

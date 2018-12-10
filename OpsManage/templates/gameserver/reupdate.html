@@ -71,24 +71,26 @@
 			<div class="modal-body">
                 <div class="row">
                     <form class="form-horizontal" role="form" id="zone_assets">
-                        <div class="form-group">
+                        <div class="form-group" id="souceform">
                             <label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>选择更新源</strong></label>
                             <div class="col-sm-6">
-                                <select class="selectpicker" id="source" data-live-search="true"  data-size="5" name="souceserver"  data-width="100%"  required>
+                                <select class="selectpicker" id="sourceselect" onchange="source()" data-live-search="true"  data-size="5" name="souceserver"  data-width="100%"  required>
                                     <option name="souceserver" value="" selected="selected">选择更新源</option>
                                     {% for gs in gslist %}
-                                        <option name="souceserver" value="{{gs.id}}">{{gs.name}} | {{gs.gamepath}} | {{gs.server}}</option>
-                                        <option name="souceserver" value="{{gs.id}}">{{gs.name}} | {{gs.gatepath}} | {{gs.server}}</option>
+                                        <option name="souceserver" value="{{gs.id}},game">{{gs.name}} | {{gs.gamepath}} | {{gs.server}}</option>
+                                        <option name="souceserver" value="{{gs.id}},gate">{{gs.name}} | {{gs.gatepath}} | {{gs.server}}</option>
                                     {% endfor %}
                                 </select>
                             </div>
                         </div>
+                        <div class="form-group" id="fileopt"></div>
                         <div class="form-group">
                             <label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>机房网段</strong></label>
                             <div class="col-sm-6">
                                 <input class="form-control" type="text" name="zone_network" />
                             </div>
                         </div>
+
                         <div class="form-group">
                             <label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>机房联系人</strong></label>
                             <div class="col-sm-6">
@@ -118,23 +120,38 @@
 function addUPdate(obj,ptype){
 
 }
-$("#source").onchange(function()
+function source()
 {
+    valueslist=$("#sourceselect  option:selected").val().split(",")
+    $.ajaxSetup({
+                data: {csrfmiddlewaretoken: '{{ csrf_token }}' },
+            });
     $.ajax({
         url : "/reupdate/showfile/",
         type : "post",
         async : true,
-        dataType : "json",
         data:{
-            "gid":gid,
-            "ptype":ptype
+            "gid":valueslist[0],
+            "ptype":valueslist[1]
         },
         success : function(result) {
             dataList = result.data;
+            console.log(dataList)
+            var datahtml=""
+            for (var i=0; i <dataList.length; i++)
+                {
+                    datahtml+='<div class="radio"><label><input type="radio" name="optionsRadios" value="'+dataList[i]["name"]+'">'+dataList[i]["name"]+"||"+dataList[i]["mtime"]+"||"+dataList[i]["size"]+'</label></div>'
+                }
+            rehtml = '<label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>更新源文件</strong></label>'
+                        +'<div class="col-sm-6">'
+                            +datahtml
+                        +'</div>'
+            opt=document.getElementById("fileopt")
+            opt.innerHTML=rehtml
         }
         })
 
-    });
+    }
 
 	  {% if errorInfo %}
 	  	window.wxc.xcConfirm("{{errorInfo}}", window.wxc.xcConfirm.typeEnum.error);
