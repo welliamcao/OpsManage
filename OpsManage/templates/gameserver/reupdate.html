@@ -70,7 +70,7 @@
 			</div>
 			<div class="modal-body">
                 <div class="row">
-                    <form class="form-horizontal" role="form" id="Gaupdateform">
+                    <form class="form-horizontal" role="form" id="zone_assets">
                         <div class="form-group" id="souceform">
                             <label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>选择更新源</strong></label>
                             <div class="col-sm-6">
@@ -85,8 +85,8 @@
                         </div>
                         <div id="srcfileform" class="form-group" hidden>
                             <label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>更新源文件</strong></label>
-                                <div id="filetab" class="col-sm-3">
-
+                                <div id="fileopt" class="col-sm-3">
+                                    <p>查找文件中...</p>
                                 </div>
                         </div>
                         <div class="form-group">
@@ -123,9 +123,8 @@
 </div>
 <script type="text/javascript">
 $(document).ready(
-    $('body').on('hidden.bs.modal', function () {
-        modal=document.getElementById('updateGa');
-        modal.innerHTML="";
+    $('#updateGa').on('hidden.bs.modal', '.modal', function () {
+        $(this).removeData('bs.modal');
     })
 )
 function addUPdate(obj,ptype){
@@ -133,10 +132,8 @@ function addUPdate(obj,ptype){
 }
 function source()
 {
-    opt=document.getElementById("fileopt");
-    opt.innerHTML="<p>查找文件中...</p>";
-    $("#srcfileform").removeAttr('hidden');
-    valueslist=$("#sourceselect  option:selected").val().split(",");
+    $("#srcfileform").removeAttr('hidden')
+    valueslist=$("#sourceselect  option:selected").val().split(",")
     $.ajaxSetup({
                 data: {csrfmiddlewaretoken: '{{ csrf_token }}' },
             });
@@ -156,7 +153,7 @@ function source()
                 {
                     datahtml+='<div class="radio"><label><input type="radio" name="optionsRadios" value="'+dataList[i]["name"]+'">'+dataList[i]["name"]+"||"+dataList[i]["mtime"]+"||"+dataList[i]["size"]+'</label></div>'
                 }
-
+            opt=document.getElementById("fileopt")
             opt.innerHTML=datahtml
         }
         })
