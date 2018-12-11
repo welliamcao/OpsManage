@@ -70,7 +70,7 @@
 			</div>
 			<div class="modal-body">
                 <div class="row">
-                    <form class="form-horizontal" role="form" id="zone_assets">
+                    <form class="form-horizontal" role="form" id="Gaupdateform">
                         <div class="form-group" id="souceform">
                             <label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>选择更新源</strong></label>
                             <div class="col-sm-6">
@@ -83,7 +83,12 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="form-group" id="fileopt"></div>
+                        <div id="srcfileform" class="form-group" hidden>
+                            <label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>更新源文件</strong></label>
+                                <div id="filetab" class="col-sm-3">
+
+                                </div>
+                        </div>
                         <div class="form-group">
                             <label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>机房网段</strong></label>
                             <div class="col-sm-6">
@@ -117,12 +122,21 @@
 	</div><!-- /.modal -->
 </div>
 <script type="text/javascript">
+$(document).ready(
+    $('body').on('hidden.bs.modal', function () {
+        modal=document.getElementById('updateGa');
+        modal.innerHTML="";
+    })
+)
 function addUPdate(obj,ptype){
 
 }
 function source()
 {
-    valueslist=$("#sourceselect  option:selected").val().split(",")
+    opt=document.getElementById("fileopt");
+    opt.innerHTML="<p>查找文件中...</p>";
+    $("#srcfileform").removeAttr('hidden');
+    valueslist=$("#sourceselect  option:selected").val().split(",");
     $.ajaxSetup({
                 data: {csrfmiddlewaretoken: '{{ csrf_token }}' },
             });
@@ -142,12 +156,8 @@ function source()
                 {
                     datahtml+='<div class="radio"><label><input type="radio" name="optionsRadios" value="'+dataList[i]["name"]+'">'+dataList[i]["name"]+"||"+dataList[i]["mtime"]+"||"+dataList[i]["size"]+'</label></div>'
                 }
-            rehtml = '<label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>更新源文件</strong></label>'
-                        +'<div class="col-sm-6">'
-                            +datahtml
-                        +'</div>'
-            opt=document.getElementById("fileopt")
-            opt.innerHTML=rehtml
+
+            opt.innerHTML=datahtml
         }
         })
 
