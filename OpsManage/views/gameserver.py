@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # _#_ coding:utf-8 _*_
 import json
+from time import localtime, strftime
+
 from django.http import HttpResponse,JsonResponse
 from django.core import serializers
 from django.shortcuts import render
@@ -212,7 +214,7 @@ def showfile(request):
             path=gameserver.game_path
         ANS = ANSRunner(resource)
         ANS.run_model(host_list=[gamehost.ip], module_name='raw',
-                      module_args="cd {0} && find ./ -maxdepth 1 -type f |grep {1}|xargs -I {{}} stat -c '%n,%y,%s' {{}}".format(path,keyword))
+                      module_args="cd {0} && find ./ -maxdepth 1 -type f |grep {1}|xargs -I {{}} stat -c '%n,%Y,%s' {{}}".format(path,keyword))
         predata = ANS.handle_model_data(ANS.get_model_result(),"raw")
         if predata:
             for x in predata:
@@ -223,6 +225,7 @@ def showfile(request):
                         stat = dict(zip(["name","mtime","size"],filestat))
                         stat["size"]='%.2fM'%(float(stat["size"])/1024/1024)
                         stat["name"]=stat["name"].strip("./")
+                        stat["mtime"]=strftime("%Y-%m-%d %H:%M:%S",localtime(int(stat["mtime"])))
                         Gastat.append(stat)
         return JsonResponse({"code": 200, "msg": "success", "data": Gastat})
 

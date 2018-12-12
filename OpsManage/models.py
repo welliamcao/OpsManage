@@ -727,6 +727,7 @@ class GameServer_Update_List(models.Model):
     orderid = models.PositiveIntegerField(verbose_name="操作项顺序ID")
     type = models.CharField(max_length=100,choices=exec_type_choices,verbose_name="操作类型")
     sourceip = models.GenericIPAddressField(null=True,blank=True,verbose_name="更新源IP地址")
+    sourcefile = models.FileField(upload_to='gameconfig/%Y%m/',null=True)
     targetip = models.GenericIPAddressField(verbose_name="更新目标IP地址")
     souce_path = models.CharField(null=True,blank=True,max_length=100,verbose_name="更新源路径")
     target_path = models.CharField(max_length=100,verbose_name='更新目标路径')

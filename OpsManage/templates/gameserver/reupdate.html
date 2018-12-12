@@ -21,7 +21,7 @@
                                 <div class="col-lg-6" style="float: left">
                                 <legend>可选操作</legend>
                                     <button class="btn btn-default btn-lg btn-block" data-toggle="modal" data-target="#updateGa"><i class="fa fa-plus-circle "></i>添加程序更新</button>
-                                    <button class="btn btn-default btn-lg btn-block" data-toggle="modal" data-target="#upstaticfi"><i class="fa fa-plus-circle "></i>添加添加静态配置更新</button>
+                                    <button class="btn btn-default btn-lg btn-block" data-toggle="modal" data-target="#upstaticfi"><i class="fa fa-plus-circle "></i>添加静态配置更新</button>
                                     <button class="btn btn-default btn-lg btn-block" data-toggle="modal" data-target="#updynamicfi"><i class="fa fa-plus-circle "></i>添加动态配置更新</button>
                                     <button class="btn btn-default btn-lg btn-block" data-toggle="modal" data-target="#reboot"><i class="fa fa-plus-circle "></i>重启程序</button>
                                     <button class="btn btn-default btn-lg btn-block" data-toggle="modal" data-target="#extracmd"><i class="fa fa-plus-circle "></i>自定义更新命令</button>
@@ -34,7 +34,6 @@
                                              <table width="100%" class="table table-striped table-bordered table-hover" id="updatelist">
                                                 <thead></thead>
                                                  <tbody>
-
                                                  </tbody>
                                             </table>
 											</fieldset>
@@ -70,9 +69,9 @@
 			</div>
 			<div class="modal-body">
                 <div class="row">
-                    <form class="form-horizontal" role="form" id="zone_assets">
+                    <form class="form-horizontal" role="form">
                         <div class="form-group" id="souceform">
-                            <label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>选择更新源</strong></label>
+                            <label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>更新源</strong></label>
                             <div class="col-sm-6">
                                 <select class="selectpicker" id="sourceselect" onchange="source()" data-live-search="true"  data-size="5" name="souceserver"  data-width="100%"  required>
                                     <option name="souceserver" value="" selected="selected">选择更新源</option>
@@ -83,29 +82,45 @@
                                 </select>
                             </div>
                         </div>
-                        <div id="srcfileform" class="form-group" hidden>
-                            <label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>更新源文件</strong></label>
-                                <div id="fileopt" class="col-sm-3">
-                                    <p>查找文件中...</p>
-                                </div>
+                        <div id="srcfileform" class="form-group" style="display: none">
+                            <div class="col-sm-12">
+                                <table width="100%" class="table table-striped table-bordered table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th class="text-center"><strong>更新源文件</strong></th>
+                                            <th class="text-center">文件名</th>
+                                            <th class="text-center">修改时间(mtime)</th>
+                                            <th class="text-center">大小</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
                         </div>
                         <div class="form-group">
-                            <label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>机房网段</strong></label>
+                            <label class="col-sm-3 control-label no-padding-right" for="form-field-4">
+                                <strong>
+                                更新目标
+                                <abbr title="目标目录最新的文件将会_old"><i class="glyphicon glyphicon-info-sign"></i></abbr>
+                                </strong>
+                            </label>
                             <div class="col-sm-6">
-                                <input class="form-control" type="text" name="zone_network" />
+                                <select class="selectpicker" data-live-search="true"  data-size="5" name="souceserver"  data-width="100%"  required>
+                                    <option name="souceserver" value="" selected="selected">选择更新目标</option>
+                                    {% for gs in gslist %}
+                                        <option name="souceserver" value="{{gs.id}},game">{{gs.name}} | {{gs.gamepath}} | {{gs.server}}</option>
+                                        <option name="souceserver" value="{{gs.id}},gate">{{gs.name}} | {{gs.gatepath}} | {{gs.server}}</option>
+                                    {% endfor %}
+                                </select>
                             </div>
                         </div>
 
                         <div class="form-group">
-                            <label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>机房联系人</strong></label>
+                            <label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>是否有文件更新<abbr title="此更新会被拆分"><i class="glyphicon glyphicon-info-sign"></i></abbr>:</strong></label>
                             <div class="col-sm-6">
-                                <input class="form-control" type="text" name="zone_contact" />
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>联系人号码</strong></label>
-                            <div class="col-sm-6">
-                                <input class="form-control" type="text" name="zone_number" />
+                                <label class="checkbox-inline col-sm-3">
+                                    <input type="checkbox" name="hasconfig" value="yes">
+                                </label>
                             </div>
                         </div>
 				</form>
@@ -123,17 +138,18 @@
 </div>
 <script type="text/javascript">
 $(document).ready(
-    $('#updateGa').on('hidden.bs.modal', '.modal', function () {
-        $(this).removeData('bs.modal');
-    })
+
 )
 function addUPdate(obj,ptype){
-
+    document.getElementById('srcfileform').style.display="none";
 }
 function source()
 {
-    $("#srcfileform").removeAttr('hidden')
-    valueslist=$("#sourceselect  option:selected").val().split(",")
+
+    filetbody=$("#srcfileform").find("tbody");
+    filetbody.html("<tr><td>查找文件中...</td></tr>");
+    document.getElementById("srcfileform").style.display="";
+    valueslist=$("#sourceselect  option:selected").val().split(",");
     $.ajaxSetup({
                 data: {csrfmiddlewaretoken: '{{ csrf_token }}' },
             });
@@ -147,16 +163,19 @@ function source()
         },
         success : function(result) {
             dataList = result.data;
-            console.log(dataList)
-            var datahtml=""
+            var datahtml="";
             for (var i=0; i <dataList.length; i++)
                 {
-                    datahtml+='<div class="radio"><label><input type="radio" name="optionsRadios" value="'+dataList[i]["name"]+'">'+dataList[i]["name"]+"||"+dataList[i]["mtime"]+"||"+dataList[i]["size"]+'</label></div>'
+                    datahtml+='<tr class="odd gradeX">'
+                                +'<td class="text-center"><div class="radio"><label><input type="radio" name="filename" value="'+dataList[i]["name"]+'"></lable></div></td>'
+                                +'<td>'+dataList[i]["name"]+'</td>'
+                                +'<td>'+dataList[i]["mtime"]+'</td>'
+                                +'<td>'+dataList[i]["size"]+'</td>'
+                            +'</tr>'
                 }
-            opt=document.getElementById("fileopt")
-            opt.innerHTML=datahtml
+            filetbody.html(datahtml);
         }
-        })
+        });
 
     }
 
