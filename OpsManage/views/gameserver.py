@@ -194,6 +194,8 @@ def reupdate(request):
             gslist.append({"id":game.id,"name":game.name,"gatepath":game.gate_path,"gamepath":game.game_path,'server':game.ip.ip})
         return render(request,'gameserver/reupdate.html',{"gslist":gslist})
 
+
+
 def showfile(request):
     if request.method == "POST":
         Gastat = []
@@ -229,7 +231,9 @@ def showfile(request):
                         Gastat.append(stat)
         return JsonResponse({"code": 200, "msg": "success", "data": Gastat})
 
-
+def loadhtml(request,name):
+    if request.method == "GET":
+        return render(request, 'gameserver/{0}.html'.format(name))
 
 def uplist_modify(request):
     if request.method == "GET":

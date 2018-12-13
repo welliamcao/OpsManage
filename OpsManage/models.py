@@ -723,8 +723,8 @@ class GameServer_Update_List(models.Model):
         ('extracmd', u'特殊更新命令'),
         ('reboot',u'重启程序')
     )
-    listid = models.PositiveIntegerField(verbose_name="清单顺序ID")
-    orderid = models.PositiveIntegerField(verbose_name="操作项顺序ID")
+    listid = models.PositiveIntegerField(default=0,verbose_name="清单顺序ID")
+    orderid = models.PositiveIntegerField(default=0,verbose_name="操作项顺序ID")
     type = models.CharField(max_length=100,choices=exec_type_choices,verbose_name="操作类型")
     sourceip = models.GenericIPAddressField(null=True,blank=True,verbose_name="更新源IP地址")
     sourcefile = models.FileField(upload_to='gameconfig/%Y%m/',null=True)
