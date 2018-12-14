@@ -1,7 +1,7 @@
 from django.conf.urls import url
 from .views import (wiki_api,assets_api,deploy_api,cron_api,
                        logs_api,ansible_api,db_api,users_api,
-                       orders_api,files_api,task_api)
+                       orders_api,files_api,task_api,gameserver_api)
 urlpatterns = [
             url(r'^assets/(?P<id>[0-9]+)/$', assets_api.asset_detail),
             url(r'^assets/info/(?P<id>[0-9]+)/$', assets_api.asset_info),            
@@ -60,5 +60,7 @@ urlpatterns = [
             url(r'^logs/deploy/(?P<id>[0-9]+)/$', deploy_api.deployLogs_detail),
             url(r'^logs/search/model/$', logs_api.AnsibleModelLogsList),
             url(r'^logs/search/playbook/$', logs_api.AnsiblePlayBookLogsList),
-            url(r'^logs/sql/(?P<id>[0-9]+)/$', db_api.sql_exec_logs),                                             
+            url(r'^logs/sql/(?P<id>[0-9]+)/$', db_api.sql_exec_logs),
+            url(r'^gs/list/$',gameserver_api.details),
+            url(r'^gs/showuplistid/$',gameserver_api.showid),
     ]    

@@ -729,7 +729,7 @@ class GameServer_Update_List(models.Model):
     sourceip = models.GenericIPAddressField(null=True,blank=True,verbose_name="更新源IP地址")
     sourcefile = models.FileField(upload_to='gameconfig/%Y%m/',null=True)
     targetip = models.GenericIPAddressField(verbose_name="更新目标IP地址")
-    souce_path = models.CharField(null=True,blank=True,max_length=100,verbose_name="更新源路径")
+    source_path = models.CharField(null=True,blank=True,max_length=100,verbose_name="更新源路径")
     target_path = models.CharField(max_length=100,verbose_name='更新目标路径')
     ocudate = models.DateTimeField(blank=True,null=True,verbose_name="预定执行时间")
     class Meta:

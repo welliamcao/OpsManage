@@ -8,6 +8,18 @@ from filemanage.models import *
 from django.contrib.auth.models import Group,User
 from djcelery.models  import CrontabSchedule,IntervalSchedule
 
+class GameServerSerializer(serializers.ModelSerializer):
+    ip = serializers.SlugRelatedField(read_only=True,slug_field="ip")
+    class Meta:
+        model = GameServer_Config
+        fields=('id','name','game_path','gate_path','ip','state')
+
+
+class GS_Update_ListSerializer(serializers.ModelSerializer):
+    class Meat:
+        model = GameServer_Update_List
+        fields=('listid','orderid','type','sourceip','sourcefile','targetip','source_path','target_path','ocudate')
+
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
