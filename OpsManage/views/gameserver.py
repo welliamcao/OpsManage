@@ -188,7 +188,12 @@ def gamehost_facts(request):
 @permission_required('OpsManage.can_add_gsupdate_list',login_url='/noperm/')
 def reupdate(request):
     if request.method == "GET":
-        return render(request,'gameserver/reupdate.html',{"user":request.user})
+        ids=list(GameServer_Update_List.objects.values_list("listid",flat=True))
+        if ids:
+            ids.sort()
+            listid= ids[len(ids)-1]+1
+        else:listid=0
+        return render(request,'gameserver/reupdate.html',{"user":request.user,"ListID":listid})
 
 
 
@@ -226,17 +231,6 @@ def showfile(request):
                         stat["mtime"]=strftime("%Y-%m-%d %H:%M:%S",localtime(int(stat["mtime"])))
                         Gastat.append(stat)
         return JsonResponse({"code": 200, "msg": "success", "data": Gastat})
-
-def showupdateid(request):
-    if request.method=="GET":
-        idlist = {}
-        ids = GameServer_Update_List.objects.all().values("listid", "orderid")
-        if ids:
-            for id in ids:
-                idlist[id["listid"]]=[]
-            for id in ids:
-                idlist[id["listid"]].append(id["orderid"])
-        return HttpResponse(content=ids,status=200)
 
 def uplist_modify(request):
     if request.method == "GET":

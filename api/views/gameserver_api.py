@@ -21,14 +21,17 @@ def details(request,format=None):
         serializer = serializers.GameServerSerializer(snippets,many=True)
         return Response(serializer.data)
 
+@api_view([ 'GET' ])
 @permission_required('OpsManage.can_read_gameserver_config',raise_exception=True)
 def showid(request,format=None):
     if request.method == 'GET':
         idlist={}
-        ids = GameServer_Update_List.objects.all().values("listid","orderid")
+        ids = GameServer_Update_List.objects.values("listid","orderid")
         if ids:
             for id in ids:
+                idlist[id["listid"]]=[]
+            for id in ids:
                 idlist[id["listid"]].append(id["orderid"])
-        return Response(data=idlist)
+        return Response(idlist)
 
 

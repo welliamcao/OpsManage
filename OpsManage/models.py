@@ -740,7 +740,7 @@ class GameServer_Update_List(models.Model):
             ("can_add_gsupdate_list", "增加更新列表权限"),
             ("can_delete_gsupdate_list", "删除更新列表权限"),
         )
-        unique_together = (("target_path","targetip"))
+        unique_together = (("listid","orderid"))
         verbose_name = '游戏服更新列表'
         verbose_name_plural = '游戏服更新列表'
 

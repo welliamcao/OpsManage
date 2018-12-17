@@ -82,6 +82,7 @@
 			<div class="modal-body">
                 <div class="row">
                     <form id="updateGa" class="form-horizontal" role="form">
+                        <input  type="hidden"   class="form-control" id="listid" name="listid" value="{{ListID}}">
                         <div class="form-group" id="souceform">
                             <label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>更新源</strong></label>
                             <div class="col-sm-6">
@@ -149,12 +150,14 @@
 <script type="text/javascript">
 $(document).ready(
     serveropt="",
+    oderid=0,
+    gslist=[],
     $.ajax({
         url: '/api/gs/list/?format=json',
         dataType: 'json',
         type: 'get',
         success:function (response) {
-            gslist=response
+            gslist=response;
             for (var i=0; i <gslist.length; i++) {
                 if (gslist[i]["state"]=="1"){
                     serveropt +=
@@ -170,22 +173,31 @@ $(document).ready(
             $("#targetselect").selectpicker('render');
         }
     })
-)
+);
 function GenerateList(){
 
 }
 
 function addUPdate(obj,type){
-    btnobj=$(obj)
-    tlist=$('#updatelist').find('tbody')
+    btnobj=$(obj);
+    tlist=$('#updatelist').find('tbody');
     if (type=="updateGa"){
-        form = document.getElementById('updateGa')
+        form = document.getElementById('updateGa');
+        datahtml="";
         for (i=0;i<form.length;i++){
-            var name =form[i].name
-            var value =form[i].value
-            if (name=="sourceserver"){
-
+            var name =form[i].name;
+            var value =form[i].value;
+            if (name=="listid"){
+                datahtml+='<td>'+value+'</td>'
             }
+            if(name="sourceserver"){
+                for (server in gslist){
+                    if (server["id"]==value.split(",")[0]){
+                        datahtml
+                    }
+                }
+            }
+            console.log(name,value)
         }
         tlist.append()
     }
@@ -241,11 +253,11 @@ function source()
             for (var i=0; i <dataList.length; i++)
                 {
                     datahtml+='<tr class="odd gradeX">'
-                                +'<td class="text-center"><div class="radio"><label><input type="radio" name="filename" value="'+dataList[i]["name"]+'"></lable></div></td>'
-                                +'<td>'+dataList[i]["name"]+'</td>'
-                                +'<td>'+dataList[i]["mtime"]+'</td>'
-                                +'<td>'+dataList[i]["size"]+'</td>'
-                            +'</tr>'
+                                    +'<td class="text-center"><div class="radio"><label><input type="radio" name="filename" value="'+dataList[i]["name"]+'"></lable></div></td>'
+                                    +'<td>'+dataList[i]["name"]+'</td>'
+                                    +'<td>'+dataList[i]["mtime"]+'</td>'
+                                    +'<td>'+dataList[i]["size"]+'</td>'
+                                +'</tr>'
                 }
             filetbody.html(datahtml);
         }
