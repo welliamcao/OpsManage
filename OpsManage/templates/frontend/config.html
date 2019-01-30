@@ -1,0 +1,129 @@
+{% extends 'index.html' %}
+{% block ace-content %}
+    <script type="text/javascript" src="/static/dist/js/jquery.form.js"></script>
+{% endblock %}
+{% block page-content %}
+<div id="page-wrapper">
+    <div class="row">
+         <div class="col-lg-12">
+              <h1 class="page-header"><i class="fa  fa-wrench"></i> 配置面板</h1>
+         </div>
+                <!-- /.col-lg-12 -->
+    </div>
+	<div class="row">
+                <div class="col-lg-12">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                           	 前端更新配置
+                        </div>
+                        <div class="panel-body">
+                            <form role="form" method="post" id="modifyconfig" class="main form-horizontal" enctype="multipart/form-data">{% csrf_token %}
+                                <input  type="hidden" class="form-control" name="id" value="{{id}}">
+                                <div class="row">
+                                <div class="col-lg-6" style="float: left">
+                                    <legend>源服务器</legend>
+                                        <fieldset>
+                                            <div class="form-group">
+                                                 <label class="col-sm-2 control-label">FTP账号</label>
+                                                 <div class="col-sm-6">
+                                                    <input type="text" class="form-control" name="sourcename" value="{{ sourcename }}"  class="input-xlarge" />
+                                                 </div>
+                                            </div>
+
+                                            <div class="form-group">
+                                                 <label class="col-sm-2 control-label">FTP密码</label>
+                                                 <div class="col-sm-6">
+                                                    <input type="password" class="form-control" name="sourcepasswd" placeholder="******" value="" class="input-xlarge" />
+                                                 </div>
+                                            </div>
+
+                                        </fieldset>
+                                </div>
+                                <div class="col-lg-6" style="float: right">
+                                    <legend>CDN</legend>
+                                        <fieldset>
+                                            <div class="form-group">
+                                                 <label class="col-sm-2 control-label">APIid</label>
+                                                 <div class="col-sm-6">
+                                                    <input type="text" class="form-control" name="cdnsecretid" value="{{ cdnsecretid }}"  class="input-xlarge" required />
+                                                 </div>
+                                            </div>
+
+                                            <div class="form-group">
+                                                 <label class="col-sm-2 control-label">APIkey</label>
+                                                 <div class="col-sm-6">
+                                                    <input type="password" class="form-control" name="cdnsecretkey" placeholder="******" value="" class="input-xlarge" />
+                                                 </div>
+                                            </div>
+                                        </fieldset>
+                                    </div>
+
+                                    <div class="col-lg-6" style="float: left">
+                                    <legend>sersync兼容CDN配置</legend>
+                                        <fieldset>
+                                            <div class="form-group">
+                                                 <label class="col-sm-2 control-label">user</label>
+                                                 <div class="col-sm-6">
+                                                    <input type="text" class="form-control" name="chinacacheuser" value="{{ chinacacheuser }}"  class="input-xlarge" />
+                                                 </div>
+                                            </div>
+
+                                            <div class="form-group">
+                                                 <label class="col-sm-2 control-label">password</label>
+                                                 <div class="col-sm-6">
+                                                    <input type="password" class="form-control" name="chinacachepassword" placeholder="******" value="" class="input-xlarge" />
+                                                 </div>
+                                            </div>
+                                        </fieldset>
+                                    </div>
+
+                                </div>
+                                <div class="well" >
+                                    <h4>配置说明</h4>
+                                    <p>API密钥对为腾讯云api配置，请在个人腾讯云访问管理里查看，FTP账号为源服务器FTP账户</p>
+                                        <div class="col-md-6">
+                                            <button type="reset"   class="btn btn-default btn-lg btn-block" >撤销操作</button>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <button type="submit" class="btn btn-default btn-lg btn-block" >确认提交</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                                <!-- /.col-lg-6 (nested) -->
+                                <!-- /.col-lg-6 (nested) -->
+                            </div>
+                            <!-- /.row (nested) -->
+                        </div>
+                        <!-- /.panel-body -->
+                    </div>
+                    <!-- /.panel -->
+                </div>
+                <!-- /.col-lg-12 -->
+            </div>    
+</div>
+
+<script type="text/javascript">
+    $(function(){
+	    $("#modifyconfig").ajaxForm(function(data){
+		    if(data=="succeeded"){
+			window.wxc.xcConfirm("刷新页面？", {
+					title: "提交成功",
+					btn: parseInt("0011",2),
+					onOk: function(){
+					    location.reload()
+                    },
+					onCancel:function(){
+					},
+					onClose:function(){
+					}
+				});
+		    }else {
+		        window.wxc.xcConfirm("提交失败",window.wxc.xcConfirm.typeEnum.error)
+            }
+	    });
+    });
+
+</script>
+
+{% endblock %}

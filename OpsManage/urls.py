@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# _#_ coding:utf-8 _*_
 """OpsManage URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:
@@ -18,7 +20,7 @@ from django.conf.urls import url,include
 from django.contrib import admin
 from OpsManage.views import (index,assets,cron,deploy,
                              ansible,users,task,
-                             database,gameserver,elfinder)
+                             database,gameserver,elfinder,navi,frontend)
 from OpsManage.views.elfinder import finder
 from rest_framework.urlpatterns import format_suffix_patterns
 urlpatterns = [
@@ -28,7 +30,8 @@ urlpatterns = [
     url(r'^login/',index.login),  
     url(r'^logout',index.logout), 
     url(r'^config',index.config), 
-    url(r'^noperm',index.noperm), 
+    url(r'^noperm',index.noperm),
+    url(r'^offline',index.offline),
     url(r'^assets_config',assets.assets_config), 
     url(r'^assets_add',assets.assets_add), 
     url(r'^assets_list',assets.assets_list), 
@@ -43,15 +46,15 @@ urlpatterns = [
     url(r'^assets/batch/delete/',assets.assets_delete),
     url(r'^assets/batch/dumps/',assets.assets_dumps),    
     url(r'^assets/groups/(?P<id>[0-9]+)/$',assets.assets_groups),
-    url(r'^gs_add',gameserver.gameserver_add),
-    url(r'^gs_modf/(?P<gid>[0-9]+)/$', gameserver.gameserver_modify),
-    url(r'^gs_config/$',gameserver.gamehost_list),
-    url(r'^gs_config/(?P<id>[0-9]+)/$',gameserver.gameserver_details),
-    url(r'^gs_details/(?P<id>[0-9]+)/$',gameserver.gameserver_details),
-    url(r'^gs_facts/',gameserver.gamehost_facts),
-    url(r'^reupdate/$',gameserver.reupdate),
-    url(r'^reupdate/showfile/',gameserver.showfile),
-    url(r'^reupdate/showupdateid/$',gameserver.showfile),
+    url(r'^gameserver/add',gameserver.gameserver_add),
+    url(r'^gameserver/modify/(?P<gid>[0-9]+)/$', gameserver.gameserver_modify),
+    url(r'^gameserver$',gameserver.gamehost_list),
+    url(r'^gameserver/(?P<id>[0-9]+)/$',gameserver.gameserver_details),
+    url(r'^gameserver/details/(?P<id>[0-9]+)/$',gameserver.gameserver_details),
+    url(r'^gameserver/facts/',gameserver.gamehost_facts),
+    url(r'^gameserver/reupdate/$',gameserver.reupdate),
+    url(r'^gameserver/reupdate/showfile/',gameserver.showfile),
+    url(r'^gameserver/reupdate/showupdateid/$',gameserver.showfile),
     url(r'^cron_add',cron.cron_add),
     url(r'^cron_list/(?P<page>[0-9]+)/$',cron.cron_list),
     url(r'^cron_config',cron.cron_config),
@@ -107,6 +110,14 @@ urlpatterns = [
     url(r'^order/',include('orders.urls')),
     url(r'^api/',include('api.urls')),
     url(r'^file/',include('filemanage.urls')),
+    url(r'^navi/add/$',navi.add),
+    url(r'^navi/edit/(?P<id>[0-9]+)/$',navi.edit),
+    url(r'^navi/(?P<id>[0-9]+)/$',navi.delete),
+    url(r'^frontend/cdn/$',frontend.cdn),
+    url(r'^frontend/cdn/record', frontend.queryrecord),
+    url(r'^frontend/cdn',frontend.refresh_or_prehot),
+    url(r'^frontend/config',frontend.config),
+    url(r'^index.jsp',frontend.chinacache_qcloudcdn),#sersync写死了接口地址，这里只能这样伪装
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)

@@ -594,6 +594,7 @@
 			}),  //提交参数
 			success:function(response){
 				window.wxc.xcConfirm("资产添加成功", window.wxc.xcConfirm.typeEnum.success);
+				location.reload()
 			},
 	    	error:function(response){
 				$.notify({

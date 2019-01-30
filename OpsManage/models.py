@@ -2,6 +2,9 @@
 # _#_ coding:utf-8 _*_  
 from django.db import models
 import sys
+import os
+from django.contrib.auth.models import User
+from OpsManage.settings import MEDIA_ROOT
 reload(sys)
 sys.setdefaultencoding("utf-8")
 
@@ -68,7 +71,7 @@ class Server_Assets(models.Model):
     kernel = models.CharField(max_length=100,blank=True,null=True)
     selinux = models.CharField(max_length=100,blank=True,null=True)
     swap = models.CharField(max_length=100,blank=True,null=True)
-    raid = models.SmallIntegerField(blank=True,null=True)
+    raid = models.ForeignKey('Raid_Assets',null=True)
     system = models.CharField(max_length=100,blank=True,null=True)
     create_date = models.DateTimeField(auto_now_add=True)
     update_date = models.DateTimeField(auto_now_add=True)
@@ -226,7 +229,7 @@ class Line_Assets(models.Model):
         db_table = 'opsmanage_line_assets'
         permissions = (
             ("can_read_line_assets", "读取出口线路资产权限"),
-            ("can_change_line_assetss", "更改出口线路资产权限"),
+            ("can_change_line_assets", "更改出口线路资产权限"),
             ("can_add_line_assets", "添加出口线路资产权限"),
             ("can_delete_line_assets", "删除出口线路资产权限"),             
         )
@@ -521,6 +524,7 @@ class Global_Config(models.Model):
     email = models.SmallIntegerField(verbose_name='是否开启邮件通知',blank=True,null=True)
     webssh = models.SmallIntegerField(verbose_name='是否开启WebSSH',blank=True,null=True)
     sql = models.SmallIntegerField(verbose_name='是否开启SQL更新通知',blank=True,null=True)
+    apikey = models.SmallIntegerField(verbose_name='是否全局使用admin账号的apikey',blank=True,null=True)
     class Meta:
         db_table = 'opsmanage_global_config'
     
@@ -754,3 +758,31 @@ class Log_GameServer(models.Model):
         db_table = 'opsmanage_log_gameserver'
         verbose_name = '游戏服操作记录表'
         verbose_name_plural = '游戏服操作记录表'
+
+class SiteNavigation(models.Model):
+    sitename = models.CharField(max_length=100,verbose_name="站点名称")
+    url = models.URLField(verbose_name="站点url地址")
+    description = models.TextField(verbose_name="站点描述")
+    userof = models.ForeignKey(User,null=False)
+    class Meta:
+        db_table = 'opsmanage_navi'
+        verbose_name = '站点导航'
+        verbose_name_plural = '站点导航'
+
+
+class FrontEndConfig(models.Model):
+    cdnsecretid = models.CharField(max_length=100,verbose_name="密钥id",blank=True,null=True)
+    cdnsecretkey = models.CharField(max_length=100,verbose_name="密钥key",blank=True,null=True)
+    frontendlist = models.FileField(upload_to="myfrontendlist/",null=True,verbose_name="前端列表")
+    sourcename = models.CharField(max_length=30,blank=True,null=True,verbose_name="源ftp账号")
+    sourcepasswd = models.CharField(max_length=50,blank=True,null=True,verbose_name="源ftp密码")
+    userof = models.ForeignKey(User,null=False)
+    chinacacheuser = models.CharField(max_length=30,blank=True,null=True,verbose_name="伪chinacache账号")
+    chinacachepassword = models.CharField(max_length=30, blank=True, null=True, verbose_name="伪chinacache密码")
+    class Meta:
+        db_table = 'opsmanage_frontendconfig'
+        permissions = (
+            ("can_exec_cdncommit", "操作CDN的权限"),
+        )
+        verbose_name = '前端更新配置'
+        verbose_name_plural = '前端更新配置'

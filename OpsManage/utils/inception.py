@@ -17,7 +17,7 @@ class Inception():
             incept = Inception_Server_Config.objects.get(id=1)
         except Exception, ex:
             return {"status":'error',"errinfo":str(ex)}
-        sql='''/*--user={db_user};--password={db_passwd};--host={db_host};{action}--port={db_port};*/\
+        sql='''/*--user={db_user};--password={db_passwd};--host={db_host};{action}--port={db_port};*/
             inception_magic_start;
             use {db_name};
             {auditSql}

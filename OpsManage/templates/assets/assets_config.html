@@ -33,9 +33,9 @@
 	                                            <td>{{ds.id}}</td>
 	                                            <td>{{ds.project_name}}</td>
 	                                            <td class="text-center">
-	                                            	<button  type="button" class="btn btn-xs btn-default"  onclick="modfAssetsData(this,'project',{{ds.id}})"><abbr title="编辑"><i class="glyphicon glyphicon-edit"></i></button>
-	                                            	<button  type="button" class="btn btn-xs btn-default" onclick="delAssetsData(this,'project',{{ds.id}})"><abbr title="删除"><i class="glyphicon glyphicon-trash"></i></button>
-	                                            	<a href="/assets/groups/{{ds.id}}/" style="text-decoration:none;"><button  type="button" class="btn btn-xs btn-default"><abbr title="查看组织结构图"><i class="fa fa-users  "></i></button></a>
+	                                            	<button  type="button" class="btn btn-xs btn-default"  onclick="modfAssetsData(this,'project',{{ds.id}})"><abbr title="编辑"/><i class="glyphicon glyphicon-edit"></i></button>
+	                                            	<button  type="button" class="btn btn-xs btn-default" onclick="delAssetsData(this,'project',{{ds.id}})"><abbr title="删除"/><i class="glyphicon glyphicon-trash"></i></button>
+	                                            	<a href="/assets/groups/{{ds.id}}/" style="text-decoration:none;"><button  type="button" class="btn btn-xs btn-default"><abbr title="查看组织结构图"/><i class="fa fa-users  "></i></button></a>
 	                                            </td>
 	                                        </tr>
                                         {% endfor %}
@@ -88,12 +88,12 @@
 													<div>																				
 														<div class="btn-group">	
 															<button type="button" class="btn btn-xs btn-default" onclick="modfAssetsData(this,'service',{{ds.id}})">
-																<abbr title="編輯应用"><i class="fa fa-edit"></i>
+																<abbr title="編輯应用"/><i class="fa fa-edit"></i>
 															</button>
 														</div>
 														<div class="btn-group">	
 															<button type="button" class="btn btn-xs btn-default" onclick="delAssetsData(this,'service',{{ds.id}})">
-																<abbr title="編輯应用"><i class="fa fa-trash"></i>
+																<abbr title="編輯应用"/><i class="fa fa-trash"></i>
 															</button>											
 														</div>
 													</div>  	                                			
@@ -134,8 +134,8 @@
 	                                            <td>{{ds.id}}</td>
 	                                            <td>{{ds.name}}</td>
 	                                            <td>
-	                                            	<button  type="button" class="btn btn-xs btn-default" onclick="modfAssetsData(this,'group',{{ds.id}})"><abbr title="编辑"><i class="glyphicon glyphicon-edit"></i></button>
-	                                            	<button  type="button" class="btn btn-xs btn-default" onclick="delAssetsData(this,'group',{{ds.id}})"><abbr title="删除"><i class="glyphicon glyphicon-trash"></i></button>
+	                                            	<button  type="button" class="btn btn-xs btn-default" onclick="modfAssetsData(this,'group',{{ds.id}})"><abbr title="编辑"/><i class="glyphicon glyphicon-edit"></i></button>
+	                                            	<button  type="button" class="btn btn-xs btn-default" onclick="delAssetsData(this,'group',{{ds.id}})"><abbr title="删除"/><i class="glyphicon glyphicon-trash"></i></button>
 	                                            </td>
 	                                        </tr>
                                         {% endfor %}
@@ -183,8 +183,8 @@
 	                                            <td>{{ds.zone_contact|default:""}}</td>
 	                                            <td>{{ds.zone_number|default:""}}</td>
 	                                            <td>
-	                                            	<button  type="button" class="btn btn-xs btn-default" data-toggle="modal" data-target="#modfZoneModal-{{ds.id}}"><abbr title="编辑"><i class="glyphicon glyphicon-edit"></i></button>
-	                                            	<button  type="button" class="btn btn-xs btn-default" onclick="delAssetsData(this,'zone',{{ds.id}})"><abbr title="删除"><i class="glyphicon glyphicon-trash"></i></button>
+	                                            	<button  type="button" class="btn btn-xs btn-default" data-toggle="modal" data-target="#modfZoneModal-{{ds.id}}"><abbr title="编辑"/><i class="glyphicon glyphicon-edit"></i></button>
+	                                            	<button  type="button" class="btn btn-xs btn-default" onclick="delAssetsData(this,'zone',{{ds.id}})"><abbr title="删除"/><i class="glyphicon glyphicon-trash"></i></button>
 	                                            </td>
 	                                        </tr>
                                         {% endfor %}
@@ -222,8 +222,8 @@
 	                                            <td>{{ds.id}}</td>
 	                                            <td>{{ds.line_name}}</td>
 	                                            <td>
-	                                            	<button  type="button" class="btn btn-xs btn-default" onclick="modfAssetsData(this,'line',{{ds.id}})"><abbr title="编辑"><i class="glyphicon glyphicon-edit"></i></button>
-	                                            	<button  type="button" class="btn btn-xs btn-default" onclick="delAssetsData(this,'line',{{ds.id}})"><abbr title="删除"><i class="glyphicon glyphicon-trash"></i></button>
+	                                            	<button  type="button" class="btn btn-xs btn-default" onclick="modfAssetsData(this,'line',{{ds.id}})"><abbr title="编辑"/><i class="glyphicon glyphicon-edit"></i></button>
+	                                            	<button  type="button" class="btn btn-xs btn-default" onclick="delAssetsData(this,'line',{{ds.id}})"><abbr title="删除"/><i class="glyphicon glyphicon-trash"></i></button>
 	                                            </td>
 	                                        </tr>
                                         {% endfor %}
@@ -262,8 +262,8 @@
 	                                            <td>{{ds.id}}</td>
 	                                            <td>{{ds.raid_name}}</td>
 	                                            <td>
-	                                            	<button  type="button" class="btn btn-xs btn-default" onclick="modfAssetsData(this,'raid',{{ds.id}})"><abbr title="编辑"><i class="glyphicon glyphicon-edit"></i></button>
-	                                            	<button  type="button" class="btn btn-xs btn-default" onclick="delAssetsData(this,'raid',{{ds.id}})"><abbr title="删除"><i class="glyphicon glyphicon-trash"></i></button>
+	                                            	<button  type="button" class="btn btn-xs btn-default" onclick="modfAssetsData(this,'raid',{{ds.id}})"><abbr title="编辑"/><i class="glyphicon glyphicon-edit"></i></button>
+	                                            	<button  type="button" class="btn btn-xs btn-default" onclick="delAssetsData(this,'raid',{{ds.id}})"><abbr title="删除"/><i class="glyphicon glyphicon-trash"></i></button>
 	                                            </td>
 	                                        </tr>
                                         {% endfor %}
@@ -631,6 +631,9 @@
 			var name = form[i].name;
 			var value = form[i].value;
 			if ( value.length == 0){
+			    if (name == "zone_contact" || name == "zone_number"){
+			        continue
+                }
 				window.wxc.xcConfirm("请注意必填项不能为空~", window.wxc.xcConfirm.typeEnum.error);
 				btnObj.removeAttr('disabled');
 				return false;
@@ -676,6 +679,9 @@
 			var value = form[i].value;
 			post_data[name] = value;
 			if ( value.length == 0){
+			    if (name == "zone_contact" || name == "zone_number"){
+			        continue
+                }
 				window.wxc.xcConfirm("请注意必填项不能为空~", window.wxc.xcConfirm.typeEnum.error);
 				btnObj.removeAttr('disabled');
 				return false;

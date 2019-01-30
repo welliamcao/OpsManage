@@ -21,6 +21,7 @@ from django.contrib.auth.decorators import permission_required
 from OpsManage.utils.logger import logger
 from dao.assets import AssetsSource
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+import json
 
 @login_required()
 @permission_required('OpsManage.can_add_gameserver_config',login_url='/noperm/')
@@ -30,22 +31,27 @@ def gameserver_add(request):
 
         return render(request,'gameserver/gs_add.html',{"user":request.user,"serverList":serverList})
     elif request.method == "POST":
-        try:
-            server = Server_Assets.objects.get(id=request.POST.get("game_server"));
-        except:
-            return HttpResponse(content="主机ID不存在，可能已被删除", status=404)
-        try:
-            gameserver = GameServer_Config.objects.create(
-                name = request.POST.get("gamename"),
-                game_path = request.POST.get("game_path"),
-                gate_path = request.POST.get("gate_path"),
-                state = request.POST.get("state"),
-                ip = server
-            )
+        gtype = request.GET.get("type")
+        if gtype=="server":
+            try:
+                server = Assets.objects.get(id=request.POST.get("game_server")).server_assets;
+            except:
+                return HttpResponse(content="主机ID不存在，可能已被删除", status=404)
+            try:
+                GameServer_Config.objects.create(
+                    name = request.POST.get("gamename"),
+                    game_path = request.POST.get("game_path"),
+                    gate_path = request.POST.get("gate_path"),
+                    state = request.POST.get("state"),
+                    ip = server
+                )
+            except Exception, ex:
+                if (1062 in ex) and ('Duplicate' in ex[1]):ex="添加失败，游戏服已存在"
+                return HttpResponse(content=ex,status=500)
             return HttpResponse(status=201)
-        except Exception, ex:
-            if 1062 in ex:ex="添加失败，游戏服已存在"
-            return HttpResponse(content=ex,status=500)
+        if gtype=="host":
+            pass
+
 
 @login_required()
 @permission_required('OpsManage.can_read_gameserver_config',login_url='/noperm/')
@@ -56,9 +62,9 @@ def gameserver_modify(request,gid=None):
             gameserver = GameServer_Config.objects.get(id=gid)
         except :
             return HttpResponse(status=404)
-        for gs in serverList:
+        for i,gs in enumerate(serverList):
             if gs["ip"] == gameserver.ip.ip:
-                gshost = gs
+                gshost = serverList.pop(i)
         return render(request, 'gameserver/gs_modf.html', {"serverList":serverList, "user":request.user,
                                                            "gameserver":gameserver, "gshost":gshost})
     elif request.method =="POST":
@@ -67,53 +73,58 @@ def gameserver_modify(request,gid=None):
         else:
             try:
                 server = Server_Assets.objects.get(id=request.POST.get('game_server'))
+                gameserver = GameServer_Config.objects.get(id=request.POST.get("id"))
             except Exception, ex:
                 return HttpResponse(content=ex,status=404)
-            gameserver = GameServer_Config(
-                name=request.POST.get("name"),
-                game_path=request.POST.get("gamepath"),
-                gate_path=request.POST.get("gatepath"),
-                state=request.POST.get("state"),
-                ip=server.ip
-            )
+            gameserver.name = request.POST.get("name"),
+            gameserver.game_path = request.POST.get("gamepath"),
+            gameserver.gate_path = request.POST.get("gatepath"),
+            gameserver.state = request.POST.get("state"),
+            gameserver.ip = server.ip
+            try:
+                gameserver.save()
+            except Exception,ex:
+                return HttpResponse(content="修改失败，游戏服可能已经被删除",status=404)
             try:
                 gameserver.save()
             except Exception, ex:
                 return HttpResponse(content=ex,status=500)
+            return HttpResponse(status=202)
 
 @login_required()
 @permission_required('OpsManage.can_read_gameserver_config',login_url='/noperm/')
 def gamehost_list(request):
-    gshost = []
-    ips = GameServer_Config.objects.values_list("ip__ip",flat=True).distinct()
-    totalgame = GameServer_Config.objects.all().count()
-    onlinegame = 0
-    offlinegame = GameServer_Config.objects.filter(state=False).count()
-    for ip in ips:
-        sid = Server_Assets.objects.get(ip=ip).id
-        aid = Server_Assets.objects.get(ip=ip).assets.id
-        business = Project_Assets.objects.get(id=Assets.objects.get(id=aid).business).project_name
-        hostname = Server_Assets.objects.get(ip=ip).hostname
-        system = Server_Assets.objects.get(ip=ip).system
-        gonlinegame = GameServer_Config.objects.filter(state=True,ip__ip=ip).count()
-        status = Assets.objects.get(id=aid).status
-        game =list(GameServer_Config.objects.filter(ip__ip=ip).values_list("name",flat=True))
-        onlinegame = onlinegame+gonlinegame
-        gshost.append(
-            {
-                'game': ",".join(str(game)),
-                'aid':aid,
-                'sid':sid,
-                'business':business,
-                'hostname':hostname,
-                'ip':ip,
-                'system':system,
-                'onlinegame':gonlinegame,
-                'status':status,
-            }
-        )
-    return render(request,'gameserver/gs_config.html',{"user":request.user,"totalGame":totalgame,"onlineGame":onlinegame,
-                                                       "offlineGame":offlinegame,"gshost":gshost},)
+    if request.method == "GET":
+        gshost = []
+        ips = GameServer_Config.objects.values_list("ip__ip",flat=True).distinct()
+        totalgame = GameServer_Config.objects.all().count()
+        onlinegame = 0
+        offlinegame = GameServer_Config.objects.filter(state=False).count()
+        for ip in ips:
+            sid = Server_Assets.objects.get(ip=ip).id
+            aid = Server_Assets.objects.get(ip=ip).assets.id
+            business = Project_Assets.objects.get(id=Assets.objects.get(id=aid).business).project_name
+            hostname = Server_Assets.objects.get(ip=ip).hostname
+            system = Server_Assets.objects.get(ip=ip).system
+            gonlinegame = GameServer_Config.objects.filter(state=True,ip__ip=ip).count()
+            status = Assets.objects.get(id=aid).status
+            game =list(GameServer_Config.objects.filter(ip__ip=ip).values_list("name",flat=True))
+            onlinegame = onlinegame+gonlinegame
+            gshost.append(
+                {
+                    'game': ",".join(game),
+                    'aid':aid,
+                    'sid':sid,
+                    'business':business,
+                    'hostname':hostname,
+                    'ip':ip,
+                    'system':system,
+                    'onlinegame':gonlinegame,
+                    'status':status,
+                }
+            )
+        return render(request,'gameserver/gs_config.html',{"user":request.user,"totalGame":totalgame,"onlineGame":onlinegame,
+                                                           "offlineGame":offlinegame,"gshost":gshost},)
 
 @login_required()
 @permission_required('OpsManage.can_read_gameserver_config')
@@ -122,7 +133,7 @@ def gameserver_details(request,id):
     if request.method == "GET" :
 
         #rungame = ANSRunner.run_model()
-        gslist = gameserver_list.filter(ip__assets_id=id)
+        gslist = gameserver_list.filter(ip=id)
         data = []
         for gs in gslist:
             data.append({"name":gs.name,"game_path":gs.game_path,"gate_path":gs.gate_path,"state":gs.state,"gid":gs.id})
@@ -139,10 +150,12 @@ def gameserver_details(request,id):
             return HttpResponse(status=200)
 
 @login_required()
+@permission_required('OpsManage.can_change_gameserver_config')
 def gamehost_facts(request):
-    if request.method == "POST" and request.user.has_perm('OpsManage.can_change_gameserver_config'):
+    def synchost(id,filter="old|OLD|Old|lost|下线"):
+        datalist=[]
         try:
-            server_assets = Server_Assets.objects.get(id=request.POST.get("server_id"))
+            server_assets = Server_Assets.objects.get(id)
             if server_assets.keyfile == 1:
                 resource = [{"ip": server_assets.ip, "port": int(server_assets.port), "username": server_assets.username,
                              "sudo_passwd": server_assets.sudo_passwd}]
@@ -151,7 +164,6 @@ def gamehost_facts(request):
                              "password": server_assets.passwd, "sudo_passwd": server_assets.sudo_passwd}]
         except Exception,ex:
             return  JsonResponse({'msg':"获取资产信息失败，可能主机已被删除","code":404})
-        filter = "old|OLD|Old|lost|下线"
         ANS = ANSRunner(resource)
         ANS.run_model(host_list=[server_assets.ip], module_name='raw',
                       module_args="find /data -type f -name 'Gate*' |grep -vE '{0}'|xargs dirname".format(filter))
@@ -172,17 +184,23 @@ def gamehost_facts(request):
                     gamename = game.split("/")
                     if len(gamename)>3:
                         if gatename[2] == gamename[2]:
-                            try:
-                                GameServer_Config.objects.update_or_create(
-                                    name=gamename[2],
-                                    gate_path=gate,
-                                    game_path=game,
-                                    ip=server_assets
-                                )
-                            except Exception,ex:
-                                return JsonResponse({'msg': ex, "code": 500})
-        return JsonResponse({'msg':"同步成功","code":200})
-    else:return  JsonResponse({'msg':"没有权限，请联系管理员","code":403})
+                            datalist.append(
+                                {"name": gamename[2], "gate_path": gate, "game_path": game, "ip": server_assets}
+                            )
+        return datalist
+    if request.method == "POST":
+        for game in synchost(id=request.POST.get("server_id")):
+            try:
+                GameServer_Config.objects.update_or_create(**game)
+            except Exception,ex:
+                return JsonResponse({'msg': ex, "code": 500})
+        return JsonResponse({'msg': "同步成功", "code": 201})
+
+    if request.method=="GET":
+        gamelist = synchost(id=request.POST.get("server_id"))
+        return HttpResponse(content=json.dumps(gamelist),status=200)
+
+
 
 @login_required()
 @permission_required('OpsManage.can_add_gsupdate_list',login_url='/noperm/')
@@ -209,10 +227,10 @@ def showfile(request):
         else:
             resource = [{"ip": gamehost.ip, "port": gamehost.port, "username": gamehost.username,
                          "password": gamehost.passwd, "sudo_passwd": gamehost.sudo_passwd}]
-        if request.POST.get("ptype") == "gate":
+        if request.POST.get("ptype") == "gateway":
             path=gameserver.gate_path
             keyword="Gate"
-        elif request.POST.get("ptype") == "game":
+        elif request.POST.get("ptype") == "gameserver":
             keyword = "Game"
             path=gameserver.game_path
         ANS = ANSRunner(resource)

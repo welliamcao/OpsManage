@@ -231,7 +231,7 @@ def assets_facts(request,args=None):
                 assets = Assets.objects.get(id=server_assets.assets_id)
                 if server_assets.keyfile == 1:resource = [{"ip": server_assets.ip, "port": int(server_assets.port),"username": server_assets.username,"sudo_passwd":server_assets.sudo_passwd}] 
                 else:resource = [{"ip": server_assets.ip, "port": server_assets.port,"username": server_assets.username, "password": server_assets.passwd,"sudo_passwd":server_assets.sudo_passwd}]
-            except Exception,e:
+            except Exception, ex:
                 logger.error(msg="更新硬件信息失败: {ex}".format(ex=ex))
                 return  JsonResponse({'msg':"数据更新失败-查询不到该主机资料~","code":502})
             ANS = ANSRunner(resource)
@@ -309,9 +309,15 @@ def assets_import(request):
                 server = bk.sheet_by_name("server")
                 net = bk.sheet_by_name("net")
                 for i in range(1,server.nrows):
-                    dataList.append(server.row_values(i)) 
+                    if len(server.row_values(i)):
+                        dataList.append(server.row_values(i))
+                    else:
+                        dataList.append("")
                 for i in range(1,net.nrows):
-                    dataList.append(net.row_values(i))     
+                    if len(server.row_values(i)):
+                        dataList.append(server.row_values(i))
+                    else:
+                        dataList.append("")
             except Exception,e:
                 return []
             return dataList 
@@ -333,8 +339,8 @@ def assets_import(request):
                       'project':int(data[13]),
                       'business':int(data[14]),
                       }
-            if data[3]:assets['buy_time'] = xlrd.xldate.xldate_as_datetime(data[3],0)
-            if data[4]:assets['expire_date'] = xlrd.xldate.xldate_as_datetime(data[4],0)
+            if data[3] and data[3] != "None" :assets['buy_time'] = xlrd.xldate.xldate_as_datetime(data[3],0)
+            if data[3] and data[3] != "None":assets['expire_date'] = xlrd.xldate.xldate_as_datetime(data[4],0)
             if assets.get('assets_type') in ['vmser','server']:
                 server_assets = {
                           'ip':data[15],
@@ -343,9 +349,9 @@ def assets_import(request):
                           'passwd':data[18],
                           'hostname':data[19],
                           'port':data[20],
-                          'raid':data[21],
                           'line':data[22],
-                          } 
+                          }
+                if data[21] : server_assets['raid'] = int(data[21])
             else:
                 net_assets = {
                             'ip':data[15],
@@ -756,7 +762,11 @@ def assets_dumps(request):
                 sheet.write(count,18,assets.server_assets.hostname,dRbt.bodySttle())
                 sheet.write(count,19,assets.server_assets.port,dRbt.bodySttle())
                 sheet.write(count,20,assets.server_assets.cpu,dRbt.bodySttle())
-                sheet.write(count,21,Raid_Assets.objects.get(id=assets.server_assets.raid).raid_name,dRbt.bodySttle())
+                try:
+                    sheet.write(count,21,Raid_Assets.objects.get(id=assets.server_assets.raid).raid_name,dRbt.bodySttle())
+                except:
+                    sheet.write(count, 21, "",
+                            dRbt.bodySttle())
                 sheet.write(count,22,assets.server_assets.cpu_number,dRbt.bodySttle())
                 sheet.write(count,23,assets.server_assets.vcpu_number,dRbt.bodySttle())
                 sheet.write(count,24,assets.server_assets.cpu_core,dRbt.bodySttle())
@@ -766,7 +776,11 @@ def assets_dumps(request):
                 sheet.write(count,28,assets.server_assets.swap,dRbt.bodySttle())
                 sheet.write(count,29,assets.server_assets.disk_total,dRbt.bodySttle())
                 sheet.write(count,30,assets.server_assets.system,dRbt.bodySttle())
-                sheet.write(count,31,Line_Assets.objects.get(id=assets.server_assets.line).line_name,dRbt.bodySttle())
+                try:
+                    sheet.write(count,31,Line_Assets.objects.get(id=assets.server_assets.line).line_name,dRbt.bodySttle())
+                except:
+                    sheet.write(count, 31, "",
+                                dRbt.bodySttle())
             else:
                 sheet = netSheet
                 sheet.write(count,15,assets.network_assets.ip,dRbt.bodySttle())

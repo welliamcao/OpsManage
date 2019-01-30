@@ -803,7 +803,7 @@ def ansible_inventory_groups_server(request,id):
             if request.POST.get('ext_vars',None):ext_vars = eval(request.POST.get('ext_vars',None))
             else:ext_vars = None
         except Exception,ex:
-            logger.error(msg="修改资产组失败，外部变量格式错误: {ex}".format(ex=str(ex)))
+            logger.error(msg="修改资产组失败，外部变量格式错误: {ex}".format(ex=str(ex))+request.POST.get('ext_vars',None))
             return JsonResponse({'msg':"修改资产组失败，外部变量格式错误: {ex}".format(ex=str(ex)),"code":500,'data':[]}) 
         numberList = Ansible_Inventory_Groups_Server.objects.filter(groups=groups)
         tagret_server_list = [ s.server for s in numberList ]

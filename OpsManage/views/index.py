@@ -9,7 +9,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from OpsManage.models import (Global_Config,Email_Config,Assets,
                               Cron_Config,Log_Assets,Project_Config,
-                              Ansible_Playbook)
+                              Ansible_Playbook,SiteNavigation)
 from orders.models import Order_System
 from django.contrib.auth.decorators import permission_required
 
@@ -106,11 +106,12 @@ def index(request):
                     }
     userList = Order_System.objects.raw("SELECT t2.id,t1.username AS order_user  FROM auth_user t1,opsmanage_order_system t2 WHERE t1.id = t2.order_user GROUP BY t2.order_user;")
     userList = [ u.order_user for u in userList ]
+    naviurls = SiteNavigation.objects.filter(userof=request.user)
     return render(request,'index.html',{"user":request.user,"orderList":dataList,
                                             "userList":userList,"dateList":dateList,
                                             "monthDataList":monthDataList,"monthList":monthList,
                                             "allDeployList":allDeployList,"assetsLog":assetsLog,
-                                            "orderNotice":orderNotice,"projectTotal":projectTotal})
+                                            "orderNotice":orderNotice,"projectTotal":projectTotal,"naviruls":naviurls})
 
 def login(request):
     if request.session.get('username') is not None:
@@ -135,7 +136,10 @@ def logout(request):
     return HttpResponseRedirect('/login')
 
 def noperm(request):
-    return render(request,'noperm.html',{"user":request.user}) 
+    return render(request,'noperm.html',{"user":request.user})
+
+def offline(request):
+    return render(request,'offline.html',{"user":request.user})
 
 @login_required(login_url='/login')
 @permission_required('OpsManage.can_change_global_config',login_url='/noperm/')
@@ -167,7 +171,8 @@ def config(request):
                                                       server =  request.POST.get('server',0),
                                                       email =  request.POST.get('email',0),   
                                                       webssh =  request.POST.get('webssh',0),  
-                                                      sql =  request.POST.get('sql',0),                                                 
+                                                      sql =  request.POST.get('sql',0),
+                                                      apikey = request.POST.get('apikey',1),
                                                     )
             else:
                 config = Global_Config.objects.create(
@@ -179,7 +184,8 @@ def config(request):
                                                       server =  request.POST.get('server'),
                                                       email =  request.POST.get('email'),
                                                       webssh =  request.POST.get('webssh',0),
-                                                      sql =  request.POST.get('sql'), 
+                                                      sql =  request.POST.get('sql'),
+                                                      apikey=request.POST.get('apikey'),
                                                     )    
             return JsonResponse({'msg':'配置修改成功',"code":200,'data':[]})   
         elif request.POST.get('op') == "email":

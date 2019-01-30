@@ -95,7 +95,7 @@
                 <!-- /.dropdown -->
                 <li class="dropdown">
                     <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                        {{user}} <i class="fa fa-user fa-fw"></i><iclass="fa fa-caret-down"></i>
+                        {{user}} <i class="fa fa-user fa-fw"></i><i class="fa fa-caret-down"></i>
                     </a>
                     <ul class="dropdown-menu dropdown-user">
                         <li><a href="/user/center/"><i class="fa fa-user fa-fw"></i> User Profile</a>
@@ -149,7 +149,24 @@
 	                            </li>                                                                 
                             </ul>
                             <!-- /.nav-second-level -->
-                        </li>                        
+                        </li>
+                    <li><a href="#"><i class="glyphicon glyphicon-cloud	fa-fw"></i> 前端更新<span
+								class="fa arrow"></span></a>
+							<ul class="nav nav-second-level">
+								<li><a href="/offline">CDN刷新预热</a></li>
+								<li><a href="/offline">源服务器浏览</a></li>
+								<li><a href="/offline">个人密钥配置</a></li>
+								<li><a href="/offline">操作日志</a></li>
+							</ul> <!-- /.nav-second-level --></li>
+                        <li><a href="#"><i class="glyphicon glyphicon-tower fa-fw"></i> 游戏管理<span
+                                    class="fa arrow"></span></a>
+                                <ul class="nav nav-second-level">
+                                    <li><a href="/offline">游戏服添加</a></li>
+                                    <li><a href="/offline">游戏服配置</a></li>
+                                    <li><a href="/offline">更新预备</a></li>
+                                    <li><a href="/offline">立即更新</a></li>
+                                    <li><a href="/offline">刷新日志</a></li>
+                                </ul> <!-- /.nav-second-level --></li>
                         <li>
                             <a href="#"><i class="glyphicon glyphicon-hdd"></i> 代码发布<span class="fa arrow"></span></a>
                             <ul class="nav nav-second-level">
@@ -933,6 +950,7 @@
 	  	}
 	  	if (serverId.length > 0){
 			$.ajax({
+                  timeout:30000,
 				  type: 'POST',
 				  url: url,
 				  dataType:"json",
@@ -956,7 +974,7 @@
 			    	else{
 			    		window.wxc.xcConfirm(msg, window.wxc.xcConfirm.typeEnum.error);
 			    	}
-				    btnObj.removeAttr('disabled');		            
+				    location.reload()
 			      },
 	              error:function(response){
 	            	btnObj.removeAttr('disabled');
@@ -986,30 +1004,30 @@
 	}	
  	
 	$(document).ready(function() {
-	    var table = $('#assetsListTable').DataTable( {
-/* 	        "ajax": "../ajax/data/objects.txt", */
-	        "columns": [
-	            {
-	                "className": 'details-control',
-	                "orderable": false,
-	                "data":      null,
-	                "defaultContent": ''
-	            },
-	            { "data": "全选" },
-	            { "data": "资产ID" },
-	            { "data": "资产类型" },
-	            { "data": "管理IP" },
-	            { "data": "资产编号" },
-	            { "data": "设备型号" },
-	            { "data": "放置区域" },
-	            { "data": "产品线" },
-	            { "data": "业务类型" },
-	            { "data": "使用组" },
-	            { "data": "设备状态" },
-	            { "data": "操作" }
-	        ],
-	        "order": [[2, 'asc']]
-	    } );
+        var table = $('#assetsListTable').DataTable({
+            /* 	        "ajax": "../ajax/data/objects.txt", */
+            "columns": [
+                {
+                    "className": 'details-control',
+                    "orderable": false,
+                    "data": null,
+                    "defaultContent": ''
+                },
+                {"data": "全选"},
+                {"data": "资产ID"},
+                {"data": "资产类型"},
+                {"data": "管理IP"},
+                {"data": "资产编号"},
+                {"data": "设备型号"},
+                {"data": "放置区域"},
+                {"data": "产品线"},
+                {"data": "业务类型"},
+                {"data": "使用组"},
+                {"data": "设备状态"},
+                {"data": "操作"}
+            ],
+            "order": [[2, 'asc']]
+        });
 	     
 	    // Add event listener for opening and closing details
 	    $('#assetsListTable tbody').on('click', 'td.details-control', function () {
@@ -1038,9 +1056,9 @@
 	            row.child( format(dataList) ).show();
 	            tr.addClass('shown');
 	        }
-	    } );
-	} ); 	
- 	
+	    } )
+    });
+
 	//Flot Pie Chart
 	$(function() {
 	    var data = [

@@ -52,7 +52,7 @@ def project_detail(request, id,format=None):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
      
     elif request.method == 'DELETE':
-        if request.user.has_perm('OpsManage.can_delete_project_Assets'):
+        if request.user.has_perm('OpsManage.can_delete_project_assets'):
             project_name = snippet.project_name
             snippet.delete()
             recordAssets.delay(user=str(request.user),content="删除产品线名称：{project_name}".format(project_name=project_name),type="project",id=id)
@@ -392,7 +392,7 @@ def asset_detail(request, id,format=None):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
      
     elif request.method == 'DELETE':
-        if not request.user.has_perm('OpsManage.delete_asset_assets'):
+        if not request.user.has_perm('OpsManage.can_delete_assets'):
             return Response(status=status.HTTP_403_FORBIDDEN)
         else:
             snippet.delete()
@@ -536,7 +536,7 @@ def asset_net_detail(request, id,format=None):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
      
     elif request.method == 'DELETE':
-        if not request.user.has_perm('OpsManage.delete_net_assets'):
+        if not request.user.has_perm('OpsManage.can_delete_network_assets'):
             return Response(status=status.HTTP_403_FORBIDDEN)
         else:
             snippet.delete()

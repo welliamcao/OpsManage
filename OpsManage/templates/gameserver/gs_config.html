@@ -180,8 +180,13 @@
 
                             <div class="well">
                                 <h4>添加说明</h4>
-                                <p>没有任何游戏的新云主机在添加第一个游戏后会更新显示在列表里。</p>
-                                <a class="btn btn-default btn-lg btn-block" href="/gs_add"><i class="fa fa-plus-circle "></i>添加新的游戏服</a>
+                                <p>游戏服以一个GateWay的绝对路径和GameServer的绝对路径为单位。</p>
+                                <div class="col-md-6">
+                                    <a class="btn btn-default btn-lg btn-block" href="/gameserver/add?tab=newgameserver" target="_blank"><i class="fa fa-plus-circle "></i>添加新的游戏服</a>
+                                </div>
+                                <div class="col-md-6">
+                                    <a class="btn btn-default btn-lg btn-block" href="/gameserver/add?tab=newgamehost" target="_blank"><i class="fa fa-plus-circle "></i>添加宿主主机</a>
+                                </div>
                             </div>
                         </div>
 
@@ -190,6 +195,10 @@
                 </div>
     </div>
 </div>
+
+
+
+
 <script type="text/javascript">
     var selectState = false;
     function checkAllBox(){
@@ -282,7 +291,7 @@
 	        var row = table.row( tr );
 	        sId = row.data()["资产ID"];
 	        $.ajax({
-	            url : "/gs_config/"+sId+"/",
+	            url : "/gameserver/"+sId+"/",
 	            type : "get",
 	            async : false,
 	            dataType : "json",
@@ -330,7 +339,7 @@
             }
             else if(type==="syncdata"){
                 var retitle="更新主机"+ip+")游戏信息"
-                var reurl='/gs_facts/'
+                var reurl='/gameserver/facts/'
             }
 			var option = {
 					title: retitle,
@@ -340,12 +349,10 @@
 							  type: 'POST',
 							  url: reurl,
 							  data:{
-									"ip":ip,
-									"server_id":id,
-									"type":type
+									"server_id":id
 								},
 						      success:function(response){
-					                if (response["code"]=="200"){
+					                if (response["code"]=="201"){
 					                	window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.success);
 
 					                }
@@ -379,13 +386,13 @@
             });
             $.ajax({
                   type: 'DELETE',
-                  url: '/gs_details/'+id+'/',
+                  url: '/gameserver/details/'+id+'/',
                   success:function(response){
                           btnObj.removeAttr('disabled');
                           var r=confirm("删除成功!");
                           if (r==true)
                           {
-                                location.reload('/gs_config/');
+                                location.reload('/gameserver');
                           }
                   },
                   error:function(response){
@@ -393,7 +400,7 @@
                       var r=confirm(response.responseText);
                           if (r==true)
                           {
-                                location.reload('/gs_config/');
+                                location.reload('/gameserver');
                           }
                     }
                 });

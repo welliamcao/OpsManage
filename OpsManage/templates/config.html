@@ -18,7 +18,9 @@
 				              <li class="active"><a href="#home" data-toggle="tab"><i class="fa fa-history"></i> 日志记录</a>
 				              </li>
 				              <li><a href="#profile" data-toggle="tab"><i class="fa fa-envelope"></i> 部署通知</a>
-				              </li>			              
+				              </li>
+                              <li><a href="#updateprofile" data-toggle="tab"><i class="glyphicon glyphicon-refresh"></i> 更新设置</a>
+				              </li>
 				           </ul>
 				
 				                            
@@ -27,7 +29,7 @@
 				                   <div class="row">
 				                   		<div class="col-lg-12">
 				                   			<br>
-											<form role="form" method="post" id="addConfig" class="main form-horizontal" >{% csrf_token %}			
+											<form role="form" method="post" id="recordconfig" class="main form-horizontal" >{% csrf_token %}
 						
 												<div class="form-group" >
 													 <label class="col-sm-2 control-label"><i class="fa  fa-tasks"></i> 模块操作记录</label>
@@ -157,7 +159,9 @@
 															{% endif %}																		
 														</select>
 													 </div>
-												</div>																								
+												</div>
+
+
 												<div class="hr hr32 hr-dotted"></div>                                        
 												<div class="form-group">
 													<div class="col-md-offset-3 col-md-9">
@@ -247,7 +251,47 @@
 												</form>				                   			
 										</div>
 				                   </div>
-				              </div>				              				             				              
+				              </div>
+                              <div class="tab-pane fade" id="updateprofile">
+				                   <div class="row">
+				                   		<div class="col-lg-12">
+				                   			<br>
+											<form role="form" method="post" id="updateconfig" class="main form-horizontal" >{% csrf_token %}
+
+                                                <div class="form-group" >
+													 <label class="col-sm-2 control-label"><i class="glyphicon glyphicon-cloud	fa-fw"></i> 全局CDN密钥设定</label>
+													 <div class="col-sm-6">
+														<select class="form-control" name="apikey">
+															{% if config.apikey == 1 %}
+																<option selected="selected" value="1">全局使用个人密钥</option>
+																<option value="0">全局使用admin账号的密钥</option>
+															{% else %}
+																<option selected="selected" value="0">全局使用admin账号的密钥</option>
+																<option  value="1">全局使用个人密钥</option>
+															{% endif %}
+														</select>
+													 </div>
+												</div>
+
+												<div class="hr hr32 hr-dotted"></div>
+												<div class="form-group">
+													<div class="col-md-offset-3 col-md-9">
+														<button class="btn btn-default" type="button" onclick="addConfigData(this)">
+															<i class="fa fa-check"></i>
+																			提交
+														</button>
+																		&nbsp; &nbsp; &nbsp;
+														<button class="btn btn-default" type="reset">
+															<i class="fa fa-undo"></i>
+																			撤销
+														</button>
+													</div>
+												</div>
+												</form>
+				                   		</div>
+
+				                   </div>
+				              </div>
 				           </div>
 
 
@@ -269,14 +313,23 @@
 			btnObj.attr('disabled',true);
 			var post_data = {}; 
 			var putUrl = '/config/';
-			var form = document.getElementById('addConfig');
-			for (var i = 0; i < form.length; ++i) {
-				var name = form[i].name;
-				var value = form[i].value;
+			var recordform = $("#recordconfig").get(0);
+			var updateform = $("#updateconfig").get(0);
+			for (var i = 0; i < recordform.length; ++i) {
+				var name = recordform[i].name;
+				var value = recordform[i].value;
 				if (name.length > 0 && value.length > 0){
 					post_data[name] = value;
 				}
-				
+
+			};
+			for (var i = 0; i < updateform.length; ++i) {
+				var name = updateform[i].name;
+				var value = updateform[i].value;
+				if (name.length > 0 && value.length > 0){
+					post_data[name] = value;
+				}
+
 			};
 			post_data['op'] = 'log';
 			$.ajax({
@@ -287,12 +340,12 @@
 				success:function(response){
 					btnObj.removeAttr('disabled');
 					window.wxc.xcConfirm("配置修改成功", window.wxc.xcConfirm.typeEnum.success);
-					location.reload();
+					location.reload()
 				},
 		    	error:function(response){
 		    		btnObj.removeAttr('disabled');
 		    		window.wxc.xcConfirm("配置修改失败", window.wxc.xcConfirm.typeEnum.error);
-		    		location.reload();
+		    		location.reload()
 		    	}
 			})	
 		}
