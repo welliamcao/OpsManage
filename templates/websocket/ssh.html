@@ -1,0 +1,220 @@
+{% extends 'base.html' %}
+{% block css-content %}
+    <link rel="stylesheet" href="/static/jquery-confirm/jquery-confirm.min.css">
+    <link rel="stylesheet" href="/static/xterm/xterm.css"/>
+
+    
+<style type="text/css">
+.modal-dialog {
+          height:auto !important;
+
+        }
+.modal-body {
+          height:auto !important;
+          width:auto !important;
+
+        }        
+        @media screen and (max-width: 750px) {
+            .main-header {
+                display: none;
+            }
+        }  
+    .xterm-screen {
+      overflow: hidden;
+      width: 800px;
+      height: 600px; /* <- fixed height */
+      font-size: 16px;
+      line-height: 17px; /* <- initial line-height */
+    }
+#websshMain {
+	position: absolute;
+	top: 10%;left: 20%;
+	}
+#websshTitle {
+	width: 1280px;
+	height: 19px;
+	border-top: #85ABE4 1px solid;
+	border-right: #222 1px solid;
+	border-left: #85ABE4 1px solid;
+	border-bottom: none;
+	background: #5B8BD9;
+	}
+#websshContent {
+	border: #85ABE4 1px solid;
+	border-top: none;
+	width: 1280px;
+	height: 600px;
+	background: black;
+	}
+#websshContent closeImg {
+	width: 1280px;
+	height: 600px;
+	}
+#off {
+	float: right;
+	cursor: pointer;
+	}
+.none {
+	display: none;
+	}
+.show {
+	display: block;
+	}
+
+#closeImg {
+	background: url(/static/images/divclose.jpg) no-repeat;
+	float: right;
+	width: 49px;
+	height: 19px;}
+
+#closeImg: hover {
+	background: url(/static/images/divclose.jpg) no-repeat;
+	}
+	
+#ten {
+	float: left;
+	width: 400px;
+	}
+                 
+	</style>    
+
+{% endblock %}
+{% block page-content %}
+        <div class="clearfix"></div>       
+		<div class="row">
+<!--  			<div id="websshMain" class="show">
+				<div id="websshTitle">
+					<div id="ten">
+						<p class="text-danger"><i class="fa fa fa-terminal">192.168.1.234</i></p>
+					</div>
+					<div id="closeImg" title="close"></div>
+				</div>
+				<div id="websshContent">
+					<div id="webssh_tt">
+					</div>				
+				</div>
+			</div>  -->
+		</div>  
+		        <div class="modal fade bs-example-modal-webssh-info"  tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static" data-keyboard="false">  
+		          <div class="modal-dialog modal-lg" style="width:1290px;height: 600px">
+		            <div class="modal-content">
+		
+		              <div class="modal-header">
+		                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span>
+		                </button>
+		                <h4 class="modal-title" id="myWebsshModalLabel">WebSSH</h4>
+		              </div>
+		              <div class="modal-body">
+						<div id="webssh_tt"  style="width:800px;" >
+						    </div>	
+		              </div>
+		              <div class="modal-footer">
+		                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+		                <button type="button" id="taggroupsubmit" value=""  class="btn btn-primary">连接</button>
+		              </div>
+		
+		            </div>
+		          </div>
+		        </div>		 
+		
+         
+{% endblock %}
+{% block js-content %}
+	<script src="/static/jquery-confirm/jquery-confirm.min.js"></script>
+	<script src="/static/xterm/reconnecting-websocket.js"></script>
+	<script src="/static/xterm/xterm.js"></script>
+	<script src="/static/xterm/addons/fit/fit.js"></script>
+ 	<script src="/static/xterm/addons/fullscreen/fullscreen.js"></script>
+ 		<script src="/static/js/dragable/dragable.js"></script> 
+	<script type="text/javascript">
+	
+/*    	$(document).ready(function(){
+		//设置标题栏
+		document.title="0.0 WINDOW";
+		//窗口的拖动
+		var bool=false;
+		var offsetX=0;
+		var offsetY=0;
+ 		$("#websshMain").mousedown(function(){
+			bool=true;
+			offsetX = event.offsetX;
+			offsetY = event.offsetY;
+			$("#ten").css('cursor','move');
+		}) 		
+		$("#websshMain").mouseup(function(){
+		   bool=false;
+		})
+	  	$(document).mousemove(function(e){
+		   if(!bool)
+		    	return;
+		   var x = event.clientX-offsetX;
+		   var y = event.clientY-offsetY;
+		   $("#websshMain").css("left", x);
+		   $("#websshMain").css("top", y);
+	   	})
+		//窗口的关闭
+ 		$("#closeImg").click(function() {
+			$("#websshMain").removeClass("show");
+			$("#websshMain").addClass("none");
+		}); 		
+		
+	});  */
+
+  	
+	$('.bs-example-modal-webssh-info').modal({backdrop:"static",show:true});
+	
+    $(document).ready(function(){  
+ 	
+    	
+   	    var webssh = false
+        function make_terminal(element, size, ws_url,id) { 
+            var term = new Terminal({
+                cols: size.cols,
+                rows: size.rows,
+                screenKeys: true,
+                useStyle: true,
+                cursorBlink: true,  // Blink the terminal's cursor
+            });         	
+            if (webssh) {
+            	alert(11)
+                return;
+            }        
+            webssh = true;        	
+            term.open(element, false);
+            term.write('正在连接...')
+/*             term.fit(); */
+            var ws = new WebSocket(ws_url);
+            ws.onopen = function (event) {
+                term.resize(term.cols, term.rows);
+/*                 ws.send(JSON.stringify(["id", id,term.cols, term.rows]));  */
+                term.on('data', function (data) {
+                    <!--console.log(data);-->
+                     ws.send(data); 
+                });
+
+                term.on('title', function (title) {
+                    document.title = title;
+                });
+                ws.onmessage = function (event) {
+                	term.write(event.data);
+                };
+            };
+            return {socket: ws, term: term};
+        }
+   	 	var websocket = ""
+        $("#taggroupsubmit").on("click", function(){
+            var ws_scheme = window.location.protocol == "https:" ? "wss" : "ws";
+            var ws_path = ws_scheme + '://' + window.location.host + '/ssh/1/websocket/';
+            websocket = make_terminal(document.getElementById('webssh_tt'), {rows: 30, cols: 140}, ws_path, '1');  
+            console.log(websocket)
+            $(this).attr("disabled",true);
+/*             $(".xterm-screen").css("width", "800px").css("height", "510px"); */
+          });         
+        $('.bs-example-modal-webssh-info').on('hidden.bs.modal', function () {
+        	console.log(websocket)
+        	websocket["socket"].close()
+        	webssh = false
+        });  
+    }); // end of document ready  
+</script> 	
+{% endblock %}

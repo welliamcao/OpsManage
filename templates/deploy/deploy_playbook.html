@@ -1,0 +1,292 @@
+{% extends 'base.html' %}
+{% block css-content %}
+    <link rel="stylesheet" href="/static/jquery-confirm/jquery-confirm.min.css">
+    <link href="/static/datatable/datatables.net-bs/css/dataTables.bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/bootstrap-select.css">
+	<script src="http://cdn.bootcss.com/ace/1.2.4/ace.js"></script>
+	<script src="http://cdn.bootcss.com/ace/1.2.4/ext-language_tools.js"></script>
+	<script src="http://cdn.bootcss.com/ace/1.2.4/ext-old_ie.js"></script>
+	<script src="http://cdn.bootcss.com/ace/1.2.4/theme-monokai.js"></script>  
+	<style type="text/css"> 
+		pre {
+			overflow: auto;
+			white-space: normal;
+			white-space: pre-wrap; /* css-3 */
+			white-space: -moz-pre-wrap; /* Mozilla, since 1999 */
+			white-space: -pre-wrap; /* Opera 4-6 */
+			white-space: -o-pre-wrap; /* Opera 7 */
+			word-wrap: break-word; /* Internet Explorer 5.5+ */
+			font-family: Consolas, monospace;
+			color: #ADFF2F;
+			background-color: #000000;
+		}	
+		td.details-control {
+		    background: url('/static/images/details_open.png') no-repeat center center; */
+		    cursor: pointer;
+		}
+		tr.shown td.details-control {
+		    background: url('/static/images/details_close.png') no-repeat center center;
+		} 
+		#compile-editor-add {
+			width: 100%;
+			height: 500px;
+	   }   		      	
+	</style>  
+{% endblock %}
+{% block page-content %}
+        <div class="clearfix"></div> 
+        
+		<div class="row">
+		
+              <div class="col-md-12 col-sm-12 col-xs-12">
+                <div class="x_panel">
+                  <div class="x_title">
+                    <h2>部署剧本列表 <small>Deploy Playbook List</small></h2>
+                    <ul class="nav navbar-right panel_toolbox">
+                      <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                      </li>
+                      <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
+                        <ul class="dropdown-menu" role="menu">
+                          <li><a href="#">Settings 1</a>
+                          </li>
+                          <li><a href="#">Settings 2</a>
+                          </li>
+                        </ul>
+                      </li>
+                      <li><a class="close-link"><i class="fa fa-close"></i></a>
+                      </li>
+                    </ul>
+                    <div class="clearfix"></div>
+                  </div>
+                  <div class="x_content">
+                        <div class="product_price">
+		                	<button type="button" class="btn btn-xs btn-default" id="deploy_list"><i class="glyphicon glyphicon-plus"></i></button>                  
+		                    <table id="deployPlaybookList" class="table table-striped table-bordered">
+		                      <thead>
+		                        <tr>
+					                <th>ID</th>
+					                <th>剧本名称</th>
+					                <th>用途描述</th>
+					                <th>最后修改人</th>
+					                <th>添加日期</th>
+					                <th>修改日期</th>
+									<th class="text-center">操作</th>
+		                        </tr>
+		                      </thead>
+		                      <tbody>
+		                      	{% for ds in playbookList %}
+		                        <tr>
+	                        		<td>
+	                        			{{ds.id}}	
+	                        		</td>    
+	                        		<td id="playbook_{{ds.id}}">
+	                        			{{ds.playbook_name}}	
+	                        		</td>  
+	                        		<td>
+	                        			{{ds.playbook_desc}}	
+	                        		</td> 	                        		 		                                		                            					                                		                                		
+	                        		<td>
+	                        			{% for u  in assets.userList %}
+	                        				{% if u.id ==  ds.playbook_user%}
+	                        					{{u.username}}
+	                        				{% endif %}
+	                        			{% endfor %}
+	                        		</td>
+	                        		<td>
+	                        			{{ds.create_time|date:"Y/m/d H:i  "}}
+	                        		</td>	                        		
+	                        		<td>
+	                        			{{ds.update_date|date:"Y/m/d H:i  "}}
+	                        		</td>
+		                          <td class="text-center">
+			                          <div class="btn-group  btn-group-sm">
+			                            <button type="button" name="btn-playbook-edit" value="{{ds.id}}" class="btn btn-default btn-sm" aria-label="Justify"><span class="glyphicon glyphicon-play" aria-hidden="true"></span>
+			                            </button>			                          
+			                            <button type="button" name="btn-playbook-delete" value="{{ds.id}}" class="btn btn-default btn-sm" aria-label="Justify"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+			                            </button>
+			                          </div>                         
+		                          </td>
+		                        </tr>
+		                        {% endfor %}
+		                      </tbody>
+		                    </table>                          
+                        </div> 
+                   </div>
+                </div>		
+			  </div>		
+		
+              <div class="col-md-6 col-xs-12" id="add_deploy_tools" style="display:none;">
+                <div class="x_panel">
+                  <div class="x_title">
+                    <h2>部署剧本 <small>Deploy PlayBooks</small></h2>
+                    <ul class="nav navbar-right panel_toolbox">
+                      <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                      </li>
+                      <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
+                        <ul class="dropdown-menu" role="menu">
+                          <li><a href="#">Settings 1</a>
+                          </li>
+                          <li><a href="#">Settings 2</a>
+                          </li>
+                        </ul>
+                      </li>
+                      <li><a class="close-link"><i class="fa fa-close"></i></a>
+                      </li>
+                    </ul>
+                    <div class="clearfix"></div>
+                  </div>
+                  <div class="x_content">
+                     <form role="form" id="deployPlaybookRun" data-parsley-validate class="form-horizontal form-label-left">{% csrf_token %}
+						<fieldset>	
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label">剧本名称</label>
+                                <div class="col-sm-10">
+	                                <input class="form-control" name="playbook_name" id="playbook_name" required>
+                                </div>
+                            </div> 
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label">剧本描述</label>
+                                <div class="col-sm-10">
+	                                <textarea class="form-control" rows="3" id="playbook_desc" required></textarea>
+                                </div>
+                            </div>                             											
+							<div class="form-group" >			 		             
+									<label class="col-sm-2 control-label">动态主机</label>	
+									<div class="col-sm-10">
+										<select class="selectpicker form-control" data-selected-text-format="count > 5" data-live-search="true" data-width="100%" name="server_model" id="server_model">
+											<option value="" name="server_model" selected="selected">选择一个类型</option>
+											<option value="service" name="server_model">项目类型</option>		
+											<option value="inventory_groups" name="server_model">动态主机组</option>													
+											<option value="group" name="server_model">使用部门</option>	
+											<option value="tags" name="server_model">资产标签</option>
+											<option value="custom" name="server_model">自定义</option> 	
+										</select>		
+									</div>	
+							</div>	
+							<div id='project_server'  style="display:none;">
+								<div class="form-group">
+									 <label class="col-sm-2 control-label" >所属项目</label>
+									 <div class="col-sm-10">
+                                           <select class="selectpicker form-control" name="project" data-selected-text-format="count > 5" data-live-search="true" data-width="100%"  onchange="javascript:oBtProjectSelect(this);" required>
+                                           	<option name="project" value="" selected="selected">请选择一个项目</option>
+                                           </select>
+									 </div>
+								</div>										
+								<div class="form-group">
+									 <label class="col-sm-2 control-label" >业务类型</label>
+									 <div class="col-sm-10">
+                                           <select class="selectpicker form-control" name="service" data-selected-text-format="count > 5" data-live-search="true" data-width="100%"  onchange="javascript:AssetsTypeSelect(this,'service');" required>
+											<option name="service" value="" selected="selected">请选择一个应用类型</option>
+                                           </select>
+									 </div>
+								</div>	
+							</div>		
+							<div id='inventory_server'  style="display:none;">
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label" >动态主机组<i class="fa fa-info-circle" data-toggle="tooltip"  title="根据动态资产添加选择服务器"></i></label>
+                                    <div class="col-sm-10">
+	                                 <select class="selectpicker form-control" name="inventory" data-selected-text-format="count > 5" data-live-search="true" data-width="100%" onchange="javascript:oBtInventorySelect(this);">
+	                                 </select>
+                              		</div>                            		
+                                </div> 
+								<div class="form-group">
+									 <label class="col-sm-2 control-label" >资产组</label>
+									 <div class="col-sm-10">
+                                           <select class="selectpicker form-control" name="inventory_groups" data-selected-text-format="count > 5" data-live-search="true" data-width="100%"  onchange="javascript:AssetsTypeSelect(this,'inventory_group');" required>
+											<option name="inventory_groups" value="" selected="selected">请选择一个资产组</option>
+                                           </select>
+									 </div>
+								</div>                                  
+                            </div>																				
+							<div id="group_server" class="form-group" style="display:none;">
+								 <label class="col-sm-2 control-label" >使用部门</label>
+								 <div class="col-sm-10">
+                                       <select class="selectpicker form-control" name="group"  onchange="javascript:AssetsTypeSelect(this,'group');" required> 
+                                       </select>
+								 </div>
+							</div>	
+							<div id="tags_server" class="form-group" style="display:none;">
+								 <label class="col-sm-2 control-label" >资产标签</label>
+								 <div class="col-sm-10">
+                                       <select class="selectpicker form-control" name="tags"  onchange="javascript:AssetsTypeSelect(this,'tags');" required> 
+                                       </select>
+								 </div>
+							</div>																																										
+							<div id="custom_server" class="form-group" style="display:none;">
+								 <label class="col-sm-2 control-label" >服务器选择</label>
+								 <div class="col-sm-10">
+                                    <select multiple class="selectpicker form-control"  data-size="10" data-selected-text-format="count > 5" data-live-search="true" data-width="100%"   autocomplete="off"  class="form-control"   autocomplete="off" name="custom"  id="deploy_server" required>
+                                    </select>
+								 </div>
+							</div>															  
+							<div class="form-group">
+								<label class="col-sm-2 control-label" >剧本内容</label>	
+								<div class="col-sm-10">
+									<div id="compile-editor-add" class="ace_editor"></div> 	
+								</div>
+							</div>
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label" >外部变量<i class="fa fa-info-circle" data-toggle="tooltip"  title="值为json格式"></i></label>
+                                <div class="col-sm-10">
+                                	<textarea class="form-control" rows="3" id="playbook_vars" name="playbook_vars"></textarea>
+                                </div>
+                            </div>																				
+							</fieldset>																																																													
+							<legend></legend>
+							<div class="form-group">
+								<label class="col-sm-5 control-label"></label>
+		                        <input  type="hidden" class="form-control" id="ans_uuid" name="ans_uuid" value="{{assets.uuid}}">  								
+								<button type="button" class="btn btn-default btn-sm" id="save_deploy_playbook">保存</button>
+								<button type="button" class="btn btn-default btn-sm" value="" id="modf_deploy_playbook" style="display:none;">修改</button>
+								{% if perms.Deploy.can_exec_deploy_scripts %}
+						 			<button type="button"  class="btn btn-default btn-sm" value=""  id="run_deploy_playbook">执行</button>
+						 		{% else %}
+						 			<button type="button"  class="btn btn-default btn-sm"  disabled>执行</button>
+						 		{% endif %}
+					 		</div>									 		
+						</form> 
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-md-6 col-xs-12" id="add_deploy_result" style="display:none;">
+                <div class="x_panel">
+                  <div class="x_title">
+                    <h2>执行结果 <small>Results of execution</small></h2>
+                    <ul class="nav navbar-right panel_toolbox">
+                      <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                      </li>
+                      <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
+                        <ul class="dropdown-menu" role="menu">
+                          <li><a href="#">Settings 1</a>
+                          </li>
+                          <li><a href="#">Settings 2</a>
+                          </li>
+                        </ul>
+                      </li>
+                      <li><a class="close-link"><i class="fa fa-close"></i></a>
+                      </li>
+                    </ul>
+                    <div class="clearfix"></div>
+                  </div>
+                  <div class="x_content">
+					<pre class="html">
+                        <div id="result">
+                        </div>
+                    </pre>                     
+                  </div>
+                </div>
+              </div>
+            </div>        
+<div style="visibility:hidden"><a id="scrollToTop"></a></div>                        
+{% endblock %}
+{% block js-content %}
+	<script src="/static/jquery-confirm/jquery-confirm.min.js"></script>
+    <script src="/static/datatable/datatables.net/js/jquery.dataTables.min.js"></script>
+	<script src="/static/datatable/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>		
+	<script src="/static/js/deploy/deploy.js"></script>
+	<script src="/static/validator/validator.js"></script>
+{% endblock %}

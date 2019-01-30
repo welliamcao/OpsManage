@@ -5,13 +5,11 @@ from django.views.static import serve
 
 
 urlpatterns = [
-    url(r'^deploy/apply/$', views.deploy_ask), 
-    url(r'^deploy/apply/(?P<pid>[0-9]+)/$', views.deploy_apply),
-    url(r'^sql/apply/$', views.db_sqlorder_audit),
-    url(r'^file/upload/apply/$', views.file_upload_audit),
-    url(r'^file/upload/list/(?P<page>[0-9]+)/$', views.file_upload_list),
-    url(r'^file/download/apply/$', views.file_download_audit),    
-    url(r'^file/download/list/(?P<page>[0-9]+)/$', views.file_download_list),
-    url(r'^list/(?P<page>[0-9]+)/$', views.order_list),
-    url(r'^search/$', views.order_search),
+    url(r'^apply/$', views.OrderApply.as_view()), 
+#     url(r'^config/$', views.OrderConfig.as_view()), 
+    url(r'^list/$', views.OrderLists.as_view()), 
+    url(r'^sql/handle/$', views.OrderSQLHandle.as_view()),
+    url(r'^fileupload/handle/$', views.OrderFileUploadHandle.as_view()),
+    url(r'^filedownload/handle/$', views.OrderFileDwonloadHandle.as_view()),
+    url(r'^info/$', views.OrderInfo.as_view()),
 ]

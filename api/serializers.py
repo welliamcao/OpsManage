@@ -1,19 +1,34 @@
 #!/usr/bin/env python  
 # _#_ coding:utf-8 _*_  
 from rest_framework import serializers
-from OpsManage.models import *
+from asset.models import *
+from databases.models import *
+from deploy.models import *
+from orders.models import *
+from sched.models import *
+from apps.models import *
+from navbar.models import * 
 from wiki.models import *
 from orders.models import *
-from filemanage.models import *
 from django.contrib.auth.models import Group,User
-from djcelery.models  import CrontabSchedule,IntervalSchedule
+from django_celery_beat.models  import CrontabSchedule,IntervalSchedule,PeriodicTask
+from rest_framework.pagination import CursorPagination
+
+class PageConfig(CursorPagination):
+    cursor_query_param  = 'offset'
+    page_size = 20     #每页显示2个数据
+    ordering = '-id'   #排序
+    page_size_query_param = None
+    max_page_size = 20
 
 class UserSerializer(serializers.ModelSerializer):
+    date_joined = serializers.DateField(format="%Y-%m-%d %H:%M:%S")
+    last_login = serializers.DateField(format="%Y-%m-%d %H:%M:%S")
     class Meta:
         model = User
         fields = ('id','last_login','is_superuser','username',
                   'first_name','last_name','email','is_staff',
-                  'is_active','date_joined')
+                  'is_active','date_joined')       
  
 
 class ServiceSerializer(serializers.ModelSerializer):
@@ -29,7 +44,7 @@ class ProjectSerializer(serializers.ModelSerializer):
     service_assets = ServiceSerializer(many=True, read_only=True,required=False)
     class Meta:
         model = Project_Assets
-        fields = ('id','project_name','service_assets')   
+        fields = ('id','project_name','project_owner','service_assets')   
                   
 
 class GroupSerializer(serializers.ModelSerializer):
@@ -37,10 +52,23 @@ class GroupSerializer(serializers.ModelSerializer):
         model = Group
         fields = ('id','name')
           
+class TagsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Tags_Assets
+        fields = ('id','tags_name')          
+
+class CabinetSerializer(serializers.ModelSerializer):
+    zone_name = serializers.CharField(source='zone.zone_name', read_only=True)
+    zone_id = serializers.IntegerField(source='zone.id', read_only=True)
+    class Meta:
+        model = Cabinet_Assets
+        fields = ('id','cabinet_name','zone_name','zone_id')   
+
 class ZoneSerializer(serializers.ModelSerializer):
+    cabinet_assets = CabinetSerializer(many=True, read_only=True,required=False)
     class Meta:
         model = Zone_Assets
-        fields = ('id','zone_name','zone_network','zone_contact','zone_number')         
+        fields = ('id','zone_name','zone_network','zone_local','zone_contact','zone_number','cabinet_assets')            
 
 class LineSerializer(serializers.ModelSerializer):
     class Meta:
@@ -51,80 +79,28 @@ class RaidSerializer(serializers.ModelSerializer):
     class Meta:
         model = Raid_Assets
         fields = ('id','raid_name')         
-        
-# class AssetStatusSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = Assets_Satus
-#         fields = ('id','status_name') 
-        
-class CronSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Cron_Config
-        fields = ('id','cron_minute','cron_hour','cron_day',
-                  'cron_week','cron_month','cron_user',
-                  'cron_name','cron_desc','cron_server',
-                  'cron_command','cron_script','cron_status') 
-        
 
+        
+        
 class AssetsSerializer(serializers.ModelSerializer):
+    crontab_total = serializers.SerializerMethodField(read_only=True,required=False)
+    database_total = serializers.SerializerMethodField(read_only=True,required=False)
     class Meta:
         model = Assets
         fields = ('id','assets_type','name','sn','buy_time','expire_date',
                   'buy_user','management_ip','manufacturer','provider','mark',
-                  'model','status','put_zone','group','business','project')  
-                
+                  'model','status','put_zone','group','business','project',
+                  'crontab_total','database_total',)  
 
-class AssetsLogsSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Log_Assets
-        fields = ('id','assets_id','assets_user','assets_content','assets_type','create_time') 
-        
+    def get_crontab_total(self, obj):
+        return [ cron.id for cron in obj.crontab_total.all() ]  #返回列表          
+    
+    def get_database_total(self,obj):
+        return [ db.id for db in obj.database_total.all() ]  #返回列表          
 
-class ProjectConfigSerializer(serializers.ModelSerializer): 
-    project_number = serializers.StringRelatedField(many=True)
-    class Meta:
-        model = Project_Config
-        fields = ('id','project_env','project_name','project_local_command',
-                  'project_repo_dir','project_dir','project_exclude',
-                  "project_type",'project_address','project_repertory',
-                  'project_status','project_remote_command','project_user',
-                  'project_uuid','project_number')   
-
-class DeployLogsSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Log_Project_Config
-        fields = ('id','project_id','project_user','project_name',
-                  'project_content','project_branch','create_time') 
-
-class AnbiblePlaybookSerializer(serializers.ModelSerializer): 
-    server_number = serializers.StringRelatedField(many=True)
-    class Meta:
-        model =  Ansible_Playbook
-        fields = ('id','playbook_name','playbook_desc','playbook_vars',
-                  'playbook_uuid','playbook_file','playbook_auth_group',
-                  'playbook_auth_user','server_number')   
-        
-class AnsibleModelLogsSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Log_Ansible_Model
-        fields = ('id','ans_user','ans_model','ans_args',
-                  'ans_server','create_time') 
-        
-class AnsiblePlaybookLogsSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Log_Ansible_Playbook
-        fields = ('id','ans_user','ans_name','ans_content','ans_id',
-                  'ans_server','ans_content','create_time') 
-
-class CronLogsSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Log_Cron_Config
-        fields = ('id','cron_id','cron_user','cron_name','cron_content',
-                  'cron_server','create_time') 
 
 class ServerSerializer(serializers.ModelSerializer): 
     assets = AssetsSerializer(required=False)
-#     keyfile = serializers.FileField(max_length=None, use_url=True)
     class Meta:
         model = Server_Assets
         fields = ('id','ip','hostname','username','port','passwd',
@@ -132,6 +108,13 @@ class ServerSerializer(serializers.ModelSerializer):
                   'cpu_core','disk_total','ram_total','kernel',
                   'selinux','swap','raid','system','assets',
                   'sudo_passwd') 
+#         extra_kwargs = {
+#                 'username': {'required': False},
+#                 'passwd':{'required': False},
+#                 'port':{'required': False},
+#                 }  
+        
+
 
     def create(self, data):
         if(data.get('assets')):
@@ -142,6 +125,33 @@ class ServerSerializer(serializers.ModelSerializer):
         data['assets'] = assets;
         server = Server_Assets.objects.create(**data)  
         return server 
+    
+class AssetsLogsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Log_Assets
+        fields = ('id','assets_id','assets_user','assets_content','assets_type','create_time') 
+        
+
+class DeployPlaybookSerializer(serializers.ModelSerializer): 
+    server_number = serializers.StringRelatedField(many=True)
+    class Meta:
+        model =  Deploy_Playbook
+        fields = ('id','playbook_name','playbook_desc','playbook_vars',
+                  'playbook_uuid','playbook_file','playbook_auth_group',
+                  'playbook_auth_user','server_number')   
+        
+class DeployModelLogsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Log_Deploy_Model
+        fields = ('id','ans_user','ans_model','ans_args',
+                  'ans_server','create_time') 
+        
+class DeployPlaybookLogsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Log_Deploy_Playbook
+        fields = ('id','ans_user','ans_name','ans_content','ans_id',
+                  'ans_server','ans_content','create_time') 
+
            
          
 class NetworkSerializer(serializers.ModelSerializer): 
@@ -150,7 +160,8 @@ class NetworkSerializer(serializers.ModelSerializer):
         model = Network_Assets
         fields = ('id','ip','bandwidth','port_number','firmware',
                   'cpu','stone','configure_detail','assets',
-                  'port','passwd','sudo_passwd','username')    
+                  'port','passwd','sudo_passwd','username')  
+          
     def create(self, data):
         if(data.get('assets')):
             assets_data = data.pop('assets')
@@ -161,13 +172,6 @@ class NetworkSerializer(serializers.ModelSerializer):
         server = Network_Assets.objects.create(**data)  
         return server   
     
-class DeployOrderSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Project_Order
-        fields = ('id','order_project','order_subject','order_content',
-                  'order_branch','order_comid','order_tag','order_audit',
-                  'order_status','order_level','order_cancel','create_time',
-                  'order_user')   
         
 class InceptionSerializer(serializers.ModelSerializer):
     class Meta:
@@ -177,16 +181,29 @@ class InceptionSerializer(serializers.ModelSerializer):
                   'db_backup_passwd')   
 
 class OrderSerializer(serializers.ModelSerializer):
+    create_time = serializers.DateField(format="%Y-%m-%d %H:%M:%S",required=False)
+    modify_time = serializers.DateField(format="%Y-%m-%d %H:%M:%S",required=False)
     class Meta:
         model = Order_System
-        fields = ('id','order_subject','order_status','order_cancel','order_level')         
+        fields = ('id','order_subject','order_user','order_status','order_cancel',
+                  'order_type','order_level','create_time','modify_time','order_executor')
+        extra_kwargs = {
+                        'order_subject': {'required': False},
+                        'order_user':{'required': False},
+                        'order_cancel':{'required': False},
+                        'order_type':{'required': False},
+                        'order_executor':{'required': False},
+                        }                 
         
 class DataBaseServerSerializer(serializers.ModelSerializer):
+    db_service = serializers.IntegerField(source='db_assets.business', read_only=True)
+    db_project = serializers.IntegerField(source='db_assets.project', read_only=True)
     class Meta:
         model = DataBase_Server_Config
-        fields = ('id','db_env','db_name','db_host','db_user',
-                  'db_passwd','db_port','db_mark','db_service',
-                  'db_group','db_project','db_type',"db_mode")  
+        fields = ('id','db_env','db_name','db_assets_id',
+                  'db_user','db_port','db_mark','db_type',
+                  "db_mode","db_service","db_project",
+                  "db_rw")  
         
         
 class CustomSQLSerializer(serializers.ModelSerializer):
@@ -197,7 +214,112 @@ class CustomSQLSerializer(serializers.ModelSerializer):
 class HistroySQLSerializer(serializers.ModelSerializer):
     class Meta:
         model = SQL_Execute_Histroy
-        fields = ('id','exe_sql','exe_user','exec_status','exe_result')
+        fields = ('id','exe_sql','exe_user','exec_status','exe_result')        
+        
+class DeployInventorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Deploy_Inventory
+        fields = ('id','name', 'desc','user') 
+        
+
+class DeployInventoryGroupsSerializer(serializers.ModelSerializer):
+    inventory_name = serializers.CharField(source='inventory.inventory_name', read_only=True)
+    inventory_id = serializers.IntegerField(source='inventory.id', read_only=True)
+    class Meta:
+        model = Deploy_Inventory_Groups
+        fields = ('id','group_name','ext_vars','inventory_name','inventory_id')
+        
+class TaskCrontabSerializer(serializers.ModelSerializer):
+#     timezone = timezone_field.TimeZoneField(default='Asia/Shanghai')
+    class  Meta:
+        model = CrontabSchedule
+        fields = ('id','minute', 'hour','day_of_week','day_of_month','month_of_year') 
+ 
+class TaskIntervalsSerializer(serializers.ModelSerializer):
+    class  Meta:
+        model = IntervalSchedule
+        fields = ('id','every', 'period')  
+               
+class PeriodicTaskSerializer(serializers.ModelSerializer):
+    class  Meta:
+        model = PeriodicTask
+        fields = ('id','name', 'task', 'kwargs','last_run_at','total_run_count',
+                  'enabled','queue','crontab','interval','args','expires')  
+        
+class CronSerializer(serializers.ModelSerializer):
+    crontab_server = serializers.CharField(source='cron_server.server_assets.ip', read_only=True)
+    class  Meta:
+        model = Cron_Config
+        fields = ('id','cron_minute', 'cron_hour','cron_day','cron_week','cron_month',
+                  'cron_user','cron_name','cron_log_path','cron_type','cron_command',
+                  'crontab_server','cron_status'
+                  ) 
+
+class AppsNumberSerializer(serializers.ModelSerializer):
+    class  Meta:
+        model = Project_Number    
+        fields = ('id','project', 'logpath','server')           
+        
+class AppsSerializer(serializers.ModelSerializer):
+    product_name = serializers.CharField(source='project.project_name', read_only=True)
+    class  Meta:
+        model = Project_Config
+        fields = ('id','project_env', 'project_name','project_type','project_local_command','project_repo_dir',
+                  'project_exclude','project_address','project_uuid','project_repo_user','project_repo_passwd',
+                  'project_repertory','project_status','project_remote_command','project_user','project_model',
+                  'project_service','product_name'
+                  ) 
+
+class AppsRolesSerializer(serializers.ModelSerializer):
+    class  Meta:
+        model = Project_Roles    
+        fields = ('id','project', 'user','role') 
+           
+class AppsLogsSerializer(serializers.ModelSerializer):
+    project_name = serializers.CharField(source='project.project_name', read_only=True)
+    project_env = serializers.CharField(source='project.project_env', read_only=True)
+    create_time = serializers.DateField(format="%Y-%m-%d %H:%M:%S")
+    class  Meta:
+        model = Log_Project_Config
+        fields = ('id', 'project_name','user','version','status','uuid','project_env','content','create_time','type') 
+        
+class AppsLogsRecordSerializer(serializers.ModelSerializer):
+    create_time = serializers.DateField(format="%Y-%m-%d %H:%M:%S")
+    class  Meta:
+        model = Log_Project_Record
+        fields = ('id', 'key','msg','title','status','uuid','create_time')        
+         
+
+        
+class NavTypeNumberSerializer(serializers.ModelSerializer):
+    type_name = serializers.CharField(source='nav_type.type_name', read_only=True)
+    nav_type_id = serializers.IntegerField(source='nav_type.id', read_only=True)
+    class Meta:
+        model = Nav_Type_Number
+        fields = ('id','nav_name','nav_desc','type_name','nav_type_id','nav_url','nav_img')
+           
+
+
+class NavTypeSerializer(serializers.ModelSerializer):
+    nav_type_number = NavTypeNumberSerializer(many=True, read_only=True,required=False)
+    class Meta:
+        model = Nav_Type
+        fields = ('id','type_name','nav_type_number')
+
+class NavThirdNumberSerializer(serializers.ModelSerializer):
+    type_name = serializers.CharField(source='nav_third.type_name', read_only=True)
+    nav_third_id = serializers.IntegerField(source='nav_third.id', read_only=True)
+    class Meta:
+        model = Nav_Third_Number
+        fields = ('id','nav_name',"type_name",'url','nav_third_id','height','width')
+           
+
+
+class NavThirdSerializer(serializers.ModelSerializer):
+    nav_third_number = NavThirdNumberSerializer(many=True, read_only=True,required=False)
+    class Meta:
+        model = Nav_Third
+        fields = ('id','type_name','icon','nav_third_number')
         
 class TagSerializer(serializers.ModelSerializer):
     class Meta:
@@ -213,38 +335,10 @@ class CategorySerializer(serializers.ModelSerializer):
 class PostSerializer(serializers.ModelSerializer):
     class Meta:
         model = Post
-        fields = ('id','title','content','category','author')  
-
-
-class UploadFilesSerializer(serializers.ModelSerializer):
+        fields = ('id','title','content','category','author')   
+        
+class OrdersNoticeConfigSerializer(serializers.ModelSerializer):                        
     class Meta:
-        model = UploadFiles
-        fields = ('file_path', 'file_type')  
-        
-class UploadFilesOrderSerializer(serializers.ModelSerializer):
-    files = UploadFilesSerializer(many=True)
-    class Meta:
-        model = FileUpload_Audit_Order
-        fields = ('id', 'dest_path', 'dest_server',
-                  'chown_user','chown_rwx','files')  
-        
-class DownloadFilesSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = FileDownload_Audit_Order
-        fields = ('id','order_content', 'dest_server','dest_path') 
-        
-class AnsibleInventorySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Ansible_Inventory
-        fields = ('id','name', 'desc','user') 
-        
-        
-class TaskCrontabSerializer(serializers.ModelSerializer):
-    class  Meta:
-        model = CrontabSchedule
-        fields = ('id','minute', 'hour','day_of_week','day_of_month','month_of_year') 
-
-class TaskIntervalsSerializer(serializers.ModelSerializer):
-    class  Meta:
-        model = IntervalSchedule
-        fields = ('id','every', 'period')         
+        model = Order_Notice_Config
+        fields = ('id','order_type','grant_group','mode','number')     
+                            

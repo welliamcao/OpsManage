@@ -1,0 +1,289 @@
+{% extends 'base.html' %}
+{% block css-content %}
+    <link rel="stylesheet" href="/static/jquery-confirm/jquery-confirm.min.css">
+    <link rel="stylesheet" href="/static/css/bootstrap-select.css"> 
+	<script src="http://cdn.bootcss.com/ace/1.2.4/ace.js"></script>
+	<script src="http://cdn.bootcss.com/ace/1.2.4/ext-language_tools.js"></script>
+	<script src="http://cdn.bootcss.com/ace/1.2.4/ext-old_ie.js"></script>
+	<script src="http://cdn.bootcss.com/ace/1.2.4/theme-monokai.js"></script>
+	<link href="/static/fileinput/css/fileinput.css" media="all" rel="stylesheet" type="text/css" /> 
+    <link href="/static/datatable/datatables.net-buttons-bs/css/buttons.bootstrap.min.css" rel="stylesheet">
+    <link href="/static/datatable/datatables.net-fixedheader-bs/css/fixedHeader.bootstrap.min.css" rel="stylesheet">
+    <link href="/static/datatable/datatables.net-responsive-bs/css/responsive.bootstrap.min.css" rel="stylesheet">
+    <link href="/static/datatable/datatables.net-scroller-bs/css/scroller.bootstrap.min.css" rel="stylesheet"> 	  
+	<style type="text/css"> 
+		td.details-control {
+		    background: url('/static/images/details_open.png') no-repeat center center; */
+		    cursor: pointer;
+		}
+		tr.shown td.details-control {
+		    background: url('/static/images/details_close.png') no-repeat center center;
+		} 
+		#compile-editor-add {
+			width: 100%;
+			height: 200px;
+	   }	
+		#compile-editor-modf {
+			width: 100%;
+			height: 200px;
+	   }	         	
+	</style>	  
+{% endblock %}
+{% block page-content %}
+        <div class="clearfix"></div>
+		<div class="row">
+              <div class="col-md-12 col-sm-12 col-xs-12">
+                <div class="x_panel">
+                  <div class="x_title">
+                    <h2>工单申请 <small>Orders Apply</small></h2>
+                    <ul class="nav navbar-right panel_toolbox">
+                      <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                      </li>
+                      <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
+                        <ul class="dropdown-menu" role="menu">
+                          <li><a href="#">Settings 1</a>
+                          </li>
+                          <li><a href="#">Settings 2</a>
+                          </li>
+                        </ul>
+                      </li>
+                      <li><a class="close-link"><i class="fa fa-close"></i></a>
+                      </li>
+                    </ul>
+                    <div class="clearfix"></div>
+                  </div>
+                  <div class="x_content">
+                  	<!--<div class="" role="tabpanel" data-example-id="togglable-tabs"  id="add_inventory" style="display:none;">-->
+                    <div class="" role="tabpanel" data-example-id="togglable-tabs"  id="add_inventory">
+                      <ul id="myTab" class="nav nav-tabs bar_tabs" role="tablist">
+                        <li role="presentation" class="active"><a href="#tab_content1" id="#database" role="tab" data-toggle="tab" aria-expanded="true"><i class="fa fa-cubes"></i> SQL上线</a>
+                        </li>
+                        <li role="presentation" class=""><a href="#tab_content2" role="tab" id="#Inception" data-toggle="tab" aria-expanded="false"><i class="fa fa-cloud-upload"></i> 文件分发</a>
+                        </li> 
+                        <li role="presentation" class=""><a href="#tab_content3" role="tab" id="#CustomSql" data-toggle="tab" aria-expanded="false"><i class="fa fa-cloud-download"></i> 文件下载</a>
+                        </li>   
+<!--                         <li role="presentation" class=""><a href="#tab_content4" role="tab" id="#allot" data-toggle="tab" aria-expanded="false"><i class="fa fa-cogs"></i> DB分配</a>
+                        </li>  -->                                                                      
+                      </ul>
+                      <div id="myTabContent" class="tab-content">
+                        <div role="tabpanel" class="tab-pane fade active in" id="tab_content1" aria-labelledby="#database">
+							<div class="col-md-6 col-xs-12">
+								<legend>
+									<i class="fa  fa-paper-plane"></i> SQL信息
+								</legend>
+								<form role="form" method="post" id="audit_sql_order" enctype="multipart/form-data">
+										{% csrf_token %}
+										<div class="item form-group">
+		 									<label>用途<i class="fa fa-info-circle" data-toggle="tooltip" title="说明用途"></i></label>
+											<textarea class="form-control" rows="3" name="order_desc" id="order_desc"></textarea>
+		
+										</div>	
+										<div class="item form-group" >			 		             
+											<label >SQL类型: </label>	
+											<div class="btn-group btn-group-sm">												
+												<button type="button" name="sql_model_chioce" value="online" class="btn btn-default"><a>工具审核</a></button>
+												<button type="button" name="sql_model_chioce" value="human" class="btn btn-default"><a>人工审核</a></button>
+												<button type="button" name="sql_model_chioce" value="file" class="btn btn-default"><a>上传SQL</a></button>
+											</div>
+										</div> 								
+										<div class="item form-group" id="onlineSql">
+											<label>上线SQL<i class="fa fa-info-circle" data-toggle="tooltip" title="申请上线的SQL语句"></i></label>
+											<div id="compile-editor-add" class="ace_editor"></div>
+											<p class="help-block">例如：insert into tablename (xxx,xxx,xxx) values (xxx,xxx,xxx);</p>								
+										</div>	
+										<div class="item form-group" id="uploadSQL" style="display:none;">
+											<label>上传SQL<i class="fa fa-info-circle" data-toggle="tooltip" title="申请上线的SQL文件"></i></label>
+											<input type="file" class="file" id="order_file"  value="" />								
+										</div>														
+										<lable id="auditContol"><button type="button" class="btn btn-default" name="audit_sql_btn">提交</button></lable>
+										<button type="reset" class="btn btn-default">撤销</button>
+							</div>
+							<div class="hr hr32 hr-dotted"></div>
+							<div class="col-md-6 col-xs-12">
+								<legend>
+									<i class="fa  fa-paper-plane"></i> 数据库选择
+								</legend>							
+								<div class="item form-group" >			 		             
+									<label >环境类型</label>	
+									<select class="selectpicker form-control"  name="db_env" id="db_env">
+										<option name="db_env" value="" selected="selected">选择一个类型进行操作</option>
+										<option name="db_env" value="beta" >测试</option>
+										<option name="db_env" value="ga" >生产</option>
+									</select>		
+								</div>    
+							 							                                 	 	                               
+								<div class="item form-group" >			 		             
+									<label >数据库</label>	
+									<select class="selectpicker form-control"  name="order_db" id="order_db">
+										<option name="order_db" value="" selected="selected">选择一个类型进行操作</option>
+									</select>		
+								</div>							
+												
+								<div class="item form-group">
+									<label>执行人<i class="fa fa-info-circle"
+										data-toggle="tooltip" title="工单发送给谁审核执行"></i></label> 
+										<select class="selectpicker form-control" data-live-search="true" id="order_executor" name="order_executor" required> 
+											<option name="order_executor" value="">选择一个执行者</option> 
+										</select>								
+									<p class="help-block">例如：admin</p>
+								</div>
+								<div class="item form-group">
+									<label>是否备份<i class="fa fa-info-circle" data-toggle="tooltip" title="如果有配置inception,选择备份就会生效"></i></label> 
+										<select class="selectpicker form-control" data-live-search="true" id="sql_backup" name="sql_backup" required> 
+											<option value="0" selected="selected">否</option>
+											<option value="1">是</option>
+										</select>								
+								</div>								
+								</form>
+							</div>
+							<div class="hr hr32 hr-dotted"></div>
+							<br>
+							<div class="col-lg-6" id="auditResultDiv" style="display:none;">
+								<legend>
+									<i class="fa  fa-spinner  "></i> 审核结果
+								</legend>
+								<div>
+	                                <table class="table table-hover" id='auditResult'>
+					                    <thead>
+					                        <tr>
+					                            <th>#</th>
+					                            <th>SQL</th>
+					                            <th>影响行</th>
+					                            <th>错误原因</th>
+					                        </tr>
+					                	</thead>                             
+	                                </table>								
+								</div>
+							</div>						
+						<!-- /.col-lg-6 (nested) -->
+						</form>
+					</div>							
+                        <div role="tabpanel" class="tab-pane fade" id="tab_content2" aria-labelledby="#Inception">
+                        	<div id="applyFileUploadDiv">
+								<div class="col-lg-6">
+									<legend>
+										<i class="fa  fa-paper-plane"></i> 文件工单
+									</legend>
+									<form role="form" method="post" id="audit_fileupload_order" enctype="multipart/form-data">
+										{% csrf_token %}
+										<div class="item form-group">
+		 									<label><font color='red'>* </font>工单主题<i class="fa fa-info-circle" data-toggle="tooltip" title="主题"></i></label>
+											<input class="form-control" rows="3" id="fileupload_order_subject" name="fileupload_order_subject" required></input>
+										</div>								
+										<div class="item form-group">
+		 									<label><font color='red'>* </font>工单内容<i class="fa fa-info-circle" data-toggle="tooltip" title="说明用途"></i></label>
+											<textarea class="form-control" rows="3" id="order_content" name="order_content" required></textarea>
+										</div>									
+										<div class="form-group">
+											<label><font color='red'>* </font>上传文件<i class="fa fa-info-circle" data-toggle="tooltip" title="申请上传的文件"></i></label>
+											<input type="file" class="file" id="order_files" name="order_files" data-show-upload="false" data-show-caption="true" multiple  value="" required/>						
+										</div>														
+										<lable><button type="button" class="btn btn-default" id="fileuploadbtn" name="btn-fileupload-add" >上传</button></lable>
+										<button type="reset" class="btn btn-default">撤销</button>
+								</div>
+								<!-- /.col-lg-6 (nested) -->
+								<div class="hr hr32 hr-dotted"></div>
+								<div class="col-lg-6">
+									<legend>
+										<i class="fa  fa-paper-plane-o"></i> 目标服务器选择
+									</legend>  																																													
+									<div id="custom_server" class="form-group">
+										  <label><font color='red'>* </font>服务器选择</label>
+                                          <select multiple class="selectpicker form-control"  data-size="10" data-selected-text-format="count > 5" data-live-search="true" data-width="100%"   autocomplete="off"  autocomplete="off" name="custom" required>
+                                          </select>
+									</div>	
+									<div class="item form-group">
+										<label><font color='red'>* </font>上传路径<i class="fa fa-info-circle" data-toggle="tooltip" title="上传到目标服务器的路径"></i></label>
+										<input class="form-control" id="dest_path" name="dest_path" value="/usr/local/src/" required></input>
+		
+									</div>	
+									<div class="item form-group">
+										<label><font color='red'>* </font>文件宿主<i class="fa fa-info-circle" data-toggle="tooltip" title="上传文件在目标服务器的所有者"></i></label>
+										<input class="form-control" id="chown_user" name="chown_user" value="root" required></input>
+									</div>
+									<div class="item form-group">
+										<label><font color='red'>* </font>文件权限<i class="fa fa-info-circle" data-toggle="tooltip" title="上传文件在目标服务器的权限"></i></label>
+										<input class="form-control" id="chown_rwx" name="chown_rwx" value="0755" required></input>
+									</div>																															
+									<div class="form-group">
+										<label><font color='red'>* </font>授权人<i class="fa fa-info-circle"
+											data-toggle="tooltip" title="工单发送给谁授权"></i></label> 
+											<select class="form-control" data-live-search="true" id="fileupload_order_executor" name="order_executor" required> 
+												<option name="order_executor" value="">选择一个授权人</option> 
+											</select>								
+										<p class="help-block">例如：admin</p>
+									</div>
+									</form>
+								</div>	
+							</div>				
+                        </div> 
+                         <!-- CustomSql -->
+                        <div role="tabpanel" class="tab-pane fade" id="tab_content3" aria-labelledby="#CustomSql">
+                        	<div id="applyFileDownloadDiv">
+								<div class="col-lg-6">
+									<legend>
+										<i class="fa  fa-paper-plane"></i> 文件工单
+									</legend>
+									<form role="form" method="post" id="audit_filedownload_order" enctype="multipart/form-data">
+										{% csrf_token %}
+										<div class="item form-group">
+		 									<label><font color='red'>* </font>工单主题<i class="fa fa-info-circle" data-toggle="tooltip" title="主题"></i></label>
+											<input class="form-control" rows="3" id="filedownload_order_subject" name="fileupload_order_subject" required></input>
+										</div>								
+										<div class="item form-group">
+		 									<label><font color='red'>* </font>工单内容<i class="fa fa-info-circle" data-toggle="tooltip" title="说明用途"></i></label>
+											<textarea class="form-control" rows="3" id="filedownload_order_content" name="order_content" required></textarea>
+										</div>																							
+										<lable><button type="button" class="btn btn-default" id="filedownloadbtn" name="btn-filedownload-add" >提交</button></lable>
+										<button type="reset" class="btn btn-default">撤销</button>
+								</div>
+								<!-- /.col-lg-6 (nested) -->
+								<div class="hr hr32 hr-dotted"></div>
+								<div class="col-lg-6">
+									<legend>
+										<i class="fa  fa-paper-plane-o"></i> 目标服务器选择
+									</legend>  																																													
+									<div id="custom_server" class="form-group">
+										  <label><font color='red'>* </font>服务器选择</label>
+                                          <select multiple class="selectpicker form-control"  data-size="10" data-selected-text-format="count > 5" data-live-search="true" data-width="100%"   autocomplete="off"  autocomplete="off" name="custom" required>
+                                          </select>
+									</div>	
+									<div class="item form-group">
+										<label><font color='red'>* </font>下载路径<i class="fa fa-info-circle" data-toggle="tooltip" title="下载目标服务器路径下的文件"></i></label>
+										<input class="form-control" id="filedownload_dest_path" name="filedownload_dest_path" value="/usr/local/src/" required></input>
+									</div>																																
+									<div class="form-group">
+										<label><font color='red'>* </font>授权人<i class="fa fa-info-circle"
+											data-toggle="tooltip" title="工单发送给谁授权"></i></label> 
+											<select class="form-control" data-live-search="true" id="filedownload_order_executor" name="order_executor" required> 
+												<option name="order_executor" value="">选择一个授权人</option> 
+											</select>								
+										<p class="help-block">例如：admin</p>
+									</div>
+									</form>
+								</div>	
+							</div>
+                        </div>
+                         <!-- CustomSql -->
+                        <div role="tabpanel" class="tab-pane fade" id="tab_content4" aria-labelledby="#allot">						 
+                        </div>                                                 
+                    </div>                                  
+                  </div>
+                </div>
+              </div>
+        </div>                 
+{% endblock %}
+{% block js-content %}
+	<script src="/static/jquery-confirm/jquery-confirm.min.js"></script>
+    <script src="/static/datatable/datatables.net/js/jquery.dataTables.min.js"></script>
+	<script src="/static/datatable/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>	
+    <script src="/static/datatable/datatables.net-buttons/js/dataTables.buttons.min.js"></script>
+    <script src="/static/datatable/datatables.net-buttons-bs/js/buttons.bootstrap.min.js"></script>
+    <script src="/static/datatable/datatables.net-buttons/js/buttons.flash.min.js"></script>
+    <script src="/static/datatable/datatables.net-buttons/js/buttons.html5.min.js"></script>
+    <script src="/static/datatable/datatables.net-buttons/js/buttons.print.min.js"></script>  
+	<script src="/static/js/orders/apply.js"></script>
+	<script src="/static/validator/validator.js"></script>
+	<script src="/static/fileinput/js/fileinput.js" type="text/javascript"></script> 
+{% endblock %}

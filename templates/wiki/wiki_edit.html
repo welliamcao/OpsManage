@@ -1,0 +1,178 @@
+{% extends 'base.html' %}
+{% block css-content %}
+    <link rel="stylesheet" href="/static/jquery-confirm/jquery-confirm.min.css">
+    <link href="/static/datatable/datatables.net-buttons-bs/css/buttons.bootstrap.min.css" rel="stylesheet">
+    <link href="/static/datatable/datatables.net-fixedheader-bs/css/fixedHeader.bootstrap.min.css" rel="stylesheet">
+    <link href="/static/datatable/datatables.net-responsive-bs/css/responsive.bootstrap.min.css" rel="stylesheet">
+    <link href="/static/datatable/datatables.net-scroller-bs/css/scroller.bootstrap.min.css" rel="stylesheet"> 
+    <link rel="stylesheet" href="/static/css/bootstrap-select.css"> 
+	<script type="text/javascript" src="/static/ckeditor/ckeditor.js"></script>  
+{% endblock %}
+{% block page-content %}
+        <div class="clearfix"></div>
+        <div class="row">
+          
+          <div class="col-lg-8">
+            <div class="x_panel">
+              <div class="x_title">
+                <h2><i class="fa   fa-floppy-o"></i> 修改<code>Wiki</code>文章</h2>
+                <ul class="nav navbar-right panel_toolbox">
+                  <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                  </li>
+                  <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
+                    <ul class="dropdown-menu" role="menu">
+                      <li><a href="#">Settings 1</a>
+                      </li>
+                      <li><a href="#">Settings 2</a>
+                      </li>
+                    </ul>
+                  </li>
+                  <li><a class="close-link"><i class="fa fa-close"></i></a>
+                  </li>
+                </ul>
+                <div class="clearfix"></div>
+              </div>
+              <div class="x_content">
+                 <form role="form" class="main form-horizontal" novalidate>{% csrf_token %}
+					<fieldset>
+					<div class="form-group">
+						 <label class="col-sm-1 control-label">标题</label>
+						 <div class="col-sm-10">
+						 	<input type="text" class="form-control" id="title" placeholder="文章标题" value="{{article.title}}" class="input-xlarge"  required/>
+						 </div>
+					</div>										
+					<div class="form-group">
+						 <label class="col-sm-1 control-label">内容</label>
+						 <div class="col-sm-10">
+								<textarea id="content" class="ckeditor">{{article.content}}</textarea>
+						 </div>
+					</div>	
+		
+					<div class="form-group">
+						 <label class="col-sm-1 control-label">分类</label>
+						 <div class="col-sm-10">
+<!-- 						   <select   class="selectpicker form-control" name="category" id="select_category" data-live-search="true" data-size="10" data-selected-text-format="count > 3"  data-width="100%" autocomplete="off"   required>			   		
+							</select> -->
+						   <select  class="selectpicker form-control" name="category" id="select_category" data-live-search="true" data-size="10" data-selected-text-format="count > 3"  data-width="100%" autocomplete="off"     required>
+						   		<option value="" name="category" >请选择分类</option>
+						   		{% for ds in categoryList %}
+						   			{% if article.category.id == ds.id %}
+						   				<option value="{{ds.id}}" name="category" selected="selected">{{ds.name}}</option>
+						   			{% else %}
+										<option value="{{ds.id}}" name="category">{{ds.name}}</option>
+									{% endif %}
+								{% endfor %}			   		
+							</select>								
+						 </div>											 
+					</div>		
+		
+					<div class="form-group">
+						 <label class="col-sm-1 control-label">标签</label>
+						 <div class="col-sm-10 ">
+<!-- 						   <select  multiple required="required" class="selectpicker form-control" id="select_tag" data-live-search="true" data-size="10" data-selected-text-format="count > 3"  data-width="100%" autocomplete="off"  required>		   		
+							</select>	 -->	
+						   <select multiple required="required" class="selectpicker form-control" id="select_tag" data-live-search="true" data-size="10" data-selected-text-format="count > 3"  data-width="100%" autocomplete="off"    required>
+						   		<option value="">请选择标签</option>
+						   		{% for ds in tagList %}
+						   			{% if ds.id in article.tag %}
+						   				<option value="{{ds.id}}" name="tag" selected="selected">{{ds.name}}</option>
+						   			{% else %}
+										<option value="{{ds.id}}" name="tag">{{ds.name}}</option>
+									{% endif %}
+								{% endfor %}		   		
+							</select>																																		
+						 </div>		
+							 								 
+					</div>	
+					<div class="form-group">
+						<label class="col-sm-1 control-label"></label>
+						<div class="col-sm-2">
+				 		<button type="button"  class="btn btn-default" name="editWiki">提交</button>
+				 		</div>
+					</div>											
+				</form>                                                       
+              </div>
+            </div>
+          </div>                 
+        </div> 	                  
+{% endblock %}
+{% block js-content %}
+	<script src="/static/jquery-confirm/jquery-confirm.min.js"></script>
+    <script src="/static/datatable/datatables.net/js/jquery.dataTables.min.js"></script>
+	<script src="/static/datatable/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>	
+    <script src="/static/datatable/datatables.net-buttons/js/dataTables.buttons.min.js"></script>
+    <script src="/static/datatable/datatables.net-buttons-bs/js/buttons.bootstrap.min.js"></script>
+    <script src="/static/datatable/datatables.net-buttons/js/buttons.flash.min.js"></script>
+    <script src="/static/datatable/datatables.net-buttons/js/buttons.html5.min.js"></script>
+    <script src="/static/datatable/datatables.net-buttons/js/buttons.print.min.js"></script>
+	<script src="/static/validator/validator.js"></script>    
+ 	<script type="text/javascript">
+	 	CKEDITOR.replace('content', {
+	 	   filebrowserUploadUrl: '/wiki/upload/',
+	 	   height: '500px',
+	 	   width: '100%',	   
+	 	}); 
+		function getSelectValue(id){
+		    var select = document.getElementById(id);
+		    var val = [];
+		    for(i=0;i<select.length;i++){
+		        if(select.options[i].selected){
+	 	        	val.push(select[i].value); 
+		        }
+		    }
+		    return val;
+		}	 	
+	    $("button[name='editWiki']").on("click", function(){
+			tags = getSelectValue("select_tag")
+			if (tags.length == 0){
+	        	new PNotify({
+	                title: 'Ops Failed!',
+	                text: "标签类型不能为空",
+	                type: 'error',
+	                styling: 'bootstrap3'
+	            });
+				return false;
+			};    	
+			$.ajax({
+				dataType: "JSON",
+				url:'/wiki/edit/{{article.id}}/', //请求地址
+				type:"POST",  //提交类似
+				data:{
+					"title":$("#title").val(),
+					"content":CKEDITOR.instances.content.getData(),
+					"tag": tags,
+					"category": $('#select_category option:selected').val(),
+				}, //提交参数
+				success:function(response){
+	                if (response["code"]=="200"){ 
+	            		new PNotify({
+		                    title: 'Success!',
+		                    text: '修改成功',
+		                    type: 'success',
+		                    styling: 'bootstrap3'
+		                });              	
+	                 	/* location.reload();  */
+	                }
+		        	else{
+		            	new PNotify({
+		                    title: 'Ops Failed!',
+		                    text: response.responseText,
+		                    type: 'error',
+		                    styling: 'bootstrap3'
+		                });  
+		        	};					
+				},
+		    	error:function(response){
+	            	new PNotify({
+	                    title: 'Ops Failed!',
+	                    text: response.responseText,
+	                    type: 'error',
+	                    styling: 'bootstrap3'
+	                });  
+		    	}
+			})	    	
+	    })	 	
+ 	</script>
+ 	
+{% endblock %}

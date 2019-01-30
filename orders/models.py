@@ -3,10 +3,7 @@
 from __future__ import unicode_literals
 
 from django.db import models
-# from OpsManage.models import Project_Config,DataBase_Server_Config
-import sys
-reload(sys)
-sys.setdefaultencoding("utf-8")
+
 
 
 class Order_System(models.Model):
@@ -37,57 +34,43 @@ class Order_System(models.Model):
     order_executor = models.SmallIntegerField(verbose_name='工单处理人id')
     order_status = models.IntegerField(choices=STATUS,default='审核中',verbose_name='工单状态') 
     order_level = models.IntegerField(choices=LEVEL,blank=True,null=True,verbose_name='工单紧急程度')
-    order_type = models.IntegerField(choices=TYPE,verbose_name='工单类型')
+    order_type = models.SmallIntegerField(choices=TYPE,verbose_name='工单类型')
     order_cancel = models.TextField(blank=True,null=True,verbose_name='取消原因') 
     create_time = models.DateTimeField(auto_now_add=True,blank=True,null=True,verbose_name='工单发布时间')
     modify_time = models.DateTimeField(auto_now=True,blank=True,verbose_name='工单最后修改时间')
     '''自定义权限'''
     class Meta:
         db_table = 'opsmanage_order_system'
+        default_permissions = ()
         permissions = (
-            ("can_read_order_system", "读取工单系统权限"),
-            ("can_change_order_systemr", "更改工单系统权限"),
-            ("can_add_order_system", "添加工单系统权限"),
-            ("can_delete_order_system", "删除工单系统权限"),            
+            ("orders_read_order_system", "读取工单系统权限"),
+            ("orders_change_order_systemr", "更改工单系统权限"),
+            ("orders_add_order_system", "添加工单系统权限"),
+            ("orders_delete_order_system", "删除工单系统权限"),            
         )
         unique_together = (("order_subject","order_user","order_type"))
         verbose_name = '工单系统表'  
         verbose_name_plural = '工单系统表'        
 
-class Project_Order(models.Model):  
-    order = models.OneToOneField('Order_System') 
-    order_project = models.ForeignKey('OpsManage.Project_Config',related_name ='order_project',verbose_name='项目id')
-    order_content =  models.TextField(verbose_name='工单申请内容') 
-    order_branch =  models.CharField(max_length=50,blank=True,null=True,verbose_name='分支版本')
-    order_comid =  models.CharField(max_length=100,blank=True,null=True,verbose_name='版本id')
-    order_tag =  models.CharField(max_length=50,blank=True,null=True,verbose_name='标签')
-    '''自定义权限'''
-    class Meta:
-        db_table = 'opsmanage_project_order'
-        permissions = (
-            ("can_read_project_order", "读取代码部署工单权限"),
-            ("can_change_project_order", "更改代码部署工单权限"),
-            ("can_add_project_order", "添加代码部署工单限"),
-            ("can_delete_project_order", "删除代码部署工单权限"),            
-        )
-        verbose_name = '代码部署工单表'  
-        verbose_name_plural = '代码部署工单表'    
-        
+
         
         
 class SQL_Audit_Order(models.Model):
-    order = models.OneToOneField('Order_System') 
+    order = models.OneToOneField('Order_System', on_delete=models.CASCADE) 
     order_type = models.CharField(max_length=10,verbose_name='sql类型')
-    order_db = models.ForeignKey('OpsManage.DataBase_Server_Config',related_name ='order_db',verbose_name='数据库id')
+    order_db = models.ForeignKey('databases.DataBase_Server_Config',related_name ='order_db',verbose_name='数据库id', on_delete=models.CASCADE)
     order_sql =  models.TextField(verbose_name='待审核SQL内容',blank=True,null=True) 
     order_file = models.FileField(upload_to = './sql/',verbose_name='sql脚本路径')
+    order_err = models.TextField(blank=True,null=True,verbose_name='失败原因') 
+    sql_backup = models.SmallIntegerField(verbose_name='是否备份')
     class Meta:
         db_table = 'opsmanage_sql_audit_order'
+        default_permissions = ()
         permissions = (
-            ("can_read_sql_audit_order", "读取SQL审核工单权限"),
-            ("can_change_sql_audit_order", "更改SQL审核工单权限"),
-            ("can_add_sql_audit_order", "添加SQL审核工单权限"),
-            ("can_delete_sql_audit_order", "删除SQL审核工单权限"),              
+            ("orders_read_sql_audit_order", "读取SQL审核工单权限"),
+            ("orders_change_sql_audit_order", "更改SQL审核工单权限"),
+            ("orders_add_sql_audit_order", "添加SQL审核工单权限"),
+            ("orders_delete_sql_audit_order", "删除SQL审核工单权限"),              
         )
         verbose_name = 'SQL审核工单表'  
         verbose_name_plural = 'SQL审核工单表'              
@@ -99,7 +82,7 @@ class SQL_Order_Execute_Result(models.Model):
                                                                         如果备份成功，则在后面追加Backup successfully，否则追加Backup failed，这个列的返回信息是为了将结果集直接输出而设置的.
                             参考文档：http://mysql-inception.github.io/inception-document/results/                                                                
     '''
-    order = models.ForeignKey('SQL_Audit_Order',verbose_name='orderid')
+    order = models.ForeignKey('SQL_Audit_Order',verbose_name='orderid', on_delete=models.CASCADE)
     stage = models.CharField(max_length= 20)
     errlevel = models.IntegerField(verbose_name='错误信息')
     stagestatus = models.CharField(max_length=40)
@@ -113,5 +96,36 @@ class SQL_Order_Execute_Result(models.Model):
     create_time = models.DateTimeField(auto_now_add=True,db_index=True)
     class Meta:
         db_table = 'opsmanage_sql_execute_result'
+        default_permissions = ()
         verbose_name = 'SQL工单执行记录表'  
         verbose_name_plural = 'SQL工单执行记录表' 
+        
+class Order_Notice_Config(models.Model):   
+    TYPE = (
+             (0,'邮箱'),
+             (1,'微信'),         
+             (2,'钉钉'),                    
+            )
+    ORDER_TYPE = (
+         (0,'SQL审核'),
+         (1,'代码部署'),         
+         (2,'文件上传'),    
+         (3,'文件下载'),                 
+        )     
+    order_type = models.SmallIntegerField(choices=ORDER_TYPE,verbose_name='工单类型')
+    grant_group = models.SmallIntegerField(verbose_name='工单授权组')
+    mode =  models.SmallIntegerField(choices=TYPE,verbose_name='工单类型')
+    number = models.TextField(verbose_name='通知人') 
+    '''自定义权限'''
+    class Meta:
+        db_table = 'opsmanage_order_notice_config'
+        default_permissions = ()
+        permissions = (
+            ("orders_read_notice_config", "读取工单通知表权限"),
+            ("orders_change_notice_config", "更改工单通知表权限"),
+            ("orders_add_notice_config", "添加工单通知表权限"),
+            ("orders_delete_notice_config", "删除S工单通知表权限"),              
+        )        
+        unique_together = (("order_type","mode"))
+        verbose_name = '工单通知配置表'  
+        verbose_name_plural = '工单通知配置表'          

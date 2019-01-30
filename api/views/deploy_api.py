@@ -1,79 +1,204 @@
 #!/usr/bin/env python  
 # _#_ coding:utf-8 _*_
+import json
 from rest_framework import viewsets,permissions
 from api import serializers
-from OpsManage.models import *
+from deploy.models import *
+from asset.models import *
 from rest_framework import status
-from django.http import Http404
-from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
-from OpsManage.tasks.deploy import recordProject
 from django.contrib.auth.decorators import permission_required
-from rest_framework import generics
-from django.db.models import Q 
+from django.http import JsonResponse
+from utils.logger import logger
 
-@api_view(['GET', 'POST' ])
-@permission_required('OpsManage.can_add_project_config',raise_exception=True)
-def deploy_list(request,format=None):
-    """
-    List all order, or create a server assets order.
-    """
-    if request.method == 'GET':      
-        snippets = Project_Config.objects.all()
-        serializer = serializers.ProjectConfigSerializer(snippets, many=True)
-        return Response(serializer.data)  
-        
+# @api_view(['GET', 'POST' ])
+# @permission_required('deploy.deploy_read_deploy_playbook',raise_exception=True)
+# def playbook_list(request,format=None):
+#     """
+#     List all order, or create a server assets order.
+#     """
+#     if request.method == 'GET':      
+#         snippets = Deploy_Playbook.objects.all()
+#         serializer = serializers.AnbiblePlaybookSerializer(snippets, many=True)
+#         return Response(serializer.data)   
+#      
+# @api_view(['GET', 'PUT', 'DELETE'])
+# @permission_required('deploy.deploy_delete_deploy_playbook',raise_exception=True)
+# def playbook_detail(request, id,format=None):
+#     """
+#     Retrieve, update or delete a server assets instance.
+#     """
+#     try:
+#         snippet = Deploy_Playbook.objects.get(id=id)
+#     except Deploy_Playbook.DoesNotExist:
+#         return Response(status=status.HTTP_404_NOT_FOUND)
+#   
+#     if request.method == 'GET':
+#         serializer = serializers.AnbiblePlaybookSerializer(snippet)
+#         return Response(serializer.data)
+#       
+#     elif request.method == 'DELETE':
+#         if not request.user.has_perm('deploy.deploy_delete_Deploy_playbook'):
+#             return Response(status=status.HTTP_403_FORBIDDEN)
+#         snippet.delete()
+#         return Response(status=status.HTTP_204_NO_CONTENT) 
+# 
+# @api_view(['GET', 'PUT', 'DELETE'])
+# @permission_required('deploy.deploy_delete_log_deploy_model',raise_exception=True)
+# def modelLogsdetail(request, id,format=None):
+#     """
+#     Retrieve, update or delete a server assets instance.
+#     """
+#     try:
+#         snippet = Log_Deploy_Model.objects.get(id=id)
+#     except Log_Deploy_Model.DoesNotExist:
+#         return Response(status=status.HTTP_404_NOT_FOUND)
+#   
+#     if request.method == 'GET':
+#         serializer = serializers.AnsibleModelLogsSerializer(snippet)
+#         return Response(serializer.data)
+#       
+#     elif request.method == 'DELETE':
+#         if not request.user.has_perm('deploy.deploy_delete_log_Deploy_model'):
+#             return Response(status=status.HTTP_403_FORBIDDEN)
+#         snippet.delete()
+#         return Response(status=status.HTTP_204_NO_CONTENT) 
+#     
+# @api_view(['GET', 'PUT', 'DELETE'])
+# @permission_required('deploy.deploy_delete_log_deploy_playbook',raise_exception=True)
+# def playbookLogsdetail(request, id,format=None):
+#     """
+#     Retrieve, update or delete a server assets instance.
+#     """
+#     try:
+#         snippet = Log_Deploy_Playbook.objects.get(id=id)
+#     except Log_Deploy_Playbook.DoesNotExist:
+#         return Response(status=status.HTTP_404_NOT_FOUND)
+#   
+#     if request.method == 'GET':
+#         serializer = serializers.AnsiblePlaybookLogsSerializer(snippet)
+#         return Response(serializer.data)
+#       
+#     elif request.method == 'DELETE':
+#         if not request.user.has_perm('deploy.deploy_delete_log_Deploy_playbook'):
+#             return Response(status=status.HTTP_403_FORBIDDEN)
+#         snippet.delete()
+#         return Response(status=status.HTTP_204_NO_CONTENT) 
     
+
+@api_view(['GET'])
+def inventory_list(request,format=None):
+    if request.method == 'GET':
+        snippets = Deploy_Inventory.objects.all()
+        serializer = serializers.DeployInventorySerializer(snippets, many=True)
+        return Response(serializer.data)        
+    
+
 @api_view(['GET', 'PUT', 'DELETE'])
-@permission_required('OpsManage.can_read_project_config',raise_exception=True)
-def deploy_detail(request, id,format=None):
+def inventory_detail(request, id,format=None):
     """
     Retrieve, update or delete a server assets instance.
     """
     try:
-        snippet = Project_Config.objects.get(id=id)
-    except Project_Config.DoesNotExist:
+        inventory = Deploy_Inventory.objects.get(id=id)
+    except Deploy_Inventory.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
  
     if request.method == 'GET':
-        serializer = serializers.ProjectConfigSerializer(snippet)
-        return Response(serializer.data)
-     
+        source = {}
+        for ds in inventory.inventory_group.all():
+            source[ds.group_name] = {}
+            hosts = []
+            for ser in ds.inventory_group_server.all():
+                assets =  Assets.objects.get(id=ser.server)
+                if hasattr(assets,'server_assets'):hosts.append( assets.server_assets.ip)
+                elif hasattr(assets,'network_assets'):hosts.append(assets.network_assets.ip)
+            source[ds.group_name]['hosts'] = hosts
+            if ds.ext_vars:
+                try:
+                    source[ds.group_name]['vars'] = eval(ds.ext_vars)
+                except Exception as ex:
+                    source[ds.group_name]['vars'] = {}
+                    logger.warn(msg="获取资产组变量失败: {ex}".format(ex=ex))
+        return JsonResponse({"code":200,"msg":"success","data":source}) 
     elif request.method == 'DELETE':
-        if not request.user.has_perm('OpsManage.delete_project_config'):
-            return Response(status=status.HTTP_403_FORBIDDEN)
-        recordProject.delay(project_user=str(request.user),project_id=id,project_name=snippet.project.project_name,project_content="删除项目")
-        snippet.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT) 
-    
-@api_view(['GET', 'DELETE'])
-@permission_required('OpsManage.can_delete_project_config',raise_exception=True)
-def deployLogs_detail(request, id,format=None):
-    """
-    Retrieve, update or delete a server assets instance.
-    """
+        inventory.delete()
+        return JsonResponse({"code":200,"msg":"删除成功","data":None}) 
+
+@api_view(['GET', 'PUT','POST', 'DELETE'])
+# @permission_required('deploy.deploy_read_deploy_inventory',raise_exception=True)
+def deploy_inventory_groups(request, id,format=None):  
+
     try:
-        snippet = Log_Project_Config.objects.get(id=id)
-    except Log_Project_Config.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
- 
+        inventory = Deploy_Inventory.objects.get(id=id)
+    except Deploy_Inventory.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND) 
+    
+    if request.method == 'GET':        
+        dataList = []
+        for ds in inventory.inventory_group.all():
+            dataList.append({"name":ds.group_name,"id":ds.id})
+        return JsonResponse({"code":200,"msg":"success","data":dataList})  
+       
+    elif request.method == "POST":     
+        if not  request.user.has_perm('deploy.deploy_add_deploy_inventory'):
+            return Response(status=status.HTTP_403_FORBIDDEN)            
+        try:
+            ext_vars = json.dumps(eval(request.POST.get('ext_vars')))
+        except Exception as ex:
+            ext_vars = None
+            logger.error(msg="添加资产组，转化外部变量失败: {ex}".format(ex=str(ex)))
+        try:
+            inventoryGroups = Deploy_Inventory_Groups.objects.create(inventory=inventory,
+                                             group_name=request.POST.get('group_name'),
+                                             ext_vars=ext_vars)
+        except Exception as ex:
+            logger.error(msg="添加资产组失败: {ex}".format(ex=str(ex)))
+            return JsonResponse({'msg':"添加资产组失败: {ex}".format(ex=ex),"code":500,'data':[]})   
+        try:
+            for aid in request.POST.get('server_list').split(','):
+                Deploy_Inventory_Groups_Server.objects.create(groups=inventoryGroups,server=aid)
+        except Exception as ex:
+            inventoryGroups.delete()
+            logger.error(msg="添加资产组成员失败: {ex}".format(ex=str(ex)))
+            return JsonResponse({'msg':"添加资产组成员失败: {ex}".format(ex=ex),"code":500,'data':[]})    
+        return JsonResponse({'msg':"添加成功","code":200,'data':[]}) 
+
+
+@api_view(['GET', 'PUT','POST', 'DELETE'])
+def deploy_inventory_groups_query(request, id,format=None):  
+    try:
+        snippet = Deploy_Inventory_Groups.objects.get(id=id)
+    except Deploy_Inventory_Groups.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)  
+    
     if request.method == 'GET':
-        serializer = serializers.DeployLogsSerializer(snippet)
+        serializer = serializers.DeployInventoryGroupsSerializer(snippet)
         return Response(serializer.data)
-     
-    elif request.method == 'DELETE':
-        if not request.user.has_perm('OpsManage.can_delete_project_config'):
-            return Response(status=status.HTTP_403_FORBIDDEN)
-        snippet.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)     
     
-# class OrderList(generics.ListAPIView):
-#     serializer_class = serializers.DeployOrderSerializer 
-#     def get_queryset(self):
-#         user = self.request.user
-#         username = self.kwargs['username']
-#         if str(user) == str(username):
-#             return Project_Order.objects.filter(Q(order_user=user) | Q(order_audit=user),order_status__in=[0,2]).order_by("id")
-#         else:return []
-    
+@api_view(['GET', 'POST'])
+# @permission_required('deploy.deploy_add_deploy_inventory',raise_exception=True)
+def deploy_host_vars(request, id,format=None):
+    try:
+        assets = Assets.objects.get(id=id)
+    except Assets.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    if request.method == 'GET': 
+        host_vars = {}   
+        if assets.host_vars:
+            try:
+                host_vars = eval(assets.host_vars)
+            except Exception as ex:
+                return JsonResponse({'msg':"获取主机变量失败: {ex}".format(ex=ex),"code":500,'data':{}}) 
+        return JsonResponse({'msg':"查询成功","code":200,'data':host_vars})  
+    elif  request.method == 'POST': 
+        host_vars = request.data.get('host_vars',None)
+        if host_vars:
+            try:
+                host_vars = eval(request.data.get('host_vars'))
+            except Exception as ex:
+                return JsonResponse({'msg':"更新主机变量失败: {ex}".format(ex=ex),"code":500,'data':{}}) 
+        assets.host_vars = host_vars
+        assets.save()
+        return JsonResponse({'msg':"更新成功","code":200,'data':host_vars})          

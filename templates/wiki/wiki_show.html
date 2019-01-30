@@ -1,0 +1,186 @@
+{% extends 'base.html' %}
+{% block css-content %}
+<link rel="stylesheet" href="https://cdn.bootcss.com/ionicons/2.0.1/css/ionicons.min.css">
+<link rel="stylesheet" href="/static/jquery-confirm/jquery-confirm.min.css">
+<link rel="stylesheet" href="/static/css/wiki.css" >
+{% endblock %}
+{% block page-content %}
+<div class="content-body">
+     <div class="row">
+	      <div class="col-lg-12">
+	           
+	            <div class="page-title">
+	              <div class="title_left">
+	                <h3><i class="fa  fa-book  "></i>  <code>Wiki</code>文档内容</h3>
+	              </div>
+	
+	              <div class="title_right">
+	                <div class="col-md-5 col-sm-5 col-xs-12 form-group pull-right top_search">
+	                  <div class="input-group">
+	                    <input type="text" class="form-control" placeholder="Search for...">
+	                    <span class="input-group-btn">
+	                      <button class="btn btn-default" type="button">Go!</button>
+	                    </span>
+	                  </div>
+	                </div>
+	              </div>
+	            </div>           
+	      </div> 
+         <div class="col-md-8">
+           <div class="x_panel">
+             <div class="x_content">
+               <div class="row">
+                 <div class="col-md-12 col-sm-12 col-xs-12">
+					<article class="post post-{{ article.id }}">
+					        <header class="entry-header">
+					            <h1 class="entry-title">{{ article.title }}</h1>
+					            <div class="entry-meta">
+					                <span class="post-category">
+					                    <a style="text-decoration:none; color:#404040" href="/wiki/category/{{article.category.id}}">{{ article.category.name }}‧</a></span>
+					                <span class="post-date"><a style="text-decoration:none; color:#404040" href="#"><time class="entry-date"
+					                                                          datetime="{{ article.created_time }}">{{ article.created_time }}‧</time></a></span>
+					                <span class="post-author"><a style="text-decoration:none; color:#404040" href="#"> {{ article.author }}‧</a></span>
+					                {% if article.author == user or user.is_superuser %}
+					                <span class="post-author"><a style="text-decoration:none; color:#404040" href="/wiki/edit/{{article.id}}"><i class="fa  fa-edit  "></i>‧</a></span>
+					                <span class="post-author"><a style="text-decoration:none; color:#404040" href="javascript:void(0);" onclick="delWikiData(this,{{article.id}})"><i class="fa  fa-trash-o  "></i></a></span>
+									{% endif %}
+					            </div>
+					        </header>
+					        
+					        <div class="entry-content clearfix">
+					            {{ article.content|safe }}
+					            <legend></legend> 
+					            <div class="widget-tag-cloud">
+					                <ul>
+					                    {% for tag in article.tags.all %}
+					                        <li><a style="text-decoration:none; color:#404040" href="/wiki/tag/{{tag.id}}"># {{ tag.name }}</a></li>
+					                    {% endfor %}
+					                </ul>
+					            </div>
+					        </div>
+					 </article>	 
+                 </div>
+               </div>
+             </div>
+           </div>
+         </div>                 
+         <div class="col-md-4">
+           <div class="x_panel">
+              <div class="x_content">
+               <div class="row">
+                 <div class="col-md-12 col-sm-12 col-xs-12">
+	                <div class="widget widget-recent-posts">
+	                    <h3 class="widget-title">最新文章</h3>
+	                    <ul>
+	                        {% for post in postList %}
+	                            <li>
+	                                <a style="text-decoration:none; color:#404040" href="/wiki/view/{{ post.id }}/">{{ post.title }}</a>
+	                            </li>
+	                        {% empty %}
+	                           	 暂无文章！
+	                        {% endfor %}
+	                    </ul>
+	                </div>
+	                <div class="widget widget-archives">
+	                    <h3 class="widget-title">归档</h3>
+	                    <ul>
+	                        {% for date in dateList %}
+	                            <li>
+	                                <a style="text-decoration:none; color:#404040" href="/wiki/archive/{{date.cdate}}">
+	                                    {{ date.cdate }} ({{ date.count }})</a>
+	                            </li>
+	                        {% empty %}
+	                            	暂无归档！
+	                        {% endfor %}
+	                    </ul>
+	                </div>
+	
+	                <div class="widget widget-category">
+	                    <h3 class="widget-title">分类</h3>
+	                    <ul>
+	                        {% for category in categoryList %}
+	                            <li>
+	                                <a style="text-decoration:none; color:#404040" href="/wiki/category/{{  category.id }}">{{ category.name }} <span
+	                                        class="post-count">({{ category.post_count }})</span></a>
+	                            </li>
+	                        {% empty %}
+	                            	暂无分类！
+	                        {% endfor %}
+	                    </ul>
+	                </div>
+					<div class="widget widget-tag-cloud">
+						<h3 class="widget-title">标签云</h3>
+					    <div id="myCanvasContainer">
+					      <canvas width="300" height="300" id="myCanvas">
+							<ul class="list-unstyled list-inline">
+								{% for tag in tagList %}
+									<li>
+										<a href="/wiki/tag/{{tag.id}}">{{ tag.name }}</a>
+									</li>
+								{% empty %}
+									暂无标签！
+								{% endfor %}
+							</ul>					        
+					      </canvas>
+					    </div>		
+ 					</div> 
+                 </div>
+               </div>
+             </div>
+           </div>
+         </div> 
+     </div>
+</div>
+
+{% endblock %}
+{% block js-content %}
+	<script type="text/javascript" src="/static/js/tagcanvas/jquery.tagcanvas.js"></script> 	
+	<script src="/static/jquery-confirm/jquery-confirm.min.js"></script>
+	<script type="text/javascript">
+	function delWikiData(obj,id){
+		$.confirm({
+		    title: '删除确认',
+		    content:    '确认删除这篇文件？',
+		    type: 'red',
+		    buttons: {
+		        删除: function () {		       
+					$.ajax({
+						url:'/api/wiki/archive/'+id+'/',  
+						type:"DELETE",  		
+						data:{
+							"id":id,
+						}, 
+						success:function(response){
+							window.location.href='/wiki/index/'
+						},
+				    	error:function(response){
+				           	new PNotify({
+				                   title: 'Ops Failed!',
+				                   text: response.responseText,
+				                   type: 'error',
+				                   styling: 'bootstrap3'
+				               }); 
+				    	}
+					});	
+		        },
+		        取消: function () {
+		            return true;			            
+		        },			        
+		    }
+		});						   
+	}	
+	$(document).ready(function() {
+		if( ! $('#myCanvas').tagcanvas({
+		    textColour : 'dark',
+		    outlineThickness : 1,
+		    outlineColour: '#ff00ff',
+		    maxSpeed : 0.05,
+		    depth : 0.75
+		  })) {
+			console.log(1)
+		    // TagCanvas failed to load
+	 	    $('#myCanvasContainer').hide(); 
+		} 		
+	})
+	</script>	
+{% endblock %}

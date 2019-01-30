@@ -1,0 +1,991 @@
+{% extends 'base.html' %}
+{% block css-content %}
+    <link rel="stylesheet" href="/static/jquery-confirm/jquery-confirm.min.css">
+    <link href="/static/datatable/datatables.net-buttons-bs/css/buttons.bootstrap.min.css" rel="stylesheet">
+    <link href="/static/datatable/datatables.net-fixedheader-bs/css/fixedHeader.bootstrap.min.css" rel="stylesheet">
+    <link href="/static/datatable/datatables.net-responsive-bs/css/responsive.bootstrap.min.css" rel="stylesheet">
+    <link href="/static/datatable/datatables.net-scroller-bs/css/scroller.bootstrap.min.css" rel="stylesheet"> 
+    <link rel="stylesheet" href="/static/css/bootstrap-select.css"> 
+	<style type="text/css"> 
+		pre {
+			overflow: auto;
+			white-space: normal;
+			white-space: pre-wrap; /* css-3 */
+			white-space: -moz-pre-wrap; /* Mozilla, since 1999 */
+			white-space: -pre-wrap; /* Opera 4-6 */
+			white-space: -o-pre-wrap; /* Opera 7 */
+			word-wrap: break-word; /* Internet Explorer 5.5+ */
+			font-family: Consolas, monospace;
+			color: #ADFF2F;
+			background-color: #000000;
+		}	
+		td.details-control {
+		    background: url('/static/images/details_open.png') no-repeat center center; */
+		    cursor: pointer;
+		}
+		tr.shown td.details-control {
+		    background: url('/static/images/details_close.png') no-repeat center center;
+		} 
+		#compile-editor-add {
+			width: 100%;
+			height: 300px;
+	   }   		      	
+	</style>  
+{% endblock %}
+{% block page-content %}
+        <div class="clearfix"></div> 
+		<div class="row">
+          <div class="col-md-12 col-sm-12 col-xs-12">
+            <div class="x_panel">
+              <div class="x_title">
+                <h2><code>{{project.project_name}}</code>项目发布 <small>Project Release</small></h2>
+                <ul class="nav navbar-right panel_toolbox">
+                  <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                  </li>
+                  <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
+                    <ul class="dropdown-menu" role="menu">
+                      <li><a href="#">Settings 1</a>
+                      </li>
+                      <li><a href="#">Settings 2</a>
+                      </li>
+                    </ul>
+                  </li>
+                  <li><a class="close-link"><i class="fa fa-close"></i></a>
+                  </li>
+                </ul>
+                <div class="clearfix"></div>
+              </div>
+              <div class="x_content">
+              	<!--<div class="" role="tabpanel" data-example-id="togglable-tabs"  id="add_inventory" style="display:none;">-->
+                <div class="" role="tabpanel" data-example-id="togglable-tabs"  id="add_inventory">
+                  <ul id="myTab" class="nav nav-tabs bar_tabs" role="tablist">
+                    <li role="presentation" class="active"><a href="#tab_content1" id="#query" role="tab" data-toggle="tab" aria-expanded="true"><i class="fa fa-tachometer"></i> 应用评分</a>
+                    </li>
+                    <li role="presentation" class=""><a href="#tab_content2" role="tab" id="appsperformance" data-toggle="tab" aria-expanded="false"><i class="fa fa-bar-chart"></i> 应用性能</a>
+                    </li> 
+                    <li role="presentation" class=""><a href="#tab_content3" role="tab" id="#tableDDL" data-toggle="tab" aria-expanded="false"><i class="fa fa-paper-plane"></i> 代码发布</a>
+                    </li>    
+                    <li role="presentation" class=""><a href="#tab_content4" role="tab" id="deploylog" data-toggle="tab" aria-expanded="false"><i class="fa fa-paper-plane-o"></i> 发布日志</a>
+                    </li>                                      
+                    <li role="presentation" class=""><a href="#tab_content5" role="tab" id="optimize" data-toggle="tab" aria-expanded="false"><i class="fa fa-language"></i> 应用日志</a>
+                    </li>    
+                    <li role="presentation" class=""><a href="#tab_content6" role="tab" id="member" data-toggle="tab" aria-expanded="false"><i class="fa fa-users"></i> 成员管理</a>
+                    </li>                                                                   
+                  </ul>
+                  <div id="myTabContent" class="tab-content">
+                    <div role="tabpanel" class="tab-pane fade active in" id="tab_content1" aria-labelledby="#query">
+						<div class="col-md-4 col-xs-12">
+		                        <div class="panel panel-body">
+		                          <div class="x_title">
+		                            <h4>项目评分</h4>
+		                          </div>
+		                          <div class="row">
+		                            <div class="col-xs-4">
+				                      <p></p>
+				                      <br>
+				                      <br>
+				                      <input class="knob" data-width="100" data-height="120" data-min="-100" data-displayPrevious=true data-fgColor="#26B99A" value="97">
+		                            </div>
+		                            <div class="col-xs-4">
+									
+		                            </div>
+		                            <div class="col-xs-4">
+		                              <h5>达标情况</h5>
+			                          <ul class="list-unstyled project_files">
+			                            <li><a href=""><i class="fa fa-check-circle" style="color:#229954;"></i> CPU</a>
+			                            </li>
+			                            <li><a href=""><i class="fa fa-check-circle" style="color:#229954;"></i> 内存</a>
+			                            </li>
+			                            <li><a href=""><i class="fa fa-check-circle" style="color:#229954;"></i> 流入</a>
+			                            </li>
+			                            <li><a href=""><i class="fa fa-check-circle" style="color:#229954;"></i> 流出</a>
+			                            </li>	
+			                            <li><a href=""><i class="fa fa-check-circle" style="color:#229954;"></i> QPS</a>
+			                            </li>	
+			                            <li><a href=""><i class="fa fa-check-circle" style="color:#229954;"></i> 50X</a>
+			                            </li>			                            		                            		                            
+			                          </ul>	
+		                            </div>
+		                            <div class="clearfix"></div>
+		                          </div>		
+		                        </div>		
+	                    </div>
+						<div class="col-md-8 col-xs-12">
+                        <div class="panel panel-body">
+                          <div class="x_title">
+                            <h4>基础指标</h4>
+                          </div>
+
+                          <p>当前项目各项指标简述</p>
+                          <table class="table table-striped">
+                            <thead>
+                              <tr>
+                                <th style="width:20%">指标</th>
+                                <th style="width:20%">当前值</th>
+                                <th style="width:20%">百分比</th>
+                                <th style="width:70%">趋势图</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr>
+                                <td>CPU</td>
+                                <td>2.0</td>
+                                <td>8%</td>
+                                <th>
+                                  <span id="sparkline_line_cpu" class="sparkline_line" style="height: 160px;">
+                                      <canvas width="600" height="60" style="display: inline-block; vertical-align: top; width: 200px; height: 30px;"></canvas>
+                                  </span>
+                                </th>
+                                
+                              </tr>
+                              <tr>
+                              	<td>内存</td>
+                                <td>16GB</td>
+                                <td>21%</td>                              	
+                                <th>
+                                  <span id="sparkline_area_mem" class="sparkline_area" style="height: 160px;">
+                                       <canvas width="600" height="60" style="display: inline-block; vertical-align: top; width: 200px; height: 30px;"></canvas>
+                                  </span>
+                                </th>
+                                
+                              </tr>
+                              <tr>
+                                <td>流入</td>
+                                <td>30Mbps</td>
+                                <td>23%</td>                                
+                                <th>
+                                  <span id="sparkline_area_bitin" class="sparkline_area" style="height: 160px;">
+                                      <canvas width="600" height="60" style="display: inline-block; vertical-align: top; width: 200px; height: 30px;"></canvas>
+                                  </span>
+                                </th>
+                                
+                              </tr>
+                              <tr>
+                                <td>流出</td>
+                                <td>201Mbps</td>
+                                <td>19%</td>                                                               
+                                <th>
+                                  <span id="sparkline_area_bitout" class="sparkline_area" style="height: 160px;">
+                                     <canvas width="600" height="60" style="display: inline-block; vertical-align: top; width: 200px; height: 30px;"></canvas>
+                                  </span>
+                                </th>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>	
+	                    </div>	                    
+						<div class="hr hr32 hr-dotted"></div>
+					</div>
+                    <div role="tabpanel" class="tab-pane fade" id="tab_content2" aria-labelledby="appsperformance">
+		              <div class="col-md-6 col-sm-6 col-xs-12">
+		                <div class="x_panel">
+		                  <div class="x_title">
+		                    <h2>CPU <small>CPU Performance</small></h2>
+		                    <ul class="nav navbar-right panel_toolbox">
+		                      <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+		                      </li>
+		                      <li class="dropdown">
+		                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
+		                        <ul class="dropdown-menu" role="menu">
+		                          <li><a href="#">Settings 1</a>
+		                          </li>
+		                          <li><a href="#">Settings 2</a>
+		                          </li>
+		                        </ul>
+		                      </li>
+		                      <li><a class="close-link"><i class="fa fa-close"></i></a>
+		                      </li>
+		                    </ul>
+		                    <div class="clearfix"></div>
+		                  </div>
+		                  <div class="x_content2">
+		                    <div id="draw_line_cpu" style="width:100%; height:300px;"></div>
+		                  </div>
+		                </div>
+		              </div>	
+		              <!-- graph area -->
+		              <div class="col-md-6 col-sm-6 col-xs-12">
+		                <div class="x_panel">
+		                  <div class="x_title">
+		                    <h2>内存 <small>Memory Performance</small></h2>
+		                    <ul class="nav navbar-right panel_toolbox">
+		                      <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+		                      </li>
+		                      <li class="dropdown">
+		                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
+		                        <ul class="dropdown-menu" role="menu">
+		                          <li><a href="#">Settings 1</a>
+		                          </li>
+		                          <li><a href="#">Settings 2</a>
+		                          </li>
+		                        </ul>
+		                      </li>
+		                      <li><a class="close-link"><i class="fa fa-close"></i></a>
+		                      </li>
+		                    </ul>
+		                    <div class="clearfix"></div>
+		                  </div>
+		                  <div class="x_content2">
+		                    <div id="draw_line_mem" style="width:100%; height:300px;"></div>
+		                  </div>
+		                </div>
+		              </div>
+		              <!-- graph area -->
+		              <div class="col-md-6 col-sm-6 col-xs-12">
+		                <div class="x_panel">
+		                  <div class="x_title">
+		                    <h2>网络流量<small>Taffic Performance</small></h2>
+		                    <ul class="nav navbar-right panel_toolbox">
+		                      <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+		                      </li>
+		                      <li class="dropdown">
+		                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
+		                        <ul class="dropdown-menu" role="menu">
+		                          <li><a href="#">Settings 1</a>
+		                          </li>
+		                          <li><a href="#">Settings 2</a>
+		                          </li>
+		                        </ul>
+		                      </li>
+		                      <li><a class="close-link"><i class="fa fa-close"></i></a>
+		                      </li>
+		                    </ul>
+		                    <div class="clearfix"></div>
+		                  </div>
+		                  <div class="x_content2">
+		                    <div id="draw_line_taffic" style="width:100%; height:300px;"></div>
+		                  </div>
+		                </div>
+		              </div>
+		              
+		              <div class="col-md-6 col-sm-6 col-xs-12">
+		                <div class="x_panel">
+		                  <div class="x_title">
+		                    <h2>QPS <small>Nginx QPS</small></h2>
+		                    <ul class="nav navbar-right panel_toolbox">
+		                      <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+		                      </li>
+		                      <li class="dropdown">
+		                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
+		                        <ul class="dropdown-menu" role="menu">
+		                          <li><a href="#">Settings 1</a>
+		                          </li>
+		                          <li><a href="#">Settings 2</a>
+		                          </li>
+		                        </ul>
+		                      </li>
+		                      <li><a class="close-link"><i class="fa fa-close"></i></a>
+		                      </li>
+		                    </ul>
+		                    <div class="clearfix"></div>
+		                  </div>
+		                  <div class="x_content2">
+		                    <div id="draw_line_qps" style="width:100%; height:300px;"></div>
+		                  </div>
+		                </div>
+		              </div>
+		              
+		              <div class="col-md-6 col-sm-6 col-xs-12">
+		                <div class="x_panel">
+		                  <div class="x_title">
+		                    <h2>50x <small>Nginx 50x</small></h2>
+		                    <ul class="nav navbar-right panel_toolbox">
+		                      <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+		                      </li>
+		                      <li class="dropdown">
+		                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
+		                        <ul class="dropdown-menu" role="menu">
+		                          <li><a href="#">Settings 1</a>
+		                          </li>
+		                          <li><a href="#">Settings 2</a>
+		                          </li>
+		                        </ul>
+		                      </li>
+		                      <li><a class="close-link"><i class="fa fa-close"></i></a>
+		                      </li>
+		                    </ul>
+		                    <div class="clearfix"></div>
+		                  </div>
+		                  <div class="x_content2">
+		                    <div id="draw_line_50x" style="width:100%; height:300px;"></div>
+		                  </div>
+		                </div>
+		              </div>		              		              
+		              		              		              				 
+                    </div> 
+                    <div role="tabpanel" class="tab-pane fade" id="tab_content3" aria-labelledby="#tableDDL">
+		              <!-- graph area -->
+		              <div class="col-md-4 col-sm-5 col-xs-12">
+		                <div class="x_panel">
+		                  <div class="x_title">
+		                    <h2>代码发布 <small>Deploy Project</small></h2>
+		                    <ul class="nav navbar-right panel_toolbox">
+		                      <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+		                      </li>
+		                      <li class="dropdown">
+		                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
+		                        <ul class="dropdown-menu" role="menu">
+		                          <li><a href="#">Settings 1</a>
+		                          </li>
+		                          <li><a href="#">Settings 2</a>
+		                          </li>
+		                        </ul>
+		                      </li>
+		                      <li><a class="close-link"><i class="fa fa-close"></i></a>
+		                      </li>
+		                    </ul>
+		                    <div class="clearfix"></div>
+		                  </div>
+		                  <div class="x_content2">
+		                     <form role="form" id="deployRun" data-parsley-validate class="form-horizontal form-label-left">{% csrf_token %}					
+									<div class="form-group" >			 		             
+											<label class="col-sm-2 control-label">项目名称</label>	
+											<div class="col-sm-6">
+												<input id="project_name" type="text"  class="form-control" placeholder="输入模块参数" name="project_name" value="{{project.project_name}}" disabled>	
+											</div>	
+									</div>	
+									<div  class="form-group">
+										 <label class="col-sm-2 control-label" >服务器选择</label>
+										 <div class="col-sm-6">
+		                                          <select multiple class="selectpicker form-control"  data-size="10" data-selected-text-format="count > 5" data-live-search="true" data-width="100%"   autocomplete="off"  class="form-control"   autocomplete="off" name="server"  id="deploy_server" required>
+		                                          	{% for ds in project_data.number %}
+		                                          		<option name="server" value="{{ds.server}}">{{ds.ip}}</option>
+		                                          	{% endfor %}
+		                                          </select>
+										 </div>
+									</div>																																																																
+		                            <input  type="hidden"   class="form-control"  name="type" value="deploy">
+		                            <input  type="hidden"   class="form-control"  name="id" value="{{project.id}}">
+		                            <input  type="hidden"   class="form-control"  id="desc" name="desc" value="">
+		                            <input  type="hidden"   class="form-control"  id="ans_uuid" name="ans_uuid" value="{{assets.uuid}}">
+<!-- 		                            <input  type="hidden"   class="form-control"  name="project_uuid" value="{{project.project_uuid}}">	 -->										
+									{% if project.project_model == 'branch' and project.project_repertory == 'git' %}																
+									<div class="form-group">
+										 <label class="col-sm-2 control-label">分支</label>
+										 <div class="col-sm-6">
+										   <select class="form-control" name="project_branch"  id="branch_choice">	
+										   			<option selected="selected" value="" name="project_branch" >请选择分支</option>									   			
+													{% for ds in project_data.bList %}
+														<option value="{{ds.name}}"  name="project_branch">{{ds.value}}</option>
+<!-- 														{% if ds.status == 1 %}
+															<option value="{{ds.name}}" selected="selected" name="project_branch">{{ds.value}}</option>
+														{% else %}
+															<option value="{{ds.name}}" name="project_branch">{{ds.value}}</option>
+														{% endif %} -->
+													{% endfor %}							   		
+											</select>							 	
+										 </div>
+									</div>													
+									
+									<div class="form-group">
+										 <label class="col-sm-2 control-label">版本选择</label>
+										 <div class="col-sm-6">
+										   <select class="form-control" name="project_version" id="project_version" >					   		
+											</select>	
+										</div>
+									</div>
+									{% elif project.project_model == 'tag' and  project.project_repertory == 'git' %}
+									<div class="form-group">
+										 <label class="col-sm-2 control-label">标签</label>
+										 <div class="col-sm-6">
+										   <select class="form-control" name="project_branch"  id="git_project_branch">
+										   		<option value="" name="project_branch">请选择Tag</option>
+													{% for ds in project_data.bList %}
+														<option value="{{ds.name}}" name="project_branch">{{ds.value}}</option>
+													{% endfor %}							   		
+											</select>							 	
+										 </div>
+									</div>	
+									{% else %}
+									<div class="form-group" style="display: none;">
+										 <label class="col-sm-2 control-label">分支</label>
+										 <div class="col-sm-6">
+										   <select class="form-control" name="project_branch">
+												<option value="trunk" {% if project.project_model == 'trunk' and  project.project_repertory == 'svn' %} selected="selected" {% endif %} name="project_branch">trunk</option>	
+												<option value="branch"  name="project_branch" {% if project.project_model == 'branch' and  project.project_repertory == 'svn' %} selected="selected" {% endif %} >branch</option>			
+												<option value="tags"  name="project_branch" {% if project.project_model == 'tag' and  project.project_repertory == 'svn' %} selected="selected" {% endif %} >tags</option>		   		
+											</select>							 	
+										 </div>
+									</div>													
+										
+										<div class="form-group">
+											 <label class="col-sm-2 control-label">版本选择</label>
+											 <div class="col-sm-6">
+											   <select class="form-control" name="project_version" id="project_version" >
+											   		<option selected="selected" value="" name="project_version" >请选择版本</option>
+														{% for ds in project_data.vList %}
+															<option value="{{ds.comid}}" name="project_version">{{ds.ver}} - {{ds.desc}} - {{ds.user}} </option>
+														{% endfor %}						   		
+												</select>	
+											</div>
+										</div>																							
+									{% endif %}													
+									<legend></legend>
+									<div class="form-group">
+										<label class="col-sm-4 control-label"></label>
+										<button type="reset"  class="btn btn-default btn-sm" >撤销</button>
+								 		<button type="button"  class="btn btn-default btn-sm"  id ="btn-deploy-project">执行</button>
+							 		</div>									 		
+								</form> 		                    
+		                  </div>
+		                </div>
+		              </div>
+		              <div class="col-md-8 col-xs-12">
+		                <div class="x_panel">
+		                  <div class="x_title">
+		                    <h2>部署结果 <small>Results of deploy</small></h2>
+		                    <ul class="nav navbar-right panel_toolbox">
+		                      <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+		                      </li>
+		                      <li class="dropdown">
+		                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
+		                        <ul class="dropdown-menu" role="menu">
+		                          <li><a href="#">Settings 1</a>
+		                          </li>
+		                          <li><a href="#">Settings 2</a>
+		                          </li>
+		                        </ul>
+		                      </li>
+		                      <li><a class="close-link"><i class="fa fa-close"></i></a>
+		                      </li>
+		                    </ul>
+		                    <div class="clearfix"></div>
+		                  </div>
+		                  <div class="x_content">
+			                  <ul class="list-unstyled timeline">
+			                    <li id="pull_code_block" style="display: none;">
+			                      <div class="block">
+			                        <div class="tags">
+			                          <a href="" class="tag">
+			                            <span>获取代码</span>
+			                          </a>
+			                        </div>
+			                        <div class="block_content">
+			                          <h2 class="title">
+			                             <a>【获取指定版本代码】</a><span class="right"><i class="fa fa-check-circle" style="color:#229954;"></i></span>
+			                          </h2>
+			                          <div class="byline">
+			                            <span id="pull_code_ctime">13 hours ago</span> by <a id="pull_code_user">Jane Smith</a>
+			                          </div>
+			                          <div id="pull_code_result" name="deploy_result"></div>
+			                        </div>
+			                      </div>
+			                    </li>
+			                    <li id="dep_code_block" style="display: none;">
+			                      <div class="block">
+			                        <div class="tags">
+			                          <a href="" class="tag">
+			                            <span>编译代码</span>
+			                          </a>
+			                        </div>
+			                        <div class="block_content">
+			                          <h2 class="title">
+			                             <a>【执行编译命令脚本】</a><span class="right"><i class="fa fa-check-circle" style="color:#229954;"></i></span>
+			                          </h2>
+			                          <div class="byline">
+			                            <span id="dep_code_ctime">13 hours ago</span> by <a id="dep_code_user">Jane Smith</a>
+			                          </div>
+			                          <div id="dep_code_result" name="deploy_result"></div>
+			                        </div>
+			                      </div>
+			                    </li>			                    
+			                    <li id="pack_code_block" style="display: none;">
+			                      <div class="block">
+			                        <div class="tags">
+			                          <a href="" class="tag">
+			                            <span>打包代码</span>
+			                          </a>
+			                        </div>
+			                        <div class="block_content">
+			                          <h2 class="title">
+			                              <a>【打包指定版本代码】</a><span class="right"><i class="fa fa-check-circle" style="color:#229954;"></i></span>
+			                          </h2>
+			                          <div class="byline">
+			                            <span id="pack_code_ctime">13 hours ago</span> by <a id="pack_code_user">Jane Smith</a>
+			                          </div>
+			                          <div id="pack_code_result" name="deploy_result"></div>
+			                        </div>
+			                      </div>
+			                    </li>
+			                    <li id="rsync_code_block" style="display: none;">
+			                      <div class="block">
+			                        <div class="tags">
+			                          <a href="" class="tag">
+			                            <span>同步代码</span>
+			                          </a>
+			                        </div>
+			                        <div class="block_content">
+			                          <h2 class="title">
+			                               <a>【同步指定版本代码】</a><span class="right"><i class="fa fa-check-circle" style="color:#229954;"></i></span>
+			                          </h2>
+			                          <div class="byline">
+			                            <span id="rsync_code_ctime">13 hours ago</span> by <a id="rsync_code_user">Jane Smith</a>
+			                          </div>
+			                          <div id="rsync_code_result" name="deploy_result"></div>
+			                        </div>
+			                      </div>
+			                    </li>	
+			                    <li id="cmd_code_block" style="display: none;">
+			                      <div class="block">
+			                        <div class="tags">
+			                          <a href="" class="tag">
+			                            <span>远程命令</span>
+			                          </a>
+			                        </div>
+			                        <div class="block_content">
+			                          <h2 class="title">
+			                              <a>【执行部署配置命令】</a><span class="right"><i class="fa fa-check-circle" style="color:#229954;"></i></span>
+			                          </h2>
+			                          <div class="byline">
+			                            <span id="cmd_code_ctime">13 hours ago</span> by <a id="cmd_code_user">Jane Smith</a>
+			                          </div>
+			                          <div id="cmd_code_result" name="deploy_result"></div>
+			                        </div>
+			                      </div>
+			                    </li>			                    		                    
+			                  </ul>                    
+		                  </div>
+		                </div>
+		              </div>		              			 
+                    </div>           
+                    
+                    <div role="tabpanel" class="tab-pane fade" id="tab_content4" aria-labelledby="deploylog">
+
+		              <div class="col-md-12 col-xs-12">
+		                <div class="x_panel">
+		                  <div class="x_title">
+		                    <h2>发布日志<small>Release Record</small></h2>
+		                    <ul class="nav navbar-right panel_toolbox">
+		                      <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+		                      </li>
+		                      <li class="dropdown">
+		                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
+		                        <ul class="dropdown-menu" role="menu">
+		                          <li><a href="#">Settings 1</a>
+		                          </li>
+		                          <li><a href="#">Settings 2</a>
+		                          </li>
+		                        </ul>
+		                      </li>
+		                      <li><a class="close-link"><i class="fa fa-close"></i></a>
+		                      </li>
+		                    </ul>
+		                    <div class="clearfix"></div>
+		                  </div>
+		                  <div class="x_content">
+		                  		<div class="row">	
+									<div class="btn-group  btn-group-sm pull-right">
+				                        <button class="btn btn-default" name="page_previous" type="button" value="">上一页</button>
+				                        <button class="btn btn-default" name="page_next" type="button" value="">下一页</button>
+			                      	</div>
+			                      	
+		                      	</div>
+		                      	<br>
+		                      	<div class="row">							           
+				                    <table id="deployResultList" class="table table-hover">
+				                      <thead>
+				                        <tr>
+							                <th>ID</th>
+							                <th>环境</th>
+							                <th>项目名称</th>
+							                <th class="text-center">操作类型</th>
+							                <th>操作员</th>
+							                <th>版本</th>
+							                <th>内容</th>	
+							                <th>操作时间</th>				                
+							                <th class="text-center">状态</th>
+											<th class="text-center">操作</th>
+				                        </tr>
+				                      </thead>
+				                      <tbody>
+				                      </tbody>
+				                    </table>   
+			                    </div>	       
+		                  </div>
+		                </div>
+		              </div>
+                    </div>                    
+                              
+                     <!-- CustomSql -->
+                    <div role="tabpanel" class="tab-pane fade" id="tab_content5" aria-labelledby="optimize">
+		              <div class="col-md-4 col-sm-5 col-xs-12">
+		                <div class="x_panel">
+		                  <div class="x_title">
+		                    <h2>应用日志 <small>Deploy Project</small></h2>
+		                    <ul class="nav navbar-right panel_toolbox">
+		                      <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+		                      </li>
+		                      <li class="dropdown">
+		                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
+		                        <ul class="dropdown-menu" role="menu">
+		                          <li><a href="#">Settings 1</a>
+		                          </li>
+		                          <li><a href="#">Settings 2</a>
+		                          </li>
+		                        </ul>
+		                      </li>
+		                      <li><a class="close-link"><i class="fa fa-close"></i></a>
+		                      </li>
+		                    </ul>
+		                    <div class="clearfix"></div>
+		                  </div>
+		                  <div class="x_content2">
+		                     <form role="form" id="deployRunLogs" data-parsley-validate class="form-horizontal form-label-left">{% csrf_token %}					
+
+									<div  class="form-group">
+										 <label class="col-sm-2 control-label" >服务器选择</label>
+										 <div class="col-sm-6">
+		                                          <select  class="selectpicker form-control"  data-size="10" data-selected-text-format="count > 5" data-live-search="true" data-width="100%"   autocomplete="off"  class="form-control"   autocomplete="off" name="server" id="server"  required>
+		                                          </select>
+										 </div>
+									</div>
+									<div  class="form-group">
+										<label class="col-sm-2 control-label" >日志文件</label>
+										<div class="col-sm-6">
+		                                          <select  class="selectpicker form-control"  data-size="10" data-selected-text-format="count > 5" data-live-search="true" data-width="100%"   autocomplete="off"  class="form-control"   autocomplete="off" name="log_path" id="logpath"    required>
+		                                          </select>
+										</div>
+									</div>									
+									<div class="form-group">
+										 <label class="col-sm-2 control-label">关键词</label>
+										 <div class="col-sm-6">											
+											<input  type="text"   class="form-control" placeholder="过滤关键词" name="keywords" value="">
+										</div>
+									</div> 																																																																									
+		                            <input  type="hidden"   class="form-control"  name="type" value="viewLogs">
+		                            <input  type="hidden"   class="form-control"  name="id" value="{{project.id}}">									
+													
+									<legend></legend>
+									<div class="form-group">
+										<label class="col-sm-4 control-label"></label>
+										<button type="reset"  class="btn btn-default btn-sm" >撤销</button>
+								 		<button type="button"  class="btn btn-default btn-sm"  id ="btn-deploy-logview">查看</button>
+							 		</div>									 		
+								</form> 		                    
+		                  </div>
+		                </div>
+		              </div>
+		              <div class="col-md-8 col-xs-12">
+		                <div class="x_panel">
+		                  <div class="x_title">
+		                    <h2>运行日志 <small>Results of deploy</small></h2>
+		                    <ul class="nav navbar-right panel_toolbox">
+		                      <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+		                      </li>
+		                      <li class="dropdown">
+		                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
+		                        <ul class="dropdown-menu" role="menu">
+		                          <li><a href="#">Settings 1</a>
+		                          </li>
+		                          <li><a href="#">Settings 2</a>
+		                          </li>
+		                        </ul>
+		                      </li>
+		                      <li><a class="close-link"><i class="fa fa-close"></i></a>
+		                      </li>
+		                    </ul>
+		                    <div class="clearfix"></div>
+		                  </div>
+		                  <div class="x_content">
+	                         <div id="viewLogsResult">
+	                        </div>                   				
+		                  </div>
+		                </div>
+		              </div>                                                                              
+                    </div>    
+                             
+                    <div role="tabpanel" class="tab-pane fade" id="tab_content6" aria-labelledby="member">
+                    	<div class="col-md-12 col-xs-12">	
+		                    <table id="deployRolesList" class="table table-hover">
+		                      <thead>
+		                        <tr>
+					                <th>ID</th>
+					                <th>用户名</th>
+					                <th>邮箱</th>
+					                <th class="text-center">角色</th>
+									<th class="text-center">操作</th>
+		                        </tr>
+		                      </thead>
+		                      <tbody>
+		                      </tbody>
+		                    </table> 	
+	                    </div>					                                                                             
+                    </div>                               
+                                          
+                </div>                                  
+              </div>
+            </div>                                
+          </div>             
+        </div> 
+              
+
+        <div class="modal fade bs-example-modal-info"   id="AssetsModal" tabindex="-1" role="dialog" aria-hidden="true">
+          <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span>
+                </button>
+                <h4 class="modal-title" id="myModalLabel">部署日志流水</h4>
+              </div>
+              <div class="modal-body">
+                  <ul class="list-unstyled timeline">
+                    <li id="pull_code_record_block" style="display: none;">
+                      <div class="block">
+                        <div class="tags">
+                          <a href="" class="tag">
+                            <span>获取代码</span>
+                          </a>
+                        </div>
+                        <div class="block_content">
+                          <h2 class="title">
+                             <a>【获取指定版本代码】</a><span class="right"><i class="fa fa-check-circle" style="color:#229954;"></i></span>
+                          </h2>
+                          <div class="byline">
+                            <span id="pull_code_record_ctime">13 hours ago</span> by <a id="pull_code_record_user">Jane Smith</a>
+                          </div>
+                          <div id="pull_code_record_result" name="deploy_record_result"></div>
+                        </div>
+                      </div>
+                    </li>
+                    <li id="rollback_code_record_block" style="display: none;">
+                      <div class="block">
+                        <div class="tags">
+                          <a href="" class="tag">
+                            <span>回滚代码</span>
+                          </a>
+                        </div>
+                        <div class="block_content">
+                          <h2 class="title">
+                             <a>【回滚指定版本代码】</a><span class="right"><i class="fa fa-check-circle" style="color:#229954;"></i></span>
+                          </h2>
+                          <div class="byline">
+                            <span id="rollback_code_record_ctime">13 hours ago</span> by <a id="rollback_code_record_user">Jane Smith</a>
+                          </div>
+                          <div id="rollback_code_record_result" name="deploy_record_result"></div>
+                        </div>
+                      </div>
+                    </li>                    
+                    <li id="dep_code_record_block" style="display: none;">
+                      <div class="block">
+                        <div class="tags">
+                          <a href="" class="tag">
+                            <span>编译代码</span>
+                          </a>
+                        </div>
+                        <div class="block_content">
+                          <h2 class="title">
+                             <a>【执行编译命令脚本】</a><span class="right"><i class="fa fa-check-circle" style="color:#229954;"></i></span>
+                          </h2>
+                          <div class="byline">
+                            <span id="dep_code_record_ctime">13 hours ago</span> by <a id="dep_code_record_user">Jane Smith</a>
+                          </div>
+                          <div id="dep_code_record_result" name="deploy_record_result"></div>
+                        </div>
+                      </div>
+                    </li>			                    
+                    <li id="pack_code_record_block" style="display: none;">
+                      <div class="block">
+                        <div class="tags">
+                          <a href="" class="tag">
+                            <span>打包代码</span>
+                          </a>
+                        </div>
+                        <div class="block_content">
+                          <h2 class="title">
+                              <a>【打包指定版本代码】</a><span class="right"><i class="fa fa-check-circle" style="color:#229954;"></i></span>
+                          </h2>
+                          <div class="byline">
+                            <span id="pack_code_record_ctime">13 hours ago</span> by <a id="pack_code_record_user">Jane Smith</a>
+                          </div>
+                          <div id="pack_code_record_result" name="deploy_record_result"></div>
+                        </div>
+                      </div>
+                    </li>
+                    <li id="rsync_code_record_block" style="display: none;">
+                      <div class="block">
+                        <div class="tags">
+                          <a href="" class="tag">
+                            <span>同步代码</span>
+                          </a>
+                        </div>
+                        <div class="block_content">
+                          <h2 class="title">
+                               <a>【同步指定版本代码】</a><span class="right"><i class="fa fa-check-circle" style="color:#229954;"></i></span>
+                          </h2>
+                          <div class="byline">
+                            <span id="rsync_code_record_ctime">13 hours ago</span> by <a id="rsync_code_record_user">Jane Smith</a>
+                          </div>
+                          <div id="rsync_code_record_result" name="deploy_record_result"></div>
+                        </div>
+                      </div>
+                    </li>	
+                    <li id="cmd_code_record_block" style="display: none;">
+                      <div class="block">
+                        <div class="tags">
+                          <a href="" class="tag">
+                            <span>远程命令</span>
+                          </a>
+                        </div>
+                        <div class="block_content">
+                          <h2 class="title">
+                              <a>【执行部署配置命令】</a><span class="right"><i class="fa fa-check-circle" style="color:#229954;"></i></span>
+                          </h2>
+                          <div class="byline">
+                            <span id="cmd_code_record_ctime">13 hours ago</span> by <a id="cmd_code_record_user">Jane Smith</a>
+                          </div>
+                          <div id="cmd_code_record_result" name="deploy_record_result"></div>
+                        </div>
+                      </div>
+                    </li>			                    		                    
+                  </ul> 
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              </div>
+
+            </div>
+          </div>
+        </div>	
+
+
+        <div class="modal fade bs-example-modal-rollback"   tabindex="-1" role="dialog" aria-hidden="true">
+          <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span>
+                </button>
+                <h4 class="modal-title" id="rollbackTitle">代码回滚</h4> 
+              </div>
+              <div class="modal-body">
+                  <ul class="list-unstyled timeline">
+                    <li id="rollback_code_block_rb" style="display: none;">
+                      <div class="block">
+                        <div class="tags">
+                          <a href="" class="tag">
+                            <span>回滚代码</span>
+                          </a>
+                        </div>
+                        <div class="block_content">
+                          <h2 class="title">
+                             <a>【回滚指定版本代码】</a><span class="right"><i class="fa fa-check-circle" style="color:#229954;"></i></span>
+                          </h2>
+                          <div class="byline">
+                            <span id="rollback_code_ctime">13 hours ago</span> by <a id="rollback_code_user_rb">Jane Smith</a>
+                          </div>
+                          <div id="rollback_code_result_rb" name="deploy_result"></div>
+                        </div>
+                      </div>
+                    </li>		                    
+                    <li id="rsync_code_block_rb" style="display: none;">
+                      <div class="block">
+                        <div class="tags">
+                          <a href="" class="tag">
+                            <span>同步代码</span>
+                          </a>
+                        </div>
+                        <div class="block_content">
+                          <h2 class="title">
+                               <a>【同步指定版本代码】</a><span class="right"><i class="fa fa-check-circle" style="color:#229954;"></i></span>
+                          </h2>
+                          <div class="byline">
+                            <span id="rsync_code_ctime_rb">13 hours ago</span> by <a id="rsync_code_user_rb">Jane Smith</a>
+                          </div>
+                          <div id="rsync_code_result_rb" name="deploy_result"></div>
+                        </div>
+                      </div>
+                    </li>	
+                    <li id="cmd_code_block_rb" style="display: none;">
+                      <div class="block">
+                        <div class="tags">
+                          <a href="" class="tag">
+                            <span>远程命令</span>
+                          </a>
+                        </div>
+                        <div class="block_content">
+                          <h2 class="title">
+                              <a>【执行部署配置命令】</a><span class="right"><i class="fa fa-check-circle" style="color:#229954;"></i></span>
+                          </h2>
+                          <div class="byline">
+                            <span id="cmd_code_ctime">13 hours ago</span> by <a id="cmd_code_user_rb">Jane Smith</a>
+                          </div>
+                          <div id="cmd_code_result_rb" name="deploy_result"></div>
+                        </div>
+                      </div>
+                    </li>			                    		                    
+                  </ul> 
+              </div>
+              <div class="modal-footer">
+              	<button type="button" id="btn-rollback-project" class="btn btn-primary" value="">回滚</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+              </div>
+
+            </div>
+          </div>
+        </div>
+           
+
+        <div class="modal fade bs-example-modal-role"   id="AssetsModal" tabindex="-1" role="dialog" aria-hidden="true">
+          <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span>
+                </button>
+                <h4 class="modal-title" id="myModalLabel">添加成员</h4>
+              </div>
+              <div class="modal-body">
+                   <form role="form" id="addAppsRole" data-parsley-validate class="form-horizontal form-label-left">{% csrf_token %}
+					<fieldset>	
+																																																																
+					<div  class="item form-group">
+						 <label class="col-sm-3 control-label" >用户</label>
+						 <div class="col-sm-6">
+                                   <select  required="required" class="selectpicker form-control"  data-size="10" data-selected-text-format="count > 5" data-live-search="true" data-width="100%"   autocomplete="off"  class="form-control" name="user"  id="apps_role"  required>
+                                   </select>
+						 </div>
+					</div>	
+					<div  class="item form-group">
+						 <label class="col-sm-3 control-label" >角色</label>
+						 <div class="col-sm-6">
+                              <select  required="required" class="selectpicker form-control"  data-size="10" data-selected-text-format="count > 5" data-live-search="true" data-width="100%"   autocomplete="off"  class="form-control" name="role"    required>
+                                   	<option name="role" value="deploy" selected="selected">开发人员</option>
+									<option name="role" value="deploy">管理人员</option>
+                              </select>
+						 </div>
+					</div>							
+					<input  type="hidden"   class="form-control"  name="project" value="{{project.id}}">														
+					</fieldset>							 		
+				</form> 
+              </div>
+              <div class="modal-footer">
+              	<button type="button" id="btn-role-project" class="btn btn-primary" value="">添加</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              </div>
+
+            </div>
+          </div>
+        </div>	           
+                                 
+{% endblock %}
+{% block js-content %}
+	<script src="/static/jquery-confirm/jquery-confirm.min.js"></script>
+    <script src="/static/datatable/datatables.net/js/jquery.dataTables.min.js"></script>
+	<script src="/static/datatable/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>	
+    <script src="/static/datatable/datatables.net-buttons/js/dataTables.buttons.min.js"></script>
+    <script src="/static/datatable/datatables.net-buttons-bs/js/buttons.bootstrap.min.js"></script>
+    <script src="/static/datatable/datatables.net-buttons/js/buttons.flash.min.js"></script>
+    <script src="/static/datatable/datatables.net-buttons/js/buttons.html5.min.js"></script>
+    <script src="/static/datatable/datatables.net-buttons/js/buttons.print.min.js"></script>	
+	<script src="/static/validator/validator.js"></script>
+	<!-- jQuery Sparklines -->
+    <script src="/static/jquery-sparkline/dist/jquery.sparkline.min.js"></script>
+    <!-- jQuery Knob -->
+    <script src="/static/jquery-knob/dist/jquery.knob.min.js"></script> 
+    <!-- morris.js -->
+    <script src="/static/raphael/raphael.min.js"></script>
+    <script src="/static/morris.js/morris.min.js"></script>
+    <script src="/static/js/apps/status.js"></script>  
+{% endblock %}

@@ -9,7 +9,6 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import permission_required
 
 @api_view(['GET', 'POST' ])
-@permission_required('OpsManage.add_user',raise_exception=True)
 def user_list(request,format=None):
     """
     List all order, or create a server assets order.
@@ -19,6 +18,8 @@ def user_list(request,format=None):
         serializer = serializers.UserSerializer(snippets, many=True)
         return Response(serializer.data)     
     elif request.method == 'POST':
+        if not request.user.has_perm('OpsManage.add_user'):
+            return Response(status=status.HTTP_403_FORBIDDEN)        
         serializer = serializers.UserSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()

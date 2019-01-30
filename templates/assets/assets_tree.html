@@ -1,0 +1,208 @@
+{% extends 'base.html' %}
+{% block css-content %}
+    <link rel="stylesheet" href="/static/jquery-confirm/jquery-confirm.min.css">
+    <link rel="stylesheet" href="/static/jstree/css/style.min.css" />
+    <link href="/static/css/doublebox-bootstrap.css" rel="stylesheet"> 
+    <link rel="stylesheet" href="/static/xterm/xterm.css"/>
+	<style type="text/css"> 	
+		.assets-online{
+		    color:green;
+		}
+		.assets-offline{
+		    color:red;
+		}	
+        .modal-select{
+            -moz-user-select:none;/*火狐*/
+            -webkit-user-select:none;/*webkit浏览器*/
+            -ms-user-select:none;/*IE10*/
+            -khtml-user-select:none;/*早期浏览器*/
+            user-select:none;
+            }
+          .modal-header{
+            cursor:move;
+          }			
+	</style>     
+{% endblock %}
+{% block page-content %}
+        <div class="clearfix"></div>
+        
+            <div class="row">
+              <div class="col-md-12">
+                <div class="x_panel">
+                  <div class="x_title">
+                    <h2>业务资产树<small>Assets Tree</small></h2>
+                    <ul class="nav navbar-right panel_toolbox">
+                      <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                      </li>
+                      <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
+                        <ul class="dropdown-menu" role="menu">
+                          <li><a href="#">Settings 1</a>
+                          </li>
+                          <li><a href="#">Settings 2</a>
+                          </li>
+                        </ul>
+                      </li>
+                      <li><a class="close-link"><i class="fa fa-close"></i></a>
+                      </li>
+                    </ul>
+                    <div class="clearfix"></div>
+                  </div>
+                  <div class="x_content">
+                    <div class="row">
+                      <div class="col-sm-3 mail_list_column"> 
+                      <input id="search-input" type="text" class="form-control" placeholder="检索关键词...">   
+                      <!-- <span class="section"></span>  -->
+					  <legend></legend>                
+                      <div id="projectTree"></div>                                     
+                      </div>
+                      <!-- /MAIL LIST -->
+
+                      <!-- CONTENT MAIL -->
+                      <div class="col-sm-9 mail_view">
+                        <div class="inbox-body" id="assets_info">
+
+                        </div>
+                      </div>
+                      <!-- /CONTENT MAIL -->
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>        
+
+                  <div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static" style="width:auto; height:auto;">
+                    <div class="modal-dialog modal-lg">
+                      <div class="modal-content">
+
+                        <div class="modal-header">
+							<div class="btn-group  btn-group-sm">
+		                        <button class="btn btn-default" type="button" name="monitor_half_hour" value="">最近半小时</button>
+		                        <button class="btn btn-default" type="button" name="monitor_one_hour" value="">最近1小时</button>
+		                        <button class="btn btn-default" type="button" name="monitor_six_hour" value="">最近6小时</button>
+		                        <button class="btn btn-default" type="button" name="monitor_one_day" value="">最近1天</button>
+	                      	</div>	
+                          <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span></button>	                      	                      									                                        
+                        </div>
+                        <div class="modal-body">                       
+		                  <ul class="list-unstyled timeline">
+		                    <li>
+		                      <div class="block">
+		                        <div class="tags">
+		                          <a href="" class="tag">
+		                            <span>CPU</span>
+		                          </a>
+		                        </div>
+		                        <div class="block_content">
+		                           <div id="draw_line_cpu" style="width:100%; height:300px;"></div>
+		                        </div>
+		                      </div>
+		                    </li>
+		                    <li>
+		                      <div class="block">
+		                        <div class="tags">
+		                          <a href="" class="tag">
+		                            <span>内存</span>
+		                          </a>
+		                        </div>
+		                        <div class="block_content">
+		                          <div id="draw_line_mem" style="width:100%; height:300px;"></div>
+		                        </div>
+		                      </div>
+		                    </li>			                    
+		                    <li>
+		                      <div class="block">
+		                        <div class="tags">
+		                          <a href="" class="tag">
+		                            <span>流量</span>
+		                          </a>
+		                        </div>
+		                        <div class="block_content">
+		                          <div id="draw_line_taffic" style="width:100%; height:300px;"></div>
+		                        </div>
+		                      </div>
+		                    </li>
+		                    <li>
+		                      <div class="block">
+		                        <div class="tags">
+		                          <a href="" class="tag">
+		                            <span>磁盘I/O</span>
+		                          </a>
+		                        </div>
+		                        <div class="block_content">
+		                          <div id="draw_line_disk" style="width:100%; height:300px;"></div>
+		                        </div>
+		                      </div>
+		                    </li>				                    		                    
+		                  </ul> 
+                        </div>
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        </div>
+
+                      </div>
+                    </div>
+                  </div>
+                  
+		        <div class="modal fade bs-example-modal-tags-info"  tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static">  
+		          <div class="modal-dialog modal-lg">
+		            <div class="modal-content">
+		
+		              <div class="modal-header">
+		                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span>
+		                </button>
+		                <h4 class="modal-title" id="myModalLabel">标签分类</h4>
+		              </div>
+		              <div class="modal-body ue-container">
+		              
+						 <select multiple="multiple" size="10" name="doublebox" class="demo">
+					        </select>
+		
+		              </div>
+		              <div class="modal-footer">
+		                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+		                <button type="button" id="taggroupsubmit" value=""  class="btn btn-primary">保存</button>
+		              </div>
+		
+		            </div>
+		          </div>
+		        </div>  
+		        
+		        <div class="modal fade bs-example-modal-webssh-info"  tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static" data-keyboard="false">  
+		          <div class="modal-dialog modal-lg" style="width:1290px;height: 600px">
+		            <div class="modal-content">
+		
+		              <div class="modal-header">
+		                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span>
+		                </button>
+		                <h4 class="modal-title" id="myWebsshModalLabel">WebSSH</h4>
+		              </div>
+		              <div class="modal-body">
+						<div id="webssh_tt"  style="width:800px;" >
+						    </div>	
+		              </div>
+		              <div class="modal-footer">
+		                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+		                <button type="button" id="websshConnect" value=""  class="btn btn-primary">连接</button>
+		              </div>
+		
+		            </div>
+		          </div>
+		        </div>		                        
+                      
+{% endblock %}
+{% block js-content %}
+	<script type="text/javascript" src="/static/js/tagcanvas/jquery.tagcanvas.js"></script>    
+	<script src="/static/jquery-confirm/jquery-confirm.min.js"></script>
+	<script src="/static/validator/validator.js"></script>
+	<script src="/static/jstree/js/jstree.min.js"></script>
+    <!-- morris.js -->
+    <script src="/static/raphael/raphael.min.js"></script>
+    <script src="/static/morris.js/morris.min.js"></script>
+	<script src="/static/js/assets/tree.js"></script>
+	<script src="/static/js/doublebox/doublebox-bootstrap.js"></script>
+	<script src="/static/xterm/xterm.js"></script>
+  	<script src="/static/xterm/addons/fit/fit.js"></script>
+ 	<script src="/static/xterm/addons/fullscreen/fullscreen.js"></script> 
+	<script src="/static/js/dragable/dragable.js"></script> 	
+{% endblock %}

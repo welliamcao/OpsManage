@@ -1,0 +1,255 @@
+{% extends 'base.html' %}
+{% block css-content %}
+    <link rel="stylesheet" href="/static/jquery-confirm/jquery-confirm.min.css">
+    <link rel="stylesheet" href="/static/css/bootstrap-select.css"> 
+	<link href="/static/fileinput/css/fileinput.css" media="all" rel="stylesheet" type="text/css" /> 
+    <link href="/static/datatable/datatables.net-buttons-bs/css/buttons.bootstrap.min.css" rel="stylesheet">
+    <link href="/static/datatable/datatables.net-fixedheader-bs/css/fixedHeader.bootstrap.min.css" rel="stylesheet">
+    <link href="/static/datatable/datatables.net-responsive-bs/css/responsive.bootstrap.min.css" rel="stylesheet">
+    <link href="/static/datatable/datatables.net-scroller-bs/css/scroller.bootstrap.min.css" rel="stylesheet"> 	 
+    <link rel="stylesheet" href="/static/tooltips/css/tooltips.css">   
+	<style type="text/css"> 
+		td.details-control {
+		    background: url('/static/images/details_open.png') no-repeat center center; */
+		    cursor: pointer;
+		}
+		.pt {
+			font-family: "微软雅黑","Microsoft Yahei",Arial,Helvetica,sans-serif,"宋体";
+		    font-size: 13px;
+			color: #515151;
+		}			
+		tr.shown td.details-control {
+		    background: url('/static/images/details_close.png') no-repeat center center;
+		} 
+		#compile-editor-add {
+			width: 100%;
+			height: 200px;
+	   }	
+		#compile-editor-modf {
+			width: 100%;
+			height: 200px;
+	   }	         	
+	</style>	  
+{% endblock %}
+{% block page-content %}
+        <div class="clearfix"></div>
+		<div class="row">
+              <div class="col-md-12 col-sm-12 col-xs-12">
+                <div class="x_panel">
+                  <div class="x_title">
+                    <h2>用户中心<small>User Center</small></h2>
+                    <ul class="nav navbar-right panel_toolbox">
+                      <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                      </li>
+                      <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
+                        <ul class="dropdown-menu" role="menu">
+                          <li><a href="#">Settings 1</a>
+                          </li>
+                          <li><a href="#">Settings 2</a>
+                          </li>
+                        </ul>
+                      </li>
+                      <li><a class="close-link"><i class="fa fa-close"></i></a>
+                      </li>
+                    </ul>
+                    <div class="clearfix"></div>
+                  </div>
+                  <div class="x_content">
+                  	<!--<div class="" role="tabpanel" data-example-id="togglable-tabs"  id="add_inventory" style="display:none;">-->
+                    <div class="" role="tabpanel" data-example-id="togglable-tabs"  id="add_inventory">
+                      <ul id="myTab" class="nav nav-tabs bar_tabs" role="tablist">
+                        <li role="presentation" class="active"><a href="#tab_content1" id="#database" role="tab" data-toggle="tab" aria-expanded="true"><i class="fa fa-tasks"></i> 我的工单</a>
+                        </li>
+                        <li role="presentation" class=""><a href="#tab_content2" role="tab" id="#Inception" data-toggle="tab" aria-expanded="false"><i class="fa fa-desktop"></i> 我的资产</a>
+                        </li> 
+                        <li role="presentation" class=""><a href="#tab_content3" role="tab" id="#CustomSql" data-toggle="tab" aria-expanded="false"><i class="fa fa fa-eye"></i> 密码修改</a>
+                        </li>   
+<!--                         <li role="presentation" class=""><a href="#tab_content4" role="tab" id="#allot" data-toggle="tab" aria-expanded="false"><i class="fa fa-cogs"></i> DB分配</a>
+                        </li>  -->                                                                      
+                      </ul>
+                      <div id="myTabContent" class="tab-content">
+	                        <div role="tabpanel" class="tab-pane fade active in" id="tab_content1" aria-labelledby="#database">
+								<div class="col-md-12 col-xs-12">
+				                	<div class="row">	
+										<div class="btn-group  btn-group-sm pull-right">
+					                        <button class="btn btn-default" name="page_previous" type="button" value="">上一页</button>
+					                        <button class="btn btn-default" name="page_next" type="button" value="">下一页</button>
+					                        <input type="hidden" id="currentUser" name="custId" value="{{user.id}}">
+					                    </div>
+				                    </div>
+				                    <br>
+				                    <div class="row">							           
+					                    <table id="ordersLists" class="table table-hover">
+					                      <thead>
+					                        <tr>
+					                        	<th class="text-center">详情</th>
+								                <th>ID</th>
+								                <th>工单类型</th>
+								                <th>申请人</th>
+								                <th>工单主题</th>
+								                <th>操作人</th>
+								                <th>申请时间</th>
+								                <th>状态</th>	
+								                <th>操作时间</th>				                
+												<th class="text-center">操作</th>
+					                        </tr>
+					                      </thead>
+					                      <tbody>
+					                      </tbody>
+					                    </table>   
+				                   </div>
+								</div>	
+						</div>							
+                        <div role="tabpanel" class="tab-pane fade" id="tab_content2" aria-labelledby="#Inception">
+							<div class="col-md-12 col-xs-12">
+			                    <table id="assetsListTable" class="table table-striped table-bordered">
+			                      <thead>
+			                        <tr>
+			                          <th class="text-center">详情</th>
+			                          <th class="text-center"><input type="checkbox" id="checkAll"  onclick="checkAllBox()" class="flat"></th>
+			                          <th class="text-center">资产ID</th>                        
+			                          <th class="column-title">所属项目</th>
+			                          <th>应用类型</th>
+			                          <th>IP地址</th>
+			                          <th>操作系统</th>
+			                          <th>内核版本</th>
+			                          <th>CPU</th>
+			                          <th>内存(GB)</th>
+			                          <th>硬盘(GB)</th>                   
+			                          <th>放置区域</th>
+			                          <th class="text-center">操作</th>
+			                        </tr>
+			                      </thead>
+			                      <tbody>
+			                      </tbody>
+			                    </table>							
+							</div>	
+                        </div> 
+                         <!-- CustomSql -->
+                        <div role="tabpanel" class="tab-pane fade" id="tab_content3" aria-labelledby="#CustomSql">
+							<div class="col-lg-4">
+								<legend>
+									<i class="fa  fa-paper-plane"></i> 修改密码
+								</legend>
+								<form role="form" method="post" id="modf_user_passwd">	
+									<div class="item form-group">
+										<label><i class="fa fa-lock">密码</i></label>
+										<input type="password" class="form-control" placeholder="Password" id="password" name="password" />									
+									</div>
+									<div class="item form-group">
+										<label><i class="fa fa-retweet">密码</i></label>
+										<input type="password" class="form-control" placeholder="Repeat password" id="c_password" name="c_password"/>
+										<input type="hidden" id="userid" value="{{user.id}}">										
+									</div>																
+																																						
+									<lable><button type="button" value="" class="btn btn-default" id="modf_user_pw_btn">修改</button></lable>
+									<button type="reset" class="btn btn-default">撤销</button>
+								</form>
+							 </div>	
+							 <div class="col-lg-8">															 	
+							 </div>
+                        </div>
+                         <!-- CustomSql -->
+                        <div role="tabpanel" class="tab-pane fade" id="tab_content4" aria-labelledby="#allot">
+					 
+                        </div>                                                 
+                    </div>                                  
+                  </div>
+                </div>
+              </div>        
+        </div>  
+        
+        <div class="modal fade bs-example-modal-info"   id="AssetsModal" tabindex="-1" role="dialog" aria-hidden="true">
+          <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span>
+                </button>
+                <h4 class="modal-title" id="myModalLabel"></h4>
+              </div>
+              <div class="modal-body">
+				  <ul class="list-unstyled timeline" id="assets_info">
+					<li>
+					  <div class="block">
+						<div class="tags">
+						  <a href="" class="tag">
+							<span>基础信息</span>
+						  </a>
+						</div>
+						<div class="block_content">
+						  <h2 class="title">
+										  <a>Who Needs Sundance When You’ve Got&nbsp;Crowdfunding?</a>
+									  </h2>
+						  <div class="byline">
+							<span>13 hours ago</span> by <a>Jane Smith</a>
+						  </div>
+						  <p class="excerpt">Film festivals used to be do-or-die moments for movie makers. They were where you met the producers that could fund your project, and if the buyers liked your flick, they’d pay to Fast-forward and… <a>Read&nbsp;More</a>
+						  </p>
+						</div>
+					  </div>
+					</li>
+					<li>
+					  <div class="block">
+						<div class="tags">
+						  <a href="" class="tag">
+							<span>硬件信息</span>
+						  </a>
+						</div>
+						<div class="block_content">
+						  <h2 class="title">
+										  <a>Who Needs Sundance When You’ve Got&nbsp;Crowdfunding?</a>
+									  </h2>
+						  <div class="byline">
+							<span>13 hours ago</span> by <a>Jane Smith</a>
+						  </div>
+						  <p class="excerpt">Film festivals used to be do-or-die moments for movie makers. They were where you met the producers that could fund your project, and if the buyers liked your flick, they’d pay to Fast-forward and… <a>Read&nbsp;More</a>
+						  </p>
+						</div>
+					  </div>
+					</li>
+					<li>
+					  <div class="block">
+						<div class="tags">
+						  <a href="" class="tag">
+							<span>网卡信息</span>
+						  </a>
+						</div>
+						<div class="block_content">
+						  <h2 class="title">
+										  <a>Who Needs Sundance When You’ve Got&nbsp;Crowdfunding?</a>
+									  </h2>
+						  <div class="byline">
+							<span>13 hours ago</span> by <a>Jane Smith</a>
+						  </div>
+						  <p class="excerpt">Film festivals used to be do-or-die moments for movie makers. They were where you met the producers that could fund your project, and if the buyers liked your flick, they’d pay to Fast-forward and… <a>Read&nbsp;More</a>
+						  </p>
+						</div>
+					  </div>
+					</li>
+				  </ul>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              </div>
+
+            </div>
+          </div>
+        </div>        
+                       
+{% endblock %}
+{% block js-content %}
+	<script src="/static/jquery-confirm/jquery-confirm.min.js"></script>
+    <script src="/static/datatable/datatables.net/js/jquery.dataTables.min.js"></script>
+	<script src="/static/datatable/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>	
+    <script src="/static/datatable/datatables.net-buttons/js/dataTables.buttons.min.js"></script>
+    <script src="/static/datatable/datatables.net-buttons-bs/js/buttons.bootstrap.min.js"></script>
+    <script src="/static/datatable/datatables.net-buttons/js/buttons.flash.min.js"></script>
+    <script src="/static/datatable/datatables.net-buttons/js/buttons.html5.min.js"></script>
+    <script src="/static/datatable/datatables.net-buttons/js/buttons.print.min.js"></script>  
+    <script src="/static/tooltips/js/jquery.pure.tooltips.js"></script>	
+	<script src="/static/js/orders/list.js"></script>
+	<script src="/static/js/users/center.js"></script>
+	<script src="/static/validator/validator.js"></script>
+{% endblock %}

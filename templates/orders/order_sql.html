@@ -1,0 +1,172 @@
+{% extends 'base.html' %}
+{% block css-content %}
+    <link rel="stylesheet" href="/static/jquery-confirm/jquery-confirm.min.css">
+    <link rel="stylesheet" href="/static/css/bootstrap-select.css"> 
+	<script src="http://cdn.bootcss.com/ace/1.2.4/ace.js"></script>
+	<script src="http://cdn.bootcss.com/ace/1.2.4/ext-language_tools.js"></script>
+	<script src="http://cdn.bootcss.com/ace/1.2.4/ext-old_ie.js"></script>
+	<script src="http://cdn.bootcss.com/ace/1.2.4/theme-monokai.js"></script>
+	<link href="/static/fileinput/css/fileinput.css" media="all" rel="stylesheet" type="text/css" />   
+	<style type="text/css"> 
+		td.details-control {
+		    background: url('/static/images/details_open.png') no-repeat center center; */
+		    cursor: pointer;
+		}
+		tr.shown td.details-control {
+		    background: url('/static/images/details_close.png') no-repeat center center;
+		} 
+		#compile-editor-add {
+			width: 100%;
+			height: 200px;
+	   }	
+		#compile-editor-modf {
+			width: 100%;
+			height: 200px;
+	   }	         	
+	</style>	  
+{% endblock %}
+{% block page-content %}
+        <div class="clearfix"></div>
+		<div class="row">
+              <div class="col-md-12 col-sm-12 col-xs-12">
+                <div class="x_panel">
+                  <div class="x_title">
+                    <h2>工单处理 <small>Orders Handle</small></h2>
+                    <ul class="nav navbar-right panel_toolbox">
+                      <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                      </li>
+                      <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
+                        <ul class="dropdown-menu" role="menu">
+                          <li><a href="#">Settings 1</a>
+                          </li>
+                          <li><a href="#">Settings 2</a>
+                          </li>
+                        </ul>
+                      </li>
+                      <li><a class="close-link"><i class="fa fa-close"></i></a>
+                      </li>
+                    </ul>
+                    <div class="clearfix"></div>
+                  </div>
+                  <div class="x_content">
+
+						<div class="row">
+							<div class="col-md-6 col-xs-12">
+								<legend>
+									<i class="fa  fa-paper-plane"></i> SQL信息
+								</legend>
+								<form role="form" method="post" id="audit_sql_order" enctype="multipart/form-data" class="main form-horizontal">
+										{% csrf_token %}
+										<div class="item form-group">
+		 									<label>用途<i class="fa fa-info-circle" data-toggle="tooltip" title="说明用途"></i></label>
+											<textarea class="form-control" rows="3" name="order_desc" id="order_desc"></textarea>
+										</div>									
+										<div class="item form-group" id="onlineSql">
+											<label>上线SQL<i class="fa fa-info-circle" data-toggle="tooltip" title="申请上线的SQL语句"></i></label>
+											<div id="compile-editor-add" class="ace_editor"></div>
+											<p class="help-block">例如：insert into tablename (xxx,xxx,xxx) values (xxx,xxx,xxx);</p>								
+										</div>	
+										<div class="item form-group">
+		 									<label>工单状态<i class="fa fa-info-circle" data-toggle="tooltip" title="工单状态"></i></label>
+											<span id="order_status"></span>
+										</div>																								
+										<lable id="auditContol"><button type="button" class="btn btn-default" id="audit_sql_btn" name="audit_sql_btn" disabled>执行</button></lable>
+										
+							</div>
+							<div class="hr hr32 hr-dotted"></div>
+							<div class="col-md-6 col-xs-12">
+								<legend>
+									<i class="fa  fa-paper-plane"></i> 数据库选择
+								</legend>							
+								<div class="item form-group" >			 		             
+									<label >环境类型</label>	
+									<select class="selectpicker form-control"  name="db_env" id="db_env">
+										<option name="db_env" value="" selected="selected">选择一个类型进行操作</option>
+										<option name="db_env" value="beta" >测试</option>
+										<option name="db_env" value="ga" >生产</option>
+									</select>		
+								</div>    
+							 							                                 	 	                               
+								<div class="item form-group" >			 		             
+									<label >数据库</label>	
+									<select class="selectpicker form-control"  name="order_db" id="order_db">
+										<option name="order_db" value="" selected="selected">选择一个类型进行操作</option>
+									</select>		
+								</div>							
+												
+								<div class="item form-group">
+									<label>执行人<i class="fa fa-info-circle"
+										data-toggle="tooltip" title="工单发送给谁审核执行"></i></label> 
+										<select class="selectpicker form-control" data-live-search="true" id="order_executor" name="order_executor" required> 
+											<option name="order_executor" value="">选择一个执行者</option> 
+										</select>								
+									<p class="help-block">例如：admin</p>
+								</div>
+								<div class="item form-group">
+									<label>是否备份<i class="fa fa-info-circle" data-toggle="tooltip" title="如果有配置inception,选择备份就会生效"></i></label> 
+										<select class="selectpicker form-control" data-live-search="true" id="sql_backup" name="sql_backup" required> 
+											<option value="0" selected="selected">否</option>
+											<option value="1">是</option>
+										</select>								
+								</div>								
+								</form>
+							</div>
+							<div class="col-lg-6" id="auditResultDiv" style="display:none;">
+							<legend></legend>								
+									<div style="display:none;" id="hasPsc">
+										<legend>
+											<i  class="fa  fa-spinner"></i> 执行进度:<code id="osc_percent">100%</code>&nbsp;&nbsp;&nbsp;&nbsp;剩余时间：<code id="osc_time">00:00</code>&nbsp;&nbsp;&nbsp;&nbsp;
+											<div class="btn-group btn-group-xs pull-right">
+												<button type="button" class="btn btn-success btn-xs" id="stop_osc" disabled>终止</button>
+											</div>
+											<div class="form-group" id="osc_per">							
+												<div class="progress progress_sm">
+		                              				<div class="progress-bar bg-green" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 1%;"></div>
+		                            			</div>		
+											</div>	
+										</legend>
+									</div>																				
+								<legend>
+									<i class="fa  fa-history"></i> SQL执行结果 
+								</legend>
+								<div>
+	                                <table class="table table-hover" id='auditResult'>
+					                    <thead>
+					                        <tr>
+					                            <th>#</th>
+					                            <th>SQL</th>
+					                            <th>影响行</th>
+					                            <th>错误原因</th>
+					                        </tr>
+					                	</thead>                             
+	                                </table>								
+								</div>
+							</div>	
+							<div class="col-lg-6"></div>
+							<div class="col-lg-6" id="auditRollbackDiv" style="display:none;">
+								<legend></legend>
+								<legend>
+									<i class="fa  fa-retweet"></i> SQL回滚语句 
+								</legend>
+								
+								<div id='auditRollback'>
+								
+								</div>
+							</div>													
+							<!-- /.col-lg-6 (nested) -->
+							<div class="hr hr32 hr-dotted"></div>
+						</div>
+   
+                  </div>
+              </div>
+        </div> 
+       </div>                 
+{% endblock %}
+{% block js-content %}
+	<script src="/static/jquery-confirm/jquery-confirm.min.js"></script>
+    <script src="/static/datatable/datatables.net/js/jquery.dataTables.min.js"></script>
+	<script src="/static/datatable/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>	
+	<script src="/static/js/orders/sql.js">
+	<script src="/static/validator/validator.js"></script>
+{% endblock %}

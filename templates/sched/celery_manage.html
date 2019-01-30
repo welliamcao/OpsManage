@@ -1,0 +1,415 @@
+{% extends 'base.html' %}
+{% block css-content %}
+    <link rel="stylesheet" href="/static/jquery-confirm/jquery-confirm.min.css">
+    <link href="/static/datatable/datatables.net-buttons-bs/css/buttons.bootstrap.min.css" rel="stylesheet">
+    <link href="/static/datatable/datatables.net-fixedheader-bs/css/fixedHeader.bootstrap.min.css" rel="stylesheet">
+    <link href="/static/datatable/datatables.net-responsive-bs/css/responsive.bootstrap.min.css" rel="stylesheet">
+    <link href="/static/datatable/datatables.net-scroller-bs/css/scroller.bootstrap.min.css" rel="stylesheet"> 
+    <link rel="stylesheet" href="/static/css/bootstrap-select.css"> 
+	<style type="text/css"> 
+		pre {
+			overflow: auto;
+			white-space: normal;
+			white-space: pre-wrap; /* css-3 */
+			white-space: -moz-pre-wrap; /* Mozilla, since 1999 */
+			white-space: -pre-wrap; /* Opera 4-6 */
+			white-space: -o-pre-wrap; /* Opera 7 */
+			word-wrap: break-word; /* Internet Explorer 5.5+ */
+			font-family: Consolas, monospace;
+			color: #ADFF2F;
+			background-color: #000000;
+		}	
+		td.details-control {
+		    background: url('/static/images/details_open.png') no-repeat center center; */
+		    cursor: pointer;
+		}
+		tr.shown td.details-control {
+		    background: url('/static/images/details_close.png') no-repeat center center;
+		} 
+		#compile-editor-add {
+			width: 100%;
+			height: 300px;
+	   }   		      	
+	</style>  
+{% endblock %}
+{% block page-content %}
+        <div class="clearfix"></div> 
+        
+		<div class="row">
+          <div class="col-md-12 col-sm-12 col-xs-12">
+            <div class="x_panel">
+              <div class="x_title">
+                <h2>Celery调度配置 <small>Celery Schedule Config</small></h2>
+                <ul class="nav navbar-right panel_toolbox">
+                  <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                  </li>
+                  <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
+                    <ul class="dropdown-menu" role="menu">
+                      <li><a href="#">Settings 1</a>
+                      </li>
+                      <li><a href="#">Settings 2</a>
+                      </li>
+                    </ul>
+                  </li>
+                  <li><a class="close-link"><i class="fa fa-close"></i></a>
+                  </li>
+                </ul>
+                <div class="clearfix"></div>
+              </div>
+              <div class="x_content">
+              	<!--<div class="" role="tabpanel" data-example-id="togglable-tabs"  id="add_inventory" style="display:none;">-->
+                <div class="" role="tabpanel" data-example-id="togglable-tabs"  id="add_inventory">
+                  <ul id="myTab" class="nav nav-tabs bar_tabs" role="tablist">
+                    <li role="presentation" class="active"><a href="#tab_content1" id="#query" role="tab" data-toggle="tab" aria-expanded="true"><i class="fa fa-calendar"></i> 调度类型</a>
+                    </li>
+                    <li role="presentation" class=""><a href="#tab_content2" role="tab" id="#Binglog" data-toggle="tab" aria-expanded="false"><i class="fa fa-tasks"></i> 间隔类型</a>
+                    </li> 
+                    <li role="presentation" class=""><a href="#tab_content3" role="tab" id="#tableDDL" data-toggle="tab" aria-expanded="false"><i class="fa fa-bar-chart"></i> 任务列表</a>
+                    </li>                     
+                    <li role="presentation" class=""><a href="#tab_content4" role="tab" id="#optimize" data-toggle="tab" aria-expanded="false"><i class="fa fa-area-chart"></i> 任务日志</a>
+                    </li>                                                 
+                  </ul>
+                  <div id="myTabContent" class="tab-content">
+                    <div role="tabpanel" class="tab-pane fade active in" id="tab_content1" aria-labelledby="#query">
+						<div class="col-md-12 col-xs-12">
+		                  <div class="product_price">
+			                  	<!-- <button type="button" class="btn btn-xs btn-default" data-toggle="modal" data-target="#addCrontabModal" id="add_crontab_button"><i class="glyphicon glyphicon-plus"></i></button>  --> 
+								<table id="crontabList" class="table table-hover">
+									<thead>
+										<tr>
+											<th>序号</th>
+											<th>分</th>
+											<th>时</th>
+											<th>周</th>
+											<th>天</th>
+											<th>月</th>
+											<th class="text-center">操作</th>
+										</tr>
+									</thead>
+			
+									<tbody>
+									</tbody>
+								</table> 		
+							</div>			
+	                    </div>
+						<div class="hr hr32 hr-dotted"></div>
+					</div>
+                    <div role="tabpanel" class="tab-pane fade" id="tab_content2" aria-labelledby="#Binglog">
+	                  <div class="product_price">
+<!-- 	                  	<button type="button" id="add_interval_button" class="btn btn-xs btn-default" data-toggle="modal" data-target="#addIntervalModal"><i class="glyphicon glyphicon-plus"></i></button>  --> 
+						<table width="100%" class="table  table-hover" id="intervalList">
+							<thead>
+								<tr>
+									<th>序号</th>
+									<th>间隔</th>
+									<th>类型</th>
+									<th class="text-center">操作</th>
+								</tr>
+							</thead>
+	
+							<tbody>
+							</tbody>
+						</table>                  
+	                  </div>					 
+                    </div> 
+                    <div role="tabpanel" class="tab-pane fade" id="tab_content3" aria-labelledby="#tableDDL">
+                        <div class="product_price">
+		                	<!-- <button type="button" class="btn btn-xs btn-default"  data-toggle="modal" data-target="#addTaskModal"><i class="glyphicon glyphicon-plus"></i></button>     -->              
+			                  <table width="100%" class="table  table-hover" id="taskTableList">
+								<thead>
+									<tr>
+										<th>ID</th>
+										<th>任务名称</th>
+										<th>函数名</th>
+										<th class="text-center">参数</th>
+										<th>最后运行时间</th>			
+										<th class="text-center">运行次数</th>			
+										<th class="text-center">状态</th>			
+										<th class="text-center">操作</th>
+									</tr>
+								</thead>
+			                    <tbody>
+			                  	</tbody>
+			                  </table>                         
+                        </div> 				 
+                    </div>                     
+                     <!-- CustomSql -->
+                    <div role="tabpanel" class="tab-pane fade" id="tab_content4" aria-labelledby="#optimize">
+
+                    </div>                         
+                </div>                                  
+              </div>
+            </div>                                
+          </div>             
+        </div> 
+              
+
+	<!-- Crontab模态框（Modal） -->
+	<div class="modal fade" id="addCrontabModal" tabindex="-1" role="dialog" aria-labelledby="addCrontabModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal"
+						aria-hidden="true">&times;</button>
+					<h4 class="modal-title" id="addCrontabModalLabel">添加Crontab调度
+					</h4>
+				</div>
+				<div class="modal-body">
+
+					<form class="form-horizontal" id="addCrontabForm">
+
+						<div class="form-group">
+							<label class="col-sm-4 control-label no-padding-right"
+								for="form-field-4"><strong>分</strong></label>
+
+							<div class="col-sm-4">
+								<input class="form-control" type="text" value="*/5" placeholder="*/5" name="minute" id="crontab_minute"/>
+							</div>
+						</div>
+
+						<div class="form-group">
+							<label class="col-sm-4 control-label no-padding-right"
+								for="form-field-4"><strong>时</strong></label>
+
+							<div class="col-sm-4">
+								<input class="form-control" type="text" value="*" placeholder="*" name="hour" id="crontab_hour"/>
+							</div>
+						</div>
+						<div class="form-group">
+							<label class="col-sm-4 control-label no-padding-right"
+								for="form-field-4"><strong>周</strong></label>
+
+							<div class="col-sm-4">
+								<input class="form-control" type="text" value="*" placeholder="*" name="day_of_week" id="crontab_day_of_week"/>
+							</div>
+						</div>
+						<div class="form-group">
+							<label class="col-sm-4 control-label no-padding-right"
+								for="form-field-4"><strong>天</strong></label>
+
+							<div class="col-sm-4">
+								<input class="form-control" type="text" value="*" placeholder="*" name="day_of_month" id="crontab_day_of_month"/>
+							</div>
+						</div>
+
+						<div class="form-group">
+							<label class="col-sm-4 control-label no-padding-right"
+								for="form-field-4"><strong>月</strong></label>
+
+							<div class="col-sm-4">
+								<input class="form-control" type="text" value="*" placeholder="*" name="month_of_year" id="crontab_month_of_year"/>
+							</div>
+						</div>
+
+					</form>
+
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+					<button type="button" class="btn btn-primary" id="addCrontab">添加</button>
+					<button type="button" class="btn btn-primary" value="" id="modfCrontab" style="display:none;">修改</button>
+				</div>
+			</div>
+			<!-- /.modal-content -->
+		</div>
+		<!-- /.modal -->
+	</div>
+
+	<!-- Interval模态框（Modal） -->
+	<div class="modal fade" id="addIntervalModal" tabindex="-1"
+		 role="dialog" aria-labelledby="addIntervalModalLabel"
+		 aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+					<h4 class="modal-title" id="addIntervalModalLabel">
+						添加Interval调度</h4>
+				</div>
+				<div class="modal-body">
+
+					<form class="form-horizontal" id="addIntervalForm">
+
+						<div class="form-group">
+							<label class="col-sm-4 control-label no-padding-right" for="form-field-4"><strong>间隔</strong></label>
+
+							<div class="col-sm-4">
+								<input class="form-control" type="text" value="5" placeholder="*" name="every" id="interval_every"/>
+							</div>
+						</div>
+
+						<div class="form-group">
+							<label class="col-sm-4 control-label no-padding-right"
+								for="form-field-4"><strong>类型</strong></label>
+
+							<div class="col-sm-4">
+								<select name="period" class="form-control" id="interval_period">
+									<option value="seconds" selected="selected">秒</option>
+									<option value="minutes">分钟</option>
+									<option value="hours">小时</option>
+									<option value="days">天</option>
+									<option value="microseconds">毫秒</option>
+								</select>
+							</div>
+						</div>
+
+
+					</form>
+
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+					<button type="button" class="btn btn-primary" id="addInterval">添加</button>
+					<button type="button" class="btn btn-primary" value="" id="modfInterval" style="display:none;">修改</button>
+				</div>
+			</div>
+			<!-- /.modal-content -->
+		</div>
+		<!-- /.modal -->
+	</div>
+           
+	<div class="modal fade" id="addTaskModal" tabindex="-1" role="dialog" aria-labelledby="addTaskModalLabel" aria-hidden="true">
+		<div class="modal-dialog" style="width:800px;">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+						&times;
+					</button>
+					<h4 class="modal-title" id="addTaskModalLabel">
+						添加任务
+					</h4>
+				</div>
+				<div class="modal-body">
+					
+					<form class="form-horizontal" id="addTask">
+													
+							<div class="item form-group">
+									<label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>任务名*</strong></label>
+						
+										<div class="col-sm-5">
+										<input class="form-control" type="text"   value="" placeholder="扩展k8s集群" name="name" id="task_name" required/>																				
+									</div>
+							</div>
+
+							<div class="item form-group">
+									<label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>任务*</strong></label>
+						
+									<div class="col-sm-5">
+										<select name="task" id="task" class="form-control" required>
+											<option value="">选择一个任务</option>
+											{% for ds in tasks.regTaskList %}
+												<option value="{{ds}}">{{ds}}</option>
+											{% endfor %}																																								
+										</select>	
+									</div>
+							</div>	
+							<div class="item form-group">
+									<label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>调度类型*</strong></label>
+						
+									<div class="col-sm-5">
+										<select id="schetype" class="form-control" required>
+											<option value="">选择一个类型</option>
+												<option value="select_crontab">Crontab</option>
+												<option value="select_interval">Interval</option>																																								
+										</select>	
+									</div>																				
+									
+							</div>	
+							
+							<div class="item form-group" style="display: none;" id="div_crontab">
+									<label class="col-sm-3 control-label no-padding-right" for="form-field-3"><strong>计划类型*</strong></label>
+										<div class="col-sm-5">
+											<select name="crontab" class="form-control" id="select-crontab">
+												<option value="">选择一个计划任务</option>																																								
+											</select>											
+										<div class="space-2"></div>									
+									</div>
+							</div>
+							
+							<div class="item form-group" style="display: none;" id="div_interval">
+									<label class="col-sm-3 control-label no-padding-right" for="form-field-3"><strong>间隔类型*</strong></label>
+										<div class="col-sm-5">
+											<select name="interval" class="form-control" id="select-interval">
+												<option value="">选择一个间隔类型</option>																																								
+											</select>											
+										<div class="space-2"></div>									
+									</div>
+							</div>
+							
+							<div class="item form-group">
+									<label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>参数列表</strong></label>
+						
+										<div class="col-sm-5">
+										<input class="form-control" type="text"   value="" placeholder="['192.168.1.233']" name="args" id="args"/>																				
+									</div>
+							</div>							
+									
+							<div class="item form-group">
+									<label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>参数字典</strong></label>
+						
+										<div class="col-sm-5">
+<!-- 										<input class="form-control" type="text"   value="" placeholder="{'key':'value'}" name="kwargs" /> -->	
+										<textarea class="form-control" rows="10" name="kwargs" id="kwargs"></textarea>																			
+									</div>
+							</div>
+							<div class="item form-group">
+									<label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>队列</strong></label>
+						
+										<div class="col-sm-5">
+										<input class="form-control" type="text"   value="" placeholder="Queue Name" name="queue" id="queue"/>																				
+									</div>
+							</div>	
+ 							<div class="item form-group">
+									<label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>过期时间</strong></label>
+						
+
+									<div class="col-sm-5">
+										<input  class="form-control form_datetime" data-date-format="yyyy-mm-dd hh:ii" type="text"   value="" placeholder="2017-01-10 00:00:01" name="expires" id="expires"/>																				
+									</div>																				
+									
+							</div> 		
+																	
+							
+							<div class="item form-group">
+									<label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>是否激活</strong></label>
+						
+
+									<div class="col-sm-5">
+										<select name="enabled" id="enabled" class="form-control">
+												<option selected="selected" value="1">激活</option>
+												<option value="0">冻结</option>																																								
+										</select>																				
+									</div>																				
+									
+							</div>				
+																	
+					</form>	
+					
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">关闭
+					</button>
+					<button type="button" class="btn btn-primary" id="add_task_button">
+						添加
+					</button>
+					<button type="button" class="btn btn-primary" value="" id="modf_task_button" style="display:none;">修改</button>
+				</div>
+			</div><!-- /.modal-content -->
+		</div><!-- /.modal -->
+	</div>	           
+            
+<div style="visibility:hidden"><a id="scrollToTop"></a></div>                        
+{% endblock %}
+{% block js-content %}
+	<script src="/static/jquery-confirm/jquery-confirm.min.js"></script>
+    <script src="/static/datatable/datatables.net/js/jquery.dataTables.min.js"></script>
+	<script src="/static/datatable/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>	
+    <script src="/static/datatable/datatables.net-buttons/js/dataTables.buttons.min.js"></script>
+    <script src="/static/datatable/datatables.net-buttons-bs/js/buttons.bootstrap.min.js"></script>
+    <script src="/static/datatable/datatables.net-buttons/js/buttons.flash.min.js"></script>
+    <script src="/static/datatable/datatables.net-buttons/js/buttons.html5.min.js"></script>
+    <script src="/static/datatable/datatables.net-buttons/js/buttons.print.min.js"></script>	
+	<script src="/static/js/sched/celery.js"></script>
+	<script src="/static/validator/validator.js"></script>
+{% endblock %}

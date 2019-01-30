@@ -1,0 +1,60 @@
+#!/usr/bin/env python  
+# _#_ coding:utf-8 _*_  
+from django.views.generic import View
+from django.http import QueryDict
+from django.shortcuts import render
+from django.contrib.auth.models import User,Group
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
+from dao.crontab import CrontabManage
+from dao.celerys import CeleryTaskManage
+from django.http import JsonResponse
+
+class CronManage(LoginRequiredMixin,CrontabManage,View):
+    login_url = '/login/'
+    def get(self, request, *args, **kwagrs):
+        if request.GET.get('id'):
+            return JsonResponse({'msg':"计划任务查询成功","code":200,'data':self.get_crontab(request)}) 
+        return render(request, 'sched/cron_manage.html',{"user":request.user})
+    
+    def post(self, request, *args, **kwagrs):
+        if request.POST.get('type') == 'view':res = self.view_logs(request)
+        elif request.POST.get('type') == 'disabled':res = self.disabled(request)
+        elif request.POST.get('type') == 'enable':res = self.enable(request)
+        else:res = self.create_crontab(request=request)
+        if isinstance(res, str):return JsonResponse({'msg':res,"code":500,'data':[]})
+        return JsonResponse({'msg':"操作成功","code":200,'data':res})     
+
+    def put(self, request, *args, **kwagrs):
+        res = self.update_crontab(request=request)
+        if isinstance(res, str):return JsonResponse({'msg':res,"code":500,'data':[]})
+        return JsonResponse({'msg':"修改成功","code":200,'data':res})       
+
+    def delete(self, request, *args, **kwagrs):
+        res = self.delete_crontab(request=request)
+        if isinstance(res, str):return JsonResponse({'msg':res,"code":500,'data':[]})
+        return JsonResponse({'msg':"删除成功","code":200,'data':[]})     
+    
+    
+class CeleryManage(LoginRequiredMixin,CeleryTaskManage,View):
+    login_url = '/login/'
+    def get(self, request, *args, **kwagrs):
+        return render(request, 'sched/celery_manage.html',{"user":request.user,"tasks":self.base()})
+    
+    def post(self, request, *args, **kwagrs):
+        if request.POST.get('type') == 'view':res = self.view_logs(request)
+        elif request.POST.get('type') == 'disabled':res = self.disabled(request)
+        elif request.POST.get('type') == 'enable':res = self.enable(request)
+        else:res = self.create_crontab(request=request)
+        if isinstance(res, str):return JsonResponse({'msg':res,"code":500,'data':[]})
+        return JsonResponse({'msg':"操作成功","code":200,'data':res})     
+
+    def put(self, request, *args, **kwagrs):
+        res = self.update_crontab(request=request)
+        if isinstance(res, str):return JsonResponse({'msg':res,"code":500,'data':[]})
+        return JsonResponse({'msg':"修改成功","code":200,'data':res})       
+
+    def delete(self, request, *args, **kwagrs):
+        res = self.delete_crontab(request=request)
+        if isinstance(res, str):return JsonResponse({'msg':res,"code":500,'data':[]})
+        return JsonResponse({'msg':"删除成功","code":200,'data':[]})     

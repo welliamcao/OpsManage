@@ -1,12 +1,15 @@
-from channels.routing import route
-from OpsManage.djchannels import notices,chats
+#!/usr/bin/env python  
+# _#_ coding:utf-8 _*_ 
+from websocket.consumers import webterminal
+from django.urls import path, re_path
+from channels.routing import ProtocolTypeRouter, URLRouter
+from channels.auth import AuthMiddlewareStack
 
-# The channel routing defines what channels get handled by what consumers,
-# including optional matching on message attributes. In this example, we route
-# all WebSocket connections to the class-based BindingConsumer (the consumer
-# class itself specifies what channels it wants to consume)
-channel_routing = [
-#     wssh.webterminal.as_route(path = r'^/ws/webssh/(?P<id>[0-9]+)/$'),
-    notices.WebNotice.as_route(path = r'^/ws/notice/(?P<username>.+)/$'),
-#     chats.WebChat.as_route(path = r'^/ws/chats/$'),
-]
+application = ProtocolTypeRouter({
+    "websocket": AuthMiddlewareStack(
+        URLRouter([
+            # URLRouter just takes standard Django path() or url() entries.
+            re_path(r'ssh/(?P<id>[0-9]+)/(?P<group_name>.*)/', webterminal),
+        ]),
+    ),
+})

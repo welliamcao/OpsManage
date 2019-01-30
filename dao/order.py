@@ -1,10 +1,10 @@
 #!/usr/bin/env python  
 # _#_ coding:utf-8 _*_  
 import random
-from orders.models import Order_System,Project_Order,SQL_Audit_Order
+from orders.models import Order_System,SQL_Audit_Order
 from django.db.models import Count
 from django.contrib.auth.models import User,Group
-from OpsManage.utils import base
+from utils import base
 
 class Order(object):
     def __init__(self):

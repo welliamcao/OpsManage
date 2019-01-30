@@ -1,0 +1,158 @@
+.bootstrap-duallistbox-container .buttons {
+	width: 100%;
+	margin-bottom: -1px
+}
+
+.bootstrap-duallistbox-container label {
+	display: block
+}
+
+.bootstrap-duallistbox-container .info {
+	display: inline-block;
+	margin-bottom: 5px;
+	font-size: 11px
+}
+
+.bootstrap-duallistbox-container .clear1,.bootstrap-duallistbox-container .clear2 {
+	display: none;
+	font-size: 10px
+}
+
+.bootstrap-duallistbox-container .box1.filtered .clear1,.bootstrap-duallistbox-container .box2.filtered .clear2 {
+	display: inline-block
+}
+
+.bootstrap-duallistbox-container .move,.bootstrap-duallistbox-container .remove {
+	width: 60%
+}
+
+.bootstrap-duallistbox-container .btn-group .btn {
+	border-bottom-left-radius: 0;
+	border-bottom-right-radius: 0
+}
+
+.bootstrap-duallistbox-container select {
+	border-top-left-radius: 0;
+	border-top-right-radius: 0
+}
+
+.bootstrap-duallistbox-container .moveall,.bootstrap-duallistbox-container .removeall {
+	width: 40%
+}
+
+.bootstrap-duallistbox-container.bs2compatible .btn-group>.btn+.btn {
+	margin-left: 0
+}
+
+.bootstrap-duallistbox-container select {
+	width: 100%;
+	height: 300px;
+	padding: 0
+}
+
+.bootstrap-duallistbox-container .filter {
+	display: inline-block;
+	width: 100%;
+	height: 31px;
+	margin: 0 0 5px 0;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box
+}
+
+.bootstrap-duallistbox-container .filter.placeholder {
+	color: #aaa
+}
+
+.bootstrap-duallistbox-container.moveonselect .move,.bootstrap-duallistbox-container.moveonselect .remove {
+	display: none
+}
+
+.bootstrap-duallistbox-container.moveonselect .moveall,.bootstrap-duallistbox-container.moveonselect .removeall {
+	width: 100%
+}
+
+.bootstrap-duallistbox-container {
+	position: relative
+}
+
+.bootstrap-duallistbox-container .btn-box {
+	margin-top: 90px;
+	padding: 0;
+	float: left
+}
+
+.bootstrap-duallistbox-container .settingUp-btns {
+	position: absolute;
+	right: 4px;
+	margin-top: 90px;
+	width: 40px
+}
+
+.settingUp-btns .upBtn {
+	margin-bottom: 5px
+}
+
+.btn-box .btn {
+	margin: 2px;
+	padding: 4px 0;
+	color: #ddd;
+	width: 100%
+}
+
+.settingUp-btns .btn {
+	color: #ddd
+}
+
+.btn-box .btn:hover,.btn-box .btn:focus,.settingUp-btns .btn:hover,.settingUp-btns .btn:focus {
+	color: #fff
+}
+
+.bootstrap-duallistbox-container select {
+	width: 100%;
+	height: 300px;
+	padding: 0
+}
+
+option {
+	font-size: 14px;
+	line-height: 30px;
+	color: #555;
+	padding: 8px 10px
+}
+
+option:hover {
+	color: #fff;
+	background-color: #3e99ff
+}
+
+.bootstrap-duallistbox-container .filter {
+	height: 32px;
+	line-height: 1px;
+	padding-top: 12px\9;
+	padding-bottom: 12px\9
+}
+
+.box1,.box2 {
+	float: left;
+	padding-left: 10px;
+	padding-right: 9px
+}
+
+.db-btn {
+	color: #3e99ff;
+	padding: 4px 12px;
+	background-color: #fff;
+	border-color: #ddd;
+	border-radius: 0
+}
+
+.btn>.fa {
+	margin-right: 5px
+}
+
+.db-btn:focus,.db-btn:hover {
+	color: #fff;
+	background-color: #3e99ff;
+	border-color: transparent
+}

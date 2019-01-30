@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% block css-content %}
+    <link rel="stylesheet" href="/static/jquery-confirm/jquery-confirm.min.css">
+{% endblock %}
+{% block page-content %}
+        <div class="clearfix"></div>
+        <div class="col-md-12">
+          <div class="col-middle">
+            <div class="text-center text-center">
+              <h1 class="error-number">404</h1>
+              <h2>页面不存在%>_<%</h2>
+              <p>你请求的页面不存在 <a href="https://github.com/welliamcao/OpsManage/issues">Report this?</a>
+              </p>
+              <div class="mid_center">
+                <h3>Search</h3>
+                <form>
+                  <div class="col-xs-12 form-group pull-right top_search">
+                    <div class="input-group">
+                      <input type="text" class="form-control" placeholder="Search for...">
+                      <span class="input-group-btn">
+                              <button class="btn btn-default" type="button">Go!</button>
+                          </span>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>                
+{% endblock %}
+{% block js-content %}
+	<script src="/static/jquery-confirm/jquery-confirm.min.js"></script>
+	<script src="/static/validator/validator.js"></script>
+{% endblock %}

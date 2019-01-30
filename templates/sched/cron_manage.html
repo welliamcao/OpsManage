@@ -1,0 +1,265 @@
+{% extends 'base.html' %}
+{% block css-content %}
+    <link rel="stylesheet" href="/static/jquery-confirm/jquery-confirm.min.css">
+    <link href="/static/datatable/datatables.net-buttons-bs/css/buttons.bootstrap.min.css" rel="stylesheet">
+    <link href="/static/datatable/datatables.net-fixedheader-bs/css/fixedHeader.bootstrap.min.css" rel="stylesheet">
+    <link href="/static/datatable/datatables.net-responsive-bs/css/responsive.bootstrap.min.css" rel="stylesheet">
+    <link href="/static/datatable/datatables.net-scroller-bs/css/scroller.bootstrap.min.css" rel="stylesheet"> 
+    <link rel="stylesheet" href="/static/css/bootstrap-select.css">
+	<script src="http://cdn.bootcss.com/ace/1.2.4/ace.js"></script>
+	<script src="http://cdn.bootcss.com/ace/1.2.4/ext-language_tools.js"></script>
+	<script src="http://cdn.bootcss.com/ace/1.2.4/ext-old_ie.js"></script>
+	<script src="http://cdn.bootcss.com/ace/1.2.4/theme-monokai.js"></script>  
+	<style type="text/css"> 
+		td.details-control {
+		    background: url('/static/images/details_open.png') no-repeat center center; */
+		    cursor: pointer;
+		}
+		tr.shown td.details-control {
+		    background: url('/static/images/details_close.png') no-repeat center center;
+		} 
+		#compile-editor-add {
+			width: 100%;
+			height: 300px;
+	   }   		      	
+	</style>  
+{% endblock %}
+{% block page-content %}
+        <div class="clearfix"></div> 
+        
+		<div class="row">
+		
+              <div class="col-md-12 col-sm-12 col-xs-12">
+                <div class="x_panel">
+                  <div class="x_title">
+                    <h2>计划任务列表 <small>Crontab List</small></h2>
+                    <ul class="nav navbar-right panel_toolbox">
+                      <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                      </li>
+                      <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
+                        <ul class="dropdown-menu" role="menu">
+                          <li><a href="#">Settings 1</a>
+                          </li>
+                          <li><a href="#">Settings 2</a>
+                          </li>
+                        </ul>
+                      </li>
+                      <li><a class="close-link"><i class="fa fa-close"></i></a>
+                      </li>
+                    </ul>
+                    <div class="clearfix"></div>
+                  </div>
+                  <div class="x_content">
+                        <div class="product_price">
+<!-- 		                	<button type="button" class="btn btn-xs btn-default" id="cron_list"><i class="glyphicon glyphicon-plus"></i></button>   -->                
+		                    <table id="crontabList" class="table table-hover">
+		                      <thead>
+		                        <tr>
+					                <th>ID</th>
+					                <th>任务名称</th>
+					                <th>服务器</th>
+					                <th>分</th>
+					                <th>钟</th>
+					                <th>日</th>
+					                <th>月</th>
+					                <th>周</th>
+					                <th>命令</th>					                
+					                <th class="text-center">状态</th>
+									<th class="text-center">操作</th>
+		                        </tr>
+		                      </thead>
+		                      <tbody>
+		                      </tbody>
+		                    </table>                          
+                        </div> 
+                   </div>
+                </div>		
+			  </div>		
+		
+              <div class="col-md-7 col-xs-12" id="add_deploy_tools" style="display:none;">
+                <div class="x_panel">
+                  <div class="x_title">
+                    <h2>计划任务 <small>Crontab</small></h2>
+                    <ul class="nav navbar-right panel_toolbox">
+                      <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                      </li>
+                      <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
+                        <ul class="dropdown-menu" role="menu">
+                          <li><a href="#">Settings 1</a>
+                          </li>
+                          <li><a href="#">Settings 2</a>
+                          </li>
+                        </ul>
+                      </li>
+                      <li><a class="close-link"><i class="fa fa-close"></i></a>
+                      </li>
+                    </ul>
+                    <div class="clearfix"></div>
+                  </div>
+                  <div class="x_content">
+                     <form role="form" id="addCrontabForm" data-parsley-validate class="form-horizontal form-label-left">{% csrf_token %}
+						<fieldset>	
+                            <div class="item form-group">
+                                <label class="col-sm-2 control-label"><font color="red">* </font>功能描述</label>
+                                <div class="col-sm-8">
+	                                <input class="form-control" name="cron_name" id="cron_name" required>
+                                </div>
+                            </div>  											
+																																																					
+							<div  class="item form-group">
+								 <label class="col-sm-2 control-label" >服务器选择</label>
+								 <div class="col-sm-8">
+                                     <select multiple required="required" class="selectpicker form-control"  data-size="10" data-selected-text-format="count > 5" data-live-search="true" data-width="100%"   autocomplete="off"  class="form-control" name="deploy_server"  id="deploy_server"  required>
+                                     	{% for ds in assets.serverList %}
+                                     		<option name="deploy_server" value="{{ds.id}}">{{ds.ip}} | {{ds.project}} | {{ds.service}}</option>
+                                     	{% endfor %}
+                                     </select>
+								 </div>
+							</div>	
+							
+							<div class="item form-group">
+								 <label class="col-sm-2 control-label"><font color="red">* </font>分</label>
+								 <div class="col-sm-8">
+								 	<input type="text" class="form-control" id="cron_minute" name="cron_minute" placeholder="*/1" value=""  class="input-xlarge" required  title="正确格式：00-59 or * or */1"  required/>
+								 </div>
+							</div>
+							
+							<div class="item form-group">
+								 <label class="col-sm-2 control-label"><font color="red">* </font>时</label>
+								 <div class="col-sm-8">
+								 	<input type="text" class="form-control" id="cron_hour" name="cron_hour" placeholder="0-23" value="" class="input-xlarge" required   title="正确格式：0-23 or * or */1" required/>
+								 </div>
+							</div>	
+	
+							<div class="item form-group">
+								 <label class="col-sm-2 control-label"><font color="red">* </font>日</label>
+								 <div class="col-sm-8">
+								 	<input type="text" class="form-control" id="cron_day" name="cron_day" placeholder="1-31" value="" class="input-xlarge" required   title="正确格式：01 or * or */1" required/>
+								 </div>
+							</div>		
+	
+							<div class="item form-group">
+								 <label class="col-sm-2 control-label"><font color="red">* </font>月</label>
+								 <div class="col-sm-8">
+								 	<input type="text" class="form-control" id="cron_month" name="cron_month" placeholder="*" value=""  class="input-xlarge"  required   title="正确格式：01 or * or */1" required/>
+								 </div>
+							</div>															
+										
+							<div class="item form-group">
+								 <label class="col-sm-2 control-label"><font color="red">* </font>周</label>
+								 <div class="col-sm-8">
+								 	<input type="text" class="form-control" id="cron_week" name="cron_week" placeholder="0-7" value="" class="input-xlarge"  required   title="正确格式：01 or * or */1" required/>
+								 </div>
+							</div>	
+
+							<div class="item form-group" id="cronbScriptType">			 		             
+								<label class="col-sm-2 control-label">类型</label>
+								<div class="col-sm-8 btn-group btn-group-sm">
+									<button type="button" class="btn btn-default" name="btn-cron-scripts" value="command">执行命令</button>
+									<button type="button" class="btn btn-default" name="btn-cron-scripts" value="online">在线编写</button>
+									<button type="button" class="btn btn-default" name="btn-cron-scripts" value="upload">上传脚本</button>								
+								</div>
+							</div>
+
+							<div class="item form-group">
+								 <label class="col-sm-2 control-label"><font color="red">* </font>命令</label>
+								 <div class="col-sm-8">
+								 	<input type="text" class="form-control" id="cron_command" name="cron_command" placeholder="/usr/sbin/ntpdate time.windows.com" value="" class="input-xlarge"  />
+								 </div>
+							</div>							
+
+
+
+							<div class="item form-group" id="onlineScript" style="display:none;">
+								 <label class="col-sm-2 control-label">脚本内容</label>
+								 <div class="col-sm-8">
+								 	<div id="compile-editor-add" class="ace_editor"></div>
+								 </div>
+							</div>
+																
+							<div class="item form-group" id="uploadScript" style="display:none;">
+								 <label class="col-sm-2 control-label">上传脚本</label>
+								 <div class="col-sm-8">
+								 	<input type="file" name="cron_script" id="cron_script"  placeholder="上传脚本" value="" />
+								 </div>
+							</div>		
+
+							<div class="item form-group" id="scriptPath" style="display:none;">
+								 <label class="col-sm-2 control-label">脚本路径</label>
+								 <div class="col-sm-8">
+								 	<input type="text" class="form-control" id="cron_script_path"  name="cron_script_path" placeholder="/usr/local/src/update.sh" value="" class="input-xlarge" pattern="^(/[\w-.\w]+)*$" title="正确格式：/usr/local/src/update.sh"/>
+								 </div>
+							</div>
+
+							<div class="item form-group">
+								 <label class="col-sm-2 control-label"><font color="red">* </font>日志</label>
+								 <div class="col-sm-8">
+								 	<input class="form-control" id="cron_log_path" name="cron_log_path" placeholder="/var/log/cron" value="/var/log/cron"   class="input-xlarge" required/>
+								 </div>
+							</div>
+																	
+							<div class="item form-group">
+								 <label class="col-sm-2 control-label"><font color="red">* </font>用户</label>
+								 <div class="col-sm-8">
+								 	<input class="form-control" id="cron_user" name="cron_user" placeholder="root" value=""   class="input-xlarge" required/>
+								 </div>
+							</div>																					
+							</fieldset>
+							<legend></legend>
+							<div class="item form-group">
+								<label class="col-sm-5 control-label"></label>
+								<input  type="hidden" class="form-control" id="model" name="model" value="model">
+		                        <input  type="hidden" class="form-control" id="ans_uuid" name="ans_uuid" value="{{assets.uuid}}">  								
+								<button type="reset" class="btn btn-default btn-sm" id="save_deploy_script">撤销</button>
+								<button type="button" class="btn btn-default btn-sm" id="modf_crontab" style="display:none;">修改</button>
+								<button type="button"  class="btn btn-default btn-sm"  id="add_crontab">添加</button>
+					 		</div>									 		
+						</form> 
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-md-5 col-xs-12" id="add_deploy_result" style="display:none;">
+                <div class="x_panel">
+                  <div class="x_title">
+                    <h2>执行结果 <small>Results of crontab</small></h2>
+                    <ul class="nav navbar-right panel_toolbox">
+                      <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                      </li>
+                      <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
+                        <ul class="dropdown-menu" role="menu">
+                          <li><a href="#">Settings 1</a>
+                          </li>
+                          <li><a href="#">Settings 2</a>
+                          </li>
+                        </ul>
+                      </li>
+                      <li><a class="close-link"><i class="fa fa-close"></i></a>
+                      </li>
+                    </ul>
+                    <div class="clearfix"></div>
+                  </div>
+                  <div class="x_content">
+                        <div id="result">
+                        </div>                   
+                  </div>
+                </div>
+              </div>
+            </div>        
+<div style="visibility:hidden"><a id="scrollToTop"></a></div>                        
+{% endblock %}
+{% block js-content %}
+	<script src="/static/jquery-confirm/jquery-confirm.min.js"></script>
+    <script src="/static/datatable/datatables.net/js/jquery.dataTables.min.js"></script>
+	<script src="/static/datatable/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>	
+    <script src="/static/datatable/datatables.net-buttons/js/dataTables.buttons.min.js"></script>
+    <script src="/static/datatable/datatables.net-buttons-bs/js/buttons.bootstrap.min.js"></script>
+    <script src="/static/datatable/datatables.net-buttons/js/buttons.flash.min.js"></script>
+    <script src="/static/datatable/datatables.net-buttons/js/buttons.html5.min.js"></script>
+    <script src="/static/datatable/datatables.net-buttons/js/buttons.print.min.js"></script>	
+	<script src="/static/js/sched/cron.js"></script>
+	<script src="/static/validator/validator.js"></script>
+{% endblock %}

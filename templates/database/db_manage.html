@@ -1,0 +1,256 @@
+{% extends 'base.html' %}
+{% block css-content %}
+    <link rel="stylesheet" href="/static/jquery-confirm/jquery-confirm.min.css">
+    <link href="/static/datatable/datatables.net-bs/css/dataTables.bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/bootstrap-select.css"> 
+    <link rel="stylesheet" href="/static/css/jquery.orgchart.css">	
+	<script src="http://cdn.bootcss.com/ace/1.2.4/ace.js"></script>
+	<script src="http://cdn.bootcss.com/ace/1.2.4/ext-language_tools.js"></script>
+	<script src="http://cdn.bootcss.com/ace/1.2.4/ext-old_ie.js"></script>
+	<script src="http://cdn.bootcss.com/ace/1.2.4/theme-monokai.js"></script>  
+    <link href="/static/datatable/datatables.net-buttons-bs/css/buttons.bootstrap.min.css" rel="stylesheet">
+    <link href="/static/datatable/datatables.net-fixedheader-bs/css/fixedHeader.bootstrap.min.css" rel="stylesheet">
+    <link href="/static/datatable/datatables.net-responsive-bs/css/responsive.bootstrap.min.css" rel="stylesheet">
+    <link href="/static/datatable/datatables.net-scroller-bs/css/scroller.bootstrap.min.css" rel="stylesheet">  
+    <!-- bootstrap-daterangepicker -->
+    <link href="/static/bootstrap-daterangepicker/daterangepicker.css" rel="stylesheet">    
+    <link href="http://apps.bdimg.com/libs/highlight.js/9.1.0/styles/default.min.css" rel="stylesheet">
+    <script src="http://apps.bdimg.com/libs/highlight.js/9.1.0/highlight.min.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+	<style type="text/css"> 
+		td.details-control {
+		    background: url('/static/images/details_open.png') no-repeat center center; */
+		    cursor: pointer;
+		}
+		tr.shown td.details-control {
+		    background: url('/static/images/details_close.png') no-repeat center center;
+		} 
+		#compile-editor-add {
+			width: 100%;
+			height: 200px;
+	   }	
+		#compile-editor-modf {
+			width: 100%;
+			height: 200px;
+	   }		         	
+	</style>	  
+{% endblock %}
+{% block page-content %}
+        <div class="clearfix"></div>
+		<div class="row">
+          <div class="col-md-12 col-sm-12 col-xs-12">
+            <div class="x_panel">
+              <div class="x_title">
+                <h2>数据库管理工具 <small>Database Manage Tools</small></h2>
+                <ul class="nav navbar-right panel_toolbox">
+                  <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                  </li>
+                  <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
+                    <ul class="dropdown-menu" role="menu">
+                      <li><a href="#">Settings 1</a>
+                      </li>
+                      <li><a href="#">Settings 2</a>
+                      </li>
+                    </ul>
+                  </li>
+                  <li><a class="close-link"><i class="fa fa-close"></i></a>
+                  </li>
+                </ul>
+                <div class="clearfix"></div>
+              </div>
+              <div class="x_content">
+              	<!--<div class="" role="tabpanel" data-example-id="togglable-tabs"  id="add_inventory" style="display:none;">-->
+                <div class="" role="tabpanel" data-example-id="togglable-tabs"  id="add_inventory">
+                  <ul id="myTab" class="nav nav-tabs bar_tabs" role="tablist">
+                    <li role="presentation" class="active"><a href="#tab_content1" id="#query" role="tab" data-toggle="tab" aria-expanded="true"><i class="fa fa-cubes"></i> SQL Query</a>
+                    </li>
+                    <li role="presentation" class=""><a href="#tab_content2" role="tab" id="#Binglog" data-toggle="tab" aria-expanded="false"><i class="fa fa-tasks"></i> BinLog解析</a>
+                    </li> 
+                    <li role="presentation" class=""><a href="#tab_content3" role="tab" id="#tableDDL" data-toggle="tab" aria-expanded="false"><i class="fa fa-bar-chart"></i> 表结构查询</a>
+                    </li>                     
+                    <li role="presentation" class=""><a href="#tab_content4" role="tab" id="#optimize" data-toggle="tab" aria-expanded="false"><i class="fa fa-paint-brush"></i> SQL优化建议</a>
+                    </li>                                                 
+                  </ul>
+                  <div id="myTabContent" class="tab-content">
+                    <div role="tabpanel" class="tab-pane fade active in" id="tab_content1" aria-labelledby="#query">
+						<div class="col-md-8 col-xs-12">
+							<legend>
+								<i class="fa  fa-paper-plane"></i> 数据库查询
+							</legend>
+							<form role="form" method="post" id="exec_db_query" class="main form-horizontal"  novalidate>																								
+								<div class="form-group" >
+									 <label> 数据库<i class="fa fa-info-circle" data-toggle="tooltip" title="选择数据库"></i></label>
+									 <select multiple required="required" class="selectpicker form-control" data-live-search="true" name="query_db" id="query_db"  data-size="10" data-selected-text-format="count > 3"  data-width="100%"  id="db"  autocomplete="off">
+									   	<option>请选择一个数据库</option>
+<!-- 										{% for ds in databaseList %}
+											<option value="{{ds.id}}">{{ds.db_env}} | {{ds.db_assets.server_assets.ip}} | {{ds.db_name}} | {{ds.db_mark}}</option>
+										{% endfor %} -->								   							
+									 </select>											
+								</div>	
+								<div class="form-group">
+									<label>SQL内容<i class="fa fa-info-circle" data-toggle="tooltip" title="输入查询SQL"></i></label>	
+									<div id="compile-editor-add" class="ace_editor"></div> 	
+								</div>																																						
+								<lable><button type="button" value="" class="btn btn-default btn-sm" id="db_query_btn">查询</button></lable>
+							</form> 
+						</div>
+						<div class="hr hr32 hr-dotted"></div>
+					</div>
+                    <div role="tabpanel" class="tab-pane fade" id="tab_content2" aria-labelledby="#Binglog">
+						<div class="col-lg-3">
+							<legend>
+								<i class="fa  fa-paper-plane"></i> DML语句回滚
+							</legend>
+							<form role="form" method="post" id="parse_binlog_file" class="main form-horizontal"  novalidate>	
+								<input  type="hidden" class="form-control"  name="model" value="parse_sql"> 																
+								<div class="form-group" >
+									 <label> 数据库<i class="fa fa-info-circle" data-toggle="tooltip" title="选择数据库"></i></label>
+									 <select required="required" class="selectpicker form-control" data-live-search="true" name="db" id="binlog_db"  data-size="10" data-selected-text-format="count > 3"  data-width="100%"   autocomplete="off">
+									   	<option>请选择一个数据库</option>
+<!-- 										{% for ds in databaseList %}
+											<option value="{{ds.id}}">{{ds.db_env}} | {{ds.db_assets.server_assets.ip}} | {{ds.db_name}} | {{ds.db_mark}}</option>
+										{% endfor %}	 -->							   							
+									 </select>											
+								</div>	
+								<div class="form-group" >
+									 <label> binlog文件<i class="fa fa-info-circle" data-toggle="tooltip" title="选择binlog文件"></i></label>
+									 <select required="required" class="selectpicker form-control" data-live-search="true" name="binlog_db_file" id="binlog_db_file"  data-size="10" data-selected-text-format="count > 3"  data-width="100%"  autocomplete="off">
+									   	<option>请选择一个binlog文件</option>								   							
+									 </select>											
+								</div>	
+	                            <div class="control-group">
+	                              <label> 选择时间段</label>
+	                              <div class="controls">
+	                                <div class="input-prepend input-group">
+	                                  <span class="add-on input-group-addon"><i class="glyphicon glyphicon-calendar fa fa-calendar"></i></span>
+	                                  <input type="text" name="binlog_time" id="binlog_time" class="form-control" value="2018-01-09 - 2019-01-09" />
+	                                </div>
+	                              </div>
+	                            </div>																																																			
+								<lable><button type="button" value="" class="btn btn-default btn-sm" id="db_binlog_btn">解析</button></lable>
+							</form> 
+						 </div>
+						<div class="col-lg-9">
+							<legend>
+								<i class="fa  fa-paper-plane-o"></i> 解析结果
+							</legend>
+							<div id="binlog_result">
+		                    </div>							
+						 </div>						 
+                    </div> 
+                    <div role="tabpanel" class="tab-pane fade" id="tab_content3" aria-labelledby="#tableDDL">
+						<div class="col-lg-3">
+							<legend>
+								<i class="fa  fa-paper-plane"></i> 表结构查询
+							</legend>
+							<form role="form" method="post" id="table_schema_form" class="main form-horizontal"  novalidate>	
+								<input  type="hidden" class="form-control"  name="model" value="table_schema"> 																
+								<div class="form-group" >
+									 <label> 数据库<i class="fa fa-info-circle" data-toggle="tooltip" title="选择数据库"></i></label>
+									 <select required="required" class="selectpicker form-control" data-live-search="true" name="db" id="table_schema"  data-size="10" data-selected-text-format="count > 3"  data-width="100%"   autocomplete="off">
+									   	<option>请选择一个数据库</option>
+<!-- 										{% for ds in databaseList %}
+											<option value="{{ds.id}}">{{ds.db_env}} | {{ds.db_assets.server_assets.ip}} | {{ds.db_name}} | {{ds.db_mark}}</option>
+										{% endfor %} -->								   							
+									 </select>											
+								</div>	
+								<div class="form-group" >
+									 <label> 表名<i class="fa fa-info-circle" data-toggle="tooltip" title="选择表"></i></label>
+									 <select required="required" class="selectpicker form-control" data-live-search="true" name="table_name" id="table_name"  data-size="10" data-selected-text-format="count > 3"  data-width="100%"  autocomplete="off">
+									   	<option>请选择表</option>								   							
+									 </select>											
+								</div>																																																											
+								<lable><button type="button" value="" class="btn btn-default btn-sm" id="db_schema_btn">查看</button></lable>
+							</form> 
+						 </div>
+						<div class="col-lg-9">
+							<legend>
+								<i class="fa  fa-paper-plane-o"></i> 查询结果
+							</legend>
+	                        <div id="schema_result">		                        
+	                        </div>							
+						 </div>						 
+                    </div>                     
+                     <!-- CustomSql -->
+                    <div role="tabpanel" class="tab-pane fade" id="tab_content4" aria-labelledby="#optimize">
+						<div class="col-lg-4">
+							<legend>
+								<i class="fa  fa-paper-plane"></i> SQL优化建议
+							</legend>
+							<form role="form" method="post" id="optimize_sql">
+								{% csrf_token %}	
+								<div class="form-group" >
+									 <label> 数据库<i class="fa fa-info-circle" data-toggle="tooltip" title="选择数据库"></i></label>
+									 <select required="required" class="selectpicker form-control" data-live-search="true" name="db" id="optimize_db"  data-size="10" data-selected-text-format="count > 3"  data-width="100%"   autocomplete="off">
+									   	<option>请选择一个数据库</option>
+<!-- 										{% for ds in databaseList %}
+											<option value="{{ds.id}}">{{ds.db_env}} | {{ds.db_assets.server_assets.ip}} | {{ds.db_name}} | {{ds.db_mark}}</option>
+										{% endfor %} -->								   							
+									 </select>											
+								</div>									
+								<input  type="hidden" class="form-control"  name="model" value="optimize_sql"> 	
+								<div class="form-group" >
+									 <label> SQL内容<i class="fa fa-info-circle" data-toggle="tooltip" title="填写SQL"></i></label>
+									 <textarea class="form-control" rows="10" name="sql"></textarea>												
+								</div>																					
+								<lable><button type="button" value="" class="btn btn-default btn-sm" id="db_optimize_btn">查询</button></lable>
+								<button type="reset" class="btn btn-default btn-sm">撤销</button>
+							</form>
+						 </div>
+						 <div class="col-lg-8">
+							<legend>
+								<i class="fa  fa-paper-plane-o"></i> 建议结果
+							</legend>
+	                        <div id="optimize_result">		                        
+	                        </div>															 	
+						 </div>
+                    </div>                         
+                </div>                                  
+              </div>
+            </div>                                
+          </div>             
+        </div> 
+           <div class="col-md-12 col-xs-12" id="show_sql_result" style="display:none;">
+            <div class="x_panel">
+              <div class="x_title">
+                <h2>执行结果 <small>Results of execution</small></h2>
+                <ul class="nav navbar-right panel_toolbox">
+                  <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                  </li>
+                  <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
+                    <ul class="dropdown-menu" role="menu">
+                      <li><a href="#">Settings 1</a>
+                      </li>
+                      <li><a href="#">Settings 2</a>
+                      </li>
+                    </ul>
+                  </li>
+                  <li><a class="close-link"><i class="fa fa-close"></i></a>
+                  </li>
+                </ul>
+                <div class="clearfix"></div>
+              </div>
+              <div class="x_content">
+                    <div id="result">
+                    </div>             
+              </div>
+            </div>
+          </div>                         
+{% endblock %}
+{% block js-content %}
+	<script src="/static/jquery-confirm/jquery-confirm.min.js"></script>
+    <script src="/static/datatable/datatables.net/js/jquery.dataTables.min.js"></script>
+	<script src="/static/datatable/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>	
+    <script src="/static/datatable/datatables.net-buttons/js/dataTables.buttons.min.js"></script>
+    <script src="/static/datatable/datatables.net-buttons-bs/js/buttons.bootstrap.min.js"></script>
+    <script src="/static/datatable/datatables.net-buttons/js/buttons.flash.min.js"></script>
+    <script src="/static/datatable/datatables.net-buttons/js/buttons.html5.min.js"></script>
+    <script src="/static/datatable/datatables.net-buttons/js/buttons.print.min.js"></script>
+	<script src="/static/js/database/db.js"></script>
+	<script src="/static/validator/validator.js"></script>    
+    <!-- bootstrap-daterangepicker -->
+    <script src="/static/moment/min/moment.min.js"></script>
+    <script src="/static/bootstrap-daterangepicker/daterangepicker.js"></script>	
+{% endblock %}

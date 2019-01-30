@@ -1,0 +1,93 @@
+@CHARSET "UTF-8";
+.pt {
+	position: absolute;
+	text-align:left;
+	background: none repeat scroll 0 0 #FFFFFF;
+    border: 1px solid #CFCFCF;
+    box-shadow: 0 0 2px 2px rgba(0, 0, 0, 0.1);
+	z-index: 2209;
+	width: auto;
+	height:auto;
+	display:none;
+}
+.pt .cont {
+	height: auto;
+	overflow-y: auto;
+	background-color: #FFFFFF;
+	padding: 10px;
+}
+.pt .out, .pt .in {
+    display: block;
+    font-family: simsun;
+    font-size: 0;
+    height: 0;
+    overflow: visible;
+    position: absolute;
+    width: 0;
+}
+/*************up*******************/
+.pt-up .out, .pt-up .in{
+    border-style: dashed dashed solid;
+}
+.pt-up .out {
+    border-color: transparent transparent #CFCFCF;
+    border-width: 0 7px 8px;
+    left: 28px;
+    top: -8px;
+}
+.pt-up .in {
+    border-color: transparent transparent #FFFFFF;
+    border-width: 0 6px 7px;
+    left: 29px;
+    top: -7px;
+}
+/*************right****************/
+.pt-right .out, .pt-right .in {
+    border-style: dashed dashed dashed solid;
+}
+.pt-right .out {
+    border-color: transparent transparent transparent #CFCFCF;
+    border-width: 8px 0 7px 7px;
+    right: -7px;
+    top: 28px;
+}
+.pt-right .in {
+    border-color: transparent transparent transparent #FFFFFF;
+    border-width: 7px 0 6px 6px;
+    right: -6px;
+    top: 29px;
+}
+/*************down*****************/
+.pt-down .out, .pt-down .in {
+    border-style: solid dashed dashed;
+}
+.pt-down .out {
+    border-color: #CFCFCF transparent transparent;
+    border-width: 8px 7px 0;
+    bottom: -8px;
+    left: 28px;
+    top: auto;
+}
+.pt-down .in {
+    border-color: #FFFFFF transparent transparent;
+    border-width: 7px 6px 0;
+    bottom: -7px;
+    left: 29px;
+    top: auto;
+}
+/*************left*****************/
+.pt-left .out, .pt-left .in {
+    border-style: dashed solid dashed dashed;
+}
+.pt-left .out {
+    border-color: transparent #CFCFCF transparent transparent;
+    border-width: 7px 8px 7px 0;
+    left: -8px;
+    top: 28px;
+}
+.pt-left .in {
+    border-color: transparent #FFFFFF transparent transparent;
+    border-width: 6px 7px 6px 0;
+    left: -7px;
+    top: 29px;
+}

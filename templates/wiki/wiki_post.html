@@ -1,0 +1,161 @@
+{% extends 'base.html' %}
+{% block css-content %}
+    <link rel="stylesheet" href="/static/jquery-confirm/jquery-confirm.min.css">
+    <link href="/static/datatable/datatables.net-buttons-bs/css/buttons.bootstrap.min.css" rel="stylesheet">
+    <link href="/static/datatable/datatables.net-fixedheader-bs/css/fixedHeader.bootstrap.min.css" rel="stylesheet">
+    <link href="/static/datatable/datatables.net-responsive-bs/css/responsive.bootstrap.min.css" rel="stylesheet">
+    <link href="/static/datatable/datatables.net-scroller-bs/css/scroller.bootstrap.min.css" rel="stylesheet"> 
+    <link rel="stylesheet" href="/static/css/bootstrap-select.css"> 
+	<script type="text/javascript" src="/static/ckeditor/ckeditor.js"></script>  
+{% endblock %}
+{% block page-content %}
+        <div class="clearfix"></div>
+        <div class="row">
+          <div class="col-lg-8">
+            <div class="x_panel">
+              <div class="x_title">
+                <h2><i class="fa   fa-floppy-o"></i> 添加<code>Wiki</code>知识</h2>
+                <ul class="nav navbar-right panel_toolbox">
+                  <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                  </li>
+                  <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
+                    <ul class="dropdown-menu" role="menu">
+                      <li><a href="#">Settings 1</a>
+                      </li>
+                      <li><a href="#">Settings 2</a>
+                      </li>
+                    </ul>
+                  </li>
+                  <li><a class="close-link"><i class="fa fa-close"></i></a>
+                  </li>
+                </ul>
+                <div class="clearfix"></div>
+              </div>
+              <div class="x_content">
+                 <form role="form" class="main form-horizontal" novalidate>{% csrf_token %}
+					<fieldset>
+					<div class="form-group">
+						 <label class="col-sm-1 control-label">标题</label>
+						 <div class="col-sm-10">
+						 	<input type="text" class="form-control" id="title" placeholder="文章标题" value="" class="input-xlarge"  required/>
+						 </div>
+					</div>										
+					<div class="form-group">
+						 <label class="col-sm-1 control-label">内容</label>
+						 <div class="col-sm-10">
+						 	<textarea id="content" class="ckeditor"></textarea>
+						 </div>
+					</div>	
+		
+					<div class="form-group">
+						 <label class="col-sm-1 control-label">分类</label>
+						 <div class="col-sm-10">
+						   <select   class="selectpicker form-control" name="category" id="select_category" data-live-search="true" data-size="10" data-selected-text-format="count > 3"  data-width="100%" autocomplete="off"   required>			   		
+							</select>
+						 </div>											 
+					</div>		
+		
+					<div class="form-group">
+						 <label class="col-sm-1 control-label">标签</label>
+						 <div class="col-sm-10 ">
+						   <select  multiple required="required" class="selectpicker form-control" id="select_tag" data-live-search="true" data-size="10" data-selected-text-format="count > 3"  data-width="100%" autocomplete="off"  required>		   		
+							</select>																							
+						 </div>										 
+					</div>	
+					<div class="form-group">
+						<label class="col-sm-1 control-label"></label>
+						<div class="col-sm-2">
+				 		<button type="button"  class="btn btn-default" name="addWiki">提交</button>
+				 		</div>
+					</div>											
+				</form>                                                       
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-4">
+            <div class="x_panel">
+              <div class="x_title">
+                <h2><i class="fa   fa-book"></i> 分类管理</h2>
+                <ul class="nav navbar-right panel_toolbox">
+                  <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                  </li>
+                  <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
+                    <ul class="dropdown-menu" role="menu">
+                      <li><a href="#">Settings 1</a>
+                      </li>
+                      <li><a href="#">Settings 2</a>
+                      </li>
+                    </ul>
+                  </li>
+                  <li><a class="close-link"><i class="fa fa-close"></i></a>
+                  </li>
+                </ul>
+                <div class="clearfix"></div>
+              </div>
+              <div class="x_content">
+                  <table id="categoryTableLists" class="table table-hover">
+                    <thead>
+                      <tr>
+		                <th>ID</th>
+		                <th>分类</th>
+						<th class="text-center">操作</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                  </table>                                                                      
+              </div>
+            </div>
+          </div>  
+          <div class="col-lg-4">
+            <div class="x_panel">
+              <div class="x_title">
+                <h2><i class="fa   fa-bookmark"></i> 标签管理</h2>
+                <ul class="nav navbar-right panel_toolbox">
+                  <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                  </li>
+                  <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
+                    <ul class="dropdown-menu" role="menu">
+                      <li><a href="#">Settings 1</a>
+                      </li>
+                      <li><a href="#">Settings 2</a>
+                      </li>
+                    </ul>
+                  </li>
+                  <li><a class="close-link"><i class="fa fa-close"></i></a>
+                  </li>
+                </ul>
+                <div class="clearfix"></div>
+              </div>
+              <div class="x_content">
+                  <table id="tagTableLists" class="table table-hover">
+                    <thead>
+                      <tr>
+		                <th>ID</th>
+		                <th>标签类型</th>
+						<th class="text-center">操作</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                  </table>                                                       
+              </div>
+            </div>
+          </div>                  
+        </div> 	                  
+{% endblock %}
+{% block js-content %}
+	<script src="/static/jquery-confirm/jquery-confirm.min.js"></script>
+    <script src="/static/datatable/datatables.net/js/jquery.dataTables.min.js"></script>
+	<script src="/static/datatable/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>	
+    <script src="/static/datatable/datatables.net-buttons/js/dataTables.buttons.min.js"></script>
+    <script src="/static/datatable/datatables.net-buttons-bs/js/buttons.bootstrap.min.js"></script>
+    <script src="/static/datatable/datatables.net-buttons/js/buttons.flash.min.js"></script>
+    <script src="/static/datatable/datatables.net-buttons/js/buttons.html5.min.js"></script>
+    <script src="/static/datatable/datatables.net-buttons/js/buttons.print.min.js"></script>
+	<script src="/static/validator/validator.js"></script>    
+	<script src="/static/js/wiki/post.js"></script> 
+{% endblock %}

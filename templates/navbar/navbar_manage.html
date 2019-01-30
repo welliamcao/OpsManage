@@ -1,0 +1,278 @@
+{% extends 'base.html' %}
+{% block css-content %}
+    <link rel="stylesheet" href="/static/css/bootstrap-select.css">
+    <link rel="stylesheet" href="/static/jquery-confirm/jquery-confirm.min.css">
+    <link href="/static/datatable/datatables.net-buttons-bs/css/buttons.bootstrap.min.css" rel="stylesheet">
+    <link href="/static/datatable/datatables.net-fixedheader-bs/css/fixedHeader.bootstrap.min.css" rel="stylesheet">
+    <link href="/static/datatable/datatables.net-responsive-bs/css/responsive.bootstrap.min.css" rel="stylesheet">
+    <link href="/static/datatable/datatables.net-scroller-bs/css/scroller.bootstrap.min.css" rel="stylesheet"> 
+    <link href="/static/css/doublebox-bootstrap.css" rel="stylesheet">      
+{% endblock %}
+{% block page-content %}
+        <div class="clearfix"></div>
+        <div class="row">
+              <div class="col-md-12 col-sm-12 col-xs-12">
+                <div class="x_panel">
+                  <div class="x_title">
+                    <h2><i class="fa fa-bars"></i> 导航管理<small>Navbar Config</small></h2>
+                    <ul class="nav navbar-right panel_toolbox">
+                      <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                      </li>
+                      <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
+                        <ul class="dropdown-menu" role="menu">
+                          <li><a href="#">Settings 1</a>
+                          </li>
+                          <li><a href="#">Settings 2</a>
+                          </li>
+                        </ul>
+                      </li>
+                      <li><a class="close-link"><i class="fa fa-close"></i></a>
+                      </li>
+                    </ul>
+                    <div class="clearfix"></div>
+                  </div>
+                  <div class="x_content">
+
+
+                    <div class="" role="tabpanel" data-example-id="togglable-tabs">
+                      <ul id="myTab" class="nav nav-tabs bar_tabs" role="tablist">
+                        <li role="presentation" class="active"><a href="#tab_content1" id="home-tab" role="tab" data-toggle="tab" aria-expanded="true"><i class="fa fa-map-marker"></i> 站内导航</a>
+                        </li>
+<!--                         <li role="presentation" class=""><a href="#tab_content2" role="tab" id="profile-tab" data-toggle="tab" aria-expanded="false"><i class="fa fa-building"></i> 机房信息</a>
+                        </li>
+                        <li role="presentation" class=""><a href="#tab_content3" role="tab" id="profile-tab2" data-toggle="tab" aria-expanded="false"><i class="fa fa-bars"></i> 机柜线路</a>
+                        </li>
+                        <li role="presentation" class=""><a href="#tab_content4" role="tab" id="profile-tab3" data-toggle="tab" aria-expanded="false"><i class="fa fa-bookmark"></i> 标签分组</a>
+                        </li>  -->                       
+                      </ul>
+                      <div id="myTabContent" class="tab-content">
+                        <div role="tabpanel" class="tab-pane fade active in" id="tab_content1" aria-labelledby="home-tab">
+			              <div class="col-md-4 col-sm-4 col-xs-12">
+			                <div class="x_panel">
+			                  <div class="x_title">
+			                    <h2>导航类型 <small>Types</small></h2>
+			                    <ul class="nav navbar-right panel_toolbox">
+			                      <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+			                      </li>
+			                      <li class="dropdown">
+			                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
+			                        <ul class="dropdown-menu" role="menu">
+			                          <li><a href="#">Settings 1</a>
+			                          </li>
+			                          <li><a href="#">Settings 2</a>
+			                          </li>
+			                        </ul>
+			                      </li>
+			                      <li><a class="close-link"><i class="fa fa-close"></i></a>
+			                      </li>
+			                    </ul>
+			                    <div class="clearfix"></div>
+			                  </div>
+			                  <div class="x_content">
+			                    <table class="table" id="navbarThirdTbale">
+			                      <thead>
+			                        <tr>
+			                          <th>ID</th>
+			                          <th>名称</th>
+			                          <th>图标类型</th>
+			                          <th class="text-center">操作</th>
+			                        </tr>
+			                      </thead>
+			                      <tbody>
+			                      </tbody>
+			                    </table>
+			
+			                  </div>
+			                </div>
+			              </div>
+			              
+			              <div class="col-md-8 col-sm-8 col-xs-12">
+			                <div class="x_panel">
+			                  <div class="x_title">
+			                    <h2>站点信息 <small>Detail</small></h2>
+			                    <ul class="nav navbar-right panel_toolbox">
+			                      <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+			                      </li>
+			                      <li class="dropdown">
+			                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
+			                        <ul class="dropdown-menu" role="menu">
+			                          <li><a href="#">Settings 1</a>
+			                          </li>
+			                          <li><a href="#">Settings 2</a>
+			                          </li>
+			                        </ul>
+			                      </li>
+			                      <li><a class="close-link"><i class="fa fa-close"></i></a>
+			                      </li>
+			                    </ul>
+			                    <div class="clearfix"></div>
+			                  </div>
+			                  <div class="x_content">
+<!-- 			                    <div>
+			                     	<button type="button" name="add-navbar-number" class="btn btn-xs btn-default" data-toggle="modal" data-target=".bs-example-modal-navbarnumber"><i class="glyphicon glyphicon-plus"></i></button>
+			                    </div> -->
+			                    <table class="table" id="navbarThirdNumberTbale">
+			                      <thead>
+			                        <tr>
+			                          <th>ID</th>
+			                          <th>站点类型</th>
+			                          <th>站点名称</th>
+			                          <th>宽度</th>
+			                          <th>高度</th>
+			                          <th>url</th>
+			                          <th class="text-center">操作</th>
+			                        </tr>
+			                      </thead>
+			                      <tbody>
+			                      </tbody>
+			                    </table>
+			
+			                  </div>
+			                </div>
+			              </div>			              
+			              
+                        </div>                        
+                        <div role="tabpanel" class="tab-pane fade" id="tab_content2" aria-labelledby="profile-tab">
+ 
+                        </div>
+                        <div role="tabpanel" class="tab-pane fade" id="tab_content3" aria-labelledby="profile-tab">
+            	               
+                        </div>
+                        
+                        <div role="tabpanel" class="tab-pane fade" id="tab_content4" aria-labelledby="profile-tab">
+                        
+                        </div>                        
+                        
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+              </div>        
+        </div>        
+	
+
+        <div id="addNavbarThirdModal" class="modal fade bs-example-modal-navbar" tabindex="-1" role="dialog" aria-hidden="true">
+          <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span>
+                </button>
+                <h4 class="modal-title" id="myModalLabel">导航类型</h4>
+              </div>
+              <div class="modal-body">
+                    <form id="navbarform" data-parsley-validate class="form-horizontal form-label-left">{% csrf_token %}
+                      <div class="form-group">
+                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="first-name">类型名称 <span class="required">*</span>
+                        </label>
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                          <input type="text" id="first-name" required="required" name="type_name" class="form-control col-md-7 col-xs-12">
+                        </div>
+                      </div>
+                      <div class="form-group">
+                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="first-name">图标 <span class="required">*</span>
+                        </label>
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                          <select class="selectpicker form-control" data-live-search="true" name="icon"  data-size="10" data-selected-text-format="count > 3"  data-width="100%"  autocomplete="off" >	
+								<option value="fa fa-arrows">arrows</option>
+								<option value="fa fa-anchor">anchor</option>   
+								<option value="fa fa-cloud">cloud</option> 
+								<option value="fa fa-tachometer">tachometer</option> 
+								<option value="fa fa-search-plus">search-plus</option> 
+								<option value="fa fa-shopping-cart">shopping-cart</option> 
+								<option value="fa fa-users">users</option> 
+								<option value="fa fa-signal">signal</option> 
+								<option value="fa fa-plug">plug</option> 
+								<option value="fa fa-gavel">gavel</option> 
+								<option value="fa fa-folder-open">folder-open</option> 
+								<option value="fa fa-database">database</option> 
+								<option value="fa fa-cloud-download">cloud-download</option>                        		
+                          </select>
+                        </div>
+                      </div>                      
+                    </form>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" id="navbarsubmit"  class="btn btn-primary">保存</button>
+              </div>
+
+            </div>
+          </div>
+        </div> 
+
+        <div id="addNavbarThirdNumberModal" class="modal fade bs-example-modal-navbarnumber" tabindex="-1" role="dialog" aria-hidden="true">
+          <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span>
+                </button>
+                <h4 class="modal-title" id="myModalLabel">添加分类成员</h4>
+              </div>
+              <div class="modal-body">
+                    <form id="navbarNumberform" data-parsley-validate class="form-horizontal form-label-left">
+
+                      <div class="form-group">
+                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="first-name">分类名称 <span class="required">*</span>
+                        </label>
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                          <select  class="selectpicker form-control" id="navbar_select">	
+                          </select>
+                        </div>
+                      </div>
+                      <div class="form-group">
+                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">站点名称<span class="required">*</span>
+                        </label>
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                          <input type="text" id="nav_name" name="nav_name" required="required" placeholder="OpsManage" class="form-control col-md-7 col-xs-12">
+                        </div>
+                      </div>
+                      <div class="form-group">
+                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">宽度<span class="required">*</span>
+                        </label>
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                          <input type="text" id="nav_width" name="nav_width" value="100%" required="required" placeholder="/aws/" class="form-control col-md-7 col-xs-12">
+                        </div>
+                      </div> 
+                      <div class="form-group">
+                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">高度<span class="required">*</span>
+                        </label>
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                          <input type="text" id="nav_height" name="nav_height" value="800px" required="required" placeholder="800px" class="form-control col-md-7 col-xs-12">
+                        </div>
+                      </div>                                             
+                      <div class="form-group">
+                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">站点URL<span class="required">*</span>
+                        </label>
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                          <input type="text" id="nav_url" name="nav_url" value="https://" required="required" placeholder="https://github.com/welliamcao/OpsManage" class="form-control col-md-7 col-xs-12">
+                        </div>
+                      </div>                                            
+
+                    </form>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" id="navbarnumbersubmit"  class="btn btn-primary">保存</button>
+              </div>
+
+            </div>
+          </div>
+        </div>
+	
+                         
+{% endblock %}
+{% block js-content %}
+	<script src="/static/jquery-confirm/jquery-confirm.min.js"></script>
+    <script src="/static/datatable/datatables.net/js/jquery.dataTables.min.js"></script>
+	<script src="/static/datatable/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>	
+    <script src="/static/datatable/datatables.net-buttons/js/dataTables.buttons.min.js"></script>
+    <script src="/static/datatable/datatables.net-buttons-bs/js/buttons.bootstrap.min.js"></script>
+    <script src="/static/datatable/datatables.net-buttons/js/buttons.flash.min.js"></script>
+    <script src="/static/datatable/datatables.net-buttons/js/buttons.html5.min.js"></script>
+    <script src="/static/datatable/datatables.net-buttons/js/buttons.print.min.js"></script>	
+	<script src="/static/js/navbar/nav.js"></script>
+{% endblock %}

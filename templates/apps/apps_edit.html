@@ -1,0 +1,226 @@
+{% extends 'base.html' %}
+{% block css-content %}
+    <link rel="stylesheet" href="/static/jquery-confirm/jquery-confirm.min.css">
+    <link href="/static/datatable/datatables.net-bs/css/dataTables.bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/bootstrap-select.css">
+	<script src="http://cdn.bootcss.com/ace/1.2.4/ace.js"></script>
+	<script src="http://cdn.bootcss.com/ace/1.2.4/ext-language_tools.js"></script>
+	<script src="http://cdn.bootcss.com/ace/1.2.4/ext-old_ie.js"></script>
+	<script src="http://cdn.bootcss.com/ace/1.2.4/theme-monokai.js"></script>       
+	<style type="text/css"> 
+		pre {
+			overflow: auto;
+			white-space: normal;
+			white-space: pre-wrap; /* css-3 */
+			white-space: -moz-pre-wrap; /* Mozilla, since 1999 */
+			white-space: -pre-wrap; /* Opera 4-6 */
+			white-space: -o-pre-wrap; /* Opera 7 */
+			word-wrap: break-word; /* Internet Explorer 5.5+ */
+			font-family: Consolas, monospace;
+			color: #ADFF2F;
+			background-color: #000000;
+		}	
+		td.details-control {
+		    background: url('/static/images/details_open.png') no-repeat center center; */
+		    cursor: pointer;
+		}
+		tr.shown td.details-control {
+		    background: url('/static/images/details_close.png') no-repeat center center;
+		} 
+		#project_local_command {
+			width: 100%;
+			height: 300px;
+	   }   		      	
+	</style>  
+{% endblock %}
+{% block page-content %}
+        <div class="clearfix"></div> 
+        
+		<div class="row">
+          <div class="col-md-12 col-sm-12 col-xs-12">
+            <div class="x_panel">
+              <div class="x_title">
+                <h2>项目修改<small>Project Modify</small></h2>
+                <ul class="nav navbar-right panel_toolbox">
+                  <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                  </li>
+                  <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
+                    <ul class="dropdown-menu" role="menu">
+                      <li><a href="#">Settings 1</a>
+                      </li>
+                      <li><a href="#">Settings 2</a>
+                      </li>
+                    </ul>
+                  </li>
+                  <li><a class="close-link"><i class="fa fa-close"></i></a>
+                  </li>
+                </ul>
+                <div class="clearfix"></div>
+              </div>
+			<div class="x_content">
+				<div class="row">
+					<div class="col-lg-6">
+						<legend>
+							<i class="fa  fa-paper-plane"></i> 部署服务器
+						</legend>
+						<form role="form" method="post" id="add_deploy_project">
+							{% csrf_token %}
+							<div class="item form-group">
+								<label><font color='red'>* </font>产品线名称</label> 
+								<input class="form-control" id="deploy_project" value="" disabled>								
+								<p class="help-block">例如：opsmanage</p>
+							</div>
+							<div class="item form-group">
+								 <label><font color='red'>* </font>业务类型</label>
+								<input class="form-control" id="deploy_service" value="" disabled>	
+							</div>
+							<div class="item form-group">
+								 <label><font color='red'>* </font>项目名称</label>
+								 <input class="form-control" id="project_name" value="" disabled>
+							</div>																	
+							<div class="item form-group">
+								<label><font color='red'>* </font>项目环境</label> 
+								<select class="form-control" id="project_env" name="project_env" required>
+									<option selected="selected" value="">请选择项目环境</option>
+									<option value="sit" name="project_env">测试环境</option>
+									<option value="qa" name="project_env">预生产环境</option>
+									<option value="uat" name="project_env">生产环境</option>
+								</select>
+							</div>																								
+							<div class="item form-group">
+								<label><font color='red'>* </font>远程仓库类型</label> 
+								<select class="form-control" id="project_repertory" name="project_repertory"  required>
+									<option selected="selected" value="">请选择仓库类型</option>
+									<option value="git" name="project_repertory">Git</option>
+									<option value="svn" name="project_repertory">Svn</option>
+								</select>
+							</div>
+							<div class="item form-group">
+								<label><font color='red'>* </font>仓库地址</label> 
+								<input class="form-control" id="project_address" name="project_address" required>
+								<p class="help-block">例如：https://github.com/welliamcao/VManagePlatform.git</p>
+							</div>
+							<div class="item form-group" style="display: none;" id="repo_type">
+								<label>SVN账户/密码<i class="fa fa-info-circle"
+									data-toggle="tooltip" title="选择svn的账户密码"></i></label>
+								<div class="form-inline from-group">
+									<input type="text" class="form-control"
+										id="project_repo_user" placeholder="请输入账户"> <input
+										type="text" class="form-control" id="project_repo_passwd"
+										placeholder="请输入密码">
+								</div>
+							</div>
+							<div class="item form-group">
+								<label><font color='red'>* </font>分支/Tag上线<i class="fa fa-info-circle" data-toggle="tooltip" title="选择用branch还是tag作为版本控制"></i></label> 
+								<select class="form-control" id="project_model" name="project_model" required>
+									<option selected="selected" value="">选择上线版本控制类型</option>
+									<option value="branch" name="project_model">Branch</option>
+									<option value="tag" name="project_model">Tag</option>
+								</select>
+							</div>
+							<div class="item form-group" >			 		             
+								<label ><font color='red'>* </font>语言类型: </label>	
+								<div class="btn-group btn-group-sm">
+									<button type="button" class="btn btn-default" name="compile_type" value="compile"><a>编译型</a></button>
+									<button type="button" class="btn btn-default" name="compile_type" value="noncompile"><a>非编译型</a></button>
+								</div>
+							</div> 
+							<div id="compile" style="display: none;">
+								<div class="item form-group" >
+									<label>编译命令<i class="fa fa-info-circle" data-toggle="tooltip" title="写入编译命令"></i></label>
+									<div id="project_local_command" name="project_local_command" class="ace_editor"></div>								
+								</div>
+								<div class="item form-group">
+									<label>代码发布目录<i class="fa fa-info-circle" data-toggle="tooltip" title="真实被同步代码的目录"></i></label> 
+									<input class="form-control" name="project_dir" value="{{project_dir}}release/" id="project_dir" required pattern="^/.*/$" title="正确格式：/path/" disabled>
+								</div>	
+							</div>		
+							<div class="item form-group">
+								<label><font color='red'>* </font>源代码存放地址</label> 
+								<input class="form-control" id="project_repo_dir" name="project_repo_dir" value="{{project_dir}}source/" required pattern="^/.*/$" title="正确格式：/path/" disabled>
+							</div>																					
+							<div class="item form-group">
+								<label>排除文件<i class="fa fa-info-circle" data-toggle="tooltip" title="项目目录的相对路径"></i></label>
+								<textarea class="form-control" rows="3" id="project_exclude" name="project_exclude"></textarea>
+								<p class="help-block">例如：.git,data/upload</p>
+							</div>						
+							<button type="reset" class="btn btn-default">撤销</button>
+							<button type="button" class="btn btn-default" id="btn_modf_project">修改</button>
+					</div>
+					<!-- /.col-lg-6 (nested) -->
+					<div class="hr hr32 hr-dotted"></div>
+					<div class="col-lg-6">
+						<legend>
+							<i class="fa  fa-paper-plane-o"></i> 目标服务器
+						</legend>					
+						<div class="item form-group">
+							<label><font color='red'>* </font>目标服务器</label> <br> 
+							<select multiple  class="selectpicker form-control" data-live-search="true"  data-size="10" data-width="100%" name="server" id="server"  required> 
+							</select>
+						</div>						
+						<div class="item form-group">
+							<label><font color='red'>* </font>用户<i class="fa fa-info-circle"
+								data-toggle="tooltip" title="部署服务跟目标服务器都需要创建该用户"></i></label> 
+								<input class="form-control" id="project_user"  pattern="^\w+$" title="不要输入非法字符" value="www" required>
+							<p class="help-block">例如：www</p>
+						</div>
+						<div class="item form-group">
+							<label><font color='red'>* </font>部署目录</label> <input class="form-control" id="dir" value="" required>
+							<p class="help-block">例如：/var/www/project/</p>
+						</div>
+						<div class="item form-group">
+							<label>项目日志</label> <input class="form-control" id="logpath" value="" required>
+							<p class="help-block">例如：/var/www/project/logs/project.log</p>
+						</div>							
+						<div class="item form-group">
+							<label>部署之后执行的命令</label>
+							<textarea class="form-control" rows="3" id="project_remote_command" name="project_remote_command"></textarea>
+							<p class="help-block">例如：service nginx restart && service httpd restart</p>
+						</div>
+					</div>
+					<!-- /.col-lg-6 (nested) -->
+					<div class="hr hr32 hr-dotted"></div>
+					<div class="col-lg-6" id="extConfig" style="display: none;">
+						<legend>
+							<i class="fa  fa-gears"></i> 扩展配置
+						</legend>
+						<div class="item form-group">
+							<label><font color='red'>* </font>部署授权组<i class="fa fa-info-circle" data-toggle="tooltip" title="选择的用户组能够授权部署工单"></i></label> <br>
+							<select class="form-control" name="project_audit_group" id="project_audit_group">
+								<option name="project_audit_group" id="project_audit_group" selected="selected" value="0">选择一个授权组</option> 
+								{% for ds in groupList %}
+									<option name="project_audit_group"  value="{{ds.id}}">{{ds.name}}</option>
+								{% endfor %}
+							</select>
+						</div>
+					</div>
+					</form>
+				</div>
+				</div>			
+			</div>                               
+          </div>             
+        </div> 
+              
+
+
+
+
+           
+           
+                                 
+{% endblock %}
+{% block js-content %}
+	<script src="/static/jquery-confirm/jquery-confirm.min.js"></script>
+    <script src="/static/datatable/datatables.net/js/jquery.dataTables.min.js"></script>
+	<script src="/static/datatable/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>		
+	<script src="/static/validator/validator.js"></script>
+	<!-- jQuery Sparklines -->
+    <script src="/static/jquery-sparkline/dist/jquery.sparkline.min.js"></script>
+    <!-- jQuery Knob -->
+    <script src="/static/jquery-knob/dist/jquery.knob.min.js"></script> 
+    <!-- morris.js -->
+    <script src="/static/raphael/raphael.min.js"></script>
+    <script src="/static/morris.js/morris.min.js"></script>
+    <script src="/static/js/apps/edit.js"></script>  
+{% endblock %}

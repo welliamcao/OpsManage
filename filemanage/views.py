@@ -9,22 +9,22 @@ from django.contrib.auth.decorators import login_required, permission_required
 from orders.models import Order_System
 from OpsManage.utils import base
 from dao.assets import AssetsSource
-from filemanage.models import FileUpload_Audit_Order,UploadFiles
+from Filemanage.models import FileUpload_Audit_Order,UploadFiles
 
 @login_required()
-@permission_required('filemanage.can_add_fileupload_audit_order',login_url='/noperm/')
+@permission_required('Filemanage.can_add_fileupload_audit_order',login_url='/noperm/')
 def file_upload_run(request,id):
     if request.method == "GET":
         uploadfilesList = []
         try:
             order = Order_System.objects.get(id=id,order_type=2)
         except Exception,ex:
-            return render(request,'filemanage/file_upload_run.html',{"user":request.user,"errInfo":ex})
+            return render(request,'Filemanage/file_upload_run.html',{"user":request.user,"errInfo":ex})
         order.fileupload_audit_order.dest_server = json.loads(order.fileupload_audit_order.dest_server)
         for ds in UploadFiles.objects.filter(file_order=order.fileupload_audit_order):
             ds.file_path = str(ds.file_path).replace('file/upload/','')
             uploadfilesList.append(ds)
-        return render(request,'filemanage/file_upload_run.html',{"user":request.user,"order":order,
+        return render(request,'Filemanage/file_upload_run.html',{"user":request.user,"order":order,
                                                                  "uploadfilesList":uploadfilesList,
                                                                  "ans_uuid":uuid.uuid4()}) 
     elif request.method == "POST":
@@ -59,15 +59,15 @@ def file_upload_run(request,id):
     
     
 @login_required()
-@permission_required('filemanage.can_add_fileupload_audit_order',login_url='/noperm/')
+@permission_required('filemanage.can_add_fileuFilemanaget_order',login_url='/noperm/')
 def file_download_run(request,id):
     if request.method == "GET":
         try:
             order = Order_System.objects.get(id=id,order_type=3)
         except Exception,ex:
-            return render(request,'filemanage/file_download_run.html',{"user":request.user,"errInfo":ex})
+            return render(request,'filemanage/file_downloadFilemanage,{"user":request.user,"errInfo":ex})
         order.filedownload_audit_order.dest_server = json.loads(order.filedownload_audit_order.dest_server)
-        return render(request,'filemanage/file_download_run.html',{"user":request.user,"order":order,
+        return render(request,'filemanage/file_downloadFilemanage,{"user":request.user,"order":order,
                                                                  "ans_uuid":uuid.uuid4()}) 
     elif request.method == "POST":
         try:
@@ -101,7 +101,7 @@ def file_download_run(request,id):
 
 
 @login_required()
-@permission_required('filemanage.can_add_fileupload_audit_order',login_url='/noperm/')
+@permission_required('filemanage.can_add_fileupload_audit_order',loginFilemanageerm/')
 def file_downloads(request):
     if request.method == "POST":
         try:

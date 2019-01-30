@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+{% block css-content %}
+    <link rel="stylesheet" href="/static/jquery-confirm/jquery-confirm.min.css">
+    <link rel="stylesheet" href="/static/css/bootstrap-select.css"> 
+	<script src="http://cdn.bootcss.com/ace/1.2.4/ace.js"></script>
+	<script src="http://cdn.bootcss.com/ace/1.2.4/ext-language_tools.js"></script>
+	<script src="http://cdn.bootcss.com/ace/1.2.4/ext-old_ie.js"></script>
+	<script src="http://cdn.bootcss.com/ace/1.2.4/theme-monokai.js"></script>
+	<link href="/static/fileinput/css/fileinput.css" media="all" rel="stylesheet" type="text/css" />   
+	<style type="text/css"> 
+		td.details-control {
+		    background: url('/static/images/details_open.png') no-repeat center center; */
+		    cursor: pointer;
+		}
+		tr.shown td.details-control {
+		    background: url('/static/images/details_close.png') no-repeat center center;
+		} 
+		#compile-editor-add {
+			width: 100%;
+			height: 200px;
+	   }	
+		#compile-editor-modf {
+			width: 100%;
+			height: 200px;
+	   }	
+		pre {
+			overflow: auto;
+			white-space: normal;
+			white-space: pre-wrap; /* css-3 */
+			white-space: -moz-pre-wrap; /* Mozilla, since 1999 */
+			white-space: -pre-wrap; /* Opera 4-6 */
+			white-space: -o-pre-wrap; /* Opera 7 */
+			word-wrap: break-word; /* Internet Explorer 5.5+ */
+			font-family: Consolas, monospace;
+			color: #ADFF2F;
+			background-color: #000000;
+		}	            	
+	</style>	  
+{% endblock %}
+{% block page-content %}
+        <div class="clearfix"></div>
+		<div class="row">
+              <div class="col-md-12 col-sm-12 col-xs-12">
+                <div class="x_panel">
+                  <div class="x_title">
+                    <h2>工单处理 <small>Orders Handle</small></h2>
+                    <ul class="nav navbar-right panel_toolbox">
+                      <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                      </li>
+                      <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
+                        <ul class="dropdown-menu" role="menu">
+                          <li><a href="#">Settings 1</a>
+                          </li>
+                          <li><a href="#">Settings 2</a>
+                          </li>
+                        </ul>
+                      </li>
+                      <li><a class="close-link"><i class="fa fa-close"></i></a>
+                      </li>
+                    </ul>
+                    <div class="clearfix"></div>
+                  </div>
+                  <div class="x_content">
+
+						<div class="row">
+
+								<div class="col-lg-4">
+									<legend>
+										<i class="fa  fa-paper-plane"></i> 文件下载
+									</legend>
+									<form role="form" method="post" id="run_filedownload_order" enctype="multipart/form-data">
+										{% csrf_token %}
+										<div class="item form-group">
+		 									<label><font color='red'>* </font>工单主题<i class="fa fa-info-circle" data-toggle="tooltip" title="主题"></i></label>
+											<input class="form-control" rows="3" id="filedownload_order_subject" name="filedownload_order_subject" required></input>
+											<input class="form-control" rows="3" id="ans_uuid" name="ans_uuid" type="hidden" value=""></input>
+										</div>								
+										<div class="item form-group">
+		 									<label><font color='red'>* </font>工单内容<i class="fa fa-info-circle" data-toggle="tooltip" title="说明用途"></i></label>
+											<textarea class="form-control" rows="3" id="order_content" name="order_content" required></textarea>
+										</div>	
+										<div class="item form-group">
+										  <label><font color='red'>* </font>服务器选择</label>
+                                          <select multiple class="selectpicker form-control"  data-size="10" data-selected-text-format="count > 5" data-live-search="true" data-width="100%"   autocomplete="off"  autocomplete="off" id="custom" name="custom" required>
+                                          </select>
+										</div>																			
+										<div class="form-group">
+											<label><font color='red'>* </font>目标路径<i class="fa fa-info-circle" data-toggle="tooltip" title="文件分发的目标服务器路径"></i></label>
+											<input class="form-control" id="dest_path" name="dest_path"  disabled></input>					
+										</div>										
+										<div class="item form-group">
+		 									<label>工单状态<i class="fa fa-info-circle" data-toggle="tooltip" title="工单状态"></i></label>
+											<span id="order_status"></span>
+										</div>																									
+										<button type="button" class="btn btn-default" id="filedownloadbtn" name="btn-filedownload-run" disabled>运行</button>
+									</form>
+								</div>
+								<!-- /.col-lg-6 (nested) -->
+								<div class="hr hr32 hr-dotted"></div>
+								<div class="col-lg-8">
+									<legend>
+										<i class="fa  fa-paper-plane-o"></i> 下载远程文件
+									</legend>	
+				                  <div class="x_content">
+                    				 <div id="result"></div>
+				                  </div>																
+								</div>	
+
+						</div>
+   
+                  </div>
+              </div>
+        </div> 
+       </div>      
+<div style="visibility:hidden"><a id="scrollToTop"></a></div>                  
+{% endblock %}
+{% block js-content %}
+	<script src="/static/jquery-confirm/jquery-confirm.min.js"></script>
+    <script src="/static/datatable/datatables.net/js/jquery.dataTables.min.js"></script>
+	<script src="/static/datatable/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>	
+	<script src="/static/js/orders/filedownload.js">
+	<script src="/static/validator/validator.js"></script>
+{% endblock %}
