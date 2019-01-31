@@ -5,15 +5,15 @@
 
 **开源声明**：欢迎大家star或者fork我的开源项目，如果大家在自己的项目里面需要引用该项目代码，请在项目里面申明协议和版权信息。
 ## 开发语言与框架：
- * 编程语言：Python2.7 + HTML + JScripts
+ * 编程语言：Python3.6 + HTML + JScripts
  * 前端Web框架：Bootstrap
  * 后端Web框架：Django
  * 后端Task框架：Celery + Redis
 
 ## OpsManage环境要求
- * 编程语言：Python 2.7
+ * 编程语言：Python 3.6
  * 操作系统：CentOS 6+
- * Ansible版本：2.0 + 
+ * Ansible版本：2.6 + 
  * 部署平台及节点服务器：Rsync 3+
  * MySQL版本：5.1-5.6
 
@@ -38,16 +38,16 @@
 # yum install zlib zlib-devel readline-devel sqlite-devel bzip2-devel openssl-devel gdbm-devel libdbi-devel ncurses-libs kernel-devel libxslt-devel libffi-devel python-devel zlib-devel  sshpass gcc git -y
 # yum install http://www.percona.com/downloads/percona-release/redhat/0.1-6/percona-release-0.1-6.noarch.rpm
 # yum install Percona-Server-server-56 install Percona-Server-devel-56
-# wget http://mirrors.sohu.com/python/2.7.12/Python-2.7.12.tgz  #CentOS 7不用安装python2.7
-# tar -xzvf Python-2.7.12.tgz
-# cd Python-2.7.12
+# wget https://www.python.org/ftp/python/3.6.6/Python-3.6.6.tgz  #CentOS 7不用安装python2.7
+# tar -xzvf Python-3.6.6.tgz
+# cd Python-3.6.6
 # ./configure
 # make all
 # make install
 # make clean
 # make distclean 
 # mv /usr/bin/python /usr/bin/python2.6.6  
-# ln -s /usr/local/bin/python2.7 /usr/bin/python 
+# ln -s /usr/local/bin/python3.6 /usr/bin/python 
 # vi /usr/bin/yum  
 将文件头部的
 #!/usr/bin/python
@@ -118,50 +118,9 @@ mysql>\q
 ```
 七、配置OpsManage
 ```
-# cd /mnt/OpsManage/OpsManage
-# vim settings.py
-BROKER_URL =  redis://192.168.1.233:6379/3 #修改成自己的配置，格式是redis://[:password]@host:port/db
-REDSI_KWARGS_LPUSH = {"host":'192.168.1.233','port':6379,'db':3} #修改成自己的配置
-DATABASES = {
-    'default': {
-        'ENGINE':'django.db.backends.mysql',
-        'NAME':'opsmanage',
-        'USER':'root',		#修改成自己的配置
-        'PASSWORD':'welliam',	#修改成自己的配置
-        'HOST':'192.168.1.233', #修改成自己的配置
-        'PORT': 3306
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
-}
-TEMPLATES = [
-    {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': ["/mnt/OpsManage/OpsManage/static/",'/mnt/OpsManage/OpsManage/templates/'], #修改成自己的配置
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
-            ],
-        },
-    },
-]
-STATICFILES_DIRS = (
-     '/mnt/OpsManage/OpsManage/static/',	#修改成自己的配置
-    )
-TEMPLATE_DIRS = (
-#     os.path.join(BASE_DIR,'mysite\templates'),
-    '/mnt/OpsManage/OpsManage/templates/',	#修改成自己的配置
-)
-SFTP_CONF = {
-             'port':22,
-             'username':'root',
-             'password':'welliam',
-             'timeout':30
-             }  #修改成自己的配置
+# cd /mnt/OpsManage/conf
+# vim opsmanage.ini
+根据自己的情况修改配置
 
 ```
 八、生成数据表与管理员账户
@@ -171,98 +130,20 @@ SFTP_CONF = {
 # python manage.py makemigrations wiki
 # python manage.py makemigrations orders
 # python manage.py makemigrations filemanage
+# python manage.py makemigrations navbar
+# python manage.py makemigrations databases
+# python manage.py makemigrations asset
+# python manage.py makemigrations deploy
+# python manage.py makemigrations apps
+# python manage.py makemigrations sched
 # python manage.py migrate
-# python manage.py createsuperuser
+# python manage.py createsuperuser  
 ```
 九、启动部署平台
 ```
 # cd /mnt/OpsManage/
 # python manage.py runserver 0.0.0.0:8000
 ```
-十、配置证书认证
-```
-# ssh-keygen -t  rsa
-# ssh-copy-id -i ~/.ssh/id_rsa.pub  root@ipaddress
-```
-十一、配置Celery异步任务系统
-```
-# echo_supervisord_conf > /etc/supervisord.conf
-# export PYTHONOPTIMIZE=1
-# vim /etc/supervisord.conf
-最后添加
-[program:celery-worker-default]
-command=/usr/bin/python manage.py celery worker --loglevel=info -E -Q default
-directory=/mnt/OpsManage
-stdout_logfile=/var/log/celery-worker-default.log
-autostart=true
-autorestart=true
-redirect_stderr=true
-stopsignal=QUIT
-numprocs=1
-
-[program:celery-worker-ansible]
-command=/usr/bin/python manage.py celery worker --loglevel=info -E -Q ansible
-directory=/mnt/OpsManage
-stdout_logfile=/var/log/celery-worker-ansible.log
-autostart=true
-autorestart=true
-redirect_stderr=true
-stopsignal=QUIT
-numprocs=1
 
 
-[program:celery-beat]
-command=/usr/bin/python manage.py celery beat
-directory=/mnt/OpsManage
-stdout_logfile=/var/log/celery-beat.log
-autostart=true
-autorestart=true
-redirect_stderr=true
-stopsignal=QUIT
-numprocs=1
 
-[program:celery-cam]
-command=/usr/bin/python manage.py celerycam
-directory=/mnt/OpsManage
-stdout_logfile=/var/log/celery-celerycam.log
-autostart=true
-autorestart=true
-redirect_stderr=true
-stopsignal=QUIT
-numprocs=1
-
-
-启动celery
-# /usr/local/bin/supervisord -c /etc/supervisord.conf
-# supervisorctl status #要检查是否都是running状态
-```
-
-十二、SQL审核
-```
-自行安装Inception与SQLadvisor，SQLadvisor可执行文件请放在OpsManage服务器/usr/bin/sqladvisor路径
-```
-
-## 提供帮助
-
-如果您觉得OpsManage对您有所帮助，可以通过下列方式进行捐赠，谢谢！
-
-![image](https://github.com/welliamcao/OpsManage/blob/master/demo_imgs/donate.png)
-
-## 部分功能截图:
-Ansible部署功能：
-![image](https://github.com/welliamcao/OpsManage/blob/master/demo_imgs/ansible.gif)
-
-代码部署：
-![image](https://github.com/welliamcao/OpsManage/blob/master/demo_imgs/project.gif)
-
-资产管理：
-![image](https://github.com/welliamcao/OpsManage/blob/master/demo_imgs/assets.gif)
-
-计划任务管理：
-![image](https://github.com/welliamcao/OpsManage/blob/master/demo_imgs/crontab.gif)
-
-全局配置：
-![image](https://github.com/welliamcao/OpsManage/blob/master/demo_imgs/config.gif)
-
-用户管理：
-![image](https://github.com/welliamcao/OpsManage/blob/master/demo_imgs/user.gif)

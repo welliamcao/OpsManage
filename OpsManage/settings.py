@@ -93,7 +93,6 @@ INSTALLED_APPS = [
     'filemanage',
     'apps',
     'sched',
-    'config',
     'django_celery_beat',
     'django_celery_results',
     'websocket'

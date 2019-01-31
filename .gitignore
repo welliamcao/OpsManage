@@ -11,4 +11,5 @@ media*
 *.log
 ./logs/opsmanage.log
 .quarantine
+.msyh.ttf
 
