@@ -1,5 +1,6 @@
 #!/usr/bin/env python  
 # _#_ coding:utf-8 _*_
+import ast
 from rest_framework import viewsets,permissions
 from api import serializers
 from OpsManage.models import *
@@ -110,7 +111,7 @@ def inventory_detail(request, id,format=None):
             source[ds.group_name]['hosts'] = hosts
             if ds.ext_vars:
                 try:
-                    source[ds.group_name]['vars'] = eval(ds.ext_vars)
+                    source[ds.group_name]['vars'] = ast.literal_eval(ds.ext_vars)
                 except Exception ,ex:
                     source[ds.group_name]['vars'] = {}
                     logger.warn(msg="获取资产组变量失败: {ex}".format(ex=ex))
@@ -130,7 +131,7 @@ def ansible_host_vars(request, id,format=None):
         host_vars = {}   
         if assets.host_vars:
             try:
-                host_vars = eval(assets.host_vars)
+                host_vars = ast.literal_eval(assets.host_vars)
             except Exception,ex:
                 return JsonResponse({'msg':"获取主机变量失败: {ex}".format(ex=ex),"code":500,'data':{}}) 
         return JsonResponse({'msg':"查询成功","code":200,'data':host_vars})  
@@ -138,7 +139,7 @@ def ansible_host_vars(request, id,format=None):
         host_vars = request.data.get('host_vars',None)
         if host_vars:
             try:
-                host_vars = eval(request.data.get('host_vars'))
+                host_vars = ast.literal_eval(request.data.get('host_vars'))
             except Exception,ex:
                 return JsonResponse({'msg':"更新主机变量失败: {ex}".format(ex=ex),"code":500,'data':{}}) 
         assets.host_vars = host_vars

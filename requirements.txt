@@ -18,7 +18,7 @@ ansible==2.3.3
 supervisor
 mysql-replication
 pymysql
-redis
+redis==2.10.6
 MySQL-python
 DBUtils
 xlrd

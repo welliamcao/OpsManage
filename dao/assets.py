@@ -1,5 +1,6 @@
 #!/usr/bin/env python  
 # _#_ coding:utf-8 _*_  
+import ast
 from OpsManage.models import Assets,Server_Assets,Network_Assets,Ansible_Inventory,Project_Assets,Service_Assets
 from OpsManage.utils.logger import logger
 
@@ -44,7 +45,7 @@ class AssetsSource(object):
                     logger.warn(msg="server_id:{assets}, error:{ex}".format(assets=server_assets.id,ex=ex))
                 if server_assets.assets.host_vars:
                     try:                         
-                        for k,v in eval(server_assets.assets.host_vars).items():
+                        for k,v in ast.literal_eval(server_assets.assets.host_vars).items():
                             if k not in ["ip", "port", "username", "password","ip"]:data[k] = v 
                     except Exception,ex:
                         logger.warn(msg="资产: {assets},转换host_vars失败:{ex}".format(assets=server_assets.assets.id,ex=ex))                                                
@@ -62,7 +63,7 @@ class AssetsSource(object):
                     logger.warn(msg="network_id:{assets}, error:{ex}".format(assets=server_assets.id,ex=ex))  
                 if network_assets.assets.host_vars:
                     try:                         
-                        for k,v in eval(network_assets.assets.host_vars).items():
+                        for k,v in ast.literal_eval(network_assets.assets.host_vars).items():
                             if k not in ["ip", "port", "username", "password","ip"]:data[k] = v 
                     except Exception,ex:
                         logger.warn(msg="资产: {assets},转换host_vars失败:{ex}".format(assets=network_assets.assets.id,ex=ex))              
@@ -114,7 +115,7 @@ class AssetsSource(object):
                     logger.warn(msg="id:{assets}, error:{ex}".format(assets=assets.id,ex=ex))   
             if assets.host_vars:
                 try:                         
-                    for k,v in eval(assets.host_vars).items():
+                    for k,v in ast.literal_eval(assets.host_vars).items():
                         if k not in ["ip", "port", "username", "password","ip"]:data[k] = v
                 except Exception,ex:
                     logger.warn(msg="资产: {assets},转换host_vars失败:{ex}".format(assets=assets.id,ex=ex)) 
@@ -158,7 +159,7 @@ class AssetsSource(object):
                         logger.warn(msg="id:{assets}, error:{ex}".format(assets=assets.id,ex=ex))
                 if assets.host_vars:
                     try:                         
-                        for k,v in eval(assets.host_vars).items():
+                        for k,v in ast.literal_eval(assets.host_vars).items():
                             if k not in ["ip", "port", "username", "password","ip"]:data[k] = v
                     except Exception,ex:
                         logger.warn(msg="资产: {assets},转换host_vars失败:{ex}".format(assets=assets.id,ex=ex))                        
@@ -167,7 +168,7 @@ class AssetsSource(object):
             resource[ds.group_name]['hosts'] = hosts 
             groups +=  ds.group_name + ','
             try:
-                if ds.ext_vars:resource[ds.group_name]['vars'] = eval(ds.ext_vars)  
+                if ds.ext_vars:resource[ds.group_name]['vars'] = ast.literal_eval(ds.ext_vars)  
             except Exception,ex: 
                 logger.warn(msg="资产组变量转换失败: {id} {ex}".format(id=inventory,ex=ex))
                 resource[ds.group_name]['vars'] = None
