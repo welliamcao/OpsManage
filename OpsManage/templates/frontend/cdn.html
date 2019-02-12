@@ -1,0 +1,219 @@
+{% extends 'index.html' %}
+{% block ace-content %}
+<script type="text/javascript" src="/static/dist/js/bootstrap-notify.js"></script>
+<script src="http://cdn.bootcss.com/ace/1.2.4/ace.js"></script>
+<script src="http://cdn.bootcss.com/ace/1.2.4/ext-language_tools.js"></script>
+<script src="http://cdn.bootcss.com/ace/1.2.4/ext-old_ie.js"></script>
+<script src="http://cdn.bootcss.com/ace/1.2.4/theme-monokai.js"></script>
+<link rel="stylesheet" href="/static/dist/css/jquery.dataTables.min.css">
+<script src="/static/js/jquery.dataTables.min.js"></script>
+{% endblock %}
+{% block page-content %}
+
+<div id="page-wrapper">
+            <div class="row">
+                <div class="col-lg-12">
+                    <h1 class="page-header"><i class="fa  fa-desktop"></i> CDN刷新预热</h1>
+                </div>
+                <!-- /.col-lg-12 -->
+            </div>
+            <!-- /.row -->
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                           	<i class="	fa fa-table"></i> 操作面板
+                        </div>
+                        <div class="panel-body">
+                            <ul class="nav nav-tabs">
+                                <li class="active">
+                                    <a href="#fresh_or_prehot" data-toggle="tab">
+                                         刷新预热
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="#cdnlist" data-toggle="tab" onclick="loadlist()">
+                                        列表编辑
+                                    </a>
+                                </li>
+                            </ul>
+                            <div class="tab-content">
+                                <div class="tab-pane fade in active" id="fresh_or_prehot">
+                                    <div class="row">
+                                        <div class="col-lg-12">
+                                        <br>
+                                            <div style="height: 600px">
+                                                <table width="100%" class="table table-bordered table-hover"id="frontendtable">
+                                                    <thead>
+                                                        <tr>
+                                                            <th class="text-center" style="display: none">urls</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                    {% if not frontendlist %}
+                                                        <tr>
+                                                            <td class="text-center"><h4>您还未在列表添加任何前端呢</h4></td>
+                                                        </tr>
+                                                    {% else %}
+                                                            {% for frontend in frontendlist %}
+                                                            <tr>
+                                                                <td class="text-center" style="text-align: left">{{ frontend }}</td>
+                                                            </tr>
+                                                            {% endfor %}
+                                                    {% endif %}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                            <div class="well">
+                                                <h4>CDN说明</h4>
+                                                <p>链接以/结尾会以目录方式刷新，目录无法预热</p>
+                                                <div class="col-lg-6">
+                                                    <a class="btn btn-default btn-lg btn-block" onclick="refreshlist()"><i class="fa fa-plus-circle "></i>刷新选中项</a>
+                                                </div>
+                                                <div class="col-lg-6">
+                                                    <a class="btn btn-default btn-lg btn-block" onclick="prehotlist()"><i class="fa fa-plus-circle "></i>预热选中项</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="tab-pane fade" id="cdnlist">
+                                    <pre id="code" class="ace_editor" style="min-height: 700px">
+                                    <textarea class="ace_text-input" placeholder="在此按行输入url地址,如 http://cdn.version.queyouquan.cn/mahjong/100/debug/android/VersionsList.html">
+                                    </textarea>
+                                    </pre>
+
+                                    <div class="well">
+                                        <div class="col-lg-6">
+                                            <a class="btn btn-default btn-lg btn-block" onclick="loadlist()"><i class="fa fa-plus-circle "></i>撤销</a>
+                                        </div>
+                                        <div class="col-lg-6">
+                                            <a class="btn btn-default btn-lg btn-block" onclick="savelist()"><i class="fa fa-plus-circle "></i>保存</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                </div>
+                    </div>
+                <!-- /.col-lg-12 -->
+                </div>
+            <!-- /.row -->
+            </div>
+</div>
+<script type="text/javascript">
+$(document).ready(
+    focustd = [],
+    editor = ace.edit("code"),
+    editor.setFontSize(18),
+    editor.session.setMode("ace/mode/abc"),
+    $("#frontendtable").on('click','tr',function () {
+    Array.prototype.xindexOf = function(val) {
+            for (var i = 0; i < this.length; i++) {
+                if (this[i] == val) return i;
+            }
+            return -1;
+        };
+    Array.prototype.xremove = function(val) {
+            var index = this.xindexOf(val);
+            if (index > -1) {
+                this.splice(index, 1);
+            }
+        };
+    td=$(this).find("td");
+    frontend=td.text();
+    if ((frontend.indexOf("https://") != 0) && (frontend.indexOf("http://") != 0)) {
+        window.wxc.xcConfirm("选择项不是链接或者没有http头", window.wxc.xcConfirm.typeEnum.error);
+        return false;
+    }
+
+    if (focustd.xindexOf(frontend) == -1){
+        focustd.push(frontend);
+        $(this).css("background","#DCDCDC")
+    }
+    else {
+        focustd.pop(frontend);
+        $(this).css("background","#FFFFFF")
+    }
+}),
+    $("#frontendtable").dataTable()
+);
+
+function loadlist(){
+    frontendlist="";
+    {% if frontendlist %}
+        {% for frontend in frontendlist %}
+            frontendlist += "{{ frontend }}"+"\n";
+        {% endfor %}
+    {% endif %}
+    if (frontendlist) {
+        editor.setValue(frontendlist)
+    }
+}
+
+function savelist(){
+    editordata = editor.getValue();
+    $.ajax({
+	            url : "/frontend/cdn/",
+	            type : "post",
+	            async : true,
+                data:{
+	                "editordata":editordata
+                },
+	            success : function(response) {
+	            	window.wxc.xcConfirm("保存成功", window.wxc.xcConfirm.typeEnum.success);
+	            	location.reload()
+	            },
+	            error:function (response) {
+                    window.wxc.xcConfirm(response.responseText, window.wxc.xcConfirm.typeEnum.error);
+                }
+	        });
+}
+
+function refreshlist() {
+    if (focustd.length == 0 ){
+        window.wxc.xcConfirm("请选择至少一个！", window.wxc.xcConfirm.typeEnum.error);
+        return false;
+    }
+    $.ajax({
+	            url : "/frontend/cdn?type=refresh",
+	            type : "post",
+	            async : true,
+                data:{
+	                "urlslist":JSON.stringify(focustd)
+                },
+	            success : function(response) {
+	            	window.wxc.xcConfirm("提交刷新成功", window.wxc.xcConfirm.typeEnum.success);
+	            	location.reload()
+	            },
+	            error:function (response) {
+                    window.wxc.xcConfirm(response.responseText, window.wxc.xcConfirm.typeEnum.error);
+                }
+	        });
+}
+
+function prehotlist() {
+    if (focustd.length == 0 ){
+        window.wxc.xcConfirm("请选择至少一个！", window.wxc.xcConfirm.typeEnum.error);
+        return false;
+    }
+    $.ajax({
+	            url : "/frontend/cdn?type=prehot",
+	            type : "post",
+	            async : true,
+                data:{
+	                "urlslist":JSON.stringify(focustd)
+                },
+	            success : function(response) {
+	            	window.wxc.xcConfirm("预热成功", window.wxc.xcConfirm.typeEnum.success);
+	            	location.reload()
+	            },
+	            error:function (response) {
+                    window.wxc.xcConfirm(response.responseText, window.wxc.xcConfirm.typeEnum.error);
+                }
+	        });
+}
+
+
+</script>
+{% endblock %}

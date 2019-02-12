@@ -163,7 +163,7 @@ def assets_modf(request,aid):
 @login_required(login_url='/login')
 @permission_required('OpsManage.can_change_server_assets',login_url='/noperm/') 
 def assets_facts(request,args=None):
-    if request.method == "POST" and request.user.has_perm('OpsManage.change_server_assets'):
+    if request.method == "PUT" and request.user.has_perm('OpsManage.change_server_assets'):
         server_id = request.POST.get('server_id')
         genre = request.POST.get('type')
         if genre == 'setup':

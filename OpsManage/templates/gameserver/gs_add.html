@@ -1,6 +1,8 @@
 {% extends 'index.html' %}
 {% block ace-content %}
-<script type="text/javascript" src="/static/dist/js/bootstrap-notify.js"></script>
+    <link rel="stylesheet" href="/static/dist/css/jquery.edittable.css">
+    <script type="text/javascript" src="/static/js/jquery.edittable.js"></script>
+    <script type="text/javascript" src="/static/dist/js/bootstrap-notify.js"></script>
 {% endblock %}
 {% block page-content %}
 
@@ -56,7 +58,7 @@
                                                         <div class="form-group">
                                                              <label class="col-sm-2 control-label">游戏名称</label>
                                                              <div class="col-sm-6">
-                                                                <input type="text" class="form-control" id="gamename" name="gamename" placeholder="例：108-西昌2" value="" class="input-xlarge"/>
+                                                                <input type="text" class="form-control" name="gamename" placeholder="例：108-西昌2" value="" class="input-xlarge"/>
                                                              </div>
                                                         </div>
 
@@ -106,51 +108,23 @@
                                         <div class="col-lg-8">
                                             <br>
                                             <fieldset>
-                                                <form role="form" method="post" id="addGame" class="main form-horizontal" >{% csrf_token %}
+                                                <form role="form" method="post" id="addHost" class="main form-horizontal" >{% csrf_token %}
                                                     <fieldset>
                                                         <div class="form-group">
                                                              <label class="col-sm-2 control-label">服务器</label>
                                                              <div class="col-sm-6">
-                                                                 <select class="selectpicker" data-live-search="true"  data-size="5" name="game_server"  data-width="100%"  required>
+                                                                 <select class="selectpicker" id="hostlist" onchange="setsid()" data-live-search="true"  data-size="5" data-width="100%"  required>
                                                                         <option name="game_server" value="" selected="selected">选择一个主机进行配置</option>
                                                                     {% for ds in serverList %}
-                                                                        <option name="game_server" value="{{ds.id}}">{{ds.ip}} | {{ds.project}} | {{ds.service}}</option>
+                                                                        <option name="game_server" value="{{ds.sid}}">{{ds.ip}} | {{ds.project}} | {{ds.service}}</option>
                                                                     {% endfor %}
                                                                  </select>
                                                              </div>
-                                                             <a style="text-decoration:none;"><button  type="button" class="btn btn-default" onclick='gamehostUpdate(this,{{ds}},"{{ds.ip}}")'><abbr title="扫描已存在的游戏服"><i class="glyphicon glyphicon-refresh"></i></abbr></button></a>
+                                                             <a style="text-decoration:none;display: none"><button  type="button" class="btn btn-default" id="syncbtn"><abbr title="扫描已存在的游戏服"><i class="glyphicon glyphicon-refresh"></i></abbr></button></a>
                                                         </div>
 
                                                         <div class="form-group">
-                                                             <label class="col-sm-2 control-label">游戏名称</label>
-                                                             <div class="col-sm-6">
-                                                                <input type="text" class="form-control" id="gamename" name="gamename" placeholder="例：108-西昌2" value="" class="input-xlarge"/>
-                                                             </div>
-                                                        </div>
-
-                                                        <div class="form-group">
-                                                             <label class="col-sm-2 control-label">网关GateWay地址</label>
-                                                             <div class="col-sm-6">
-                                                                 <input type="text" class="form-control" name="gate_path" placeholder="例：/data/108-西昌2/GateWay" value="" class="input-xlarge"  required/>
-                                                             </div>
-                                                        </div>
-
-                                                        <div class="form-group">
-                                                             <label class="col-sm-2 control-label">游戏GameServer地址</label>
-                                                             <div class="col-sm-6">
-                                                                 <input type="text" class="form-control" name="game_path" placeholder="例：/data/108-西昌2/GameServer" value="" class="input-xlarge"  required/>
-                                                             </div>
-                                                        </div>
-
-                                                        <div class="form-group">
-                                                             <label class="col-sm-2 control-label">上线状态</label>
-                                                             <div class="col-sm-6">
-                                                               <select class="form-control" name="state"  >
-                                                                    <option selected="selected" value="-1">未上线</option>
-                                                                    <option  value="0">已下架</option>
-                                                                    <option  value="1">已上线</option>
-                                                                </select>
-                                                             </div>
+                                                            <div style="table-layout: fixed;display: none" id="gstable"></div>
                                                         </div>
 
                                                         </fieldset>
@@ -183,22 +157,40 @@
 
 
 <script type="text/javascript">
-
+    var myedittable;
     $(function() {
     　　$.getUrlParam = function(name) {
     　　　　var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
     　　　　var r = window.location.search.substr(1).match(reg);
     　　　　if(r != null) return unescape(r[2]);
     　　　　return null;
-    　　}
+    　　};
     　　var url_tab = $.getUrlParam('tab');
     　　if(url_tab == 'newgamehost') {
     　　　　$('#tab2').click();
     　　} else if(url_tab == 'newgameserver') {
     　　　　$('#tab1').click();
     　　}
-    });
-	
+    }
+    );
+
+    $(function() {
+            myedittable = $('#gstable').editTable(
+                {
+                    jsonData: true,
+                    headerCols: ['游戏名', '网关GateWay地址', '游戏GameServer地址']
+                }
+            )
+        }
+    );
+
+    function setsid() {
+        syncbtn=document.getElementById("syncbtn");
+        value=$("#hostlist  option:selected").val();
+        syncbtn.setAttribute('onclick',"gamehostUpdate(this,"+value+")");
+        syncbtn.parentNode.style.display=""
+    }
+
 	function getFormData (form, filler) {
 		var gamedata = new FormData();
 		for (var i = 0; i < form.length; ++i) {
@@ -263,39 +255,28 @@
 		})	
 	}	
 
-	function gamehostUpdate(obj, id,ip,type){
+	function gamehostUpdate(obj, id){
 			var btnObj = $(obj);
-			var option = {
-					title: "更新主机"+ip+")游戏信息",
-					btn: parseInt("0011",2),
-					onOk: function(){
-						$.ajax({
-							  type: 'GET',
-							  url: '/gameserver/facts/',
-							  data:{
-									"server_id":id,
-									"type":type
-								},
-						      success:function(response){
-					                if (response["code"]=="200"){
-					                	window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.success);
-
-					                }
-						        	else{
-						        		window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
-						        	}
-							},
-				            error:function(response){
-				            	window.wxc.xcConfirm("请求数据错误！", window.wxc.xcConfirm.typeEnum.error);
-				            },
-							});
-					},
-					onCancel:function(){
-					},
-					onClose:function(){
-					}
-				};
-			window.wxc.xcConfirm(txt, "custom", option);
+            $.ajax({
+                  type: 'GET',
+                  url: '/gameserver/facts/',
+                  data:{
+                        "server_id":id,
+                    },
+                  success:function(response){
+                      if (response["code"]=="200") {
+                          myedittable.reset();
+                          myedittable.loadJsonData(response["msg"]);
+                          $('#gstable')[0].style.display = ""
+                      }else
+                      {
+                          window.wxc.xcConfirm(response["msg"], window.wxc.xcConfirm.typeEnum.error);
+                      }
+                },
+                error:function(response){
+                    window.wxc.xcConfirm("请求数据错误！", window.wxc.xcConfirm.typeEnum.error);
+                },
+                });
 		}
 	
 </script>

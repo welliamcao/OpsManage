@@ -107,8 +107,8 @@
     $(function(){
 	    $("#modifyconfig").ajaxForm(function(data){
 		    if(data=="succeeded"){
-			window.wxc.xcConfirm("刷新页面？", {
-					title: "提交成功",
+			window.wxc.xcConfirm("提交成功", {
+					icon: "0 -48px",//绿色对勾
 					btn: parseInt("0011",2),
 					onOk: function(){
 					    location.reload()

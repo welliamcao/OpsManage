@@ -20,21 +20,21 @@ from OpsManage.data.DsMySQL import AnsibleRecord
 from django.contrib.auth.decorators import permission_required
 from OpsManage.utils.logger import logger
 from dao.assets import AssetsSource
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-import json
 
 @login_required()
 @permission_required('OpsManage.can_add_gameserver_config',login_url='/noperm/')
 def gameserver_add(request):
     if request.method == "GET":
         serverList = AssetsSource().serverList()
-
+        for i,asset in enumerate(serverList):
+            sid=Server_Assets.objects.get(assets_id=serverList[i]['id']).id
+            serverList[i]['sid']=sid
         return render(request,'gameserver/gs_add.html',{"user":request.user,"serverList":serverList})
     elif request.method == "POST":
         gtype = request.GET.get("type")
         if gtype=="server":
             try:
-                server = Assets.objects.get(id=request.POST.get("game_server")).server_assets;
+                server = Assets.objects.get(id=request.POST.get("game_server")).server_assets
             except:
                 return HttpResponse(content="主机ID不存在，可能已被删除", status=404)
             try:
@@ -98,7 +98,6 @@ def gamehost_list(request):
         gshost = []
         ips = GameServer_Config.objects.values_list("ip__ip",flat=True).distinct()
         totalgame = GameServer_Config.objects.all().count()
-        onlinegame = 0
         offlinegame = GameServer_Config.objects.filter(state=False).count()
         for ip in ips:
             sid = Server_Assets.objects.get(ip=ip).id
@@ -106,10 +105,9 @@ def gamehost_list(request):
             business = Project_Assets.objects.get(id=Assets.objects.get(id=aid).business).project_name
             hostname = Server_Assets.objects.get(ip=ip).hostname
             system = Server_Assets.objects.get(ip=ip).system
-            gonlinegame = GameServer_Config.objects.filter(state=True,ip__ip=ip).count()
+            onlinegame = GameServer_Config.objects.filter(state=True,ip__ip=ip).count()
             status = Assets.objects.get(id=aid).status
             game =list(GameServer_Config.objects.filter(ip__ip=ip).values_list("name",flat=True))
-            onlinegame = onlinegame+gonlinegame
             gshost.append(
                 {
                     'game': ",".join(game),
@@ -119,7 +117,7 @@ def gamehost_list(request):
                     'hostname':hostname,
                     'ip':ip,
                     'system':system,
-                    'onlinegame':gonlinegame,
+                    'onlinegame':onlinegame,
                     'status':status,
                 }
             )
@@ -155,7 +153,7 @@ def gamehost_facts(request):
     def synchost(id,filter="old|OLD|Old|lost|下线"):
         datalist=[]
         try:
-            server_assets = Server_Assets.objects.get(id)
+            server_assets = Server_Assets.objects.get(id=id)
             if server_assets.keyfile == 1:
                 resource = [{"ip": server_assets.ip, "port": int(server_assets.port), "username": server_assets.username,
                              "sudo_passwd": server_assets.sudo_passwd}]
@@ -163,42 +161,51 @@ def gamehost_facts(request):
                 resource = [{"ip": server_assets.ip, "port": server_assets.port, "username": server_assets.username,
                              "password": server_assets.passwd, "sudo_passwd": server_assets.sudo_passwd}]
         except Exception,ex:
-            return  JsonResponse({'msg':"获取资产信息失败，可能主机已被删除","code":404})
+            return  "获取资产信息失败,ErrorString:"+str(ex)
         ANS = ANSRunner(resource)
         ANS.run_model(host_list=[server_assets.ip], module_name='raw',
-                      module_args="find /data -type f -name 'Gate*' |grep -vE '{0}'|xargs dirname".format(filter))
+                      module_args="find /data -type f -name 'Gate*' |grep -vE '{0}'|xargs -I {{}} dirname {{}}".format(filter))
         Gatedata = ANS.handle_model_data(ANS.get_model_result(),"raw")
         ANS.run_model(host_list=[server_assets.ip], module_name='raw',
-                      module_args="find /data -type f -name 'Game*' |grep -vE '{0}'|xargs dirname".format(filter))
+                      module_args="find /data -type f -name 'Game*' |grep -vE '{0}'|xargs -I {{}} dirname {{}}".format(filter))
         Gamedata = ANS.handle_model_data(ANS.get_model_result(),"raw")
         if Gatedata:
             for gate in Gatedata:
-                Gatelist = gate.get("msg").split("<br>")
+                Gatewaylist = gate.get("msg").split("<br>")
         if Gamedata:
             for game in Gamedata:
-                Gamelist = game.get("msg").split("<br>")
-        for gate in Gatelist:
+                Gameserverlist = game.get("msg").split("<br>")
+        for gate in Gatewaylist:
             gatename = gate.split("/")
             if len(gatename)>3:
-                for game in Gamelist:
+                for game in Gameserverlist:
                     gamename = game.split("/")
                     if len(gamename)>3:
                         if gatename[2] == gamename[2]:
                             datalist.append(
-                                {"name": gamename[2], "gate_path": gate, "game_path": game, "ip": server_assets}
+                                {"name": gamename[2], "gate_path": gate, "game_path": game}
                             )
-        return datalist
-    if request.method == "POST":
-        for game in synchost(id=request.POST.get("server_id")):
+        return datalist,server_assets
+    if request.method == "PUT":
+        gamelist,server_assets=synchost(id=request.POST.get("server_id"))
+        for game in gamelist:
             try:
-                GameServer_Config.objects.update_or_create(**game)
+                GameServer_Config.objects.update_or_create(ip=server_assets,**game)
             except Exception,ex:
                 return JsonResponse({'msg': ex, "code": 500})
         return JsonResponse({'msg': "同步成功", "code": 201})
 
     if request.method=="GET":
-        gamelist = synchost(id=request.POST.get("server_id"))
-        return HttpResponse(content=json.dumps(gamelist),status=200)
+        try:
+            gamelist,server_assets = synchost(id=request.GET.get("server_id"))
+        except Exception,ex:
+            if isinstance(gamelist, str): return JsonResponse({'msg': gamelist, "code": 500})
+        for i,game in enumerate(gamelist):
+            gamelist[i][0]=game["name"]
+            gamelist[i][1] = game["gate_path"]
+            gamelist[i][2] = game["game_path"]
+        if isinstance(gamelist, list):return JsonResponse({'msg': json.dumps(gamelist), "code": 200})
+        if isinstance(gamelist, str):return JsonResponse({'msg': gamelist, "code": 404})
 
 
 
