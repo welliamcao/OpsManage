@@ -63,7 +63,7 @@
 # python  setup.py  install
 ```
 
-三、安装pip
+三、安装pip，CentOS7不需要安装，可以直接使用pip3	
 ```
 # wget --no-check-certificate https://github.com/pypa/pip/archive/1.5.5.tar.gz -O pip-1.5.5.tar.gz
 # tar -xzvf pip-1.5.5.tar.gz
@@ -75,9 +75,10 @@
 四、安装模块
 ```
 # cd /mnt/
-# git clone https://github.com/welliamcao/OpsManage.git
+# git clone -b v3 https://github.com/welliamcao/OpsManage.git
 # cd /mnt/OpsManage/
 # pip install -r requirements.txt  #注意，如果出现错误不要跳过，请根据错误信息尝试解决
+# pip3 install -r requirements.txt  #CentOS 7使用pip3
 # easy_install paramiko==2.4.1
 ```
 
@@ -137,7 +138,7 @@ mysql>\q
 # python manage.py makemigrations apps
 # python manage.py makemigrations sched
 # python manage.py migrate
-# python manage.py createsuperuser  
+# python manage.py createsuperuser  #创建管理员账户与密码
 ```
 九、启动部署平台
 ```

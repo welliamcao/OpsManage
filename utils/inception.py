@@ -1,7 +1,7 @@
 #!/usr/bin/env python  
 # _#_ coding:utf-8 _*_ 
 import re, pymysql
-from databases.models import Inception_Server_Config,Custom_High_Risk_SQL
+from databases.models import Custom_High_Risk_SQL
 from utils.logger import logger 
 from OpsManage.settings import INCEPTION_CONFIG
 from dao.base import Struct
@@ -20,6 +20,7 @@ class Inception():
         sql='''/*--user={db_user};--password={db_passwd};--host={db_host};{action}--port={db_port};*/\
             inception_magic_start;
             use {db_name};
+            set names utf8;
             {auditSql}
             inception_magic_commit;'''.format(
                                               db_user=self.db_user,db_host=self.db_host,
