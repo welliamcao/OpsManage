@@ -90,7 +90,7 @@
 # make install
 # vim redis.conf
 ```
-修改以下配置
+修改以下配置，不要设置密码
 ```
 daemonize yes
 loglevel warning
@@ -120,7 +120,7 @@ mysql>\q
 ```
 # cd /mnt/OpsManage/OpsManage
 # vim settings.py
-BROKER_URL =  redis://192.168.1.233:6379/3 #修改成自己的配置，格式是redis://[:password]@host:port/db
+BROKER_URL =  redis://192.168.1.233:6379/3 #修改成自己的配置
 REDSI_KWARGS_LPUSH = {"host":'192.168.1.233','port':6379,'db':3} #修改成自己的配置
 DATABASES = {
     'default': {
@@ -152,16 +152,6 @@ TEMPLATES = [
 STATICFILES_DIRS = (
      '/mnt/OpsManage/OpsManage/static/',	#修改成自己的配置
     )
-TEMPLATE_DIRS = (
-#     os.path.join(BASE_DIR,'mysite\templates'),
-    '/mnt/OpsManage/OpsManage/templates/',	#修改成自己的配置
-)
-SFTP_CONF = {
-             'port':22,
-             'username':'root',
-             'password':'welliam',
-             'timeout':30
-             }  #修改成自己的配置
 
 ```
 八、生成数据表与管理员账户
@@ -177,7 +167,7 @@ SFTP_CONF = {
 九、启动部署平台
 ```
 # cd /mnt/OpsManage/
-# python manage.py runserver 0.0.0.0:8000
+# python manage.py runserver 0.0.0.0:8000  #请继续完成下面的配置Celery步骤
 ```
 十、配置证书认证
 ```
@@ -189,11 +179,11 @@ SFTP_CONF = {
 # echo_supervisord_conf > /etc/supervisord.conf
 # export PYTHONOPTIMIZE=1
 # vim /etc/supervisord.conf
-最后添加
+最后添加，/var/log/celery-*.log这些是日志文件，如果有错误请注意查看
 [program:celery-worker-default]
 command=/usr/bin/python manage.py celery worker --loglevel=info -E -Q default
 directory=/mnt/OpsManage
-stdout_logfile=/var/log/celery-worker-default.log
+stdout_logfile=/var/log/celery-worker-default.log   
 autostart=true
 autorestart=true
 redirect_stderr=true
@@ -234,13 +224,16 @@ numprocs=1
 
 启动celery
 # /usr/local/bin/supervisord -c /etc/supervisord.conf
-# supervisorctl status #要检查是否都是running状态
+# supervisorctl status #要检查是否都是running状态，uptime是不是递增
 ```
 
 十二、SQL审核
 ```
 自行安装Inception与SQLadvisor，SQLadvisor可执行文件请放在OpsManage服务器/usr/bin/sqladvisor路径
 ```
+
+十三、简易文档
+[点击查看](https://github.com/welliamcao/OpsManage/issues?q=is%3Aopen+is%3Aissue+label%3Adocs)
 
 ## 提供帮助
 

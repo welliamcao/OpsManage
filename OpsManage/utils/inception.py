@@ -20,6 +20,7 @@ class Inception():
         sql='''/*--user={db_user};--password={db_passwd};--host={db_host};{action}--port={db_port};*/\
             inception_magic_start;
             use {db_name};
+            set names utf8;
             {auditSql}
             inception_magic_commit;'''.format(
                                               db_user=self.db_user,db_host=self.db_host,

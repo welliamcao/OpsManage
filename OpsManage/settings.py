@@ -186,13 +186,6 @@ STATICFILES_DIRS = (
 MEDIA_ROOT = os.path.join(BASE_DIR,'upload/')
 MEDIA_URL = '/upload/'
 
-SFTP_CONF = {
-             'port':22,
-             'username':'root',
-             'password':'welliam',
-             'timeout':30
-             }  #修改成能sftp登陆OpsManage的账户
-
 WORKSPACES = '/var/lib/opsmanage/workspaces/' 
 
 LOGIN_URL = '/login'
