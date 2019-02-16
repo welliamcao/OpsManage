@@ -186,7 +186,7 @@ class AssetsBase(DataHandle,DjangoCustomCursors):
             return assets
         
         if not user.is_superuser and assets \
-            and user.has_perm('asset.assets_webssh_assets'): 
+            and user.has_perm('asset.assets_webssh_server'): 
             try:     
                 if User_Server.objects.get(user=user,assets=assets):return assets
             except Exception as ex:
