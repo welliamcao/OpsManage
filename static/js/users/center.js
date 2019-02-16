@@ -1,3 +1,52 @@
+function makeRandomId() {
+  var text = "";
+  var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  for (var i = 0; i < 8; i++)
+    text += possible.charAt(Math.floor(Math.random() * possible.length));
+  return text;
+}
+var webssh = false
+function make_terminal(element, size, ws_url) { 
+    var term = new Terminal({
+        cols: size.cols,
+        rows: size.rows,
+        screenKeys: true,
+        useStyle: true,
+        cursorBlink: true,  // Blink the terminal's cursor
+    });         	
+    if (webssh) {
+        return;
+    }        
+    webssh = true;        	
+    term.open(element, false);
+    term.write('正在连接...')
+/*             term.fit(); */
+    var ws = new WebSocket(ws_url);
+    ws.onopen = function (event) {
+        term.resize(term.cols, term.rows);
+/*                 ws.send(JSON.stringify(["id", id,term.cols, term.rows]));  */
+        term.on('data', function (data) {
+            <!--console.log(data);-->
+             ws.send(data); 
+        });
+
+        term.on('title', function (title) {
+            document.title = title;
+        });
+        ws.onmessage = function (event) {
+        	term.write(event.data);
+        };      
+    };
+    ws.onerror = function (e) {
+    	term.write('\r\n连接失败')
+    	ws = false
+    };
+/*    ws.onclose = function () {
+        term.destroy();
+    }; */     
+    return {socket: ws, term: term};
+}
+
 var selectState = false;  
 function checkAllBox(){ 
   	var qcheck=document.getElementsByName("ckbox");
@@ -328,7 +377,9 @@ $(document).ready(function() {
 				                            '<button type="button" name="btn-assets-info" value="'+ row.id +'" class="btn btn-default" aria-label="Right Align" data-toggle="modal" data-target=".bs-example-modal-info"><span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>' +
 				                            '</button>'+ 	                            
 				                            '<button type="button" name="btn-assets-update" value="'+ row.id +'" class="btn btn-default" aria-label="Right Align"><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span>' +
-				                            '</button>'+ hw +                        
+				                            '</button>'+ hw +      
+				                            '<button type="button" name="btn-assets-webssh" value="'+ row.id +'" class="btn btn-default" aria-label="Justify"><span class="fa fa-desktop" aria-hidden="true"></span>' +
+				                            '</button>'+ 				                            
 				                            '<button type="button" name="btn-assets-delete" value="'+ row.id +'" class="btn btn-default" aria-label="Justify"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span>' +
 				                            '</button>'+ 
 				                          '</div>'; 	    	                        
@@ -475,7 +526,8 @@ $(document).ready(function() {
 	$('#assetsListTable tbody').on('click','button[name="btn-assets-info"]',function(){
 		$(this).attr('disabled',true);
     	var vIds = $(this).val();
-    	var ip = $("#assets_"+vIds).text(); 
+    	var td = $(this).parent().parent().parent().find("td")
+    	var ip = td.eq(5).text();     	
     	$.ajax({  
             cache: true,  
             type: "GET",  
@@ -786,6 +838,39 @@ $(document).ready(function() {
 		$(this).attr('disabled',false);
 	});		
 	
+	$('#assetsListTable tbody').on('click','button[name="btn-assets-webssh"]',function(){
+    	var vIds = $(this).val();
+    	var td = $(this).parent().parent().parent().find("td")	
+		$("#myWebsshModalLabel").html('<p class="text-blank"><code><i class="fa fa fa-terminal"></i></code>'+td.eq(3).text()+'_'+td.eq(4).text()+'  '+td.eq(5).text()+ '</p>')
+		$("#websshConnect").val(vIds)	
+		$('#webssh_tt').empty()
+    	$('.bs-example-modal-webssh-info').modal({backdrop:"static",show:true}); 		
+	})
+	
+    $("#websshConnect").on("click", function(){
+    	var vIds = $(this).val();
+    	var randromChat = makeRandomId()
+        var ws_scheme = window.location.protocol == "https:" ? "wss" : "ws";
+        var ws_path = ws_scheme + '://' + window.location.host + '/ssh/' + vIds + '/' + randromChat + '/';
+//        console.log(randromChat)
+        websocket = make_terminal(document.getElementById('webssh_tt'), {rows: 30, cols: 140}, ws_path);  
+        $(this).attr("disabled",true);
+/*             $(".xterm-screen").css("width", "800px").css("height", "510px"); */
+      });     
+    
+    $('.bs-example-modal-webssh-info').on('hidden.bs.modal', function () {
+		try {
+			websocket["socket"].close()
+		}
+		catch(err) {
+			console.log(err)
+		} 
+		finally {
+			webssh = false
+		}    	
+    	$("#websshConnect").attr("disabled",false);
+    }); 	
+	
 	if($("#modf_user_pw_btn").length){
 		$("#modf_user_pw_btn").on("click", function(){
 	    	$.ajax({  
@@ -825,6 +910,5 @@ $(document).ready(function() {
 	            }  
 	    	});			
 		})
-	}
-	
+	}	
 })

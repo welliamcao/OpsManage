@@ -1,6 +1,14 @@
+var userInfo = {
+		
+}
+
 function getTagsServerList(vIds){
 	var iList = []
 	var sList = []
+	var allAssets = requests('get','/api/assets/')
+	for (var i=0; i <allAssets.length; i++){
+		sList.push({"id":allAssets[i]["id"],"name":allAssets[i]["project"]+' | '+allAssets[i]["service"]+' | '+allAssets[i]["detail"]["ip"]})
+	}
 	$.ajax({  
         cache: true,  
         type: "POST",    
@@ -20,12 +28,14 @@ function getTagsServerList(vIds){
             });       
         },  
         success: function(response) {  	
-			for (var i=0; i <response["data"][0].length; i++){
-				iList.push({"id":response["data"][0][i]["id"],"name":response["data"][0][i]["project"]+' | '+response["data"][0][i]["service"]+' | '+response["data"][0][i]["ip"]})
-			}
-			for (var i=0; i <response["data"][1].length; i++){
-				sList.push({"id":response["data"][1][i]["id"],"name":response["data"][1][i]["project"]+' | '+response["data"][1][i]["service"]+' | '+response["data"][1][i]["ip"]})
-			}					
+			for (var i=0; i <response["data"].length; i++){
+				iList.push({"id":response["data"][i]["id"],"name":response["data"][i]["project"]+' | '+response["data"][i]["service"]+' | '+response["data"][i]["ip"]})
+				for (var j=0; j <sList.length; j++){
+					if(sList[j]["id"]==response["data"][i]["id"]){
+						sList.splice(j, 1);
+					}
+				}
+			}				
         }  
 	});	 
 	return {"tags":iList,"all":sList}
@@ -195,7 +205,225 @@ function RefreshTable(tableId, urlData){
 	});
 }
 
+$(function(){
+	var userList = requests("get","/api/user/")
+	for (var i=0; i <userList.length; i++){
+		userInfo[userList[i]["id"]] = userList[i]
+	}		
+})
+
 $(document).ready(function() {
+	
+	function makeProjectsTables(){
+	    var columns = [
+	                    {"data": "id"},
+	                    {"data": "project_name"},	
+	                    {"data": "project_owner"},
+		               ]
+	    var columnDefs = [	
+	   	    		        {
+	    	    				targets: [2],
+	    	    				render: function(data, type, row, meta) {	
+	    	                        return userInfo[row.project_owner]["username"]
+	    	    				},
+	    	    				"className": "text-center",
+   	    		        },	                      
+   	    		        {
+	    	    				targets: [3],
+	    	    				render: function(data, type, row, meta) {		    	    					
+	    	                        return '<div class="btn-group  btn-group-xs">' +	
+		    	                           '<button type="button" name="btn-project-modf" value="'+ row.id +'" class="btn btn-default"  aria-label="Justify"><span class="fa fa-edit" aria-hidden="true"></span>' +	
+		    	                           '</button>' + 	    	                           
+		    	                           '<button type="button" name="btn-project-confirm" value="'+ row.id +'" class="btn btn-default" aria-label="Justify"><span class="fa fa-trash" aria-hidden="true"></span>' +	
+		    	                           '</button>' +			                            
+		    	                           '</div>';
+	    	    				},
+	    	    				"className": "text-center",
+   	    		        },
+   	    		      ]	
+        var buttons = [{
+            text: '<span class="fa fa-plus"></span>',
+            className: "btn-xs",
+            action: function ( e, dt, node, config ) {
+            	$('#addProjectModal').modal("show");	
+            	var userList = requests("get","/api/user/")
+				var userHtml = '<select required="required" class="form-control" name="project_owner" id="project_owner"  autocomplete="off">'
+				var selectHtml = '';
+				for (var i=0; i <userList.length; i++){
+					selectHtml += '<option value="'+ userList[i]["id"] +'">'+ userList[i]["username"] +'</option>' 					 
+				};                        
+				userHtml =  userHtml + selectHtml + '</select>';
+				document.getElementById("project_owner").innerHTML= userHtml;								            	
+            }
+        }]
+		InitDataTable('projectTableLists',"/api/project/",buttons,columns,columnDefs)			
+	}  	
+    
+	makeProjectsTables()
+	
+
+  //修改项目资产
+	$('#projectTableLists tbody').on('click',"button[name='btn-project-modf']", function(){
+    	var vIds = $(this).val();
+		var project = $(this).parent().parent().parent().find("td").eq(1).text(); 
+		var username = $(this).parent().parent().parent().find("td").eq(2).text(); 
+    	var userList = requests("get","/api/user/")
+		var userHtml = '<select required="required" class="form-control"  autocomplete="off">'
+		var selectHtml = '';
+		for (var i=0; i <userList.length; i++){
+			if (userList[i]["username"]==username){
+				selectHtml += '<option selected="selected" value="'+ userList[i]["id"] +'">'+ userList[i]["username"] +'</option>' 	
+			}else{
+				selectHtml += '<option value="'+ userList[i]["id"] +'">'+ userList[i]["username"] +'</option>' 	
+			}
+							 
+		};                        
+		userHtml =  userHtml + selectHtml + '</select>';		
+	    $.confirm({
+	        icon: 'fa fa-edit',
+	        type: 'blue',
+	        title: '修改数据',
+	        content: '<form  data-parsley-validate class="form-horizontal form-label-left">' +
+			            '<div class="form-group">' +
+			            '<label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">项目名称 <span class="required">*</span>' +
+			            '</label>' +
+			            '<div class="col-md-6 col-sm-6 col-xs-12">' +
+			              '<input type="text"  name="project_name" value="'+ project +'" required="required" class="form-control col-md-7 col-xs-12">' +
+			            '</div>' +
+			          '</div>' +
+			          '<div class="form-group">' +
+			            '<label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">项目负责人<span class="required">*</span>' +
+			            '</label>' +
+			            '<div class="col-md-6 col-sm-6 col-xs-12">' +
+			              userHtml +
+			            '</div>' +
+			          '</div>' + 		                        
+			        '</form>',
+	        buttons: {
+	            '取消': function() {},
+	            '修改': {
+	                btnClass: 'btn-blue',
+	                action: function() {
+	                    var param_name = this.$content.find("[name='project_name']").val();
+	                    var project_owner = this.$content.find('select option:selected').val();
+				    	$.ajax({  
+				            cache: true,  
+				            type: "PUT",  
+				            url:"/api/project/" + vIds + '/',  
+				            data:{
+				            	"project_name":param_name,
+				            	"project_owner":project_owner
+				            	},
+				            error: function(request) {  
+				            	new PNotify({
+				                    title: 'Ops Failed!',
+				                    text: request.responseText,
+				                    type: 'error',
+				                    styling: 'bootstrap3'
+				                });       
+				            },  
+				            success: function(data) {  
+				            	new PNotify({
+				                    title: 'Success!',
+				                    text: '资产修改成功',
+				                    type: 'success',
+				                    styling: 'bootstrap3'
+				                }); 
+				            	RefreshTable('projectTableLists', '/api/project/');
+				            }  
+				    	});
+	                }
+	            }
+	        }
+	    });	
+/*    	$.ajax({  
+            cache: true,  
+            type: "PUT",  
+			contentType : "application/json", 
+			dataType : "json", 	            
+            url:"/api/project/" + vIds + '/',  
+            data:JSON.stringify({
+				"project_owner": $('#project_owner_' + vIds + ' option:selected').val(),
+				"project_name": $('#project_name_' + vIds).val(),
+			}),
+            async: false,  
+            error: function(response) {  
+            	new PNotify({
+                    title: 'Ops Failed!',
+                    text: response.responseText,
+                    type: 'error',
+                    styling: 'bootstrap3'
+                });       
+            },  
+            success: function(data) {  
+            	new PNotify({
+                    title: 'Success!',
+                    text: '资产修改成功',
+                    type: 'success',
+                    styling: 'bootstrap3'
+                }); 
+            	RefreshTable('projectTableLists', '/api/project/');
+            }  
+    	}); */ 	
+    });	
+	
+	
+	//删除项目资产
+	$('#projectTableLists tbody').on('click',"button[name='btn-project-confirm']", function(){
+    	var vIds = $(this).val();
+    	var projectName = $(this).parent().parent().parent().find("td").eq(1).text()
+	  	$.confirm({
+	  	    title: '删除确认?',
+	  	    type: 'red',
+	  	    content: "删除项目: " + projectName,
+	  	    buttons: {
+	  	        确认: function () {
+	  			$.ajax({
+	  				  type: 'DELETE',
+	  				  url:'/api/project/' + vIds + '/',
+	  			      success:function(response){	
+	  			    	$.alert('删除成功!');			            
+	  			      },
+	  	              error:function(response){
+	  	            	$.alert('删除失败!');		
+	  	              }
+	  				});	        
+	  	        },
+	  	       	 取消: function () {
+	  	            return true;
+	  	        },
+	  	    }
+	  	});   
+    });	
+    
+	//添加项目资产
+    $('#projectsubmit').on('click', function() {
+    	$.ajax({  
+            cache: true,  
+            type: "POST",  
+            url:"/api/project/",  
+            data:$('#projectAssetsform').serialize(),
+            async: false,  
+            error: function(request) {  
+            	new PNotify({
+                    title: 'Ops Failed!',
+                    text: request.responseText,
+                    type: 'error',
+                    styling: 'bootstrap3'
+                });       
+            },  
+            success: function(data) {  
+            	new PNotify({
+                    title: 'Success!',
+                    text: '资产添加成功',
+                    type: 'success',
+                    styling: 'bootstrap3'
+                }); 
+            	RefreshTable('projectTableLists', '/api/project/');
+            }  
+    	});  	
+    });		
+	
 	function makeServiceTables(){
 	    var columns = [
 	                    {"data": "id"},
@@ -221,6 +449,14 @@ $(document).ready(function() {
             className: "btn-xs",
             action: function ( e, dt, node, config ) {
             	$('#addServiceModal').modal("show");	
+            	var projectList = requests("get","/api/project/")
+				var userHtml = '<select required="required" class="form-control" id="project_service_select"  autocomplete="off">'
+				var selectHtml = '';
+				for (var i=0; i <projectList.length; i++){
+					selectHtml += '<option value="'+ projectList[i]["id"] +'">'+ projectList[i]["project_name"] +'</option>' 					 
+				};                        
+				userHtml =  userHtml + selectHtml + '</select>';
+				document.getElementById("project_service_select").innerHTML= userHtml;	            	
             }
         }]
 		InitDataTable('serviceAssetsTable',"/api/service/",buttons,columns,columnDefs)			
@@ -518,6 +754,37 @@ $(document).ready(function() {
 	  	    }
 	  	});   
     });      
+    
+    $('#tagssubmit').on('click', function() {
+    	$.ajax({  
+            cache: true,  
+            type: "POST",  
+            url:"/api/tags/",  
+			contentType : "application/json", 
+			dataType : "json", 
+			data:JSON.stringify({
+				"tags_name": $('#tag_name').val(),
+			}),
+            async: false,  
+            error: function(request) {  
+            	new PNotify({
+                    title: 'Ops Failed!',
+                    text: request.responseText,
+                    type: 'error',
+                    styling: 'bootstrap3'
+                });       
+            },  
+            success: function(data) {  
+            	new PNotify({
+                    title: 'Success!',
+                    text: '资产添加成功',
+                    type: 'success',
+                    styling: 'bootstrap3'
+                }); 
+            	RefreshTable('tagsAssetsTable', '/api/tags/');
+            }  
+    	});  	
+    });	    
     
 	makeTagsTables()
 	
@@ -923,6 +1190,37 @@ $(document).ready(function() {
   		});   
   	  }); 	
 	
+    $('#linesubmit').on('click', function() {
+    	$.ajax({  
+            cache: true,  
+            type: "POST",  
+            url:"/api/line/",  
+			contentType : "application/json", 
+			dataType : "json", 
+			data:JSON.stringify({
+				"line_name": $('#line_name').val()
+			}),
+            async: false,  
+            error: function(request) {  
+            	new PNotify({
+                    title: 'Ops Failed!',
+                    text: request.responseText,
+                    type: 'error',
+                    styling: 'bootstrap3'
+                });       
+            },  
+            success: function(data) {  
+            	new PNotify({
+                    title: 'Success!',
+                    text: '资产添加成功',
+                    type: 'success',
+                    styling: 'bootstrap3'
+                }); 
+            	RefreshTable('lineAssetsTable', '/api/line/');	
+            }  
+    	});  	
+    });		
+	
 	makeLineTables()
 	
 	function makeGroupTables(){
@@ -1037,25 +1335,21 @@ $(document).ready(function() {
   	});   
     }); 	
 	
-	makeGroupTables()
-  //修改项目资产
-    $("button[name='btn-project-modf']").on('click', function() {
-    	var vIds = $(this).val();
+    $('#groupsubmit').on('click', function() {
     	$.ajax({  
             cache: true,  
-            type: "PUT",  
+            type: "POST",  
+            url:"/api/group/",  
 			contentType : "application/json", 
-			dataType : "json", 	            
-            url:"/api/project/" + vIds + '/',  
-            data:JSON.stringify({
-				"project_owner": $('#project_owner_' + vIds + ' option:selected').val(),
-				"project_name": $('#project_name_' + vIds).val(),
+			dataType : "json", 
+			data:JSON.stringify({
+				"name": $('#group_name').val()
 			}),
             async: false,  
-            error: function(response) {  
+            error: function(request) {  
             	new PNotify({
                     title: 'Ops Failed!',
-                    text: response.responseText,
+                    text: request.responseText,
                     type: 'error',
                     styling: 'bootstrap3'
                 });       
@@ -1063,14 +1357,17 @@ $(document).ready(function() {
             success: function(data) {  
             	new PNotify({
                     title: 'Success!',
-                    text: '资产修改成功',
+                    text: '资产添加成功',
                     type: 'success',
                     styling: 'bootstrap3'
                 }); 
-            	window.location.reload();
+            	RefreshTable('groupAssetsTable', '/api/group/');	
             }  
     	});  	
-    });
+    });		
+	
+	makeGroupTables()
+	
   //修改应用资产
 
 	function makeZoneTables(){
@@ -1118,7 +1415,44 @@ $(document).ready(function() {
     	var zone_network = td.eq(5).text()
     	console.log(zone_name,zone_network)
     	modfZone(vIds,zone_name,zone_network,zone_local,zone_contact,zone_number)
-    });	   
+    });	
+	
+	
+    $('#zonesubmit').on('click', function() {
+    	$.ajax({  
+            cache: true,  
+            type: "POST",  
+            url:"/api/zone/",  
+			contentType : "application/json", 
+			dataType : "json", 
+			data:JSON.stringify({
+				"zone_name": $('#zone_name').val(),
+				"zone_network": $('#zone_network').val(),
+				"zone_local": $('#zone_local').val(),
+				"zone_contact": $('#zone_contact').val(),
+				"zone_number": $('#zone_number').val(),
+			}),
+            async: false,  
+            error: function(request) {  
+            	new PNotify({
+                    title: 'Ops Failed!',
+                    text: request.responseText,
+                    type: 'error',
+                    styling: 'bootstrap3'
+                });       
+            },  
+            success: function(data) {  
+            	new PNotify({
+                    title: 'Success!',
+                    text: '资产添加成功',
+                    type: 'success',
+                    styling: 'bootstrap3'
+                }); 
+            	RefreshTable('zoneAssetsTable', '/api/zone/');
+            }  
+    	});  	
+    });	
+	
     
   	//删除机房资产
 	$('#zoneAssetsTable tbody').on('click',"button[name='btn-zone-confirm']", function(){
@@ -1157,35 +1491,6 @@ $(document).ready(function() {
 	  	        },
 	  	    }
 	  	});   
-    }); 
-   
-    
-	//删除项目资产
-    $("button[name='btn-project-confirm']").on("click", function(){
-    	var vIds = $(this).val();
-    	var projectName = $("#projectId-" + vIds).text();
-	  	$.confirm({
-	  	    title: '删除确认?',
-	  	    type: 'red',
-	  	    content: "删除项目: " + projectName,
-	  	    buttons: {
-	  	        确认: function () {
-	  			$.ajax({
-	  				  type: 'DELETE',
-	  				  url:'/api/project/' + vIds + '/',
-	  			      success:function(response){	
-	  			    	$.alert('删除成功!');			            
-	  			      },
-	  	              error:function(response){
-	  	            	$.alert('删除失败!');		
-	  	              }
-	  				});	        
-	  	        },
-	  	       	 取消: function () {
-	  	            return true;
-	  	        },
-	  	    }
-	  	});   
-    });	
+    });         
 })
 	

@@ -13,6 +13,8 @@ from dao.redisdb import DsRedis
 from utils import base
 from dao.assets import AssetsSource
 from utils.ansible_api_v2 import ANSRunner
+from utils.base import method_decorator_adaptor
+from django.contrib.auth.decorators import permission_required      
         
 class Config(LoginRequiredMixin,AppsManage,View):
     login_url = '/login/'
@@ -23,29 +25,34 @@ class Config(LoginRequiredMixin,AppsManage,View):
             return func(args)
         else:       
             return HttpResponseRedirect('/404/')
-        
+    
+    @method_decorator_adaptor(permission_required, "apps.project_read_project_config","/403/")      
     def config(self,request, *args, **kwagrs):
         return render(request, 'apps/apps_config.html',{"user":request.user,"assets":self.base(),"project_dir":settings.WORKSPACES})
-      
     
+    @method_decorator_adaptor(permission_required, "apps.project_read_project_config","/403/")  
     def info(self,request, *args, **kwagrs):
         res = self.info_apps(request)
         if isinstance(res, str):return JsonResponse({'msg':res,"code":500,'data':[]})
         return JsonResponse({'msg':"添加成功","code":200,'data':res})
-        
+    
+    @method_decorator_adaptor(permission_required, "apps.project_change_project_config","/403/")      
     def init(self,request, *args, **kwagrs):
         res = self.init_apps(request)
         if isinstance(res, str):return JsonResponse({'msg':res,"code":500,'data':[]})
         return JsonResponse({'msg':"操作成功","code":200,'data':[]}) 
     
+    @method_decorator_adaptor(permission_required, "apps.project_change_project_config","/403/")      
     def edit(self,request, *args, **kwagrs):
         return render(request, 'apps/apps_edit.html',{"user":request.user,"assets":self.base(),"project_dir":settings.WORKSPACES})
 
+    @method_decorator_adaptor(permission_required, "apps.project_add_project_config","/403/")      
     def create(self,request, *args, **kwagrs):
         res = self.create_apps(request)
         if isinstance(res, str):return JsonResponse({'msg':res,"code":500,'data':[]})     
         return JsonResponse({'msg':"添加成功","code":200,'data':[]}) 
     
+    @method_decorator_adaptor(permission_required, "apps.project_change_project_config","/403/")  
     def update(self,request, *args, **kwagrs):
         res = self.update_apps(request)
         if isinstance(res, str):return JsonResponse({'msg':res,"code":500,'data':[]})     
@@ -84,6 +91,7 @@ class Manage(LoginRequiredMixin,AppsManage,AssetsSource,View):
         else:       
             return HttpResponseRedirect('/404/')  
     
+    @method_decorator_adaptor(permission_required, "apps.project_read_project_config","/403/")  
     def viewLogs(self,request):
         result = []
         project = self.get_apps(request)
@@ -251,7 +259,7 @@ class Manage(LoginRequiredMixin,AppsManage,AssetsSource,View):
                                                                 }})
         else:return HttpResponseRedirect('/404/') 
      
-    
+    @method_decorator_adaptor(permission_required, "apps.project_change_project_config","/403/")  
     def rollback(self,request):
         version,project = self.apps_type(request)
         runIds = request.POST.get('ans_uuid')
@@ -297,7 +305,7 @@ class Manage(LoginRequiredMixin,AppsManage,AssetsSource,View):
             return JsonResponse({'msg':"您无权操作此项","code":500,'data':[]})
                                                  
         
-    
+    @method_decorator_adaptor(permission_required, "apps.project_change_project_config","/403/")  
     def deploy(self,request):
         version,project = self.apps_type(request)
         runIds = request.POST.get('ans_uuid')
@@ -362,6 +370,7 @@ class Manage(LoginRequiredMixin,AppsManage,AssetsSource,View):
         else:                            
             return JsonResponse({'msg':"您无权操作此项","code":500,'data':[]})                    
     
+    @method_decorator_adaptor(permission_required, "apps.project_change_project_config","/403/")  
     def create_branch(self,request):  
         version,project = self.apps_type(request)
         if request.POST.get('model') == 'branch':
@@ -370,7 +379,8 @@ class Manage(LoginRequiredMixin,AppsManage,AssetsSource,View):
             result = version.createTag(path=project.project_repo_dir,tagName=request.POST.get('name'))
         if result[0] > 0:return JsonResponse({'msg':result[1],"code":500,'data':[]})
         else:return JsonResponse({'msg':"操作成功","code":200,'data':[]})   
-        
+    
+    @method_decorator_adaptor(permission_required, "apps.project_delete_project_config","/403/")     
     def delete_branch(self,request): 
         version,project = self.apps_type(request)
         if request.POST.get('model') == 'branch':result = version.delBranch(path=project.project_repo_dir,branchName=request.POST.get('name'))

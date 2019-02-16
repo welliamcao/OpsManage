@@ -1,23 +1,7 @@
 #!/usr/bin/env python  
 # _#_ coding:utf-8 _*_  
 from django.db import models
-
-
-class Inception_Server_Config(models.Model):   
-    db_name = models.CharField(max_length=100,verbose_name='数据库名',blank=True,null=True)
-    db_host = models.CharField(max_length=100,verbose_name='数据库地址')
-    db_user = models.CharField(max_length=100,verbose_name='用户',blank=True,null=True)
-    db_passwd = models.CharField(max_length=100,verbose_name='密码',blank=True,null=True)
-    db_backup_host = models.CharField(max_length=100,verbose_name='备份数据库地址')
-    db_backup_user = models.CharField(max_length=100,verbose_name='备份数据库账户')
-    db_backup_passwd = models.CharField(max_length=100,verbose_name='备份数据库密码')
-    db_backup_port = models.SmallIntegerField(verbose_name='备份数据库端口')
-    db_port = models.SmallIntegerField(verbose_name='端口')
-    class Meta:
-        db_table = 'opsmanage_inception_server_config'
-        default_permissions = ()
-        verbose_name = 'inception信息表'  
-        verbose_name_plural = 'inception信息表'        
+      
 
 class DataBase_Server_Config(models.Model):
     env_type = (
@@ -47,7 +31,11 @@ class DataBase_Server_Config(models.Model):
             ("database_read_database_server_config", "读取数据库信息表权限"),
             ("database_change_database_server_config", "更改数据库信息表权限"),
             ("database_add_database_server_config", "添加数据库信息表权限"),
-            ("database_delete_database_server_config", "删除数据库信息表权限"),              
+            ("database_delete_database_server_config", "删除数据库信息表权限"),     
+            ("database_query_database_server_config", "数据库查询查询权限"), 
+            ("database_binlog_database_server_config", "数据库Binglog解析权限"),        
+            ("database_schema_database_server_config", "数据库表结构查询权限"),
+            ("database_optimize_database_server_config", "数据库SQL优化建议权限"),
         )
         unique_together = (("db_port", "db_assets","db_env","db_name"))
         verbose_name = '数据库信息表'  

@@ -253,167 +253,21 @@ function Percentage(num, total) {
 		    });
 	    }  	
 	
-		//添加项目资产
-	    $('#projectsubmit').on('click', function() {
-	    	$.ajax({  
-	            cache: true,  
-	            type: "POST",  
-	            url:"/api/project/",  
-	            data:$('#projectAssetsform').serialize(),
-	            async: false,  
-	            error: function(request) {  
-	            	new PNotify({
-	                    title: 'Ops Failed!',
-	                    text: request.responseText,
-	                    type: 'error',
-	                    styling: 'bootstrap3'
-	                });       
-	            },  
-	            success: function(data) {  
-	            	new PNotify({
-	                    title: 'Success!',
-	                    text: '资产添加成功',
-	                    type: 'success',
-	                    styling: 'bootstrap3'
-	                }); 
-	            	window.location.reload();
-	            }  
-	    	});  	
-	    });
+
 	  //添加应用资产
    
 
 		  //添加使用组资产
-	    $('#groupsubmit').on('click', function() {
-	    	$.ajax({  
-	            cache: true,  
-	            type: "POST",  
-	            url:"/api/group/",  
-				contentType : "application/json", 
-				dataType : "json", 
-				data:JSON.stringify({
-					"name": $('#group_name').val()
-				}),
-	            async: false,  
-	            error: function(request) {  
-	            	new PNotify({
-	                    title: 'Ops Failed!',
-	                    text: request.responseText,
-	                    type: 'error',
-	                    styling: 'bootstrap3'
-	                });       
-	            },  
-	            success: function(data) {  
-	            	new PNotify({
-	                    title: 'Success!',
-	                    text: '资产添加成功',
-	                    type: 'success',
-	                    styling: 'bootstrap3'
-	                }); 
-	            	window.location.reload();
-	            }  
-	    	});  	
-	    });		    
+	    
 	    
 		  //添加使用组资产
-	    $('#linesubmit').on('click', function() {
-	    	$.ajax({  
-	            cache: true,  
-	            type: "POST",  
-	            url:"/api/line/",  
-				contentType : "application/json", 
-				dataType : "json", 
-				data:JSON.stringify({
-					"line_name": $('#line_name').val()
-				}),
-	            async: false,  
-	            error: function(request) {  
-	            	new PNotify({
-	                    title: 'Ops Failed!',
-	                    text: request.responseText,
-	                    type: 'error',
-	                    styling: 'bootstrap3'
-	                });       
-	            },  
-	            success: function(data) {  
-	            	new PNotify({
-	                    title: 'Success!',
-	                    text: '资产添加成功',
-	                    type: 'success',
-	                    styling: 'bootstrap3'
-	                }); 
-	            	window.location.reload();
-	            }  
-	    	});  	
-	    });		  
+	  
 	    
 		  //添加使用组资产
-	    $('#zonesubmit').on('click', function() {
-	    	$.ajax({  
-	            cache: true,  
-	            type: "POST",  
-	            url:"/api/zone/",  
-				contentType : "application/json", 
-				dataType : "json", 
-				data:JSON.stringify({
-					"zone_name": $('#zone_name').val(),
-					"zone_network": $('#zone_network').val(),
-					"zone_local": $('#zone_local').val(),
-					"zone_contact": $('#zone_contact').val(),
-					"zone_number": $('#zone_number').val(),
-				}),
-	            async: false,  
-	            error: function(request) {  
-	            	new PNotify({
-	                    title: 'Ops Failed!',
-	                    text: request.responseText,
-	                    type: 'error',
-	                    styling: 'bootstrap3'
-	                });       
-	            },  
-	            success: function(data) {  
-	            	new PNotify({
-	                    title: 'Success!',
-	                    text: '资产添加成功',
-	                    type: 'success',
-	                    styling: 'bootstrap3'
-	                }); 
-	            	window.location.reload();
-	            }  
-	    	});  	
-	    });		    
+	    
 	    
 		  //添加使用组资产
-	    $('#tagssubmit').on('click', function() {
-	    	$.ajax({  
-	            cache: true,  
-	            type: "POST",  
-	            url:"/api/tags/",  
-				contentType : "application/json", 
-				dataType : "json", 
-				data:JSON.stringify({
-					"tags_name": $('#tag_name').val(),
-				}),
-	            async: false,  
-	            error: function(request) {  
-	            	new PNotify({
-	                    title: 'Ops Failed!',
-	                    text: request.responseText,
-	                    type: 'error',
-	                    styling: 'bootstrap3'
-	                });       
-	            },  
-	            success: function(data) {  
-	            	new PNotify({
-	                    title: 'Success!',
-	                    text: '资产添加成功',
-	                    type: 'success',
-	                    styling: 'bootstrap3'
-	                }); 
-	            	window.location.reload();
-	            }  
-	    	});  	
-	    });		    
+	    
 	    
 		  //添加机柜信息
 

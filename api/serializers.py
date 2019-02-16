@@ -172,13 +172,6 @@ class NetworkSerializer(serializers.ModelSerializer):
         server = Network_Assets.objects.create(**data)  
         return server   
     
-        
-class InceptionSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Inception_Server_Config
-        fields = ('id','db_name','db_host','db_user','db_passwd','db_port',
-                  'db_backup_host','db_backup_user','db_backup_port',
-                  'db_backup_passwd')   
 
 class OrderSerializer(serializers.ModelSerializer):
     create_time = serializers.DateField(format="%Y-%m-%d %H:%M:%S",required=False)

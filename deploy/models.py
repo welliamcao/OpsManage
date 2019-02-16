@@ -109,12 +109,6 @@ class Deploy_Playbook_Number(models.Model):
     class Meta:
         db_table = 'opsmanage_deploy_playbook_number'
         default_permissions = ()
-        permissions = (
-            ("deploy_read_deploy_playbook_number", "读取部署剧本成员权限"),
-            ("deploy_change_deploy_playbook_number", "修改部署剧本成员权限"),
-            ("deploy_add_deploy_playbook_number", "添加部署剧本成员权限"),
-            ("deploy_delete_deploy_playbook_number", "删除部署剧本成员权限"),             
-        )
         verbose_name = '部署剧本成员表'  
         verbose_name_plural = '部署剧本成员表'
     def __unicode__(self):

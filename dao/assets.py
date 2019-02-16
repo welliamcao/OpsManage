@@ -170,13 +170,30 @@ class AssetsBase(DataHandle,DjangoCustomCursors):
                                                       
         
     
-#     def tags(self,tags,request=None):
-#         tagAssetsList = [ ds.aid for ds in Tags_Server_Assets.objects.filter(tid=tags)]
-#         allAssetsList = self.assetsList()
-#         #取差集
-#         diffAsset = [i for i in allAssetsList if i not in tagAssetsList]      
-#         return self.query(tagAssetsList),self.query(diffAsset)        
-       
+    def check_user_assets(self,userid,assetsid):
+        try:
+            user = User.objects.get(id=userid)
+        except Exception as ex:
+            logger.warn(msg="查询用户信息失败: {ex}".format(ex=str(ex)))  
+            return False
+        try:
+            assets = Assets.objects.get(id=assetsid)
+        except Exception as ex:
+            logger.warn(msg="查询资产信息失败: {ex}".format(ex=str(ex)))  
+            return False  
+        
+        if user.is_superuser and assets:
+            return assets
+        
+        if not user.is_superuser and assets \
+            and user.has_perm('asset.assets_webssh_assets'): 
+            try:     
+                if User_Server.objects.get(user=user,assets=assets):return assets
+            except Exception as ex:
+                logger.warn(msg="查询用户资产信息失败: {ex}".format(ex=str(ex)))  
+                return False
+        
+        return False
     
     def query_user_assets(self,request,assetsList):
         if request.user.is_superuser:

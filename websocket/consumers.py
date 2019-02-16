@@ -2,7 +2,7 @@
 # _#_ coding:utf-8 _*_ 
 from asgiref.sync import async_to_sync
 from channels.generic.websocket import WebsocketConsumer
-from asset.models import Assets
+from dao.assets import AssetsBase
 import paramiko
 import threading
 import time
@@ -41,16 +41,22 @@ class webTerminalThread(threading.Thread):
         )
 
 
-class webterminal(WebsocketConsumer):
-      
+class webterminal(WebsocketConsumer,AssetsBase):
+
+    def __init__(self, *args, **kwargs):
+        super(webterminal, self).__init__(*args, **kwargs)     
+
+
     def connect(self):
+
         self.group_name = self.scope['url_route']['kwargs']['group_name']
-#         async_to_sync(self.channel_layer.group_add)(self.group_name, self.channel_name)
+
         self.accept()
-        try:
-            assets = Assets.objects.get(id=self.scope['url_route']['kwargs']['id'])
-        except Exception as ex:
-            self.send(text_data="主机连接失败: {ex}".format(ex=ex))   
+
+        assets = self.check_user_assets(userid=self.scope["user"].id, assetsid=self.scope['url_route']['kwargs']['id'])
+
+        if not assets:
+            self.send(text_data="主机连接失败: 您没有登录该资产的权限")   
             self.close()             
         try:
             self.ssh = paramiko.SSHClient()
@@ -67,7 +73,7 @@ class webterminal(WebsocketConsumer):
         self.sshRbt.setDaemon(True)
         self.sshRbt.start()
             
- 
+
     def receive(self, text_data=None, bytes_data=None):
         self.chan.send(text_data)
 #         async_to_sync(self.channel_layer.group_send)(

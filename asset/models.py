@@ -45,6 +45,7 @@ class Assets(models.Model):
             ("assets_add_assets", "添加资产权限"),
             ("assets_delete_assets", "删除资产权限"),
             ("assets_dumps_assets", "导出资产权限"),
+            ("assets_webssh_assets", "远程登录资产权限"),
         ) 
         verbose_name = '总资产表'  
         verbose_name_plural = '总资产表'  

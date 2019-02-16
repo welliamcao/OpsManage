@@ -121,10 +121,10 @@ class Order_Notice_Config(models.Model):
         db_table = 'opsmanage_order_notice_config'
         default_permissions = ()
         permissions = (
-            ("orders_read_notice_config", "读取工单通知表权限"),
-            ("orders_change_notice_config", "更改工单通知表权限"),
-            ("orders_add_notice_config", "添加工单通知表权限"),
-            ("orders_delete_notice_config", "删除S工单通知表权限"),              
+            ("orders_read_notice_config", "读取工单通知配置表权限"),
+            ("orders_change_notice_config", "更改工单通知配置表权限"),
+            ("orders_add_notice_config", "添加工单通知配置表权限"),
+            ("orders_delete_notice_config", "删除工单通知配置表权限"),              
         )        
         unique_together = (("order_type","mode"))
         verbose_name = '工单通知配置表'  

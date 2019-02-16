@@ -21,7 +21,8 @@ class DelolyModel(LoginRequiredMixin,AssetsSource,View):
     login_url = '/login/'
     def get(self, request, *args, **kwagrs):
         return render(request, 'deploy/deploy_model.html',{"user":request.user})  
-      
+    
+    @method_decorator_adaptor(permission_required, "deploy.deploy_exec_deploy_model","/403/")  
     def post(self, request, *args, **kwagrs):
             sList,resource = self.allowcator(request.POST.get('server_model'), request)
             if len(request.POST.get('custom_model')) > 0:model_name = request.POST.get('custom_model')
@@ -55,6 +56,7 @@ class DeployInventory(LoginRequiredMixin,AssetsBase,View):
     def get(self, request, *args, **kwagrs):
         return render(request, 'deploy/deploy_inventory.html',{"user":request.user,"assets":self.base()})
     
+    @method_decorator_adaptor(permission_required, "deploy.deploy_add_deploy_inventory","/403/") 
     def post(self, request, *args, **kwagrs):
         try:
             Deploy_Inventory.objects.create(name=request.POST.get('inventory_name'),
@@ -98,8 +100,9 @@ class DeployInventoryGroups(LoginRequiredMixin,View):
                     dataList.append({"id":assets.id,"ip":assets.network_assets.ip,"project":project,"service":service,"seletcd":seletcd})                       
                 except Exception as ex:
                     logger.warn(msg="id:{assets}, error:{ex}".format(assets=assets.id,ex=ex))                
-        return JsonResponse({'msg':"动态资产组查询成功","code":200,'data':dataList,"vars":json.dumps(inventoryGroups.ext_vars)})  
-    
+        return JsonResponse({'msg':"动态资产组查询成功","code":200,'data':dataList,"vars":json.dumps(inventoryGroups.ext_vars)}) 
+     
+    @method_decorator_adaptor(permission_required, "deploy.deploy_change_deploy_inventory","/403/") 
     def put(self, request, *args, **kwagrs):
         try:
             inventoryGroups = Deploy_Inventory_Groups.objects.get(id=kwagrs.get('id'))
@@ -132,7 +135,8 @@ class DeployInventoryGroups(LoginRequiredMixin,View):
             logger.warn(msg="资产组变量修改失败: {ex}".format(ex=str(ex))) 
             return JsonResponse({'msg':"资产组变量修改失败: {ex}".format(ex=str(ex)),"code":500,'data':[]})   
         return JsonResponse({'msg':"资产组信息已更新","code":200,'data':[]})  
-     
+    
+    @method_decorator_adaptor(permission_required, "deploy.deploy_delete_deploy_inventory","/403/")  
     def delete(self, request, *args, **kwagrs):  
         try:
             inventoryGroups = Deploy_Inventory_Groups.objects.get(id=kwagrs.get('id'))
@@ -144,22 +148,26 @@ class DeployInventoryGroups(LoginRequiredMixin,View):
     
 class DeployScripts(LoginRequiredMixin,DeployScript,View):        
     login_url = '/login/'
-        
+    
+    @method_decorator_adaptor(permission_required, "deploy.deploy_read_deploy_script","/403/")       
     def get(self, request, *args, **kwagrs):
         if request.GET.get('sid'):
             return JsonResponse({'msg':"数据获取成功","code":200,'data':self.script(request.GET.get('sid'))})
         return render(request, 'deploy/deploy_scripts.html',{"user":request.user,"scriptList":self.scriptList()}) 
-       
+    
+    @method_decorator_adaptor(permission_required, "deploy.deploy_add_deploy_script","/403/")   
     def post(self, request, *args, **kwagrs):
         res = self.createScript(request)
         if isinstance(res, str):return JsonResponse({'msg':res,"code":500,'data':[]})
         return JsonResponse({'msg':"保存成功","code":200,'data':[]})   
     
+    @method_decorator_adaptor(permission_required, "deploy.deploy_change_deploy_script","/403/") 
     def put(self, request, *args, **kwagrs):
         res = self.updateScript(request=request)
         if isinstance(res, str):return JsonResponse({'msg':res,"code":500,'data':[]})
         return JsonResponse({'msg':"修改成功","code":200,'data':[]})     
 
+    @method_decorator_adaptor(permission_required, "deploy.deploy_delete_deploy_script","/403/") 
     def delete(self,request, *args, **kwagrs):
         res = self.deleteScript(request=request)
         if isinstance(res, str):return JsonResponse({'msg':res,"code":500,'data':[]})
@@ -168,12 +176,12 @@ class DeployScripts(LoginRequiredMixin,DeployScript,View):
 class DeployScriptsRun(LoginRequiredMixin,AssetsSource,DeployScript,View):        
     login_url = '/login/'
     
+    @method_decorator_adaptor(permission_required, "deploy.deploy_exec_deploy_script","/403/") 
     def post(self, request, *args, **kwagrs):  
         sList,resource = self.allowcator(request.POST.get('server_model'), request)                                                
         if len(sList) > 0 and request.POST.get('script_file'):             
             filePath = self.saveScript(content=request.POST.get('script_file'),filePath='/tmp/script-{ram}'.format(ram=uuid.uuid4().hex[0:8]))
             redisKey = request.POST.get('ans_uuid')
-#             logId = AnsibleRecord.Model.insert(user=str(request.user),ans_model='script',ans_server=','.join(sList),ans_args=filePath)
             DsRedis.OpsAnsibleModel.delete(redisKey)
             DsRedis.OpsAnsibleModel.lpush(redisKey, "[Start] Ansible Model: {model}  Script:{filePath} {args}".format(model='script',filePath=filePath,args=request.POST.get('script_args')))
             if request.POST.get('deploy_debug') == 'on':ANS = ANSRunner(resource,redisKey,verbosity=4)
@@ -220,6 +228,7 @@ class DeployPlaybooks(LoginRequiredMixin,DeployPlaybook,View):
 class DeployPlaybookRun(LoginRequiredMixin,AssetsSource,DeployPlaybook,View):        
     login_url = '/login/'
     
+    @method_decorator_adaptor(permission_required, "deploy.deploy_exec_deploy_playbook","/403/")
     def post(self, request, *args, **kwagrs):
         try:
             playbook = Deploy_Playbook.objects.get(id=request.POST.get('playbook_id'))

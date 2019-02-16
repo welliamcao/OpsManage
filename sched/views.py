@@ -1,22 +1,24 @@
 #!/usr/bin/env python  
 # _#_ coding:utf-8 _*_  
 from django.views.generic import View
-from django.http import QueryDict
 from django.shortcuts import render
-from django.contrib.auth.models import User,Group
-from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from dao.crontab import CrontabManage
 from dao.celerys import CeleryTaskManage
 from django.http import JsonResponse
+from django.contrib.auth.decorators import permission_required
+from utils.base import method_decorator_adaptor
 
 class CronManage(LoginRequiredMixin,CrontabManage,View):
     login_url = '/login/'
+    
+    @method_decorator_adaptor(permission_required, "sched.cron_can_read_cron_config","/403/") 
     def get(self, request, *args, **kwagrs):
         if request.GET.get('id'):
             return JsonResponse({'msg':"计划任务查询成功","code":200,'data':self.get_crontab(request)}) 
         return render(request, 'sched/cron_manage.html',{"user":request.user})
     
+    @method_decorator_adaptor(permission_required, "sched.cron_can_add_cron_config","/403/") 
     def post(self, request, *args, **kwagrs):
         if request.POST.get('type') == 'view':res = self.view_logs(request)
         elif request.POST.get('type') == 'disabled':res = self.disabled(request)
@@ -25,11 +27,13 @@ class CronManage(LoginRequiredMixin,CrontabManage,View):
         if isinstance(res, str):return JsonResponse({'msg':res,"code":500,'data':[]})
         return JsonResponse({'msg':"操作成功","code":200,'data':res})     
 
+    @method_decorator_adaptor(permission_required, "sched.cron_can_change_cron_config","/403/") 
     def put(self, request, *args, **kwagrs):
         res = self.update_crontab(request=request)
         if isinstance(res, str):return JsonResponse({'msg':res,"code":500,'data':[]})
         return JsonResponse({'msg':"修改成功","code":200,'data':res})       
 
+    @method_decorator_adaptor(permission_required, "sched.cron_can_delete_cron_config","/403/")
     def delete(self, request, *args, **kwagrs):
         res = self.delete_crontab(request=request)
         if isinstance(res, str):return JsonResponse({'msg':res,"code":500,'data':[]})

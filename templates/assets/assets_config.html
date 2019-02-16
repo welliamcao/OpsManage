@@ -80,9 +80,6 @@
 			                    <div class="clearfix"></div>
 			                  </div>
 			                  <div class="x_content">
-			                    <div>
-			                     	<button type="button" class="btn btn-xs btn-default" data-toggle="modal" data-target=".bs-example-modal-project"><i class="glyphicon glyphicon-plus"></i></button>
-			                    </div>
 			                    <table class="table" id="projectTableLists">
 			                      <thead>
 			                        <tr>
@@ -93,7 +90,7 @@
 			                        </tr>
 			                      </thead>
 			                      <tbody>
-			                      {% for project in assets.projectList %}
+<!-- 			                      {% for project in assets.projectList %}
 			                        <tr>
 			                          <th scope="row">{{project.id}}</th>
 			                          <td id="projectId-{{project.id}}">{{project.project_name}}</td>
@@ -109,7 +106,7 @@
 										</div>  	                                			
 			                           </td>	
 			                        </tr>
-			                      {% endfor %}
+			                      {% endfor %} -->
 			                      </tbody>
 			                    </table>
 			
@@ -383,9 +380,6 @@
 			                    <div class="clearfix"></div>
 			                  </div>
 			                  <div class="x_content">
-<!-- 			                    <div>
-			                     	<button type="button" class="btn btn-xs btn-default" data-toggle="modal" data-target=".bs-example-modal-raid"><i class="glyphicon glyphicon-plus"></i></button>
-			                    </div> -->
 			                    <table class="table" id="raidAssetsTable">
 			                      <thead>
 			                        <tr>
@@ -395,22 +389,7 @@
 			                        </tr>
 			                      </thead>
 			                      <tbody>
-<!-- 			                      	{% for ds in assets.raidList %}
-			                        <tr>
-			                          <th scope="row">{{ds.id}}</th>
-			                          <td id="raidIds-{{ds.id}}">{{ds.raid_name}}</td>
-			                          <td class="text-center">
-										<div class="btn-group  btn-group-xs">																		
-												<button type="button" class="btn btn-xs btn-default" value="{{ds.id}}" name="btn-raid-modf">
-													<i class="fa fa-edit"></i>
-												</button>
-												<button type="button" class="btn btn-xs btn-default" value="{{ds.id}}" name="btn-raid-confirm">
-													<i class="fa fa-trash"></i>
-												</button>											
-										</div> 
-									   </td>   
-			                        </tr>
-			                        {% endfor %} -->
+
 			                      </tbody>
 			                    </table>
 			
@@ -456,25 +435,6 @@
 				                        </tr>
 				                      </thead>
 				                      <tbody>
-<!-- 				                      	{% for ds in assets.tagsList %}
-				                        <tr>
-				                          <th scope="row">{{ds.id}}</th>
-				                          <td id="tagsIds-{{ds.id}}">{{ds.tags_name}}</td>
-				                          <td class="text-center">
-											<div class="btn-group  btn-group-xs">																			
-													<button type="button" class="btn btn-xs btn-default" value="{{ds.id}}" name="btn-tags-modf">
-														<i class="fa fa-edit"></i>
-													</button>
-													<button type="button" class="btn btn-xs btn-default" value="{{ds.id}}" name="btn-tags-group" data-toggle="modal" data-target=".bs-example-modal-tags-info">
-														<i class="fa fa-group"></i>
-													</button>													
-													<button type="button" class="btn btn-xs btn-default" value="{{ds.id}}" name="btn-tags-confirm">
-														<i class="fa fa-trash"></i>
-													</button>											
-											</div>  	                                			
-				                           </td>
-				                        </tr>
-				                        {% endfor %} -->
 				                      </tbody>
 				                    </table>
 				
@@ -504,9 +464,6 @@
 				                    <div class="clearfix"></div>
 				                  </div>
 				                  <div class="x_content">
-<!-- 				                    <div>
-				                     	<button type="button" class="btn btn-xs btn-default" data-toggle="modal" data-target=".bs-example-modal-group"><i class="glyphicon glyphicon-plus"></i></button>
-				                    </div> -->
 				                    <table class="table" id="groupAssetsTable">
 				                      <thead>
 				                        <tr>
@@ -516,22 +473,6 @@
 				                        </tr>
 				                      </thead>
 				                      <tbody>
-<!-- 				                      	{% for ds in assets.groupList %}
-				                        <tr>
-				                          <th scope="row">{{ds.id}}</th>
-				                          <td id="groupIds-{{ds.id}}">{{ds.name}}</td>
-				                          <td class="text-center">
-											<div class="btn-group  btn-group-xs">																			
-													<button type="button" class="btn btn-xs btn-default" value="{{ds.id}}" name="btn-group-modf">
-														<i class="fa fa-edit"></i>
-													</button>
-													<button type="button" class="btn btn-xs btn-default" value="{{ds.id}}" name="btn-group-confirm">
-														<i class="fa fa-trash"></i>
-													</button>											
-											</div>  	                                			
-				                           </td>
-				                        </tr>
-				                        {% endfor %} -->
 				                      </tbody>
 				                    </table>
 				
@@ -572,7 +513,7 @@
           </div>
         </div>	
         
-        <div class="modal fade bs-example-modal-project" tabindex="-1" role="dialog" aria-hidden="true">
+        <div id="addProjectModal" class="modal fade bs-example-modal-project" tabindex="-1" role="dialog" aria-hidden="true">
           <div class="modal-dialog modal-lg">
             <div class="modal-content">
 
@@ -593,12 +534,12 @@
                       <div class="form-group">
                         <label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">负责人 <span class="required">*</span>
                         </label>
-                        <div class="col-md-6 col-sm-6 col-xs-12" id="userList">
-                          <select class="project_owner form-control" name="project_owner">
-                          		<option value="" selected="selected">选择一个用户</option>
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                          <select class="form-control" id="project_owner" name="project_owner">
+<!--                           		<option value="" selected="selected">选择一个用户</option>
 							{% for user in assets.userList %}
 								<option value="{{user.id}}">{{user.username}}</option>
-							{% endfor %}
+							{% endfor %} -->
                           </select>
                         </div>
                       </div>
@@ -630,9 +571,6 @@
                         </label>
                         <div class="col-md-6 col-sm-6 col-xs-12">
                           <select class="form-control" id="project_service_select">	
-							{% for project in assets.projectList %}
-								<option  value="{{project.id}}">{{project.project_name}}</option>
-							{% endfor %}
                           </select>
                         </div>
                       </div>
@@ -879,51 +817,6 @@
           </div>
         </div>                       
                
-	{% for project in assets.projectList %}
-        <div class="modal fade bs-example-modal-project-{{project.id}}" tabindex="-1" role="dialog" aria-hidden="true">
-          <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-
-              <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span>
-                </button>
-                <h4 class="modal-title" id="myModalLabel">修改项目</h4>
-              </div>
-              <div class="modal-body">
-                    <form id="modfProjectAssetsform-{{project.id}}" data-parsley-validate class="form-horizontal form-label-left">{% csrf_token %}
-                      <div class="form-group">
-                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="first-name">项目名称 <span class="required">*</span>
-                        </label>
-                        <div class="col-md-6 col-sm-6 col-xs-12">
-                          <input type="text"  required="required" id="project_name_{{project.id}}" value="{{project.project_name}}" class="form-control col-md-7 col-xs-12">
-                        </div>
-                      </div>
-                      <div class="form-group">
-                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">负责人 <span class="required">*</span>
-                        </label>
-                        <div class="col-md-6 col-sm-6 col-xs-12">
-                          <select class="form-control" id="project_owner_{{project.id}}">	
-							{% for user in assets.userList %}
-								{% if user.id == project.project_owner %}
-									<option selected="selected" value="{{user.id}}">{{user.username}}</option>
-								{% else %}
-									<option  value="{{user.id}}">{{user.username}}</option>
-								{% endif %}
-							{% endfor %}
-                          </select>
-                        </div>
-                      </div>
-                    </form>
-              </div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                <button type="button"  value="{{project.id}}" class="btn btn-primary" name="btn-project-modf">保存</button>
-              </div>
-
-            </div>
-          </div>
-        </div> 
-	{% endfor %}
 		
                          
 {% endblock %}

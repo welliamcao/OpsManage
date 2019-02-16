@@ -316,7 +316,7 @@ class DBManage(AssetsBase):
             logger.error(msg="DBManage没有{sub}方法".format(sub=sub))       
             return "参数错误"
     
-    def get_db(self,request):
+    def __get_db(self,request):
         try:
             return  DataBase_Server_Config.objects.get(id=self.change(request.POST.get('db')))
         except Exception as ex:
@@ -324,9 +324,9 @@ class DBManage(AssetsBase):
             return False   
                                    
     
-    def get_db_server(self,request):
+    def __get_db_server(self,request):
         try:
-            dbServer = self.get_db(request)
+            dbServer = self.__get_db(request)
             return MySQLPool(host=dbServer.db_assets.server_assets.ip,
                               port=dbServer.db_port,user=dbServer.db_user,
                               passwd=dbServer.db_passwd,dbName=dbServer.db_name)
@@ -334,7 +334,7 @@ class DBManage(AssetsBase):
             logger.error(msg="数据库不存在: {ex}".format(ex=ex)) 
             return ex      
 
-    def get_db_servers(self,request,queues):
+    def __get_db_servers(self,request,queues):
         dataList = []
         for db in request.POST.getlist('db[]'):
             try:
@@ -355,18 +355,20 @@ class DBManage(AssetsBase):
         return dataList      
         
     def query_sql(self, request):
+        if not request.user.has_perm('databases.database_query_database_server_config'):return "您没有权限操作此项"
         queues = queue.Queue(maxsize=100)
         try:
             sqlCmd = request.POST.get('sql').split(' ')[0].lower()
         except Exception as ex:
             logger.error(msg="解析SQL失败: {ex}".format(ex=ex)) 
             return '解析SQL失败'
-        if sqlCmd in ["select","show"]:return self.get_db_servers(request,queues)
+        if sqlCmd in ["select","show"]:return self.__get_db_servers(request,queues)
         else:return 'SQL类型不支持'
             
     
     def binlog_sql(self,request):
-        result = self.get_db_server(request).queryAll(sql='show binary logs;')
+        if not request.user.has_perm('databases.database_binlog_database_server_config'):return "您没有权限操作此项"
+        result = self.__get_db_server(request).queryAll(sql='show binary logs;')
         binLogList = []
         if isinstance(result,tuple):
             for ds in result[1]:
@@ -374,7 +376,7 @@ class DBManage(AssetsBase):
         return binLogList
     
     def table_list(self,request):
-        result = self.get_db_server(request).queryAll(sql='show tables;')
+        result = self.__get_db_server(request).queryAll(sql='show tables;')
         tableList = []
         if isinstance(result,tuple):
             for ds in result[1]:
@@ -382,9 +384,10 @@ class DBManage(AssetsBase):
         return tableList
     
     def table_schema(self,request):
+        if not request.user.has_perm('databases.database_schema_database_server_config'):return "您没有权限操作此项"
         table_data = {}
         dbInfo = self.get_db(request)
-        dbRbt  = self.get_db_server(request)
+        dbRbt  = self.__get_db_server(request)
         table_data["schema"] = dbRbt.queryMany(sql="""SELECT TABLE_SCHEMA,TABLE_NAME,TABLE_TYPE,ENGINE,VERSION,ROW_FORMAT,
                                                     TABLE_ROWS,concat(round(sum(DATA_LENGTH/1024/1024),2),'MB') AS DATA_LENGTH,
                                                     MAX_DATA_LENGTH,concat(round(sum(INDEX_LENGTH/1024/1024),2),'MB') AS INDEX_LENGTH,
@@ -395,6 +398,7 @@ class DBManage(AssetsBase):
         return table_data
             
     def parse_sql(self,request):
+        if not request.user.has_perm('databases.database_binlog_database_server_config'):return "您没有权限操作此项"
         sqlList = []
         try:
             dbServer = self.get_db(request)
@@ -415,6 +419,7 @@ class DBManage(AssetsBase):
         return sqlList
     
     def optimize_sql(self,request):
+        if not request.user.has_perm('databases.database_optimize_database_server_config'):return "您没有权限操作此项"
         dbServer = self.get_db(request)
         status,result = base.getSQLAdvisor(host=dbServer.db_assets.server_assets.ip, user=dbServer.db_user,
                                            passwd=dbServer.db_passwd, dbname=dbServer.db_name, 

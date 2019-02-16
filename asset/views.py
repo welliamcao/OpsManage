@@ -8,7 +8,8 @@ from .models import Assets,Server_Assets,NetworkCard_Assets
 from dao.assets import AssetsBase,AssetsSource
 from utils.logger import logger
 from django.http import JsonResponse
-
+from django.contrib.auth.decorators import permission_required
+from utils.base import method_decorator_adaptor
 
         
 class Config(LoginRequiredMixin,AssetsBase,View):
@@ -20,6 +21,7 @@ class Config(LoginRequiredMixin,AssetsBase,View):
 class AssetsManage(LoginRequiredMixin,AssetsBase,View):
     login_url = '/login/'  
     
+    @method_decorator_adaptor(permission_required, "asset.assets_read_assets","/403/")   
     def get(self, request, *args, **kwagrs):
         if request.GET.get('id') and request.GET.get('model')=='edit':
             return render(request, 'assets/assets_modf.html',{"user":request.user,"assets":self.assets(id=request.GET.get('id')),"assetsBase":self.base()}) 
@@ -30,12 +32,14 @@ class AssetsManage(LoginRequiredMixin,AssetsBase,View):
          
 class AssetsList(LoginRequiredMixin,AssetsBase,View):
     login_url = '/login/'  
+    @method_decorator_adaptor(permission_required, "asset.assets_read_assets","/403/")   
     def get(self, request, *args, **kwagrs):
         return render(request, 'assets/assets_list.html',{"user":request.user,"assets":self.base(),"assetsList":self.assetsList()})   
     
     
 class AssetsTree(LoginRequiredMixin,AssetsBase,View):
     login_url = '/login/'  
+    @method_decorator_adaptor(permission_required, "asset.assets_read_assets","/403/")   
     def get(self, request, *args, **kwagrs):
         return render(request, 'assets/assets_tree.html',{"user":request.user})     
 
@@ -229,13 +233,16 @@ class AssetsSearch(LoginRequiredMixin,AssetsBase,View):
 class AssetsBatch(LoginRequiredMixin,AssetsSource,View):  
     login_url = '/login/'  
     fList = []
-    sList = []        
+    sList = []    
+    
+    @method_decorator_adaptor(permission_required, "asset.assets_change_assets","/403/")     
     def post(self, request, *args, **kwagrs):
         fList,sList = self.allowcator(request.POST.get('model'),request)                     
         if sList:
             return JsonResponse({'msg':"数据更新成功","code":200,'data':{"success":sList,"failed":fList}}) 
         else:return JsonResponse({'msg':fList,"code":500,'data':{"success":sList,"failed":fList}})     
-        
+    
+    @method_decorator_adaptor(permission_required, "asset.assets_delete_assets","/403/")     
     def delete(self, request, *args, **kwagrs):
         for ast in QueryDict(request.body).getlist('assetsIds[]'):
             try:
