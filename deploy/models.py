@@ -103,16 +103,16 @@ class Log_Deploy_Playbook(models.Model):
         verbose_name = '部署剧本操作记录表'  
         verbose_name_plural = '部署剧本操作记录表' 
 
-class Deploy_Playbook_Number(models.Model):
-    playbook = models.ForeignKey('Deploy_Playbook',related_name='server_number', on_delete=models.CASCADE)
-    playbook_server = models.CharField(max_length=100,verbose_name='目标服务器',blank=True,null=True)
-    class Meta:
-        db_table = 'opsmanage_deploy_playbook_number'
-        default_permissions = ()
-        verbose_name = '部署剧本成员表'  
-        verbose_name_plural = '部署剧本成员表'
-    def __unicode__(self):
-        return '%s' % ( self.playbook_server)    
+# class Deploy_Playbook_Number(models.Model):
+#     playbook = models.ForeignKey('Deploy_Playbook',related_name='server_number', on_delete=models.CASCADE)
+#     playbook_server = models.CharField(max_length=100,verbose_name='目标服务器',blank=True,null=True)
+#     class Meta:
+#         db_table = 'opsmanage_deploy_playbook_number'
+#         default_permissions = ()
+#         verbose_name = '部署剧本成员表'  
+#         verbose_name_plural = '部署剧本成员表'
+#     def __unicode__(self):
+#         return '%s' % ( self.playbook_server)    
     
 class Deploy_Inventory(models.Model):    
     name = models.CharField(max_length=200,unique=True,verbose_name='资产名称')

@@ -6,8 +6,8 @@ from asset.models import Project_Assets,Service_Assets
 from utils.logger import logger
 from .assets import AssetsBase
 from django.http import QueryDict
-from utils.git import GitTools
-from utils.svn import SvnTools 
+from utils.deploy.git import GitTools
+from utils.deploy.svn import SvnTools 
 from django.contrib.auth.models import User
 from utils import base
 import uuid,random

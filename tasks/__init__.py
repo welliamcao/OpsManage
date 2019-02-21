@@ -7,7 +7,7 @@ django.setup()
 否则会抛出错误 django.core.exceptions.AppRegistryNotReady: Models aren't loaded yet.
 '''
 import django
-from deploy.models import Deploy_Script,Deploy_Playbook,Deploy_Playbook_Number 
+from deploy.models import Deploy_Script,Deploy_Playbook
 if django.VERSION >= (1, 7):#自动判断版本
     django.setup()
 # from celery_ansible import  *

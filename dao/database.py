@@ -11,7 +11,7 @@ from datetime import datetime,timedelta,date
 from django.contrib.auth.models import User
 from dao.base import MySQLPool
 from utils import base
-from utils.binlog2sql import Binlog2sql
+from utils.mysql.binlog2sql import Binlog2sql
 
 
 class MySQLARCH(object):

@@ -12,7 +12,7 @@ from django.http import HttpResponseRedirect
 from dao.redisdb import DsRedis
 from utils import base
 from dao.assets import AssetsSource
-from utils.ansible_api_v2 import ANSRunner
+from utils.ansible.runner import ANSRunner
 from utils.base import method_decorator_adaptor
 from django.contrib.auth.decorators import permission_required      
         

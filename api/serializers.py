@@ -22,8 +22,8 @@ class PageConfig(CursorPagination):
     max_page_size = 20
 
 class UserSerializer(serializers.ModelSerializer):
-    date_joined = serializers.DateField(format="%Y-%m-%d %H:%M:%S")
-    last_login = serializers.DateField(format="%Y-%m-%d %H:%M:%S")
+    date_joined = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S")
+    last_login = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S")
     class Meta:
         model = User
         fields = ('id','last_login','is_superuser','username',
@@ -174,8 +174,8 @@ class NetworkSerializer(serializers.ModelSerializer):
     
 
 class OrderSerializer(serializers.ModelSerializer):
-    create_time = serializers.DateField(format="%Y-%m-%d %H:%M:%S",required=False)
-    modify_time = serializers.DateField(format="%Y-%m-%d %H:%M:%S",required=False)
+    create_time = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S",required=False)
+    modify_time = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S",required=False)
     class Meta:
         model = Order_System
         fields = ('id','order_subject','order_user','order_status','order_cancel',
@@ -271,13 +271,13 @@ class AppsRolesSerializer(serializers.ModelSerializer):
 class AppsLogsSerializer(serializers.ModelSerializer):
     project_name = serializers.CharField(source='project.project_name', read_only=True)
     project_env = serializers.CharField(source='project.project_env', read_only=True)
-    create_time = serializers.DateField(format="%Y-%m-%d %H:%M:%S")
+    create_time = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S")
     class  Meta:
         model = Log_Project_Config
         fields = ('id', 'project_name','user','version','status','uuid','project_env','content','create_time','type') 
         
 class AppsLogsRecordSerializer(serializers.ModelSerializer):
-    create_time = serializers.DateField(format="%Y-%m-%d %H:%M:%S")
+    create_time = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S")
     class  Meta:
         model = Log_Project_Record
         fields = ('id', 'key','msg','title','status','uuid','create_time')        

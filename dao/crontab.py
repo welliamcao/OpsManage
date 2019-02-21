@@ -7,7 +7,7 @@ from .assets import AssetsSource
 from django.http import QueryDict
 import os,uuid
 from django.core.files.storage import FileSystemStorage
-from utils.ansible_api_v2 import ANSRunner
+from utils.ansible.runner import ANSRunner
 
 
 

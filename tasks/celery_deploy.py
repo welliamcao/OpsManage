@@ -3,7 +3,7 @@
 import os,json
 from celery import task
 from dao.dispos import DeployRecord
-from utils.ansible_api_v2 import ANSRunner
+from utils.ansible.runner import ANSRunner
 from dao.assets import AssetsSource 
   
     
@@ -61,5 +61,5 @@ def AnsiblePlayBook(**kw):
             ANS.run_playbook(host_list=sList, playbook_path=filePath)
             return ANS.get_playbook_result()
     except Exception as ex:
-        print(e)
+        print(ex)
         return False       

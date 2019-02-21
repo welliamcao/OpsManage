@@ -12,7 +12,7 @@ from django.contrib.auth.models import User,Group
 from utils.logger import logger
 from dao.base import DjangoCustomCursors,DataHandle
 from django.http import QueryDict
-from utils.ansible_api_v2 import ANSRunner
+from utils.ansible.runner import ANSRunner
 from apps.models import Project_Config
 
   

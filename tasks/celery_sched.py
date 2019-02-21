@@ -6,7 +6,7 @@ from utils import base
 from asset.models import Assets,Server_Assets, NetworkCard_Assets
 from databases.models import DataBase_Server_Config
 from django.contrib.auth.models import User
-from utils.ansible_api_v2 import ANSRunner
+from utils.ansible.runner import ANSRunner
 
 
     
