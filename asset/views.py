@@ -137,7 +137,7 @@ class AssetsSearch(LoginRequiredMixin,AssetsBase,View):
             except:
                 pass 
 
-        if data.has_key('ip'):
+        if set(["ip"]).issubset(data):
             for ds in NetworkCard_Assets.objects.filter(ip=data.get('ip')):
                 if ds.assets not in assetsList:assetsList.append(ds.assets) 
   
