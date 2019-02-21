@@ -22,8 +22,8 @@ class PageConfig(CursorPagination):
     max_page_size = 20
 
 class UserSerializer(serializers.ModelSerializer):
-    date_joined = serializers.DateField(format="%Y-%m-%d %H:%M:%S")
-    last_login = serializers.DateField(format="%Y-%m-%d %H:%M:%S")
+    date_joined = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S")
+    last_login = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S")
     class Meta:
         model = User
         fields = ('id','last_login','is_superuser','username',
