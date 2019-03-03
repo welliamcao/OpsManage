@@ -120,7 +120,8 @@ class Inception():
             conn = MySQLdb.connect(
                                    host=self.db_host,user=self.db_user,
                                    passwd=self.db_passwd,db=self.db_name,
-                                   port=int(self.db_port)
+                                   port=int(self.db_port),
+                                   charset='utf8' 
                                    )
         except Exception,e:
             logger.error(msg="Mysql Error %d: %s" % (e.args[0], e.args[1]))
@@ -153,7 +154,8 @@ class Inception():
             conn = MySQLdb.connect(
                                    host=host,user=user,
                                    passwd=passwd,db=dbName,
-                                   port=int(port)
+                                   port=int(port),
+                                   charset='utf8' 
                                    )
             cur = conn.cursor()
             ret = cur.execute(sql)
@@ -171,7 +173,8 @@ class Inception():
             conn = MySQLdb.connect(
                                    host=host,user=user,
                                    passwd=passwd,db=dbName,
-                                   port=int(port)
+                                   port=int(port),
+                                   charset='utf8' 
                                    )
             cur = conn.cursor()
             ret = cur.execute(sql)
