@@ -164,19 +164,19 @@ class AppsManage(AssetsBase):
     
          
     def init_apps(self,request):
-        project = self.get_apps(request)
-        deploy = self.__apps_type(request)
-        if project.project_status == 1:return '项目已经初始化过'
-        if (isinstance(deploy,GitTools) or isinstance(deploy,SvnTools)) and project.project_status == 0:
-            deploy.mkdir(project.project_repo_dir)
-            if project.project_type == 'compile':deploy.mkdir(dir=project.project_dir) 
-            result = deploy.clone(url=project.project_address, dir=project.project_repo_dir, user=project.project_repo_user, passwd=project.project_repo_passwd)           
-            if result[0] > 0:return  result[1]
-            else:
-                project.project_status = 1
-                project.save()
-                return True
-        return '项目配置错误请查看日志'
+        deploy,project = self.apps_type(request)
+        if project:
+            if project.project_status == 1:return '项目已经初始化过'      
+            if (isinstance(deploy,GitTools) or isinstance(deploy,SvnTools)) and project.project_status == 0:          
+                deploy.mkdir(project.project_repo_dir)
+                if project.project_type == 'compile':deploy.mkdir(dir=project.project_dir) 
+                result = deploy.clone(url=project.project_address, dir=project.project_repo_dir, user=project.project_repo_user, passwd=project.project_repo_passwd)          
+                if result[0] > 0:return  result[1]
+                else:
+                    project.project_status = 1
+                    project.save()
+                    return True
+        return '项目不存在'
     
     def create_apps(self,request):
         try:

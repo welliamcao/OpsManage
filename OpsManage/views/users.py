@@ -18,7 +18,7 @@ from utils.base import method_decorator_adaptor
 class UserManage(LoginRequiredMixin,UsersManage,View):
     login_url = '/login/'
     
-    @method_decorator_adaptor(permission_required, "OpsManage.view_user","/403/") 
+    @method_decorator_adaptor(permission_required, "asset.assets_read_user","/403/")  
     def get(self, request, *args, **kwagrs):
         if request.GET.get('type'):
             res = self.allowcator(request.GET.get('type'), request)
@@ -26,7 +26,7 @@ class UserManage(LoginRequiredMixin,UsersManage,View):
             return JsonResponse({'msg':"查询成功","code":200,'data':res})  
         return render(request,'users/user_manage.html',{"user":request.user})   
     
-    @method_decorator_adaptor(permission_required, "OpsManage.change_user","/403/") 
+    @method_decorator_adaptor(permission_required, "asset.assets_change_user","/403/") 
     def post(self, request, *args, **kwagrs):
         res = self.allowcator(request.POST.get('type'), request)
         if isinstance(res, str):return JsonResponse({'msg':res,"code":500,'data':[]})

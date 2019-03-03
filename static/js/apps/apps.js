@@ -486,7 +486,6 @@ $(document).ready(function() {
         		    type: 'red',     		    
         		    buttons: {
         		        确认: function () {
-        		        	$.alert('等待任务完成，请勿重复提交。');
         		        	$.ajax({  
         		                cache: true,  
         		                type: "POST",  

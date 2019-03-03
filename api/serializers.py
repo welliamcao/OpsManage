@@ -247,6 +247,57 @@ class CronSerializer(serializers.ModelSerializer):
                   'cron_user','cron_name','cron_log_path','cron_type','cron_command',
                   'crontab_server','cron_status'
                   ) 
+        
+class ApschedNodeSerializer(serializers.ModelSerializer):
+    ip = serializers.CharField(source='sched_server.server_assets.ip', read_only=True)
+    jobs_count = serializers.SerializerMethodField(read_only=True,required=False)
+    class  Meta:
+        model = Sched_Node
+        fields = ('sched_node','port', 'token','enable','ip','jobs_count')         
+
+    def get_jobs_count(self,obj):
+        return obj.node_jobs.all().count()      
+    
+class ApschedNodeJobsSerializer(serializers.ModelSerializer):
+    node_detail = serializers.SerializerMethodField(read_only=True,required=False)
+    jobs_detail = serializers.SerializerMethodField(read_only=True,required=False)
+    alert_detail = serializers.SerializerMethodField(read_only=True,required=False)
+    runs = serializers.SerializerMethodField(read_only=True,required=False)
+    class  Meta:
+        model = Sched_Job_Config
+        fields = ("id","job_name","jobs_detail","node_detail","alert_detail","runs")         
+    
+    def get_node_detail(self,obj):
+        return obj.job_node.to_json()
+    
+    def get_jobs_detail(self, obj):
+        if obj.sched_type == "date":data = obj.to_date_json()
+        elif obj.sched_type == "interval":data = obj.to_interval_json()
+        else:data = obj.to_cron_json()
+        return data   
+
+    def get_runs(self,obj):
+        return obj.node_jobs_log.all().count()
+
+    def get_alert_detail(self, obj):
+        return obj.to_alert_json()    
+                     
+                     
+class ApschedNodeJobsLogsSerializer(serializers.ModelSerializer):
+    runtime = serializers.SerializerMethodField(read_only=True,required=False)
+    jobname = serializers.SerializerMethodField(read_only=True,required=False)
+    class  Meta:
+        model = Sched_Job_Logs
+        fields = ("id","status","stime","etime","cmd","result","runtime","jobname") 
+    
+    def get_jobname(self,obj):
+        return obj.job_id.job_name 
+          
+    def get_runtime(self,obj):
+        try:
+            return obj.etime - obj.stime
+        except:
+            return 0                            
 
 class AppsNumberSerializer(serializers.ModelSerializer):
     class  Meta:

@@ -180,7 +180,6 @@ $(document).ready(function() {
 	
 	if($("#deploy_server").length){
 		var dataList = requests('get','/api/assets/')
-		console.log(dataList)
 		AssetsSelect("deploy_server",dataList)
 	}
 
@@ -333,7 +332,7 @@ $(document).ready(function() {
     //初始化表格
     InitDataTable('crontabList');
     //每隔30秒刷新table
-    setTimeout(function(){AutoReload();}, 30000);
+//    setTimeout(function(){AutoReload();}, 30000);
 
     
     cron_type = 'command'

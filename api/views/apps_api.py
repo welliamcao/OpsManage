@@ -54,11 +54,6 @@ def project_log_detail(request, id,format=None):
         return Response(status=status.HTTP_204_NO_CONTENT) 
 
 
-
-
-
-
-
 class AppsLogPaginator(APIView):
     
     def get(self,request,*args,**kwargs):

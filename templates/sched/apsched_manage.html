@@ -1,0 +1,646 @@
+{% extends 'base.html' %}
+{% block css-content %}
+    <link rel="stylesheet" href="/static/css/bootstrap-select.css">
+    <link rel="stylesheet" href="/static/jquery-confirm/jquery-confirm.min.css">
+    <link href="/static/datatable/datatables.net-buttons-bs/css/buttons.bootstrap.min.css" rel="stylesheet">
+    <link href="/static/datatable/datatables.net-fixedheader-bs/css/fixedHeader.bootstrap.min.css" rel="stylesheet">
+    <link href="/static/datatable/datatables.net-responsive-bs/css/responsive.bootstrap.min.css" rel="stylesheet">
+    <link href="/static/datatable/datatables.net-scroller-bs/css/scroller.bootstrap.min.css" rel="stylesheet"> 
+    <link href="/static/css/doublebox-bootstrap.css" rel="stylesheet"> 
+    <link href="/static/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css" rel="stylesheet"> 
+    <link rel="stylesheet" href="/static/tooltips/css/tooltips.css"> 
+    <link href="/static/switchery/dist/css/bootstrap-switch.min.css" rel="stylesheet">    
+	<style type="text/css"> 	
+        .modal-select{
+            -moz-user-select:none;/*火狐*/
+            -webkit-user-select:none;/*webkit浏览器*/
+            -ms-user-select:none;/*IE10*/
+            -khtml-user-select:none;/*早期浏览器*/
+            user-select:none;
+            }
+          .modal-header{
+            cursor:move;
+          }	
+	td.details-control {
+	    background: url('/static/images/details_open.png') no-repeat center center; */
+	    cursor: pointer;
+	}
+	tr.shown td.details-control {
+	    background: url('/static/images/details_close.png') no-repeat center center;
+	}           		
+	</style>      
+{% endblock %}
+{% block page-content %}
+        <div class="clearfix"></div>
+        <div class="row top_tiles">
+          <div class="animated flipInY col-lg-3 col-md-3 col-sm-6 col-xs-12">
+            <div class="tile-stats">
+              <div class="icon"><i class="fa fa-tasks"></i></div>
+              <div id="allNodes" class="count">3</div>
+              <h3>节点数</h3>
+              <p>平台已注册的节点数</p>
+            </div>
+          </div>
+          <div class="animated flipInY col-lg-3 col-md-3 col-sm-6 col-xs-12">
+            <div class="tile-stats">
+              <div class="icon"><i class="fa fa-calendar"></i></div>
+              <div id="allJobs" class="count">6</div>
+              <h3>任务数</h3>
+              <p>已注册的任务</p>
+            </div>
+          </div>
+          <div class="animated flipInY col-lg-3 col-md-3 col-sm-6 col-xs-12">
+            <div class="tile-stats">
+              <div class="icon"><i class="fa fa-check"></i></div>
+              <div id="jobsSucess" class="count">172</div>
+              <h3>成功</h3>
+              <p>任务成功次数</p>
+            </div>
+          </div>
+          <div class="animated flipInY col-lg-3 col-md-3 col-sm-6 col-xs-12">
+            <div class="tile-stats">
+              <div class="icon"><i class="fa fa-times"></i></div>
+              <div id="jobsFalied" class="count">1</div>
+              <h3>失败</h3>
+              <p>任务失败次数</p>
+            </div>
+          </div>
+        </div>        
+        <div class="row">
+              <div class="col-md-12 col-sm-12 col-xs-12">
+                <div class="x_panel">
+                  <div class="x_title">
+                    <h2><i class="fa fa-bars"></i> 任务管理<small>ApSched Manage</small></h2>
+                    <ul class="nav navbar-right panel_toolbox">
+                      <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                      </li>
+                      <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
+                        <ul class="dropdown-menu" role="menu">
+                          <li><a href="#">Settings 1</a>
+                          </li>
+                          <li><a href="#">Settings 2</a>
+                          </li>
+                        </ul>
+                      </li>
+                      <li><a class="close-link"><i class="fa fa-close"></i></a>
+                      </li>
+                    </ul>
+                    <div class="clearfix"></div>
+                  </div>
+                  <div class="x_content">
+
+
+                    <div class="" role="tabpanel" data-example-id="togglable-tabs">
+                      <ul id="myTab" class="nav nav-tabs bar_tabs" role="tablist">
+                        <li role="presentation" class="active"><a href="#tab_content1" id="home-tab" role="tab" data-toggle="tab" aria-expanded="true"><i class="fa fa-map-marker"></i> 节点列表</a>
+                        </li>
+                         <li role="presentation" class=""><a href="#tab_content2" role="tab" id="profile-tab" data-toggle="tab" aria-expanded="false"><i class="fa fa-tasks"></i> 任务列表</a>
+                        </li>
+<!--                         <li role="presentation" class=""><a href="#tab_content3" role="tab" id="profile-tab2" data-toggle="tab" aria-expanded="false"><i class="fa fa-bars"></i> 机柜线路</a>
+                        </li>
+                        <li role="presentation" class=""><a href="#tab_content4" role="tab" id="profile-tab3" data-toggle="tab" aria-expanded="false"><i class="fa fa-bookmark"></i> 标签分组</a>
+                        </li> -->                      
+                      </ul>
+                      <div id="myTabContent" class="tab-content">
+                        <div role="tabpanel" class="tab-pane fade active in" id="tab_content1" aria-labelledby="home-tab">			              
+			              <div class="col-md-12 col-sm-12 col-xs-12">
+			                <div class="x_panel">
+			                  <div class="x_title">
+			                    <h2>节点信息 <small>Node Detail</small></h2>
+			                    <div class="clearfix"></div>
+			                  </div>
+			                  <div class="x_content">
+<!-- 			                    <div>
+			                     	<button type="button" name="add-navbar-number" class="btn btn-xs btn-default" data-toggle="modal" data-target=".bs-example-modal-navbarnumber"><i class="glyphicon glyphicon-plus"></i></button>
+			                    </div> -->
+			                    <table class="table" id="schedNodeManageListTable">
+			                      <thead>
+			                        <tr>
+			                          <th>ID</th>
+			                          <th>主机地址</th>
+			                          <th>端口</th>			                          
+			                          <th>Token</th>
+			                          <th>任务数</th>
+			                          <th>是否激活</th>
+			                          <th class="text-center">操作</th>
+			                        </tr>
+			                      </thead>
+			                      <tbody>
+			                      </tbody>
+			                    </table>
+			
+			                  </div>
+			                </div>
+			              </div>			              
+			              
+                        </div>                        
+                        <div role="tabpanel" class="tab-pane fade" id="tab_content2" aria-labelledby="profile-tab">
+                        
+ 			              <div class="col-md-12 col-sm-12 col-xs-12">
+			                <div class="x_panel">
+			                  <div class="x_title">
+			                    <h2>任务列表 <small>Jobs Detail</small></h2>
+			                    <div class="clearfix"></div>
+			                  </div>
+			                  <div class="x_content">
+		                  		<div class="row">	
+		                  			<div class="pull-left">
+		                  				<select required="required" class="selectpicker form-control"  data-size="10" data-selected-text-format="count > 5" data-live-search="true" data-width="100%"   autocomplete="off"  class="form-control" name="sched_node_job"  id="sched_node_job"  required>
+		                  				</select>
+		                  			</div>
+									<div class="btn-group  btn-group-sm pull-right">
+				                        <button class="btn btn-default" name="page_previous" type="button" value="">上一页</button>
+				                        <button class="btn btn-default" name="page_next" type="button" value="">下一页</button>
+			                      	</div>
+			                      	
+		                      	</div>
+		                      	<br>
+		                      	<div class="row">
+				                    <table class="table" id="schedNodeJobsManageListTable">
+				                      <thead>
+				                        <tr>
+				                          <th>详情</th>
+				                          <th>ID</th>
+				                          <th>节点</th>
+				                          <th>任务名</th>
+				                          <th>命令</th>
+				                          <th>运行次数</th>
+				                          <th>任务类型</th>
+				                          <th>任务ID</th>
+				                          <th>状态</th>
+				                          <th>通知</th>
+				                          <th class="text-center">操作</th>
+				                        </tr>
+				                      </thead>
+				                      <tbody>
+				                      </tbody>
+				                    </table>
+								</div>
+			                  </div>
+			                </div>
+			              </div>
+                       
+                        
+						</div>
+                        <div role="tabpanel" class="tab-pane fade" id="tab_content3" aria-labelledby="profile-tab">
+            	               
+                        </div>
+                        
+                        <div role="tabpanel" class="tab-pane fade" id="tab_content4" aria-labelledby="profile-tab">
+                        
+                        </div>                        
+                        
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+              </div>        
+        </div>        
+	
+		<div class="row">
+            <div class="col-md-12 col-xs-12" id="sched_jobs_log" style="display:none;">
+              <div class="x_panel">
+                <div class="x_title">
+                  <h2>任务日志<small>Jobs Logs</small></h2>
+                  <ul class="nav navbar-right panel_toolbox">
+                    <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                    </li>
+                    <li class="dropdown">
+                      <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
+                      <ul class="dropdown-menu" role="menu">
+                        <li><a href="#">Settings 1</a>
+                        </li>
+                        <li><a href="#">Settings 2</a>
+                        </li>
+                      </ul>
+                    </li>
+                    <li><a class="close-link"><i class="fa fa-close"></i></a>
+                    </li>
+                  </ul>
+                  <div class="clearfix"></div>
+                </div>
+                <div class="x_content">      
+	                <div class="x_content">        
+	                	<div class="row">
+	                		<div class="pull-left"> 
+								<h3>
+	                             	<i class="fa fa-laptop" id="jobs_nodes_name"></i>        
+	                            </h3>                                                         
+	                        </div>             	
+							<div class="btn-group  btn-group-sm pull-right">
+		                        <button class="btn btn-default" name="log_page_previous" type="button" value="">上一页</button>
+		                        <button class="btn btn-default" name="log_page_next" type="button" value="">下一页</button>
+	                      	</div>      
+	                    </div>    
+	                    <br>             
+	                	<div class="row">
+		                    <table class="table" id="schedNodeJobsLogsListTable">
+		                      <thead>
+		                        <tr>
+		                          <th>ID</th>
+		                          <th>任务名称</th>
+		                          <th>命令</th>
+		                          <th>开始时间</th>
+		                          <th>结束时间</th>
+		                          <th>耗时(sec)</th>
+		                          <th>结果</th>
+		                          <th>状态</th>
+		                          <th class="text-center">操作</th>
+		                        </tr>
+		                      </thead>
+		                      <tbody>
+		                      </tbody>
+		                    </table>       
+	                    </div>        
+	                </div>
+                </div>
+              </div>
+            </div>		
+		</div>
+		<div class="row">
+		
+             <div class="col-md-8 col-xs-12" id="add_sched_node_task" style="display:none;">
+               <div class="x_panel">
+                 <div class="x_title">
+                   <h2>计划任务 <small>Sched Jobs</small></h2>
+                   <ul class="nav navbar-right panel_toolbox">
+                     <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                     </li>
+                     <li class="dropdown">
+                       <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
+                       <ul class="dropdown-menu" role="menu">
+                         <li><a href="#">Settings 1</a>
+                         </li>
+                         <li><a href="#">Settings 2</a>
+                         </li>
+                       </ul>
+                     </li>
+                     <li><a class="close-link"><i class="fa fa-close"></i></a>
+                     </li>
+                   </ul>
+                   <div class="clearfix"></div>
+                 </div>
+                 <div class="x_content">
+                 	<div class="row">
+	                 	<div class="col-lg-6">
+							<legend>
+								<i class="fa  fa-paper-plane"></i> 任务配置
+							</legend>	                 		                 		
+		                    <form role="form" id="addSchedJobsForm" data-parsley-validate class="form-horizontal form-label-left">{% csrf_token %}
+							<fieldset>	
+		                           <div class="item form-group">
+		                               <label class="col-sm-2 control-label"><font color="red">* </font>任务名称</label>
+		                               <div class="col-sm-8">
+		                                <input class="form-control" name="job_name" id="job_name" required>
+		                               </div>
+		                           </div>  											
+																																																						
+								<div  class="item form-group">
+									 <label class="col-sm-2 control-label" >节点选择</label>
+									 <div class="col-sm-8">
+		                                    <select required="required" class="selectpicker form-control"  data-size="10" data-selected-text-format="count > 5" data-live-search="true" data-width="100%"   autocomplete="off"  class="form-control" name="sched_node"  id="sched_node"  required>
+		                                    </select>
+									 </div>
+								</div>	
+								
+								<div  class="item form-group">
+									 <label class="col-sm-2 control-label" >类型</label>
+									 <div class="col-sm-8">
+		                                    <select required="required" class="selectpicker form-control" name="sched_type" id="sched_type"  required>
+											<option selected="selected"  value="cron">Cron类型</option>
+											<option  value="interval">间隔类型</option>
+											<option  value="date">日期类型</option>                                     
+		                                    </select>
+									 </div>
+								</div>															
+								
+								<div id="sechd_date_run" style="display:none;">
+									<div class="item form-group">
+										 <label class="col-sm-2 control-label"><font color="red">* </font>日期</label>
+			                              <div class="col-md-8 col-xs-12 xdisplay_inputx form-group has-feedback">
+			                                <input type="text" class="form-control has-feedback-left" name="run_date" id="run_date"  value="" required>
+			                                <span class="fa fa-calendar-o form-control-feedback left" aria-hidden="true"></span>
+			                              </div>	
+									</div>								
+								</div>						
+								
+								<div id="sched_type_common">
+									<div class="item form-group">
+										 <label class="col-sm-2 control-label">秒</label>
+										 <div class="col-sm-8">
+										 	<input type="text" class="form-control" id="second" name="second"  value=""  class="input-xlarge" title="正确格式：00-59 or * or */1"  required/>
+										 </div>
+									</div>						
+									
+									<div class="item form-group">
+										 <label class="col-sm-2 control-label">分</label>
+										 <div class="col-sm-8">
+										 	<input type="text" class="form-control" id="minute" name="minute"  value=""  class="input-xlarge" required  title="正确格式：00-59 or * or */1"  required/>
+										 </div>
+									</div>
+									
+									<div class="item form-group">
+										 <label class="col-sm-2 control-label">时</label>
+										 <div class="col-sm-8">
+										 	<input type="text" class="form-control" id="hour" name="hour"  value="" class="input-xlarge" required   title="小时" required/>
+										 </div>
+									</div>	
+			
+									<div class="item form-group">
+										 <label class="col-sm-2 control-label">日</label>
+										 <div class="col-sm-8">
+										 	<input type="text" class="form-control" id="day" name="day"  value="" class="input-xlarge"  title="日期" required/>
+										 </div>
+									</div>	
+									
+									<div class="item form-group">
+										 <label class="col-sm-2 control-label">周</label>
+										 <div class="col-sm-8">
+										 	<input type="text" class="form-control" id="week" name="week"  value="" title="" class="input-xlarge" required/>
+										 </div>
+									</div>									
+									
+							   </div>	
+							   <div id="sched_type_cron">
+									<div class="item form-group">
+										 <label class="col-sm-2 control-label">月</label>
+										 <div class="col-sm-8">
+										 	<input type="text" class="form-control" id="month" name="month"  value=""  class="input-xlarge"  title="月份" required/>
+										 </div>
+									</div>															
+												
+									<div class="item form-group">
+										 <label class="col-sm-2 control-label">星期</label>
+										 <div class="col-sm-8">
+										 	<input type="text" class="form-control" id="day_of_week" name="day_of_week"  value="" class="input-xlarge"  required/>
+										 </div>
+									</div>	
+									
+									<div class="item form-group">
+										 <label class="col-sm-2 control-label">年</label>
+										 <div class="col-sm-8">
+										 	<input type="text" class="form-control" id="year" name="year" placeholder="2019" value="" class="input-xlarge"/>
+										 </div>
+									</div>									
+								</div>
+
+								<div id="sechd_date_range">
+									<div class="item form-group">
+										 <label class="col-sm-2 control-label">开始日期</label>
+			                              <div class="col-md-8 col-xs-12 xdisplay_inputx form-group has-feedback">
+			                                <input type="text" class="form-control has-feedback-left" name="start_date" id="start_date"  value="" required>
+			                                <span class="fa fa-calendar-o form-control-feedback left" aria-hidden="true"></span>
+			                              </div>	
+									</div>	
+
+									<div class="item form-group">
+										 <label class="col-sm-2 control-label">结束日期</label>
+			                              <div class="col-md-8 col-xs-12 xdisplay_inputx form-group has-feedback">
+			                                <input type="text" class="form-control has-feedback-left" name="end_date" id="end_date"  value="" required>
+			                                <span class="fa fa-calendar-o form-control-feedback left" aria-hidden="true"></span>
+			                              </div>	
+									</div>																			
+								</div>		
+		
+								<div class="item form-group">
+									 <label class="col-sm-2 control-label"><font color="red">* </font>命令</label>
+									 <div class="col-sm-8">
+									 	<textarea type="text" row="5" class="form-control" id="job_command" name="job_command" placeholder="/usr/sbin/ntpdate time.windows.com" value="" class="input-xlarge"></textarea>
+									 </div>
+								</div>							
+		
+<!-- 								<div class="item form-group">
+									 <label class="col-sm-2 control-label"><font color="red">* </font>状态</label>
+									 <div class="col-sm-8">
+		                                 <select required="required" class="selectpicker form-control"  data-size="10" data-selected-text-format="count > 5" data-live-search="true" data-width="100%"   autocomplete="off" id="status" class="form-control" name="status"   required>
+											<option selected="selected"  value="running">运行</option>
+											<option  value="pause">暂停</option>                              	
+		                                 </select>
+									 </div>
+								</div>	 -->																					
+								</fieldset>
+								<legend></legend>
+								<div class="item form-group">
+									<label class="col-sm-4 control-label"></label>								
+									<button type="reset" class="btn btn-default btn-sm" id="save_deploy_script">撤销</button>
+									<button type="button" class="btn btn-default btn-sm" id="modf_crontab" style="display:none;">修改</button>
+									<button type="button"  class="btn btn-default btn-sm" value=""  id="add_sched_jobs">添加</button>
+						 		</div>									 		
+							</form>
+						</div>
+						<div class="col-lg-6">
+							<legend>
+								<i class="fa  fa-paper-plane-o"></i> 通知配置
+							</legend>	
+							<form role="form" id="addSchedJobsNoticeForm" data-parsley-validate class="form-horizontal form-label-left">{% csrf_token %}
+								<div class="item form-group">
+									 <label class="col-sm-2 control-label">激活</label>
+									 <div class="col-sm-8">
+		                                 <select required="required" class="selectpicker form-control"  data-size="10" data-selected-text-format="count > 5" data-live-search="true" data-width="100%"   autocomplete="off"  class="form-control" id="is_alert" name="is_alert"   required>
+											<option selected="selected"  value="0">关闭</option>
+											<option  value="1">开启</option>                         	
+		                                 </select>
+									 </div>
+								</div>
+								<div class="item form-group">
+									 <label class="col-sm-2 control-label">触发类型</label>
+									 <div class="col-sm-8">
+		                                 <select required="required" class="selectpicker form-control"  data-size="10" data-selected-text-format="count > 5" data-live-search="true" data-width="100%"   autocomplete="off"  class="form-control" id="notice_trigger" name="notice_trigger"   required>
+											<option selected="selected"  value="0">失败</option>
+											<option  value="1">成功</option>   
+											<option  value="2">完成</option>                            	
+		                                 </select>
+									 </div>
+								</div>								
+								<div class="item form-group">
+									 <label class="col-sm-2 control-label">通知类型</label>
+									 <div class="col-sm-8">
+		                                 <select required="required" class="selectpicker form-control"  data-size="10" data-selected-text-format="count > 5" data-live-search="true" data-width="100%"   autocomplete="off"  class="form-control" id="notice_type" name="notice_type"   required>
+											<option selected="selected"  value="0">邮件</option>
+											<option  value="1">微信</option>   
+											<option  value="2">钉钉</option>                            	
+		                                 </select>
+									 </div>
+								</div>															
+								<div class="item form-group">
+									 <label class="col-sm-2 control-label">通知对象</label>
+									 <div class="col-sm-8">
+									 	<textarea type="text" row="5" class="form-control" id="notice_number" name="notice_number" placeholder="多个对象以;号隔开" value="" class="input-xlarge"></textarea>
+									 </div>
+								</div>								
+								<div class="item form-group">
+									 <label class="col-sm-2 control-label">间隔</label>
+									 <div class="col-sm-8">
+		                                 <input type="text" class="form-control" id="notice_interval" name="notice_interval" placeholder="多少秒内重复失败不会通知" value="" class="input-xlarge"/>
+									 </div>
+								</div>
+							</form>															 					
+						</div>
+					</div>
+                 </div>
+               </div>
+             </div>		
+		
+              <div class="col-md-4 col-xs-12" id="sched_instructions" style="display:none;">
+                <div class="x_panel">
+                  <div class="x_title">
+                    <h2>使用说明 <small>Instructions</small></h2>
+                    <ul class="nav navbar-right panel_toolbox">
+                      <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                      </li>
+                      <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
+                        <ul class="dropdown-menu" role="menu">
+                          <li><a href="#">Settings 1</a>
+                          </li>
+                          <li><a href="#">Settings 2</a>
+                          </li>
+                        </ul>
+                      </li>
+                      <li><a class="close-link"><i class="fa fa-close"></i></a>
+                      </li>
+                    </ul>
+                    <div class="clearfix"></div>
+                  </div>
+                  <div class="x_content">
+                    <div class="col-xs-9">
+                      <!-- Tab panes -->
+                      <div class="tab-content">
+                        <div class="tab-pane active" id="home-r">
+                          <p class="lead">调度类型</p>
+                          <p>分为三种：Crontab，间隔，日期</p>
+                          <p>Cron类型：类似Linux Crontab，但是可以使用到秒级调度。</p>
+                          <p>间隔类型：间隔多少时间执行一次任务。</p>
+                          <p>日期类型：在具体某一天的时刻执行任务（一次性任务）。</p>
+                        </div>
+                        <div class="tab-pane" id="profile-r">
+                        	<p class="lead">时间调度，参数如下</p>
+							<ul>
+								<li>year (int|str) – 4位数字</li>
+								<li>month (int|str) – 月 (范围1-12)</li>
+								<li>day (int|str) –  日(范围1-31) </li>
+								<li>week (int|str) – 周 (范围1-53)</li>
+								<li>day_of_week (int|str) – 周内第几天或者星期几 (范围0-6 或者 mon,tue,wed,thu,fri,sat,sun)</li>
+								<li>hour (int|str) – 时 (范围0-23)</li>
+								<li>minute (int|str) – 分 (范围0-59)</li>
+								<li>second (int|str) – 秒 (范围0-59)</li>
+								<li>start_date (datetime|str) – 最早开始日期(包含)</li>
+								<li>end_date (datetime|str) – 最晚结束时间(包含)</li>
+							</ul>                        	
+                        </div>
+                        <div class="tab-pane" id="messages-r">
+                        	<p class="lead">间隔调度，参数如下</p>
+							<ul>
+								<li>weeks (int) – 间隔几周</li>
+								<li>days (int) – 间隔几天 </li>
+								<li>hours (int) – 间隔几小时</li>
+								<li>minutes (int) – 间隔几分钟 </li>
+								<li>seconds (int) – 间隔多少秒</li>
+								<li>start_date (datetime|str) – 开始日期</li>
+								<li>end_date (datetime|str) – 结束日期 </li>
+							</ul>                         
+                        </div>
+                        <div class="tab-pane" id="settings-r">
+                        	<p class="lead">日期调度，只会执行一次</p>
+							<ul>
+								<li>run_date (datetime|str) – 指定日期执行任务</li>
+							</ul>                       
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="col-xs-3">
+                      <!-- required for floating -->
+                      <!-- Nav tabs -->
+                      <ul class="nav nav-tabs tabs-right">
+                        <li class="active"><a href="#home-r" data-toggle="tab">调度类型</a>
+                        </li>
+                        <li><a href="#profile-r" data-toggle="tab">Cron</a>
+                        </li>
+                        <li><a href="#messages-r" data-toggle="tab">间隔</a>
+                        </li>
+                        <li><a href="#settings-r" data-toggle="tab">日期</a>
+                        </li>
+                      </ul>
+                    </div>                 
+                  </div>
+                </div>
+              </div>		
+		
+		</div>
+
+        
+
+        <div id="myAddUserModal" class="modal fade bs-example-modal-navbar" data-backdrop="static" tabindex="-1" role="dialog" aria-hidden="true">
+          <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span>
+                </button>
+                <h4 class="modal-title" id="myModalLabel">新增节点</h4>
+              </div>
+              <div class="modal-body">
+				<form id="addNodeForm" class="main form-horizontal">
+					<fieldset>
+						<div class="form-group">
+							<label class="col-sm-3 control-label">节点</label>
+							<div class="col-sm-6">
+                                 <select  required="required" class="selectpicker form-control"  data-size="10" data-selected-text-format="count > 5" data-live-search="true" data-width="100%"   autocomplete="off"  class="form-control" name="sched_server"  id="sched_server"  required>
+                                 </select>
+							</div>
+						</div>
+						<div class="form-group">
+							<label class="col-sm-3 control-label">端口</label>
+							<div class="col-sm-6">
+								<input type="text" class="form-control" placeholder="端口" name="port" required/>
+							</div>
+						</div>									
+
+						<div class="form-group">
+							<label class="col-sm-3 control-label">令牌</label>
+							<div class="col-sm-6">
+								<textarea row="3" class="form-control" placeholder="Token" name="token"></textarea>
+							</div>
+						</div>		
+						<div class="form-group">
+							<label class="col-sm-3 control-label">激活</label>
+							<div class="col-sm-6">
+								<select class="form-control" name="enable">
+									<option value="0">不激活</option>
+									<option selected="selected" value="1">激活</option>
+								</select>
+							</div>
+						</div>											
+					</fieldset>
+				</form>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" id="addNodesubmit"  class="btn btn-primary">保存</button>
+              </div>
+
+            </div>
+          </div>
+        </div>   	
+                         
+{% endblock %}
+{% block js-content %}
+	<script src="/static/jquery-confirm/jquery-confirm.min.js"></script>
+    <script src="/static/datatable/datatables.net/js/jquery.dataTables.min.js"></script>
+	<script src="/static/datatable/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>	
+    <script src="/static/datatable/datatables.net-buttons/js/dataTables.buttons.min.js"></script>
+    <script src="/static/datatable/datatables.net-buttons-bs/js/buttons.bootstrap.min.js"></script>
+    <script src="/static/datatable/datatables.net-buttons/js/buttons.flash.min.js"></script>
+    <script src="/static/datatable/datatables.net-buttons/js/buttons.html5.min.js"></script>
+    <script src="/static/datatable/datatables.net-buttons/js/buttons.print.min.js"></script>	
+    <script src="/static/js/doublebox/doublebox-bootstrap.js"></script>
+    <script src="/static/switchery/dist/js/bootstrap-switch.min.js"></script>       
+	<script src="/static/js/sched/apsched.js"></script>
+	<script src="/static/js/dragable/dragable.js"></script> 
+	<script src="/static/tooltips/js/jquery.pure.tooltips.js"></script>	 
+    <!-- bootstrap-daterangepicker -->
+    <script src="/static/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js"></script>		 
+{% endblock %}

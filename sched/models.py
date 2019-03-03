@@ -43,29 +43,160 @@ class Log_Cron_Config(models.Model):
         verbose_name = '任务配置操作记录表'  
         verbose_name_plural = '任务配置操作记录表'
          
+
+
+class Sched_Node(models.Model):   
+    sched_node = models.AutoField(primary_key=True) 
+    sched_server = models.ForeignKey('asset.Assets',related_name='sched_node',on_delete=models.CASCADE) 
+    port = models.SmallIntegerField(verbose_name='端口')
+    token = models.CharField(max_length=100,verbose_name='认证密码',unique=True)
+    enable = models.SmallIntegerField(verbose_name='端口',default=1)
+    class Meta:
+        db_table = 'opsmanage_sched_node'
+        verbose_name = '任务节点表'  
+        verbose_name_plural = '任务节点表'     
+        unique_together = (("sched_server", "port"))
+        
+    def to_json(self):
+        json_format = {
+            "sched_node":self.sched_node,
+            "sched_server":self.sched_server.server_assets.ip,
+            "port":self.port,
+            "token":self.token,
+            "enable":self.enable
+        }
+        return  json_format     
     
-# class Aps_Jobs_Status(models.Model):
-#     id = models.CharField(primary_key=True ,max_length=191,verbose_name='任务Id')
-#     next_run_time = models.FloatField(db_index=True)
-#     job_state = models.BinaryField()
-#     class Meta:
-#         db_table = 'opsmanage_jobs_status'
-#         verbose_name = 'aps任务状态表'  
-#         verbose_name_plural = 'aps任务状态表'    
-#     
-# class Aps_Jobs_Config(models.Model): 
-#     job_id =  models.CharField(primary_key=True,max_length=191,verbose_name='任务Id')  
-#     job_func = models.CharField(max_length=50,verbose_name='job函数')
-#     job_name = models.CharField(max_length=100,verbose_name='名称')
-#     job_args = models.TextField(verbose_name='任务参数')
-#     trigger_type = models.CharField(max_length=50,verbose_name='触发器类型')
-#     trigger = models.CharField(max_length=200,verbose_name='触发器')
-#     job_status = models.SmallIntegerField(verbose_name='任务状态')
-#     job_user = models.SmallIntegerField(verbose_name='任务添加人')
-#     job_mgt = models.IntegerField(verbose_name='misfire_grace_time',default=60)
-#     job_crt_dt = models.SmallIntegerField(blank=True,null=True,verbose_name='创建时间')
-#     job_mod_dt = models.SmallIntegerField(blank=True,null=True,verbose_name='修改时间')
-#     class Meta:
-#         db_table = 'opsmanage_jobs_config'
-#         verbose_name = 'aps任务配置表'  
-#         verbose_name_plural = 'aps任务配置表'        
+class Sched_Job_Config(models.Model): 
+    NOTICE_TYPE = (
+             (0,'邮箱'),
+             (1,'微信'),         
+             (2,'钉钉'),                    
+            ) 
+    SCHED_TYPE = (
+                 ("date",'日期'),
+                 ("interval",'间隔'),         
+                 ("cron",'crontab'),                                
+            ) 
+    TRIGGER_TYPE =  (
+             (0,'失败'),
+             (1,'成功'),         
+             (2,'完成'),                    
+            ) 
+    JOBSTATUS = (
+             ("running",'运行'),
+             ("stopped",'停止'),                                 
+            )  
+    job_node = models.ForeignKey(Sched_Node,related_name='node_jobs',on_delete=models.CASCADE)   
+    job_id = models.CharField(max_length=50,verbose_name='任务id',unique=True)
+    job_name = models.CharField(max_length=50,verbose_name='任务名称')
+    second = models.CharField(max_length=50,verbose_name='分',blank=True,null=True,default=None)
+    minute = models.CharField(max_length=50,verbose_name='时',blank=True,null=True,default=None)
+    hour = models.CharField(max_length=50,verbose_name='天',blank=True,null=True,default=None)
+    week = models.CharField(max_length=50,verbose_name='第几周',blank=True,null=True,default=None)
+    day = models.CharField(max_length=50,verbose_name='周',blank=True,null=True,default=None)
+    month = models.CharField(max_length=50,verbose_name='月',blank=True,null=True,default=None)
+    year = models.CharField(max_length=50,verbose_name='年',blank=True,null=True,default=None)
+    day_of_week = models.CharField(max_length=50,verbose_name='星期几',blank=True,null=True,default=None)
+    job_command = models.TextField(verbose_name='任务参数')
+    start_date = models.CharField(max_length=20,verbose_name='开始时间',blank=True,null=True,default=None)
+    end_date = models.CharField(max_length=20,verbose_name='结束时间',blank=True,null=True,default=None)
+    run_date = models.CharField(max_length=20,verbose_name='指定时间',blank=True,null=True,default=None)
+    sched_type = models.CharField(choices=SCHED_TYPE,max_length=10,verbose_name='调度类型')
+    status = models.CharField(max_length=10,choices=JOBSTATUS,verbose_name='任务状态') 
+    is_alert = models.SmallIntegerField(default=0,verbose_name='执行失败是否通知')
+    notice_trigger = models.SmallIntegerField(choices=TRIGGER_TYPE,verbose_name='触发类型',blank=True,null=True,default=0)  
+    notice_type =  models.SmallIntegerField(choices=NOTICE_TYPE,verbose_name='通知类型',blank=True,null=True,default=0)  
+    notice_interval =  models.IntegerField(verbose_name='通知间隔',blank=True,null=True,default=3600)  
+    notice_number = models.TextField(verbose_name='通知人',blank=True,null=True,default=None)  
+    atime = models.IntegerField(blank=True,null=True,verbose_name='告警时间')
+    class Meta:
+        db_table = 'opsmanage_sched_job_config'
+        verbose_name = '任务配置表'  
+        verbose_name_plural = '任务配置表'    
+    
+    def to_alert_json(self):
+        json_format = {
+            "notice_type":self.notice_type,
+            "notice_number":self.notice_number,
+            "notice_interval":self.notice_interval,
+            "notice_trigger":self.notice_trigger,
+            "atime":self.atime,
+            "is_alert":self.is_alert,
+        }
+        return  json_format       
+    
+    def to_cron_json(self):
+        json_format = {
+            'id': self.job_id,
+            'cmd':self.job_command,
+            "status":self.status,
+            "type":self.sched_type, 
+            "sched":{
+                    "second":self.second,
+                    "minute":self.minute,
+                    "hour":self.hour,
+                    "week":self.week,
+                    "day":self.day,
+                    "month":self.month,
+                    "day_of_week":self.day_of_week, 
+                    "year":self.year,
+                    "start_date":self.start_date,
+                    "end_date":self.end_date,      
+                    }        
+        }
+        return json_format 
+    
+    def to_interval_json(self):
+        json_format = {
+            'id': self.job_id,
+            'cmd':self.job_command,
+            "status":self.status,
+            "type":self.sched_type,
+            "sched":{
+                    "seconds":self.second,
+                    "minutes":self.minute,
+                    "hours":self.hour,
+                    "weeks":self.week,
+                    "days":self.day,
+                    "start_date":self.start_date,
+                    "end_date":self.end_date,      
+                    }   
+        }
+        return json_format 
+    
+    def to_date_json(self):
+        json_format = {
+            'id': self.job_id,
+            'cmd':self.job_command,
+            "status":self.status,
+            "type":self.sched_type,
+            "sched":{
+                    "run_date":self.run_date,     
+                    }   
+        }
+        return json_format                    
+        
+
+class Sched_Job_Logs(models.Model): 
+    job_id = models.ForeignKey(Sched_Job_Config,related_name='node_jobs_log',on_delete=models.CASCADE)   
+    status = models.SmallIntegerField(verbose_name='工单类型') 
+    stime = models.IntegerField(verbose_name='开始时间')
+    etime = models.IntegerField(verbose_name='结束时间')
+    cmd = models.TextField(verbose_name='执行命令',default=None)
+    result = models.TextField(verbose_name='执行结果',default=None)  
+    class Meta:
+        db_table = 'opsmanage_sched_job_logs'
+        verbose_name = '任务执行日志表'  
+        verbose_name_plural = '任务执行日志表'  
+        
+    def to_json(self):
+        json_format = {
+            'jid': self.job_id.job_id,
+            'stime':self.stime,
+            'etime':self.etime,
+            "status":self.status,
+            "result":self.result,
+        }
+        return json_format                      
+                

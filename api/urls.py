@@ -2,7 +2,7 @@ from django.conf.urls import url
 from api.views import (assets_api,deploy_api,db_api,
                        users_api,orders_api,cron_api,
                        celery_api,apps_api,monitor_api,
-                       nav_api,wiki_api)
+                       nav_api,wiki_api,apscehd_api)
 urlpatterns = [
             url(r'^assets/$', assets_api.AssetList.as_view()),   
             url(r'^assets/(?P<id>[0-9]+)/$', assets_api.asset_detail),
@@ -42,6 +42,12 @@ urlpatterns = [
             url(r'^inventory/groups/query/(?P<id>[0-9]+)/$', deploy_api.deploy_inventory_groups_query),
             url(r'^sched/cron/$', cron_api.cron_list),
             url(r'^sched/cron/(?P<id>[0-9]+)/$', cron_api.cron_detail),
+            url(r'^sched/apsched/node/$', apscehd_api.node_list),
+            url(r'^sched/apsched/count/$', apscehd_api.ApschedCount.as_view()), 
+            url(r'^sched/apsched/jobs/$', apscehd_api.ApschedNodeJobs.as_view()),  
+            url(r'^sched/apsched/logs/$', apscehd_api.ApschedNodeJobsLogs.as_view()), 
+            url(r'^v1/sched/apsched/jobs/$', apscehd_api.ApschedNodeJobsQuery.as_view()), 
+            url(r'^v1/sched/apsched/logs/$', apscehd_api.ApschedNodeJobsRecord.as_view()),
             url(r'^sched/intervals/$', celery_api.celery_intervals_list),
             url(r'^sched/intervals/(?P<id>[0-9]+)/$', celery_api.celery_intervals_detail),
             url(r'^sched/crontab/$', celery_api.celery_crontab_list),

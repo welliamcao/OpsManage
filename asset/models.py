@@ -318,6 +318,12 @@ class User_Server(models.Model):
     class Meta:
         db_table = 'opsmanage_user_assets'
         default_permissions = ()
+        permissions = (
+            ("assets_add_user", "添加用户权限"),
+            ("assets_change_user", "修改用户权限"),
+            ("assets_delete_user", "删除用户权限"),  
+            ("assets_read_user", "读取用户权限"),            
+        )         
         unique_together = (("assets", "user"))
         verbose_name = '用户资产表'  
         verbose_name_plural = '用户资产表'                           

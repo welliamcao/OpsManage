@@ -51,8 +51,7 @@
                     <div class="clearfix"></div>
                   </div>
                   <div class="x_content">
-                        <div class="product_price">
-<!-- 		                	<button type="button" class="btn btn-xs btn-default" id="cron_list"><i class="glyphicon glyphicon-plus"></i></button>   -->                
+                        <div class="product_price">               
 		                    <table id="crontabList" class="table table-hover">
 		                      <thead>
 		                        <tr>
@@ -112,9 +111,6 @@
 								 <label class="col-sm-2 control-label" >服务器选择</label>
 								 <div class="col-sm-8">
                                      <select multiple required="required" class="selectpicker form-control"  data-size="10" data-selected-text-format="count > 5" data-live-search="true" data-width="100%"   autocomplete="off"  class="form-control" name="deploy_server"  id="deploy_server"  required>
-                                     	{% for ds in assets.serverList %}
-                                     		<option name="deploy_server" value="{{ds.id}}">{{ds.ip}} | {{ds.project}} | {{ds.service}}</option>
-                                     	{% endfor %}
                                      </select>
 								 </div>
 							</div>	

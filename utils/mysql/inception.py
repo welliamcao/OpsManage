@@ -116,7 +116,9 @@ class Inception():
             conn = pymysql.connect(
                                    host=self.db_host,user=self.db_user,
                                    passwd=self.db_passwd,db=self.db_name,
-                                   port=int(self.db_port)
+                                   port=int(self.db_port),
+                                   use_unicode=True,
+                                   charset='utf8'                                   
                                    )
         except Exception as e:
             logger.error(msg="Mysql Error %d: %s" % (e.args[0], e.args[1]))
@@ -149,7 +151,9 @@ class Inception():
             conn = pymysql.connect(
                                    host=self.incept.backup_host,user=self.incept.backup_user,
                                    passwd=self.incept.backup_passwd,db=dbName,
-                                   port=int(self.incept.backup_port)
+                                   port=int(self.incept.backup_port),
+                                   use_unicode=True,
+                                   charset='utf8'
                                    )
             cur = conn.cursor()
             ret = cur.execute(sql)
@@ -167,7 +171,9 @@ class Inception():
             conn = pymysql.connect(
                                    host=self.incept.backup_host,user=self.incept.backup_user,
                                    passwd=self.incept.backup_passwd,db=dbName,
-                                   port=int(self.incept.backup_port)
+                                   port=int(self.incept.backup_port),
+                                   use_unicode=True,
+                                   charset='utf8'                                   
                                    )
             cur = conn.cursor()
             ret = cur.execute(sql)
