@@ -63,7 +63,7 @@ PyJWT==1.6.4
 PyMySQL==0.9.2
 PyNaCl==1.2.1
 python-crontab==2.3.5
-python-ldap==3.0.0
+python-ldap==3.1.0
 python-magic==0.4.15
 pytz==2018.7
 PyYAML==3.13
