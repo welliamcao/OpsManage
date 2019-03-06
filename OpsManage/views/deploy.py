@@ -313,7 +313,7 @@ def deploy_run(request,pid):
                     try:
                         exclude = ''
                         for s in project.project_exclude.split(','):
-                            exclude =  "--exclude='{file}'".format(file=s.replace('\r\n','').replace('\n','').strip()) + ' ' + exclude
+                            exclude =  "--exclude={file}".format(file=s.replace('\r\n','').replace('\n','').strip()) + ' ' + exclude
                     except Exception,e:
                         return JsonResponse({'msg':str(e),"code":500,'data':[]})                             
                 #执行部署命令  - 编译型语言      
@@ -356,7 +356,7 @@ def deploy_run(request,pid):
                 resource.append(data)    
             DsRedis.OpsDeploy.lpush(project.project_uuid, data="[RSYNC start rsync project to remote server]")             
             if resource and hostList:
-                if exclude:args = '''src={srcDir} dest={desDir} links=yes recursive=yes compress=yes delete=yes rsync_opts="{exclude}"'''.format(srcDir=softdir, desDir=ds.dir,exclude=exclude)
+                if exclude:args = "src={srcDir} dest={desDir} links=yes recursive=yes compress=yes delete=yes rsync_opts='{exclude}'".format(srcDir=softdir, desDir=ds.dir,exclude=exclude.replace(' ',',')[:1])
                 else:args = '''src={srcDir} dest={desDir} links=yes recursive=yes compress=yes delete=yes'''.format(srcDir=softdir, desDir=ds.dir)
                 ANS = ANSRunner(resource)
                 ANS.run_model(host_list=hostList,module_name='synchronize',module_args=args)
