@@ -163,8 +163,8 @@ class Manage(LoginRequiredMixin,AppsManage,AssetsSource,View):
         #获取要排除的文件 
         exclude = ''
         for s in project.project_exclude.split(','):
-            exclude =  "--exclude='{file}'".format(file=s.replace('\r\n','').replace('\n','').strip()) + ' ' + exclude
-        return exclude
+            exclude =  "--exclude={file}".format(file=s.replace('\r\n','').replace('\n','').strip()) + ',' + exclude
+        return exclude[:-1]
     
     def __compile(self,project,version,runIds):
         #执行部署命令  - 编译型语言      
@@ -200,8 +200,8 @@ class Manage(LoginRequiredMixin,AppsManage,AssetsSource,View):
     def __rsync(self,ansRbt,hostList,project,exclude,softdir,runIds):
         #调用ansible同步代码到远程服务器上        
         numbers = self.get_apps_number(project)#[0].dir
-        if numbers:            
-            if exclude:args = '''src={srcDir} dest={desDir} links=yes recursive=yes compress=yes delete=yes rsync_opts="{exclude}"'''.format(srcDir=softdir, desDir=numbers[0].get("dir"),exclude=exclude)
+        if numbers:           
+            if exclude:args = "src={srcDir} dest={desDir} links=yes recursive=yes compress=yes delete=yes rsync_opts='{exclude}'".format(srcDir=softdir, desDir=numbers[0].get("dir"),exclude=exclude)
             else:args = '''src={srcDir} dest={desDir} links=yes recursive=yes compress=yes delete=yes'''.format(srcDir=softdir, desDir=numbers[0].get("dir"))
             ansRbt.run_model(host_list=hostList,module_name='synchronize',module_args=args)
             #精简返回的结果
