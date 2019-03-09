@@ -17,7 +17,7 @@ from apps.models import Project_Config
 
   
 
-class AssetsBase(DataHandle,DjangoCustomCursors):
+class AssetsBase(DataHandle):
     def __init__(self):
         super(AssetsBase, self).__init__()
         self.uuid = uuid.uuid4()
@@ -62,48 +62,42 @@ class AssetsBase(DataHandle,DjangoCustomCursors):
     
     def manufacturerList(self):
         try:
-            self.execute("""SELECT manufacturer from opsmanage_assets WHERE  manufacturer is not null GROUP BY manufacturer""");
-            return [ ds.get('manufacturer') for ds in self.dictfetchall() ]  
+            return [ ds.manufacturer  for ds in Assets.objects.raw("""SELECT manufacturer,id from opsmanage_assets WHERE  manufacturer is not null GROUP BY manufacturer""")]
         except Exception as ex:
             logger.error(msg="获取设备厂商失败:{ex}".format(ex=ex))
         return []        
 
     def providerList(self):
         try:
-            self.execute("""SELECT provider from opsmanage_assets WHERE  provider is not null GROUP BY provider""");
-            return [ ds.get('provider') for ds in self.dictfetchall() ]  
+            return [ ds.provider  for ds in Assets.objects.raw("""SELECT provider,id from opsmanage_assets WHERE  provider is not null GROUP BY provider""")] 
         except Exception as ex:
             logger.error(msg="获取供应商失败:{ex}".format(ex=ex))
         return []  
 
     def modelList(self):
         try:
-            self.execute("""SELECT model from opsmanage_assets WHERE  model is not null GROUP BY model""");
-            return [ ds.get('model') for ds in self.dictfetchall() ]  
+            return [ ds.model  for ds in Assets.objects.raw("""SELECT model,id from opsmanage_assets WHERE  model is not null GROUP BY model""")]
         except Exception as ex:
             logger.error(msg="获取设备型号失败:{ex}".format(ex=ex))
         return [] 
     
     def cpuList(self):
         try:
-            self.execute("""SELECT cpu from opsmanage_server_assets WHERE  cpu is not null GROUP BY cpu""");
-            return [ ds.get('cpu') for ds in self.dictfetchall() ]  
+            return [ ds.cpu  for ds in Server_Assets.objects.raw("""SELECT cpu,id from opsmanage_server_assets WHERE  cpu is not null GROUP BY cpu""")]
         except Exception as ex:
             logger.error(msg="获取cpu型号失败:{ex}".format(ex=ex))
         return [] 
                
     def systemList(self):
         try:
-            self.execute("""SELECT system from opsmanage_server_assets WHERE  system is not null GROUP BY system""");
-            return [ ds.get('system') for ds in self.dictfetchall() ]  
+            return [ ds.system  for ds in Server_Assets.objects.raw("""SELECT system,id from opsmanage_server_assets WHERE  system is not null GROUP BY system""")]
         except Exception as ex:
             logger.error(msg="获取操作系统失败:{ex}".format(ex=ex))
         return [] 
     
     def kernelList(self):
         try:
-            self.execute("""SELECT kernel from opsmanage_server_assets WHERE  kernel is not null GROUP BY kernel""");
-            return [ ds.get('kernel') for ds in self.dictfetchall() ]  
+            return [ ds.kernel  for ds in Server_Assets.objects.raw("""SELECT kernel,id from opsmanage_server_assets WHERE  kernel is not null GROUP BY kernel""")]
         except Exception as ex:
             logger.error(msg="获取内核版本失败:{ex}".format(ex=ex))
         return []     

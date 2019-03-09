@@ -26,6 +26,7 @@ class ApschedBase(object):
         return Sched_Job_Logs.objects.filter(~Q(status=0)).count()
         
 class ApschedNodeManage(AssetsBase):
+    
     def __init__(self):
         super(ApschedNodeManage, self).__init__()  
     
@@ -104,6 +105,8 @@ class ApschedNodeManage(AssetsBase):
         
 class ApschedNodeJobsManage(ApschedNodeManage):
     def __init__(self):
+        self.jobs_sched_field = ["second","minute","hour","week","day","day_of_week","month","start_date","end_date","run_date"]
+        self.jobs_notice_field = ["notice_number","notice_interval"]
         super(ApschedNodeJobsManage, self).__init__()                
     
     
@@ -191,11 +194,15 @@ class ApschedNodeJobsManage(ApschedNodeManage):
             if jobs.job_node.enable == 0: return "更新任务失败，节点已下线"       
             try:
                 query_params = dict()
-                for ds in QueryDict(request.body).keys():
-                    if QueryDict(request.body).get(ds).isspace():
-                        query_params[ds] = False
-                    query_params[ds] = QueryDict(request.body).get(ds) 
-                   
+                if "status" in QueryDict(request.body).keys():
+                    for ds in QueryDict(request.body).keys():
+                        query_params[ds] = QueryDict(request.body).get(ds) 
+                else:     
+                    for keys in self.jobs_sched_field:
+                        if keys in QueryDict(request.body).keys():
+                            query_params[keys] = QueryDict(request.body).get(keys) 
+                        else:
+                            query_params[keys] = None
                 Sched_Job_Config.objects.filter(id=jobs.id).update(**query_params)
             except Exception as ex:
                 logger.error(msg="修改任务失败: {ex}".format(ex=ex)) 

@@ -20,9 +20,6 @@
 ## OpsManage功能说明
 ![image](https://github.com/welliamcao/OpsManage/blob/master/demo_imgs/opsmanage.png)
 
-## Docker构建OpsManage
-[传送门](https://github.com/welliamcao/OpsManage/wiki/Docker%E6%9E%84%E5%BB%BAOpsManage)
-
 ## Demo地址
 [传送门](http://47.75.140.140:8896)
 ```
@@ -35,7 +32,7 @@
 ## 安装环境配置
 一、安装Python
 ```
-# yum install zlib zlib-devel readline-devel sqlite-devel bzip2-devel openssl-devel gdbm-devel libdbi-devel ncurses-libs kernel-devel libxslt-devel libffi-devel python-devel zlib-devel  sshpass gcc git -y
+# yum install zlib zlib-devel readline-devel sqlite-devel bzip2-devel openssl-devel gdbm-devel libdbi-devel ncurses-libs kernel-devel libxslt-devel libffi-devel python-devel zlib-devel openldap-devel sshpass gcc git -y
 # yum install http://www.percona.com/downloads/percona-release/redhat/0.1-6/percona-release-0.1-6.noarch.rpm
 # yum install Percona-Server-server-56 install Percona-Server-devel-56
 # wget https://www.python.org/ftp/python/3.6.6/Python-3.6.6.tgz  #CentOS 7不用安装python2.7
@@ -65,11 +62,8 @@
 
 三、安装pip，CentOS7不需要安装，可以直接使用pip3	
 ```
-# wget --no-check-certificate https://github.com/pypa/pip/archive/1.5.5.tar.gz -O pip-1.5.5.tar.gz
-# tar -xzvf pip-1.5.5.tar.gz
-# cd pip-1.5.5/
-# python setup.py install
-# pip install -U pip 
+# curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+# python get-pip.py 
 ```
 
 四、安装模块
@@ -144,6 +138,17 @@ mysql>\q
 ```
 # cd /mnt/OpsManage/
 # python manage.py runserver 0.0.0.0:8000
+```
+
+
+十、使用OpsManage分布式任务调度功能，不使用的话可以不进行下面的步骤
+```
+# mkdir -p /usr/local/opsched
+# cp /mnt/OpsManage/opsched/* /usr/local/opsched/
+# vim /usr/local/opsched/sched.conf 
+# 注意修改里面secret跟ops_address的值，修改成自己的配置
+# /usr/local/opsched/opsched -f /usr/local/opsched/sched.conf -a check      #检查配置看看有没有报错
+# /usr/local/opsched/opsched -f /usr/local/opsched/sched.conf -a runserver  #正式运行 
 ```
 
 

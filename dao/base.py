@@ -14,6 +14,7 @@ from django.db import connection
 from collections import namedtuple
 from datetime import datetime,date
 
+
 class Struct:
     def __init__(self, **entries): 
         self.__dict__.update(entries)
@@ -82,6 +83,7 @@ class DjangoCustomCursors(object):
     def __init__(self):
         super(DjangoCustomCursors, self).__init__()
         self.cursor = connection.cursor()
+        
         
     def dictfetchall(self):
         columns = [col[0] for col in self.cursor.description]
