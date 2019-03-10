@@ -197,6 +197,10 @@ class ApschedNodeJobsManage(ApschedNodeManage):
                 if "status" in QueryDict(request.body).keys():
                     for ds in QueryDict(request.body).keys():
                         query_params[ds] = QueryDict(request.body).get(ds) 
+                        
+                elif "is_alert" in QueryDict(request.body).keys():
+                    for ds in QueryDict(request.body).keys():
+                        query_params[ds] = QueryDict(request.body).get(ds)                     
                 else:     
                     for keys in self.jobs_sched_field:
                         if keys in QueryDict(request.body).keys():
@@ -216,7 +220,7 @@ class ApschedNodeJobsManage(ApschedNodeManage):
             elif query_params.get("status") == "remove": 
                 return self.rpc_update_jobs(jobs,"remove")    
                     
-            if jobs.status == "running":
+            if jobs.status == "running" and "is_alert" not in QueryDict(request.body).keys():
                 return self.rpc_update_jobs(jobs,"edit")
         else:          
             return "任务不存在，任务修改失败"     
