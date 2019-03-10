@@ -1,8 +1,9 @@
 #!/usr/bin/env python  
 # _#_ coding:utf-8 _*_  
+import os
 from django.views.generic import View
 from django.http import QueryDict
-from django.shortcuts import render
+from django.shortcuts import render,HttpResponseRedirect
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .models import Assets,Server_Assets,NetworkCard_Assets
 from dao.assets import AssetsBase,AssetsSource
@@ -269,4 +270,20 @@ class AssetsBatch(LoginRequiredMixin,AssetsSource,View):
                 self.sList.append(assets.management_ip)
                 net_assets.delete()                    
             assets.delete()                                    
-        return JsonResponse({'msg':"数据删除成功","code":200,'data':{"success":self.sList,"failed":self.fList}})                
+        return JsonResponse({'msg':"数据删除成功","code":200,'data':{"success":self.sList,"failed":self.fList}})             
+    
+class AssetsImport(LoginRequiredMixin,AssetsBase,View):       
+    login_url = '/login/' 
+    
+    @method_decorator_adaptor(permission_required, "asset.assets_add_assets","/403/")   
+    def post(self, request, *args, **kwagrs):
+        f = request.FILES.get('import_file')
+        filename = os.path.join(os.getcwd() + '/upload/',f.name)
+        if os.path.isdir(os.path.dirname(filename)) is not True:os.makedirs(os.path.dirname(filename))
+        fobj = open(filename,'wb')
+        for chrunk in f.chunks():
+            fobj.write(chrunk)
+        fobj.close()
+        res = self.import_assets(filename)
+        if isinstance(res, str):return JsonResponse({'msg':res,"code":500,'data':[]})
+        return HttpResponseRedirect('/user/center/')       

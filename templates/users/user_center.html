@@ -270,6 +270,33 @@
             </div>
           </div>
         </div>        
+            
+        <div class="modal fade bs-example-modal-import" id="AssetsImportModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title" id="myModalLabel">Excel文件批量导入资产</h4>
+                    </div>
+                    <form role="form" method="post" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"  enctype="multipart/form-data" action='/assets/import/' class="main form-horizontal">{% csrf_token %}
+                     <div class="modal-body">
+                         	<div class="form-group">
+								 <label class="col-sm-2 control-label">上传文件</label>
+								 <div class="col-sm-6">
+								 	<input type="file" name="import_file"  placeholder="上传excel文件" required/>
+								 </div>
+							</div>
+                         
+                     <div class="modal-footer">
+                         <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                         <button type="submit" class="btn btn-primary">导入</button>
+                     </div>
+                    </form>
+                </div>
+                <!-- /.modal-content -->
+           </div>
+           <!-- /.modal-dialog -->
+       </div>             
                        
 {% endblock %}
 {% block js-content %}

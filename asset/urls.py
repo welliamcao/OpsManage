@@ -12,4 +12,5 @@ urlpatterns = [
     url(r'^batch/$', views.AssetsBatch.as_view()), 
     url(r'^server/query/$', views.AssetsServer.as_view()), 
     url(r'^tree/$', views.AssetsTree.as_view()), 
+    url(r'^import/$', views.AssetsImport.as_view()), 
 ]

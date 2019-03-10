@@ -309,11 +309,7 @@ $(document).ready(function() {
 					        text: '<span class="fa fa-cloud-upload"></span>',
 					        className: "btn-sm",
 					        action: function ( e, dt, node, config ) {        	
-					    		$.alert({
-					    		    title: '资产导入',
-					    		    content: '功能还未开放',
-					    		    type: 'red',
-					    		});						        	
+					        	$("#AssetsImportModal").modal('show');
 					        }
 					    },	
 					    {
@@ -348,12 +344,30 @@ $(document).ready(function() {
 	                    {"data": "project"},
 	                    {"data": "service"},
 		                {"data": "detail.ip"},
-		                {"data": "detail.system"},	
-		                {"data": "detail.kernel"},	
-		                {"data": "detail.cpu_number"},
-		                {"data": "detail.ram_total"},
-		                {"data": "detail.disk_total"},	
-		                {"data": "put_zone"},
+		                {
+		                	"data": "detail.system",
+		                	"defaultContent": "无数据"
+		                },	
+		                {
+		                	"data": "detail.kernel",
+		                	"defaultContent": "无数据"
+		                },	
+		                {
+		                	"data": "detail.cpu_number",
+		                	"defaultContent": "无数据"
+		                },
+		                {
+		                	"data": "detail.ram_total",
+		                	"defaultContent": "无数据"
+		                },
+		                {
+		                	"data": "detail.disk_total",
+		                	"defaultContent": "无数据"
+		                },	
+		                {
+		                	"data": "put_zone",
+		                	"defaultContent": "无数据"
+		                },
 		               ]	    
 	    
 	    var columnDefs = [	

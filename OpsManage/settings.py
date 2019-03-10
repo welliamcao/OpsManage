@@ -153,6 +153,7 @@ if config.get('db', 'engine') == 'mysql':
             'PASSWORD': config.get('db', 'password'),
             'HOST': config.get('db', 'host'),
             'PORT': config.getint('db', 'port'),
+#             'CONN_MAX_AGE': 3600, #value which is less than wait_timeout in MySQL config (my.cnf).
         }
     }
 elif config.get('db', 'engine') == 'sqlite':

@@ -1674,7 +1674,50 @@ function Percentage(num, total) {
 		  }  
 	  	selectState = !selectState; 
 	}  
-	
+	$("#assetsImport").on("click", function(){
+		$.confirm({
+			title: '批量导入',
+		    content: '跳转到用户中心->资产列表进行操作，是否跳转过去？',
+		    type: 'blue',
+		    buttons: {
+		        yes: {
+		            keys: ['y'],
+		            btnClass: 'btn-blue',
+		            action: function () {
+		            	 window.location.href="/user/center/";
+		            }
+		        },
+		        no: {
+		            keys: ['N'],
+		            action: function () {
+		                return 
+		            }
+		        },
+		    }
+		});	
+	})
+	$("#assetsDumps").on("click", function(){
+		$.alert({
+		    title: '批量下载',
+		    content: '跳转到用户中心->资产列表进行操作',
+		    type: 'blue',
+		    buttons: {
+		        yes: {
+		            keys: ['y'],
+		            btnClass: 'btn-blue',
+		            action: function () {
+		            	 window.location.href="/user/center/";
+		            }
+		        },
+		        no: {
+		            keys: ['N'],
+		            action: function () {
+		                return 
+		            }
+		        },
+		    }		    
+		});			
+	})	
 	$("#assetsRefresh").on("click", function(){
 		var btnObj = $(this);
 		btnObj.attr('disabled',true);

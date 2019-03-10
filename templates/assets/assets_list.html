@@ -571,7 +571,13 @@
 				         		{% endif %}
 				         	{% endfor %}                           
                           </td>
-                          <td id="assets_{{ds.id}}">{{ds.server_assets.ip}}</td>
+                          <td id="assets_{{ds.id}}">
+                          		{% if ds.assets_type == "server" or  ds.assets_type == "vmser" %}
+                          			{{ds.server_assets.ip}}
+                          		{% else %}
+                          			{{ds.network_assets.ip}}
+                          		{% endif %}
+                          </td>
                           <td>{{ds.server_assets.system|default:"无数据"}}</td>
                           <td>{{ds.server_assets.kernel|default:"无数据"}}</td>
                           <td>{{ds.server_assets.vcpu_number|default:"无数据"}}</td>
