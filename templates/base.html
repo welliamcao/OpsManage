@@ -21,9 +21,9 @@
     <!-- PNotify -->
     <link href="/static/pnotify/dist/pnotify.css" rel="stylesheet">
     <link href="/static/pnotify/dist/pnotify.buttons.css" rel="stylesheet">
-    <link href="/static/pnotify/dist/pnotify.nonblock.css" rel="stylesheet">  
+    <link href="/static/pnotify/dist/pnotify.nonblock.css" rel="stylesheet">
     <!-- Custom Theme Style -->
-    <link href="/static/css/custom.min.css" rel="stylesheet">      
+    <link href="/static/css/custom.min.css" rel="stylesheet">
     {% block css-content %}
     <link rel="stylesheet" href="/static/jquery-confirm/jquery-confirm.min.css">
     {% endblock %}
@@ -74,7 +74,7 @@
                     	<li><a href="/deploy/scripts/">脚本工具</a></li>
                     	<li><a href="/deploy/playbook/">剧本工具</a></li>
                     </ul>
-                  </li>                  
+                  </li>
                   <li><a><i class="fa fa-edit"></i> DB管理 <span class="fa fa-chevron-down"></span></a>
                     <ul class="nav child_menu">
                       <li><a>MySQL<span class="fa fa-chevron-down"></span></a>
@@ -84,13 +84,13 @@
                           <li><a href="/db/manage/"> 管理工具</a>
                           </li>
 <!--                           <li><a href="/db/backup/"> 备份管理</a>
-                          </li> -->                          
+                          </li> -->
                         </ul>
-                      </li>                                        
-                    </ul>            
+                      </li>
+                    </ul>
                   </li>
                   <li><a><i class="fa fa-calendar"></i> 计划任务 <span class="fa fa-chevron-down"></span></a>
-                    <ul class="nav child_menu">                                          
+                    <ul class="nav child_menu">
                       <li><a>任务配置<span class="fa fa-chevron-down"></span></a>
                         <ul class="nav child_menu">
                           <li><a href="/sched/apsched/"> ApSched</a></li>
@@ -98,8 +98,8 @@
                           <li><a href="/sched/celery/"> Celery</a>
                           </li>
                         </ul>
-                      </li>   
-<!--                       <li><a href="/schedule/task/log/"> 运行日志</a></li>  -->                                        
+                      </li>
+<!--                       <li><a href="/schedule/task/log/"> 运行日志</a></li>  -->
                     </ul>
                   </li>
                   <li><a><i class="fa fa-rocket"></i> 代码发布 <span class="fa fa-chevron-down"></span></a>
@@ -125,20 +125,20 @@
                         <li><a href="/nav/list/">导航列表</a></li>
                          <li><a href="/nav/manage/">导航管理</a></li>
                     </ul>
-                  </li>                 
+                  </li>
                   <li><a><i class="fa fa-sitemap"></i> 工单系统 <span class="fa fa-chevron-down"></span></a>
                     <ul class="nav child_menu">
                         <li><a href="/order/list/">工单列表</a></li>
                         <li><a href="/order/apply/">工单申请</a></li>
                         <li><a href="#level1_2">工单查询</a>
                     </ul>
-                  </li>  
+                  </li>
                   <li><a><i class="fa fa-bug"></i> 用户管理 <span class="fa fa-chevron-down"></span></a>
                     <ul class="nav child_menu">
                       <li><a href="/user/center/">用户中心</a></li>
                       <li><a href="/user/manage/">用户管理</a></li>
                     </ul>
-                  </li>                                  
+                  </li>
                   <li><a href="javascript:void(0)"><i class="fa fa-laptop"></i> Landing Page <span class="label label-success pull-right">Coming Soon</span></a></li>
                 </ul>
               </div>
@@ -266,7 +266,7 @@
         <!-- page content -->
         <div class="right_col" role="main">
           {% block page-content %}
-          
+
 
             <div class="row top_tiles">
               <div class="animated flipInY col-lg-3 col-md-3 col-sm-6 col-xs-12">
@@ -308,9 +308,21 @@
                 <div class="x_panel">
                   <div class="x_title">
                     <h2>工单统计 <small>Orders summary </small></h2>
-                    <div class="filter">
-
-                    </div>
+                    <ul class="nav navbar-right panel_toolbox">
+                      <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                      </li>
+                      <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
+                        <ul class="dropdown-menu" role="menu">
+                          <li><a href="#">Settings 1</a>
+                          </li>
+                          <li><a href="#">Settings 2</a>
+                          </li>
+                        </ul>
+                      </li>
+                      <li><a class="close-link"><i class="fa fa-close"></i></a>
+                      </li>
+                    </ul>
                     <div class="clearfix"></div>
                   </div>
                   <div class="x_content">
@@ -348,21 +360,9 @@
                       <div>
                         <div class="x_title">
                           <h2>最新工单信息</h2>
-                          <ul class="nav navbar-right panel_toolbox">
-                            <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
-                            </li>
-                            <li class="dropdown">
-                              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
-                              <ul class="dropdown-menu" role="menu">
-                                <li><a href="#">Settings 1</a>
-                                </li>
-                                <li><a href="#">Settings 2</a>
-                                </li>
-                              </ul>
-                            </li>
-                            <li><a class="close-link"><i class="fa fa-close"></i></a>
-                            </li>
-                          </ul>
+                          <div class="filter">
+
+                          </div>
                           <div class="clearfix"></div>
                         </div>
                         <ul class="list-unstyled top_profiles scroll-view" id="newOrderUl">
@@ -714,13 +714,13 @@
                 </div>
               </div>
             </div> -->
-      
-          
-  
-          {% endblock %}	  
+
+
+
+          {% endblock %}
         </div>
         <!-- /page content -->
-		
+
       </div>
     </div>
 
@@ -740,7 +740,7 @@
     <script src="/static/bootstrap-progressbar/bootstrap-progressbar.min.js"></script>
 
     {% block js-content %}
-    
+
 
     <!-- Chart.js -->
     <script src="/static/Chart.js/dist/Chart.min.js"></script>
@@ -765,11 +765,11 @@
     <script src="/static/morris.js/morris.min.js"></script>
     <script src="/static/jquery-confirm/jquery-confirm.min.js"></script>
     <script src="/static/js/custom/index.js"></script>
-    {% endblock %}    
+    {% endblock %}
     <!-- CSRF -->
-    <script src="/static/js/csrf/csrf.js"></script>    
+    <script src="/static/js/csrf/csrf.js"></script>
     <!-- Custom Theme Scripts -->
     <script src="/static/js/custom/custom.min.js"></script>
-    <script src="/static/js/select/bootstrap-select.js"></script>  
+    <script src="/static/js/select/bootstrap-select.js"></script>
   </body>
 </html>
