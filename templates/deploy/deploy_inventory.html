@@ -169,11 +169,11 @@
 							<div class="hr hr32 hr-dotted"></div>
 							<div class="col-md-6 col-xs-12">
 								<legend>
-									<i class="fa  fa-paper-plane-o"></i> 组成员
+									<i class="fa  fa-paper-plane-o"></i> 资产组成员
 								</legend>  
 								<form role="form" method="post" id="inventory_group" enctype="multipart/form-data">
 								<div class="form-group" >			 		             
-									<label><font color='red'>* </font>选择资产组</label>	
+									<label><font color='red'>* </font>选择资产组</label>
 									<select class="selectpicker" data-live-search="true"  data-size="10" data-selected-text-format="count > 3" name="inventory" id="inventoryIds"  data-width="100%"  >
 										{% for ds in assets.inventoryList %}
 											<option name="inventory" value="{{ds.id}}">{{ds.name}}</option>
@@ -181,7 +181,7 @@
 									</select>		
 								</div>									
 								<div class="form-group">
-										<label><font color='red'>* </font>组名称<i class="fa fa-info-circle" data-toggle="tooltip" title="资产组名称(请使用字母表示)"></i></label>
+										<label><font color='red'>* </font>成员组名称<i class="fa fa-info-circle" data-toggle="tooltip" title="资产成员组名称(请使用字母表示)"></i></label>
 									<input class="form-control" id="group_name" name="group_name" value=""></input>
 								</div>								
 								<div class="form-group" >			 		             
