@@ -27,7 +27,7 @@ class Requests(object):
             response = requests.post(url,json.dumps(data),headers=self.headers,timeout=3)
             return response.json()
         except Exception as ex:
-            logger.error("Post {url} with {args} failed {ex}".format(url=url,args=data,ex=str(ex)))
+            logger.error("Post {url} with {args} failed {ex}, agent return {content}.".format(url=url,args=data,ex=str(ex)),content=response.content)
             return str(ex)
     
 sched_rpc = Requests()

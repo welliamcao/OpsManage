@@ -11,6 +11,7 @@ from utils.logger import logger
 from django.http import JsonResponse
 from django.contrib.auth.decorators import permission_required
 from utils.base import method_decorator_adaptor
+from asset.models import Network_Assets
 
         
 class Config(LoginRequiredMixin,AssetsBase,View):
@@ -164,18 +165,13 @@ class AssetsSearch(LoginRequiredMixin,AssetsBase,View):
         baseAssets = self.base()
         dataList = []
         for a in assetsList:
-            nks = ''
-            if a.server_assets.ip:
-                liTags = ''
-                for ns in a.networkcard_assets_set.all():
-                    if ns.ip != 'unkown' and ns.ip !=  a.server_assets.ip:
-                        liTag = '''<li>{address}</li>'''.format(address=ns.ip) 
-                        liTags = liTags + liTag
-                nks = '''<ul class="list-unstyled">
-                            <li>{server_ip}</li>
-                            {liTags}
-                        </ul>'''.format(server_ip=a.server_assets.ip,liTags=liTags)
-            management_ip = '''{ip}'''.format(ip=nks)  
+            if hasattr(a,'server_assets'):
+                sip = a.server_assets.ip
+            elif hasattr(a,'network_assets'):
+                sip = a.network_assets.ip
+            else:
+                sip = '未知'
+            management_ip = '''{ip}'''.format(ip=sip)  
             try:  
                 system = a.server_assets.system
             except:
@@ -203,7 +199,7 @@ class AssetsSearch(LoginRequiredMixin,AssetsBase,View):
             for z in baseAssets.get('zoneList'):
                 if z.id == a.put_zone:put_zone = '''{zone_name}'''.format(zone_name=z.zone_name)      
             opt = ''' <div class="btn-group btn-group-sm">                
-                    <button type="button" name="btn-assets-alter" value="{id}" class="btn btn-default" aria-label="Center Align"><a href="/assets/add/?id={id}" target="view_window"><span class="glyphicon glyphicon-check" aria-hidden="true"></span></a>
+                    <button type="button" name="btn-assets-alter" value="{id}" class="btn btn-default" aria-label="Center Align"><a href="/assets/manage/?id={id}&model=edit" target="view_window"><span class="glyphicon glyphicon-check" aria-hidden="true"></span></a>
                     </button>
                     <button type="button" name="btn-assets-info" value="{id}" class="btn btn-default" aria-label="Right Align" data-toggle="modal" data-target=".bs-example-modal-info"><span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
                     </button>
