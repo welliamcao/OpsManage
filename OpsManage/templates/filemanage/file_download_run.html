@@ -106,7 +106,7 @@
 				}
 				else{
 					var trHtml = '';
-					for (var i = 1; i < response["data"].length; ++i) {
+					for (var i = 0; i < response["data"].length; ++i) {
 						if (response['data'][i]["islnk"] ){
 							var button = '<button type="button" class="btn btn-xs btn-default" disabled><abbr title="软连接不支持下载"><i class="fa  fa-cloud-download"></i></button>';
 						}else if(response['data'][i]["size"] > 500 ){
