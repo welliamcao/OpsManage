@@ -180,7 +180,7 @@ class Sched_Job_Config(models.Model):
 
 class Sched_Job_Logs(models.Model): 
     job_id = models.ForeignKey(Sched_Job_Config,related_name='node_jobs_log',on_delete=models.CASCADE)   
-    status = models.SmallIntegerField(verbose_name='工单类型') 
+    status = models.SmallIntegerField(verbose_name='任务执行状态') 
     stime = models.IntegerField(verbose_name='开始时间')
     etime = models.IntegerField(verbose_name='结束时间')
     cmd = models.TextField(verbose_name='执行命令',default=None)

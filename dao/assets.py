@@ -248,12 +248,12 @@ class AssetsBase(DataHandle):
                 logger.warn(msg="查询主机应用信息失败: {ex}".format(ex=str(ex)))             
             if hasattr(assets,'server_assets'):
                 try:
-                    dataList.append({"id":assets.id,"ip":assets.server_assets.ip,"project":project,"service":service,"status":assets.status})                       
+                    dataList.append({"id":assets.id,"ip":assets.server_assets.ip,"project":project,"service":service,"status":assets.status,"mark":assets.mark})                       
                 except Exception as ex:
                     logger.warn(msg="id:{assets}, error:{ex}".format(assets=assets.id,ex=ex))                    
             elif hasattr(assets,'network_assets'):
                 try:
-                    dataList.append({"id":assets.id,"ip":assets.network_assets.ip,"project":project,"service":service,"status":assets.status})                       
+                    dataList.append({"id":assets.id,"ip":assets.network_assets.ip,"project":project,"service":service,"status":assets.status,"mark":assets.mark})                       
                 except Exception as ex:
                     logger.warn(msg="id:{assets}, error:{ex}".format(assets=assets.id,ex=ex))  
         return dataList                   

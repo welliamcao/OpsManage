@@ -836,9 +836,14 @@ $(document).ready(function () {
 						}else{
 							var icon = "fa fa-desktop assets-offline"
 						}
+						if (response[i]["mark"]){
+							var text = response[i]["ip"]+' | '+response[i]["mark"]
+						}else{
+							var text = response[i]["ip"]
+						}
                         var newNode = {
                                 "id": response[i]["id"]+30000,
-                                "text": response[i]["ip"],
+                                "text": text,
                                 "icon": icon
                             }        						
 						$('#projectTree').jstree('create_node', parent, newNode, position, false, false);	
