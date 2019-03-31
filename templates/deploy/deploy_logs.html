@@ -1,0 +1,212 @@
+{% extends 'base.html' %}
+{% block css-content %}
+    <link rel="stylesheet" href="/static/css/bootstrap-select.css">
+    <link rel="stylesheet" href="/static/jquery-confirm/jquery-confirm.min.css">
+    <link href="/static/datatable/datatables.net-buttons-bs/css/buttons.bootstrap.min.css" rel="stylesheet">
+    <link href="/static/datatable/datatables.net-fixedheader-bs/css/fixedHeader.bootstrap.min.css" rel="stylesheet">
+    <link href="/static/datatable/datatables.net-responsive-bs/css/responsive.bootstrap.min.css" rel="stylesheet">
+    <link href="/static/datatable/datatables.net-scroller-bs/css/scroller.bootstrap.min.css" rel="stylesheet"> 
+    <link href="/static/css/doublebox-bootstrap.css" rel="stylesheet"> 
+    <link href="/static/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css" rel="stylesheet"> 
+    <link rel="stylesheet" href="/static/tooltips/css/tooltips.css"> 
+    <link href="/static/switchery/dist/css/bootstrap-switch.min.css" rel="stylesheet">    
+	<style type="text/css"> 
+	pre {
+			overflow: auto;
+			white-space: normal;
+			white-space: pre-wrap; /* css-3 */
+			white-space: -moz-pre-wrap; /* Mozilla, since 1999 */
+			white-space: -pre-wrap; /* Opera 4-6 */
+			white-space: -o-pre-wrap; /* Opera 7 */
+			word-wrap: break-word; /* Internet Explorer 5.5+ */
+			font-family: Consolas, monospace;
+			color: #ADFF2F;
+			background-color: #000000;
+	}		
+    .modal-select{
+         -moz-user-select:none;/*火狐*/
+         -webkit-user-select:none;/*webkit浏览器*/
+         -ms-user-select:none;/*IE10*/
+         -khtml-user-select:none;/*早期浏览器*/
+         user-select:none;
+    }
+    .modal-header{
+         cursor:move;
+    }	
+	td.details-control {
+	    background: url('/static/images/details_open.png') no-repeat center center; */
+	    cursor: pointer;
+	}
+	tr.shown td.details-control {
+	    background: url('/static/images/details_close.png') no-repeat center center;
+	}           		
+	</style>      
+{% endblock %}
+{% block page-content %}
+        <div class="clearfix"></div>        
+        <div class="row">
+              <div class="col-md-12 col-sm-12 col-xs-12">
+                <div class="x_panel">
+                  <div class="x_title">
+                    <h2><i class="fa fa-bars"></i> 部署日志<small>Deploy Logs</small></h2>
+                    <div class="clearfix"></div>
+                  </div>
+                  <div class="x_content">
+
+
+                    <div class="" role="tabpanel" data-example-id="togglable-tabs">
+                      <ul id="myTab" class="nav nav-tabs bar_tabs" role="tablist">
+                        <li role="presentation" class="active"><a href="#tab_content1" id="home-tab" role="tab" data-toggle="tab" aria-expanded="true"><i class="fa fa-map-marker"></i> 模块日志</a>
+                        </li>
+                         <li role="presentation" class=""><a href="#tab_content2" role="tab" id="profile-tab" data-toggle="tab" aria-expanded="false"><i class="fa fa-tasks"></i> 剧本日志</a>
+                        </li>
+<!--                         <li role="presentation" class=""><a href="#tab_content3" role="tab" id="profile-tab2" data-toggle="tab" aria-expanded="false"><i class="fa fa-bars"></i> 机柜线路</a>
+                        </li>
+                        <li role="presentation" class=""><a href="#tab_content4" role="tab" id="profile-tab3" data-toggle="tab" aria-expanded="false"><i class="fa fa-bookmark"></i> 标签分组</a>
+                        </li> -->                      
+                      </ul>
+                      <div id="myTabContent" class="tab-content">
+                        <div role="tabpanel" class="tab-pane fade active in" id="tab_content1" aria-labelledby="home-tab">			              
+			              <div class="col-md-12 col-sm-12 col-xs-12">
+			                <div class="x_panel">
+			                  <div class="x_title">
+			                    <h2>模块日志 <small>Model Detail</small></h2>
+			                    <div class="clearfix"></div>
+			                  </div>
+			                  <div class="x_content">
+		                  		<div class="row">	
+<!-- 		                  			<div class="pull-left">
+		                  				<select required="required" class="selectpicker form-control"  data-size="10" data-selected-text-format="count > 5" data-live-search="true" data-width="100%"   autocomplete="off"  class="form-control" name="sched_node_job"  id="sched_node_job"  required>
+		                  				</select>
+		                  			</div> -->
+									<div class="btn-group  btn-group-sm pull-right">
+				                        <button class="btn btn-default" name="model_page_previous" type="button" value="">上一页</button>
+				                        <button class="btn btn-default" name="model_page_next" type="button" value="">下一页</button>
+			                      	</div>
+			                      	
+		                      	</div>
+		                      	<br>
+		                      	<div class="row">	
+				                    <table class="table" id="deployModelLogTableList">
+				                      <thead>
+				                        <tr>
+				                          <th>ID</th>
+				                          <th>用户</th>
+				                          <th>模块</th>			                          
+				                          <th>参数</th>
+				                          <th>目标主机</th>
+				                          <th>执行时间</th>
+				                          <th class="text-center">操作</th>
+				                        </tr>
+				                      </thead>
+				                      <tbody>
+				                      </tbody>
+				                    </table>
+								</div>
+			                  </div>
+			                </div>
+			              </div>			              
+			              
+                        </div>                        
+                        <div role="tabpanel" class="tab-pane fade" id="tab_content2" aria-labelledby="profile-tab">
+                        
+ 			              <div class="col-md-12 col-sm-12 col-xs-12">
+			                <div class="x_panel">
+			                  <div class="x_title">
+			                    <h2>剧本日志 <small>Playbook Detail</small></h2>
+			                    <div class="clearfix"></div>
+			                  </div>
+			                  <div class="x_content">
+		                  		<div class="row">	
+<!-- 		                  			<div class="pull-left">
+		                  				<select required="required" class="selectpicker form-control"  data-size="10" data-selected-text-format="count > 5" data-live-search="true" data-width="100%"   autocomplete="off"  class="form-control" name="sched_node_job"  id="sched_node_job"  required>
+		                  				</select>
+		                  			</div> -->
+									<div class="btn-group  btn-group-sm pull-right">
+				                        <button class="btn btn-default" name="playbook_page_previous" type="button" value="">上一页</button>
+				                        <button class="btn btn-default" name="playbook_page_next" type="button" value="">下一页</button>
+			                      	</div>
+			                      	
+		                      	</div>
+		                      	<br>
+		                      	<div class="row">
+				                    <table class="table" id="deployPlaybookLogTableList">
+				                      <thead>
+				                        <tr>
+				                          <th>ID</th>
+				                          <th>用户</th>
+				                          <th>剧本名</th>			                          
+				                          <th>剧本描述</th>
+				                          <th>目标主机</th>
+				                          <th>执行时间</th>
+				                          <th class="text-center">操作</th>
+				                        </tr>
+				                      </thead>
+				                      <tbody>
+				                      </tbody>
+				                    </table>
+								</div>
+			                  </div>
+			                </div>
+			              </div>
+                       
+                        
+						</div>
+                        <div role="tabpanel" class="tab-pane fade" id="tab_content3" aria-labelledby="profile-tab">
+            	               
+                        </div>
+                        
+                        <div role="tabpanel" class="tab-pane fade" id="tab_content4" aria-labelledby="profile-tab">
+                        
+                        </div>                        
+                        
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+              </div>        
+        </div>        
+	   
+
+        <div id="deployLogsShow" class="modal fade bs-example-modal-modellogs" data-backdrop="static" tabindex="-1" role="dialog" aria-hidden="true">
+          <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span>
+                </button>
+                <h4 class="modal-title" id="myModalLabel">操作日志</h4>
+              </div>
+              <div class="modal-body">
+				<pre class="html">
+                    <div id="result">
+                    </div>
+                </pre> 
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              </div>
+
+            </div>
+          </div>
+        </div>   	
+                         
+{% endblock %}
+{% block js-content %}
+	<script src="/static/jquery-confirm/jquery-confirm.min.js"></script>
+    <script src="/static/datatable/datatables.net/js/jquery.dataTables.min.js"></script>
+	<script src="/static/datatable/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>	
+    <script src="/static/datatable/datatables.net-buttons/js/dataTables.buttons.min.js"></script>
+    <script src="/static/datatable/datatables.net-buttons-bs/js/buttons.bootstrap.min.js"></script>
+    <script src="/static/datatable/datatables.net-buttons/js/buttons.flash.min.js"></script>
+    <script src="/static/datatable/datatables.net-buttons/js/buttons.html5.min.js"></script>
+    <script src="/static/datatable/datatables.net-buttons/js/buttons.print.min.js"></script>	
+    <script src="/static/js/doublebox/doublebox-bootstrap.js"></script>
+    <script src="/static/switchery/dist/js/bootstrap-switch.min.js"></script>       
+	<script src="/static/js/dragable/dragable.js"></script> 
+	<script src="/static/js/deploy/logs.js"></script> 
+	<script src="/static/tooltips/js/jquery.pure.tooltips.js"></script>	 
+    <!-- bootstrap-daterangepicker -->
+    <script src="/static/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js"></script>		 
+{% endblock %}

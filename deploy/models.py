@@ -2,6 +2,7 @@
 # _#_ coding:utf-8 _*_  
 from django.db import models
 import django.utils.timezone as timezone
+from django.contrib.auth.models import User
 
 # Create your models here.
 class Log_Deploy_Model(models.Model): 
@@ -49,7 +50,29 @@ class Deploy_Playbook(models.Model):
         )
         verbose_name = '部署剧本配置表'  
         verbose_name_plural = '部署剧本配置表' 
-        
+    
+    def to_json(self):
+        try:
+            username = User.objects.get(id=self.playbook_user).username
+        except Exception as ex:
+            username = '未知'
+        json_format = {
+            "id":self.id,           
+            "playbook_name":self.playbook_name,
+            "playbook_desc":self.playbook_desc,
+            "playbook_vars":self.playbook_vars,
+            "playbook_type":self.playbook_type,
+            "playbook_file":self.playbook_file,
+            "playbook_service":self.playbook_service,
+            "playbook_user":username,
+            "playbook_server":self.playbook_server,
+            "playbook_group":self.playbook_group,
+            "playbook_tags":self.playbook_tags,
+            "playbook_inventory_groups":self.playbook_inventory_groups,
+            "create_time":self.create_time,
+            "update_date":self.update_date,
+        }
+        return  json_format             
         
 class Deploy_Script(models.Model): 
     script_name = models.CharField(max_length=50,verbose_name='脚本名称',unique=True)
@@ -82,13 +105,32 @@ class Deploy_Script(models.Model):
         verbose_name = '部署脚本配置表'  
         verbose_name_plural = '部署脚本配置表'         
 
+    def to_json(self):
+        try:
+            username = User.objects.get(id=self.script_user).username
+        except Exception as ex:
+            username = '未知'
+        json_format = {
+            "id":self.id,           
+            "script_name":self.script_name,
+            "script_args":self.script_args,
+            "script_service":self.script_service,
+            "script_user":username,
+            "script_server":self.script_server,
+            "script_group":self.script_group,
+            "script_tags":self.script_tags,
+            "script_inventory_groups":self.script_inventory_groups,
+            "create_time":self.create_time,
+            "update_date":self.update_date,
+        }
+        return  json_format 
         
 
 class Log_Deploy_Playbook(models.Model): 
     ans_id = models.IntegerField(verbose_name='id',blank=True,null=True,default=None)
     ans_user = models.CharField(max_length=50,verbose_name='使用用户',default=None)
     ans_name = models.CharField(max_length=100,verbose_name='模块名称',default=None)
-    ans_content = models.CharField(max_length=100,default=None)
+    ans_content = models.CharField(max_length=200,default=None)
     ans_server = models.TextField(verbose_name='服务器',default=None)
     create_time = models.DateTimeField(auto_now_add=True,blank=True,null=True,verbose_name='执行时间')
     class Meta:
@@ -102,17 +144,6 @@ class Log_Deploy_Playbook(models.Model):
         )
         verbose_name = '部署剧本操作记录表'  
         verbose_name_plural = '部署剧本操作记录表' 
-
-# class Deploy_Playbook_Number(models.Model):
-#     playbook = models.ForeignKey('Deploy_Playbook',related_name='server_number', on_delete=models.CASCADE)
-#     playbook_server = models.CharField(max_length=100,verbose_name='目标服务器',blank=True,null=True)
-#     class Meta:
-#         db_table = 'opsmanage_deploy_playbook_number'
-#         default_permissions = ()
-#         verbose_name = '部署剧本成员表'  
-#         verbose_name_plural = '部署剧本成员表'
-#     def __unicode__(self):
-#         return '%s' % ( self.playbook_server)    
     
 class Deploy_Inventory(models.Model):    
     name = models.CharField(max_length=200,unique=True,verbose_name='资产名称')
@@ -155,7 +186,18 @@ class Deploy_Inventory_Groups_Server(models.Model):
 class Deploy_CallBack_Model_Result(models.Model):
     logId = models.ForeignKey('Log_Deploy_Model', on_delete=models.CASCADE)
     content = models.TextField(verbose_name='输出内容',blank=True,null=True)
+    class Meta:
+        db_table = 'opsmanage_deploy_callback_model_result'
+        default_permissions = ()
+        verbose_name = '部署模块操作记录详情表'  
+        verbose_name_plural = '部署剧本操作记录表'
+    
     
 class Deploy_CallBack_PlayBook_Result(models.Model):
     logId = models.ForeignKey('Log_Deploy_Playbook', on_delete=models.CASCADE)
-    content = models.TextField(verbose_name='输出内容',blank=True,null=True)        
+    content = models.TextField(verbose_name='输出内容',blank=True,null=True)   
+    class Meta:
+        db_table = 'opsmanage_deploy_callback_playbook_result'
+        default_permissions = ()
+        verbose_name = '部署剧本操作记录详情表'  
+        verbose_name_plural = '部署剧本操作记录详情表'         

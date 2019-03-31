@@ -1,11 +1,9 @@
 #!/usr/bin/env python  
 # _#_ coding:utf-8 _*_ 
-import MySQLdb
+import pymysql
 from celery import task
-from utils import base
 from asset.models import Assets,Server_Assets, NetworkCard_Assets
 from databases.models import DataBase_Server_Config
-from django.contrib.auth.models import User
 from utils.ansible.runner import ANSRunner
 
 
@@ -65,20 +63,22 @@ def updateAssets():
                     
 @task 
 def orderSql(**kw):
-    if kw.has_key('sql') and kw.has_key('dbId'):
+    if 'sql' and 'dbId' in kw.keys():
         try:
             db = DataBase_Server_Config.objects.get(id=kw.get('dbId'))
         except Exception as ex:
             return ex
         try:
-            conn = MySQLdb.connect(host=db.db_host,user=db.db_user,passwd=db.db_passwd,db=db.db_name,port=int(db.db_port))
+            conn = pymysql.connect(host=db.db_host,user=db.db_user,
+                                   passwd=db.db_passwd,db=db.db_name,
+                                   port=int(db.db_port))
             cur = conn.cursor()
             ret = cur.execute(kw.get('sql'))
             conn.commit()
             cur.close()
             conn.close()            
             return {"status":'success','data':ret}
-        except MySQLdb.Error as e:
+        except pymysql.Error as e:
             conn.rollback()
             cur.close()
             conn.close() 

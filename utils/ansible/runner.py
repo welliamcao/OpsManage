@@ -52,8 +52,8 @@ class ANSRunner(object):
         scp_extra_args=None,
         verbosity=None,
         syntax=False,        
-        redisKey=None,
-        mysqlKey=None
+        websocket=None,
+        mysql=None
     ):
         self.Options = namedtuple("Options", [
                                                 'listtags', 'listtasks', 'listhosts', 'syntax', 'connection',
@@ -91,8 +91,8 @@ class ANSRunner(object):
             check=check,
             diff=False
         )
-        self.redisKey = redisKey
-        self.mysqlKey = mysqlKey        
+        self.websocket = websocket      
+        self.mysql = mysql 
         self.loader = DataLoader()
         self.inventory = MyInventory(resource=hosts)
         self.variable_manager = VariableManager(self.loader, self.inventory)
@@ -102,7 +102,7 @@ class ANSRunner(object):
         
   
     def run_model(self,host_list, module_name, module_args):
-        self.callback = AdHoccallback(self.redisKey,self.mysqlKey)  
+        self.callback = AdHoccallback(self.websocket,self.mysql)  
         play_source = dict(
             name="Ansible Ad-hoc",
             hosts=host_list,
@@ -126,8 +126,7 @@ class ANSRunner(object):
             tqm.run(play)  
         except Exception as err: 
             logger.error(msg="run model failed: {err}".format(err=str(err)))
-            if self.redisKey:DsRedis.OpsAnsibleModel.lpush(self.redisKey,data=err)
-            if self.mysqlKey:DeploySaveResult.Model.insert(self.mysqlKey, err)              
+            if self.websocket:self.websocket.send(data=err)              
         finally:  
             if tqm is not None:  
                 tqm.cleanup()  
@@ -139,7 +138,7 @@ class ANSRunner(object):
         run ansible palybook 
         """   
         try: 
-            self.callback = Playbookcallback(self.redisKey,self.mysqlKey) 
+            self.callback = Playbookcallback(self.websocket,self.mysql) 
             extra_vars['host'] = ','.join(host_list)
             self.variable_manager.extra_vars = extra_vars            
             executor = PlaybookExecutor(  
@@ -153,8 +152,7 @@ class ANSRunner(object):
             executor.run()  
         except Exception as err: 
             logger.error(msg="run playbook failed: {err}".format(err=str(err)))
-            if self.redisKey:DsRedis.OpsAnsiblePlayBook.lpush(self.redisKey,data=err)
-            if self.mysqlKey:DeploySaveResult.PlayBook.insert(self.mysqlKey, err)            
+            if self.websocket:self.websocket.send(data=err)        
             return False
             
     def get_model_result(self):  

@@ -86,7 +86,11 @@ class DeployScript(DataHandle):
        
     
     def scriptList(self):
-        return Deploy_Script.objects.all()
+        dataList = []
+        for ds in Deploy_Script.objects.all():
+            dataList.append(ds.to_json())
+        return dataList       
+
         
     def createScript(self,request):
         fileName = '/upload/scripts/script-{ram}'.format(ram=uuid.uuid4().hex[0:8]) 
@@ -164,7 +168,10 @@ class DeployPlaybook(DataHandle):
        
     
     def playbookList(self):
-        return Deploy_Playbook.objects.all()
+        dataList = []
+        for ds in Deploy_Playbook.objects.all():
+            dataList.append(ds.to_json())
+        return dataList
         
     def createPlaybook(self,request):
         fileName = '/upload/playbook/playbook-{ram}'.format(ram=uuid.uuid4().hex[0:8]) 
@@ -177,6 +184,7 @@ class DeployPlaybook(DataHandle):
                                           playbook_desc = request.POST.get('playbook_desc'),
                                           playbook_server=json.dumps(request.POST.getlist('server[]')),
                                           playbook_group=self.change(request.POST.get('group')),
+                                          playbook_tags=self.change(request.POST.get('tags')),
                                           playbook_file=fileName,
                                           playbook_user=request.user.id,
                                           playbook_inventory_groups=self.change(request.POST.get('inventory_groups')),
@@ -201,6 +209,7 @@ class DeployPlaybook(DataHandle):
                                           playbook_desc = QueryDict(request.body).get('playbook_desc'),
                                           playbook_group=QueryDict(request.body).get('group',0),
                                           playbook_user=request.user.id,
+                                          playbook_tags=QueryDict(request.body).get('tags'),
                                           playbook_inventory_groups=self.change(QueryDict(request.body).get('inventory_groups')),
                                           playbook_service=self.change(QueryDict(request.body).get('service')),
                                           playbook_type=QueryDict(request.body).get('server_model'),

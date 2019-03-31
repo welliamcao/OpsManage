@@ -244,12 +244,16 @@ class DeployPlaybookRun(LoginRequiredMixin,AssetsSource,DeployPlaybook,View):
             playbook_vars['host'] = sList    
         except Exception as ex:
             return JsonResponse({'msg':"{ex}".format(ex=ex),"code":500,'data':[]})
-        logId = None#
         #执行ansible playbook
         if request.POST.get('server_model') == 'inventory_groups':sList = ",".join(resource.keys())
-        ANS = ANSRunner(hosts=resource,redisKey=request.POST.get('ans_uuid'),logId=logId)                  
+        ANS = ANSRunner(hosts=resource,redisKey=request.POST.get('ans_uuid'))                  
         ANS.run_playbook(host_list=sList, playbook_path=playbook_file,extra_vars=playbook_vars)
         DsRedis.OpsAnsiblePlayBook.lpush(request.POST.get('ans_uuid'), "[Done] Ansible Done.")
         #切换版本之后取消项目部署锁
 #         DsRedis.OpsAnsiblePlayBookLock.delete(redisKey=playbook.playbook_uuid+'-locked') 
-        return JsonResponse({'msg':"操作成功","code":200,'data':[],"statPer":[]})              
+        return JsonResponse({'msg':"操作成功","code":200,'data':[],"statPer":[]})           
+    
+class DelolyLogs(LoginRequiredMixin,View):
+    login_url = '/login/'
+    def get(self, request, *args, **kwagrs):
+        return render(request, 'deploy/deploy_logs.html',{"user":request.user})       

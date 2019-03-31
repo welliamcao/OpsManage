@@ -108,14 +108,6 @@ class ServerSerializer(serializers.ModelSerializer):
                   'cpu_core','disk_total','ram_total','kernel',
                   'selinux','swap','raid','system','assets',
                   'sudo_passwd') 
-#         extra_kwargs = {
-#                 'username': {'required': False},
-#                 'passwd':{'required': False},
-#                 'port':{'required': False},
-#                 }  
-        
-
-
     def create(self, data):
         if(data.get('assets')):
             assets_data = data.pop('assets')
@@ -133,26 +125,35 @@ class AssetsLogsSerializer(serializers.ModelSerializer):
         
 
 class DeployPlaybookSerializer(serializers.ModelSerializer): 
-    server_number = serializers.StringRelatedField(many=True)
     class Meta:
         model =  Deploy_Playbook
         fields = ('id','playbook_name','playbook_desc','playbook_vars',
                   'playbook_uuid','playbook_file','playbook_auth_group',
-                  'playbook_auth_user','server_number')   
+                  'playbook_auth_user')   
         
 class DeployModelLogsSerializer(serializers.ModelSerializer):
+    create_time = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S")
     class Meta:
         model = Log_Deploy_Model
         fields = ('id','ans_user','ans_model','ans_args',
                   'ans_server','create_time') 
+
+class DeployModelLogsDetailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Deploy_CallBack_Model_Result
+        fields = ('id','logId','content')
         
 class DeployPlaybookLogsSerializer(serializers.ModelSerializer):
+    create_time = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S")
     class Meta:
         model = Log_Deploy_Playbook
         fields = ('id','ans_user','ans_name','ans_content','ans_id',
                   'ans_server','ans_content','create_time') 
-
-           
+        
+class DeployPlaybookLogsDetailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Deploy_CallBack_PlayBook_Result
+        fields = ('id','logId','content') 
          
 class NetworkSerializer(serializers.ModelSerializer): 
     assets = AssetsSerializer(required=False)

@@ -1,13 +1,14 @@
 #!/usr/bin/env python  
 # _#_ coding:utf-8 _*_ 
 #coding: utf8
-import uuid
+import uuid,time
 from sched.models import Sched_Node,Sched_Job_Config,Sched_Job_Logs
 from utils.logger import logger
 from django.http import QueryDict
 from .assets import AssetsBase
 from utils.sched.rpc import sched_rpc
 from django.db.models import Q
+from tasks.celery_apsched import apsched_notice
 
 class ApschedBase(object):
     def __init__(self):
@@ -146,13 +147,22 @@ class ApschedNodeJobsManage(ApschedNodeManage):
             data["job_id"] = jobs
             data.pop("jid")
             jobLogs = Sched_Job_Logs.objects.create(**data)
+            self.judge_notice(jobs.to_alert_json(), jobLogs.to_json())
             return jobLogs.to_json()
         except Exception as ex:
             msg = "record jobs logs error {ex}".format(ex=str(ex))
             logger.warn(msg)
             return msg               
-     
     
+    def judge_notice(self,jobs,jobLogs):
+        try:
+            atime = int(jobs.get('atime'))
+        except:
+            atime = 0
+        if jobs.get('is_alert') > 0 and int(time.time()) - atime > 0:
+            print(jobLogs)
+#             apsched_notice.apply_async(**{"jobs":jobs,"jobslog":jobLogs})
+                
     def create_jobs(self,request):   
         node = self.schedNode(request)
         if node:  

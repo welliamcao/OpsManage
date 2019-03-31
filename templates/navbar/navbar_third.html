@@ -2,3 +2,5 @@
 {% block page-content %}
 <iframe name="myframe" src="{{navbar.url|default:"http://www.baidu.com" }}" frameborder="0" scrolling="auto" width="{{navbar.width|default:"100%" }}" height="{{navbar.height|default:"800px" }}" onload="document.all['myframe'].style.width=myframe.document.body.scrollWidth" ></iframe>                         
 {% endblock %}
+{% block js-content %}
+{% endblock %}

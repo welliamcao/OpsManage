@@ -8,6 +8,22 @@ function isJsonString(str) {
         return false;
 }
 
+$.fn.serializeObject = function()
+{
+    var o = {};
+    var a = this.serializeArray();
+    $.each(a, function() {
+        if (o[this.name] !== undefined) {
+            if (!o[this.name].push) {
+                o[this.name] = [o[this.name]];
+            }
+            o[this.name].push(this.value || '');
+        } else {
+            o[this.name] = this.value || '';
+        }
+    });
+    return o;
+};
 
 function requests(method,url,data){
 	var ret = '';
@@ -280,7 +296,7 @@ function AssetsTypeSelect(obj,model){
 	   }
 }
 
-function runDeployModel(obj) {
+/*function runDeployModel(obj) {
 	var btnObj = $(obj);
 	btnObj.attr('disabled',true);
 	var form = document.getElementById('deployModelRun');
@@ -301,7 +317,7 @@ function runDeployModel(obj) {
 		}
 	};
 	$("#result").html("服务器正在处理，请稍等。。。");
-	/* 轮训获取结果 开始  */
+	 轮训获取结果 开始  
     var interval = setInterval(function(){  
         $.ajax({  
             url : '/deploy/run/',  
@@ -334,7 +350,7 @@ function runDeployModel(obj) {
         });  
     },1000); 
 
-	/* 轮训获取结果结束  */
+	 轮训获取结果结束  
 	$.ajax({
 		url:'/deploy/model/', 
 		type:"POST",  
@@ -372,10 +388,11 @@ function runDeployModel(obj) {
     		
     	}
 	})	
-}	
-
+}	*/
 
 $(document).ready(function() {
+	
+	var randromChat = makeRandomId()
 	
 	if($("#ans_uuid").length){
 		$("#ans_uuid").val(uuid())
@@ -1050,7 +1067,140 @@ $(document).ready(function() {
 		    	}
 			})	    	
 	    })  
+	    
+	    $('#run_deploy_model').on('click',function(){
+    		var btnObj = $(this);
+    		btnObj.attr('disabled',true);
+    		var form = document.getElementById('deployModelRun');
+    		var post_data = {};
+    		for (var i = 1; i < form.length; ++i) {
+    			var name = form[i].name;
+    			var value = form[i].value;
+    			var project = name.indexOf("server_model");
+    			if ( project==0 && value.length==0 && name!="deploy_args"){
+    	        	new PNotify({
+    	                title: 'Warning!',
+    	                text: '请注意必填项不能为空~',
+    	                type: 'warning',
+    	                styling: 'bootstrap3'
+    	            }); 
+    				btnObj.removeAttr('disabled');
+    				return false;
+    			}
+    		};
+    	    let ws_scheme = window.location.protocol === "https:" ? "wss" : "ws";
+    	    let websocket = new WebSocket(ws_scheme + '://' + window.location.host + "/ws/ansible/model/" + randromChat + '/');
+    	    let out_print = $("#result");
+
+    	    websocket.onopen = function () {
+    	    	out_print.html('服务器正在处理，请稍等。。。\n\n');
+    	    	websocket.send(JSON.stringify($('#deployModelRun').serializeObject()));
+    	    };
+
+    	    websocket.onmessage = function (event) {
+    	    	out_print.append(event.data+'\n')
+    	    };
+
+    	    websocket.onerror = function(event) {
+    	    	console.log(event)
+    	    	websocket.close();
+    	    };    
+    	    
+    	    websocket.onclose = function () {
+    	    	btnObj.removeAttr('disabled');
+    	    }		    		    	
+	    })
 	    //new
+//	    $('#run_deploy_script').on('click', function() {
+//			var btnObj = $(this);
+//			btnObj.attr('disabled',true);
+//			var form = document.getElementById('deployScriptRun');
+//		    var contents = aceEditAdd.getSession().getValue(); 
+//		    var script_name = document.getElementById("script_name").value;
+//		    if ( contents.length == 0 || script_name.length == 0){
+//	        	new PNotify({
+//	                title: 'Warning!',
+//	                text: '脚本内容与名称不能为空',
+//	                type: 'warning',
+//	                styling: 'bootstrap3'
+//	            }); 
+//		    	btnObj.removeAttr('disabled');
+//		    	return false;
+//		    };	
+//		    $("#result").html("服务器正在处理，请稍等。。。\n");
+//			var ansible_server = new Array();
+//			$("select[name='custom'] option:selected").each(function(){
+//				ansible_server.push($(this).val());
+//	        });
+//			/* 轮训获取结果 开始  */
+//	 	   var interval = setInterval(function(){  
+//		        $.ajax({  
+//		            url : '/deploy/run/',  
+//		            type : 'post', 
+//		            data:$('#deployScriptRun').serialize(),
+//		            success : function(result){
+//		            	if (result["msg"] !== null ){
+//		            		$("#result").append("<p>"+result["msg"]+"</p>"); 
+//		            		document.getElementById("scrollToTop").scrollIntoView(); 
+//		            		if (result["msg"].indexOf("[Done]") == 0){
+//		            			clearInterval(interval);
+//		            			btnObj.removeAttr('disabled');
+//		        				$.confirm({
+//		        				    title: '执行完成',
+//		        				    content: '',
+//		        				    type: 'blue',
+//		        				    typeAnimated: true,
+//		        				    buttons: {
+//		        				        close: function () {
+//		        				        }
+//		        				    }
+//		        				});			            			
+//		            		}
+//		            	}
+//		            },
+//			    	error:function(response){
+//			    		btnObj.removeAttr('disabled');
+//			    		clearInterval(interval);
+//			    	}	            
+//		        });  
+//		    },1000); 			
+////	 	    /* 轮训获取结果结束  */
+//			$.ajax({
+//				url:'/deploy/scripts/run/', //请求地址
+//				type:"POST",  //提交类似
+//				data:{
+//					'script_name':$("#script_name").val(),
+//					'server_model':$('#server_model option:selected').val(),
+//					'service':$('select[name="service"] option:selected').val(),
+//					'group':$('select[name="group"] option:selected').val(),
+//					'tags':$('select[name="tags"] option:selected').val(),
+//					'inventory_groups':$('select[name="inventory_groups"] option:selected').val(),
+//					'script_args':$("#script_args").val(),
+//					'ans_uuid':$("#ans_uuid").val(),
+//					'script_file':contents,
+//					'debug':$('#deploy_debug option:selected').val(),
+//					'server':ansible_server
+//				},//$('#deployModelRun').serialize() + '&script_file=' + contents,  //不能是被脚本里面的&&符号
+//				success:function(response){
+//					btnObj.removeAttr('disabled');
+//					if (response["code"] == "500"){
+//						clearInterval(interval);
+//						btnObj.removeAttr('disabled');
+//		            	new PNotify({
+//		                    title: 'Ops Failed!',
+//		                    text: "执行失败",
+//		                    type: 'error',
+//		                    styling: 'bootstrap3'
+//		                }); 
+//					}					
+//				},
+//		    	error:function(response){
+//		    		btnObj.removeAttr('disabled');
+//		    		clearInterval(interval);
+//		    	}
+//			})	    	
+//	    }) 
+	    
 	    $('#run_deploy_script').on('click', function() {
 			var btnObj = $(this);
 			btnObj.attr('disabled',true);
@@ -1067,48 +1217,19 @@ $(document).ready(function() {
 		    	btnObj.removeAttr('disabled');
 		    	return false;
 		    };	
-		    $("#result").html("服务器正在处理，请稍等。。。");
+		    $("#result").html("服务器正在处理，请稍等。。。\n");
 			var ansible_server = new Array();
 			$("select[name='custom'] option:selected").each(function(){
 				ansible_server.push($(this).val());
 	        });
-			/* 轮训获取结果 开始  */
-	 	   var interval = setInterval(function(){  
-		        $.ajax({  
-		            url : '/deploy/run/',  
-		            type : 'post', 
-		            data:$('#deployScriptRun').serialize(),
-		            success : function(result){
-		            	if (result["msg"] !== null ){
-		            		$("#result").append("<p>"+result["msg"]+"</p>"); 
-		            		document.getElementById("scrollToTop").scrollIntoView(); 
-		            		if (result["msg"].indexOf("[Done]") == 0){
-		            			clearInterval(interval);
-		            			btnObj.removeAttr('disabled');
-		        				$.confirm({
-		        				    title: '执行完成',
-		        				    content: '',
-		        				    type: 'blue',
-		        				    typeAnimated: true,
-		        				    buttons: {
-		        				        close: function () {
-		        				        }
-		        				    }
-		        				});			            			
-		            		}
-		            	}
-		            },
-			    	error:function(response){
-			    		btnObj.removeAttr('disabled');
-			    		clearInterval(interval);
-			    	}	            
-		        });  
-		    },1000); 			
-//	 	    /* 轮训获取结果结束  */
-			$.ajax({
-				url:'/deploy/scripts/run/', //请求地址
-				type:"POST",  //提交类似
-				data:{
+			
+		    let ws_scheme = window.location.protocol === "https:" ? "wss" : "ws";
+		    let websocket = new WebSocket(ws_scheme + '://' + window.location.host + "/ws/ansible/script/" + randromChat + '/');
+		    let out_print = $("#result");
+		    
+		    websocket.onopen = function () {
+		    	out_print.html('服务器正在处理，请稍等。。。\n\n');
+		    	let data = {
 					'script_name':$("#script_name").val(),
 					'server_model':$('#server_model option:selected').val(),
 					'service':$('select[name="service"] option:selected').val(),
@@ -1119,27 +1240,26 @@ $(document).ready(function() {
 					'ans_uuid':$("#ans_uuid").val(),
 					'script_file':contents,
 					'debug':$('#deploy_debug option:selected').val(),
-					'server':ansible_server
-				},//$('#deployModelRun').serialize() + '&script_file=' + contents,  //不能是被脚本里面的&&符号
-				success:function(response){
-					btnObj.removeAttr('disabled');
-					if (response["code"] == "500"){
-						clearInterval(interval);
-						btnObj.removeAttr('disabled');
-		            	new PNotify({
-		                    title: 'Ops Failed!',
-		                    text: "执行失败",
-		                    type: 'error',
-		                    styling: 'bootstrap3'
-		                }); 
-					}					
-				},
-		    	error:function(response){
-		    		btnObj.removeAttr('disabled');
-		    		clearInterval(interval);
-		    	}
-			})	    	
+					'custom':ansible_server
+				}
+		    	websocket.send(JSON.stringify(data));
+		    };
+
+		    websocket.onmessage = function (event) {
+		    	out_print.append(event.data+'\n')
+		    };
+
+		    websocket.onerror = function(event) {
+		    	console.log(event)
+		    	websocket.close();
+		    };    
+		    
+		    websocket.onclose = function () {
+		    	btnObj.removeAttr('disabled');
+		    }			    
+		        	
 	    }) 
+	    
 	  //new
       if ($("#deployScriptsList").length) {
 	    var table = $('#deployScriptsList').DataTable( {
@@ -1380,11 +1500,12 @@ $(document).ready(function() {
 			btnObj.attr('disabled',true);
 			var form = document.getElementById('deployPlaybookRun');
 		    var contents = aceEditAdd.getSession().getValue(); 
+		    let server_model = $('#server_model option:selected').val()
 		    var playbook_name = document.getElementById("playbook_name").value;
-		    if ( contents.length == 0 || playbook_name.length == 0){
+		    if ( contents.length == 0 || playbook_name.length == 0 || server_model.length == 0 ){
 	        	new PNotify({
 	                title: 'Warning!',
-	                text: '剧本内容与名称不能为空',
+	                text: '剧本内容与名称或者服务器不能为空',
 	                type: 'warning',
 	                styling: 'bootstrap3'
 	            }); 
@@ -1412,7 +1533,7 @@ $(document).ready(function() {
 				data:{
 					'playbook_name':$("#playbook_name").val(),
 					'playbook_desc':$("#playbook_desc").val(),
-					'server_model':$('#server_model option:selected').val(),
+					'server_model':server_model,
 					'service':$('select[name="service"] option:selected').val(),
 					'group':$('select[name="group"] option:selected').val(),
 					'tags':$('select[name="tags"] option:selected').val(),
@@ -1481,7 +1602,7 @@ $(document).ready(function() {
 						for (var i = 0; i < playbook["playbook_server"].length; ++i) {
 							$("select[name='custom'] option[value='" + playbook["playbook_server"][i] +"']").attr("selected",true);
 						}					
-					}
+					}					
 					else if(playbook["playbook_type"]=="inventory_groups"){
 						controlServerSelectHide(playbook["playbook_type"])
 						var inventory = requests('get','/api/inventory/groups/query/'+ playbook["playbook_inventory_groups"] + '/');
@@ -1509,11 +1630,12 @@ $(document).ready(function() {
     			var btnObj = $(this);
     			btnObj.attr('disabled',true);
     		    var contents = aceEditAdd.getSession().getValue(); 
+    		    let server_model = $('#server_model option:selected').val()
     		    var playbook_name = document.getElementById("playbook_name").value;
-    		    if ( contents.length == 0 || playbook_name.length == 0){
+    		    if ( contents.length == 0 || playbook_name.length == 0 || server_model.length == 0){
     	        	new PNotify({
     	                title: 'Warning!',
-    	                text: '剧本内容与名称不能为空',
+    	                text: '剧本内容与名称或者服务器不能为空',
     	                type: 'warning',
     	                styling: 'bootstrap3'
     	            }); 
@@ -1532,7 +1654,7 @@ $(document).ready(function() {
 					data:{
 						'playbook_id':vIds,
 						'playbook_desc':$("#playbook_desc").val(),
-						'server_model':$('#server_model option:selected').val(),
+						'server_model':server_model,
 						'service':$('select[name="service"] option:selected').val(),
 						'group':$('select[name="group"] option:selected').val(),
 						'tags':$('select[name="tags"] option:selected').val(),
@@ -1582,19 +1704,21 @@ $(document).ready(function() {
 				});	    		  
     	  }
   	  });
-	  //new
+	  
+
 	  $('#run_deploy_playbook').on('click', function() {
 			var btnObj = $(this);
 			btnObj.attr('disabled',true);
 			var vIds = $(this).val();
+			let server_model = $('#server_model option:selected').val()
 			if (vIds){
 				var form = document.getElementById('deployPlaybookRun');
 			    var contents = aceEditAdd.getSession().getValue(); 
 			    var playbook_name = document.getElementById("playbook_name").value;
-			    if ( contents.length == 0 || playbook_name.length == 0){
+			    if ( contents.length == 0 || playbook_name.length == 0 || server_model.length == 0){
 		        	new PNotify({
 		                title: 'Warning!',
-		                text: '脚本内容与名称不能为空',
+		                text: '剧本内容与名称或者服务器不能为空',
 		                type: 'warning',
 		                styling: 'bootstrap3'
 		            }); 
@@ -1606,71 +1730,41 @@ $(document).ready(function() {
 				$("#deploy_server option:selected").each(function(){
 					ansible_server.push($(this).val());
 		        });
-				/* 轮训获取结果 开始  */
-		 	    var interval = setInterval(function(){  
-			        $.ajax({  
-			            url : '/deploy/run/',  
-			            type : 'post', 
-			            data:$('#deployPlaybookRun').serialize(),
-			            success : function(result){
-			            	if (result["msg"] !== null ){
-			            		$("#result").append("<p>"+result["msg"]+"</p>"); 
-			            		document.getElementById("scrollToTop").scrollIntoView(); 
-			            		if (result["msg"].indexOf("[Done]") == 0){
-			            			clearInterval(interval);
-			            			btnObj.removeAttr('disabled');
-			        				$.confirm({
-			        				    title: '执行完成',
-			        				    content: '',
-			        				    type: 'blue',
-			        				    typeAnimated: true,
-			        				    buttons: {
-			        				        close: function () {
-			        				        }
-			        				    }
-			        				});			            			
-			            		}
-			            	}
-			            },
-				    	error:function(response){
-				    		btnObj.removeAttr('disabled');
-				    		clearInterval(interval);
-				    	}	            
-			        });  
-			    },1000); 			
-//			 	    /* 轮训获取结果结束  */
-				$.ajax({
-					url:'/deploy/playbook/run/', //请求地址
-					type:"POST",  //提交类似
-					data:{
-						'playbook_id':$("#run_deploy_playbook").val(),
-						'service':$('#deploy_service option:selected').val(),
-						'group':$('#deploy_group option:selected').val(),
-						'tags':$('select[name="tags"] option:selected').val(),
-						'inventory_groups':$('#deploy_inventory_groups option:selected').val(),
-						'playbook_file':contents,
-						'server':ansible_server,
-						'ans_uuid':$("#ans_uuid").val(),
-						'playbook_vars':$("#playbook_vars").val(),						
-					},
-					success:function(response){
-						btnObj.removeAttr('disabled');
-						if (response["code"] == "500"){
-							clearInterval(interval);
-							btnObj.removeAttr('disabled');
-			            	new PNotify({
-			                    title: 'Ops Failed!',
-			                    text: "保存失败",
-			                    type: 'error',
-			                    styling: 'bootstrap3'
-			                }); 
-						}					
-					},
-			    	error:function(response){
-			    		btnObj.removeAttr('disabled');
-			    		clearInterval(interval);
-			    	}
-				})	  				
+				
+			    let ws_scheme = window.location.protocol === "https:" ? "wss" : "ws";
+			    let websocket = new WebSocket(ws_scheme + '://' + window.location.host + "/ws/ansible/playbook/" + randromChat + '/');
+			    let out_print = $("#result");
+			    
+			    websocket.onopen = function () {
+			    	out_print.html('服务器正在处理，请稍等。。。\n\n');
+			    	let data = {
+							'playbook_id':$("#run_deploy_playbook").val(),
+							'server_model':$('#server_model option:selected').val(),
+							'service':$('#deploy_service option:selected').val(),
+							'group':$('#deploy_group option:selected').val(),
+							'tags':$('select[name="tags"] option:selected').val(),
+							'inventory_groups':$('#deploy_inventory_groups option:selected').val(),
+							'playbook_file':contents,
+							'custom':ansible_server,
+							'ans_uuid':$("#ans_uuid").val(),
+							'playbook_vars':$("#playbook_vars").val(),	
+					}
+			    	websocket.send(JSON.stringify(data));
+			    };
+	
+			    websocket.onmessage = function (event) {
+			    	out_print.append(event.data+'\n')
+			    };
+	
+			    websocket.onerror = function(event) {
+			    	console.log(event)
+			    	websocket.close();
+			    };    
+			    
+			    websocket.onclose = function () {
+			    	btnObj.removeAttr('disabled');
+			    }				
+  				
 			}else{
 				btnObj.removeAttr('disabled');
 				$.confirm({
@@ -1684,7 +1778,111 @@ $(document).ready(function() {
 				    }
 				});	 				
 			}				
-	    });
+	    });	  
+	  
+	  //new
+//	  $('#run_deploy_playbook').on('click', function() {
+//			var btnObj = $(this);
+//			btnObj.attr('disabled',true);
+//			var vIds = $(this).val();
+//			if (vIds){
+//				var form = document.getElementById('deployPlaybookRun');
+//			    var contents = aceEditAdd.getSession().getValue(); 
+//			    var playbook_name = document.getElementById("playbook_name").value;
+//			    if ( contents.length == 0 || playbook_name.length == 0){
+//		        	new PNotify({
+//		                title: 'Warning!',
+//		                text: '脚本内容与名称不能为空',
+//		                type: 'warning',
+//		                styling: 'bootstrap3'
+//		            }); 
+//			    	btnObj.removeAttr('disabled');
+//			    	return false;
+//			    };	
+//			    $("#result").html("服务器正在处理，请稍等。。。");
+//				var ansible_server = new Array();
+//				$("#deploy_server option:selected").each(function(){
+//					ansible_server.push($(this).val());
+//		        });
+//				/* 轮训获取结果 开始  */
+//		 	    var interval = setInterval(function(){  
+//			        $.ajax({  
+//			            url : '/deploy/run/',  
+//			            type : 'post', 
+//			            data:$('#deployPlaybookRun').serialize(),
+//			            success : function(result){
+//			            	if (result["msg"] !== null ){
+//			            		$("#result").append("<p>"+result["msg"]+"</p>"); 
+//			            		document.getElementById("scrollToTop").scrollIntoView(); 
+//			            		if (result["msg"].indexOf("[Done]") == 0){
+//			            			clearInterval(interval);
+//			            			btnObj.removeAttr('disabled');
+//			        				$.confirm({
+//			        				    title: '执行完成',
+//			        				    content: '',
+//			        				    type: 'blue',
+//			        				    typeAnimated: true,
+//			        				    buttons: {
+//			        				        close: function () {
+//			        				        }
+//			        				    }
+//			        				});			            			
+//			            		}
+//			            	}
+//			            },
+//				    	error:function(response){
+//				    		btnObj.removeAttr('disabled');
+//				    		clearInterval(interval);
+//				    	}	            
+//			        });  
+//			    },1000); 			
+////			 	    /* 轮训获取结果结束  */
+//				$.ajax({
+//					url:'/deploy/playbook/run/', //请求地址
+//					type:"POST",  //提交类似
+//					data:{
+//						'playbook_id':$("#run_deploy_playbook").val(),
+//						'service':$('#deploy_service option:selected').val(),
+//						'group':$('#deploy_group option:selected').val(),
+//						'tags':$('select[name="tags"] option:selected').val(),
+//						'inventory_groups':$('#deploy_inventory_groups option:selected').val(),
+//						'playbook_file':contents,
+//						'server':ansible_server,
+//						'ans_uuid':$("#ans_uuid").val(),
+//						'playbook_vars':$("#playbook_vars").val(),						
+//					},
+//					success:function(response){
+//						btnObj.removeAttr('disabled');
+//						if (response["code"] == "500"){
+//							clearInterval(interval);
+//							btnObj.removeAttr('disabled');
+//			            	new PNotify({
+//			                    title: 'Ops Failed!',
+//			                    text: "保存失败",
+//			                    type: 'error',
+//			                    styling: 'bootstrap3'
+//			                }); 
+//						}					
+//					},
+//			    	error:function(response){
+//			    		btnObj.removeAttr('disabled');
+//			    		clearInterval(interval);
+//			    	}
+//				})	  				
+//			}else{
+//				btnObj.removeAttr('disabled');
+//				$.confirm({
+//				    title: '运行剧本',
+//				    content: '请先选择部署剧本',
+//				    type: 'red',
+//				    typeAnimated: true,
+//				    buttons: {
+//				        close: function () {
+//				        }
+//				    }
+//				});	 				
+//			}				
+//	    });
 	  //new
 	  $("button[name='btn-playbook-delete']").on("click", function(){		  
 			var btnObj = $(this);

@@ -12,4 +12,5 @@ urlpatterns = [
     url(r'^scripts/run/$', views.DeployScriptsRun.as_view()),
     url(r'^playbook/$', views.DeployPlaybooks.as_view()),
     url(r'^playbook/run/$', views.DeployPlaybookRun.as_view()),
+    url(r'^logs/$', views.DelolyLogs.as_view()),
 ]

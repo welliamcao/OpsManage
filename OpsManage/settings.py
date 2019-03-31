@@ -13,7 +13,6 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 """
 
 import os
-from kombu import Queue,Exchange
 import ldap
 from django_auth_ldap.config import LDAPSearch, GroupOfNamesType, PosixGroupType
 import os
@@ -27,22 +26,6 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 config = conf.ConfigParser()
 config.read(os.path.join(BASE_DIR, 'conf/opsmanage.ini'))   
 
-''' celery config '''
-CELERY_QUEUES = (
-    Queue('default',Exchange('default'),routing_key='default'),
-    Queue('ansible',Exchange('ansible'),routing_key='ansible'),
-)
-CELERY_ROUTES = {
-    'tasks.celery_sql.*':{'queue':'default','routing_key':'default'},
-    'tasks.celery_assets.*':{'queue':'default','routing_key':'default'},
-    'tasks.celery_cron.*':{'queue':'default','routing_key':'default'},
-    'tasks.celery_sched.*':{'queue':'default','routing_key':'default'},
-    'tasks.celery_deploy.AnsibleScripts':{'queue':'ansible','routing_key':'ansible'},
-    'tasks.celery_deploy.AnsiblePlayBook':{'queue':'ansible','routing_key':'ansible'},
-}
-CELERY_DEFAULT_QUEUE = 'default'
-CELERY_DEFAULT_EXCHANGE_TYPE = 'topic'
-CELERY_DEFAULT_ROUTING_KEY = 'default'
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/

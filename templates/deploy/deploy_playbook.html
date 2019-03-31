@@ -87,11 +87,7 @@
 	                        			{{ds.playbook_desc}}	
 	                        		</td> 	                        		 		                                		                            					                                		                                		
 	                        		<td>
-	                        			{% for u  in assets.userList %}
-	                        				{% if u.id ==  ds.playbook_user%}
-	                        					{{u.username}}
-	                        				{% endif %}
-	                        			{% endfor %}
+	                        			{{ds.playbook_user}}
 	                        		</td>
 	                        		<td>
 	                        			{{ds.create_time|date:"Y/m/d H:i  "}}

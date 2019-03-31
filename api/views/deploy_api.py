@@ -11,81 +11,89 @@ from rest_framework.decorators import api_view
 from django.contrib.auth.decorators import permission_required
 from django.http import JsonResponse
 from utils.logger import logger
+from rest_framework.views import  APIView,Response
+from utils.base import method_decorator_adaptor
+from django.http import QueryDict
 
-# @api_view(['GET', 'POST' ])
-# @permission_required('deploy.deploy_read_deploy_playbook',raise_exception=True)
-# def playbook_list(request,format=None):
-#     """
-#     List all order, or create a server assets order.
-#     """
-#     if request.method == 'GET':      
-#         snippets = Deploy_Playbook.objects.all()
-#         serializer = serializers.AnbiblePlaybookSerializer(snippets, many=True)
-#         return Response(serializer.data)   
-#      
-# @api_view(['GET', 'PUT', 'DELETE'])
-# @permission_required('deploy.deploy_delete_deploy_playbook',raise_exception=True)
-# def playbook_detail(request, id,format=None):
-#     """
-#     Retrieve, update or delete a server assets instance.
-#     """
-#     try:
-#         snippet = Deploy_Playbook.objects.get(id=id)
-#     except Deploy_Playbook.DoesNotExist:
-#         return Response(status=status.HTTP_404_NOT_FOUND)
-#   
-#     if request.method == 'GET':
-#         serializer = serializers.AnbiblePlaybookSerializer(snippet)
-#         return Response(serializer.data)
-#       
-#     elif request.method == 'DELETE':
-#         if not request.user.has_perm('deploy.deploy_delete_Deploy_playbook'):
-#             return Response(status=status.HTTP_403_FORBIDDEN)
-#         snippet.delete()
-#         return Response(status=status.HTTP_204_NO_CONTENT) 
-# 
-# @api_view(['GET', 'PUT', 'DELETE'])
-# @permission_required('deploy.deploy_delete_log_deploy_model',raise_exception=True)
-# def modelLogsdetail(request, id,format=None):
-#     """
-#     Retrieve, update or delete a server assets instance.
-#     """
-#     try:
-#         snippet = Log_Deploy_Model.objects.get(id=id)
-#     except Log_Deploy_Model.DoesNotExist:
-#         return Response(status=status.HTTP_404_NOT_FOUND)
-#   
-#     if request.method == 'GET':
-#         serializer = serializers.AnsibleModelLogsSerializer(snippet)
-#         return Response(serializer.data)
-#       
-#     elif request.method == 'DELETE':
-#         if not request.user.has_perm('deploy.deploy_delete_log_Deploy_model'):
-#             return Response(status=status.HTTP_403_FORBIDDEN)
-#         snippet.delete()
-#         return Response(status=status.HTTP_204_NO_CONTENT) 
-#     
-# @api_view(['GET', 'PUT', 'DELETE'])
-# @permission_required('deploy.deploy_delete_log_deploy_playbook',raise_exception=True)
-# def playbookLogsdetail(request, id,format=None):
-#     """
-#     Retrieve, update or delete a server assets instance.
-#     """
-#     try:
-#         snippet = Log_Deploy_Playbook.objects.get(id=id)
-#     except Log_Deploy_Playbook.DoesNotExist:
-#         return Response(status=status.HTTP_404_NOT_FOUND)
-#   
-#     if request.method == 'GET':
-#         serializer = serializers.AnsiblePlaybookLogsSerializer(snippet)
-#         return Response(serializer.data)
-#       
-#     elif request.method == 'DELETE':
-#         if not request.user.has_perm('deploy.deploy_delete_log_Deploy_playbook'):
-#             return Response(status=status.HTTP_403_FORBIDDEN)
-#         snippet.delete()
-#         return Response(status=status.HTTP_204_NO_CONTENT) 
+class DeployModelLogPaginator(APIView):
     
+    @method_decorator_adaptor(permission_required, "deploy.deploy_read_log_deploy_model","/403/")  
+    def get(self,request,*args,**kwargs):
+        query_params = dict()
+        for ds in request.query_params.keys():
+            if ds in ['offset']:continue
+            query_params[ds] = request.query_params.get(ds)
+        if  query_params:       
+            logs_list = Log_Deploy_Model.objects.filter(**query_params)
+        else:
+            logs_list = Log_Deploy_Model.objects.all()
+        page = serializers.PageConfig()  # 注册分页
+        page_user_list = page.paginate_queryset(queryset=logs_list, request=request, view=self)
+        ser = serializers.DeployModelLogsSerializer(instance=page_user_list, many=True)
+        return page.get_paginated_response(ser.data)
+    
+    @method_decorator_adaptor(permission_required, "deploy.deploy_delete_log_deploy_model","/403/")  
+    def delete(self,request,*args,**kwargs):  
+        try:   
+            model = Log_Deploy_Model.objects.get(id=QueryDict(request.body).get('id'))
+            model.delete()
+        except Exception as ex:
+            logger.error(msg="删除Ansible model部署日志失败: {ex}".format(ex=str(ex)))
+            return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)          
+        return Response(status=status.HTTP_204_NO_CONTENT)  
+
+               
+
+class DeployPlaybookLogPaginator(APIView):
+    
+    @method_decorator_adaptor(permission_required, "deploy.deploy_read_log_deploy_playbook","/403/")  
+    def get(self,request,*args,**kwargs):
+        query_params = dict()
+        for ds in request.query_params.keys():
+            if ds in ['offset']:continue
+            query_params[ds] = request.query_params.get(ds)
+        if  query_params:       
+            logs_list = Log_Deploy_Playbook.objects.filter(**query_params)
+        else:
+            logs_list = Log_Deploy_Playbook.objects.all()
+        page = serializers.PageConfig()  # 注册分页
+        page_user_list = page.paginate_queryset(queryset=logs_list, request=request, view=self)
+        ser = serializers.DeployPlaybookLogsSerializer(instance=page_user_list, many=True)
+        return page.get_paginated_response(ser.data)
+    
+    @method_decorator_adaptor(permission_required, "deploy.deploy_delete_log_deploy_playbook","/403/")  
+    def delete(self,request,*args,**kwargs):  
+        try:   
+            model = Log_Deploy_Playbook.objects.get(id=QueryDict(request.body).get('id'))
+            model.delete()
+        except Exception as ex:
+            logger.error(msg="删除Ansible model部署日志失败: {ex}".format(ex=str(ex)))
+            return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)          
+        return Response(status=status.HTTP_204_NO_CONTENT) 
+    
+# 
+@api_view(['GET', 'PUT', 'DELETE'])
+@permission_required('deploy.deploy_read_log_deploy_model',raise_exception=True)
+def modelLogsdetail(request, id,format=None):
+    """
+    Retrieve, update or delete a server assets instance.
+    """   
+    if request.method == 'GET':
+        snippets = Deploy_CallBack_Model_Result.objects.filter(logId=id)
+        serializer = serializers.DeployModelLogsDetailSerializer(snippets, many=True)
+        return Response(serializer.data) 
+     
+@api_view(['GET', 'PUT', 'DELETE'])
+@permission_required('deploy.deploy_read_log_deploy_playbook',raise_exception=True)
+def playbookLogsdetail(request, id,format=None):
+    """
+    Retrieve, update or delete a server assets instance.
+    """  
+    if request.method == 'GET':
+        snippets = Deploy_CallBack_PlayBook_Result.objects.filter(logId=id)
+        serializer = serializers.DeployPlaybookLogsDetailSerializer(snippets, many=True)
+        return Response(serializer.data) 
+        
 
 @api_view(['GET'])
 def inventory_list(request,format=None):

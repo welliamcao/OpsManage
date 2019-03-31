@@ -392,7 +392,7 @@ function Percentage(num, total) {
 			        删除: function () {
 					    	$.ajax({  
 					            cache: true,  
-					            type: "PUT",  
+					            type: "DELETE",  
 					            url:"/api/assets/" + vIds + '/',  
 					            error: function(request) {  
 					            	new PNotify({

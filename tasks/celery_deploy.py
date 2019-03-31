@@ -5,6 +5,7 @@ from celery import task
 from dao.dispos import DeployRecord
 from utils.ansible.runner import ANSRunner
 from dao.assets import AssetsSource 
+from deploy.models import Deploy_Script,Deploy_Playbook
   
     
 @task  
@@ -31,7 +32,7 @@ def AnsibleScripts(**kw):
             ANS.run_model(host_list=sList,module_name='script',module_args="{filePath} {args}".format(filePath=filePath,args=script.script_args))
             return ANS.get_model_result()
     except Exception as ex:
-        print(e)
+        print(ex)
         return False
     
     

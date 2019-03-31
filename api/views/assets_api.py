@@ -292,28 +292,7 @@ def raid_detail(request, id,format=None):
         snippet.delete()
 #         #recordAssets.delay(user=str(request.user),content="删除Raid类型：{raid_name}".format(raid_name=snippet.raid_name),type="raid",id=id) 
         return Response(status=status.HTTP_204_NO_CONTENT)  
-                
-
-# @api_view(['GET', 'POST' ])
-# @permission_required('asset.assets_add_assets',raise_exception=True)
-# def asset_list(request,format=None):
-#     """
-#     List all order, or create a server assets order.
-#     """
-#     if request.method == 'GET':      
-#         snippets = Assets.objects.all()
-#         for ds in snippets:
-#             print(ds.assets_type)
-#         serializer = serializers.AssetsSerializer(snippets, many=True)
-#         return Response(serializer.data) 
-#         
-#     elif request.method == 'POST':
-#         serializer = serializers.AssetsSerializer(data=request.data)
-#         if serializer.is_valid():
-#             serializer.save()
-#             #recordAssets.delay(user=str(request.user),content="添加资产：{name}".format(name=request.data.get("name")),type="assets",id=serializer.data.get('id'))  
-#             return Response(serializer.data, status=status.HTTP_201_CREATED)
-#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)    
+                   
 
 class AssetList(APIView,DataHandle):
     

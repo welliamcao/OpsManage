@@ -61,4 +61,4 @@ class DatabaseManage(LoginRequiredMixin,DBManage,View):
     def post(self, request, *args, **kwagrs):
         res = self.allowcator(request.POST.get('model'),request)
         if isinstance(res, str):return JsonResponse({'msg':res,"code":500,'data':[]})     
-        return JsonResponse({'msg':"操作成功","code":200,'data':res})  
+        return JsonResponse({'msg':"操作成功","code":200,'data':res})     

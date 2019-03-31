@@ -907,7 +907,6 @@ class AssetsSource(object):
                                                          device_brand= mem.get('manufacturer'),device_volume=mem.get('size'),
                                                          device_status=1,assets=assets
                                                          )
-#                                 recordAssets.delay(user=str(request.user),content="修改服务器资产：{ip}".format(ip=server_assets.ip),type="server",id=server_assets.id)
                                 if sip not in sList:sList.append(sip)
                             except Exception as ex:
                                 if sip not in fList:fList.append(sip) 
@@ -931,7 +930,6 @@ class AssetsSource(object):
                                                          device_brand= disk.get('manufacturer'),device_volume=disk.get('size'),
                                                          device_status=1,assets=assets,device_slot=disk.get('slot')
                                                          )
-#                                 recordAssets.delay(user=str(request.user),content="修改服务器资产：{ip}".format(ip=server_assets.ip),type="server",id=server_assets.id)
                                 if sip not in sList:sList.append(sip)
                             except Exception as ex:
                                 if sip not in fList:fList.append(sip)
@@ -939,6 +937,129 @@ class AssetsSource(object):
             return fList, sList
         else:
             return result,[]
+
+class AssetsAnsible(DataHandle):
+    def __init__(self):
+        super(AssetsAnsible,self).__init__()      
+        
+    def allowcator(self,sub,request):
+        if hasattr(self,sub):
+            func= getattr(self,sub)
+            return func(request)
+        else:
+            logger.error(msg="AssetsAnsible没有{sub}方法".format(sub=sub))       
+            
+              
+    def query_user_assets(self,request,assetsList):
+        if request.get('is_superuser'):
+            return  assetsList   
+        assets_list =[ das.assets for das in User_Server.objects.filter(user=request.get('user'),assets_id__in=[ ds.id for ds in assetsList ])]          
+        return assets_list        
+            
+    def custom(self,request):
+        assetsList = Assets.objects.select_related().filter(id__in=request.get('custom'))
+        return self.source(self.query_user_assets(request, assetsList))    
+    
+    def tags(self,request):
+        assetsList = [ ds.aid for ds in Tags_Server_Assets.objects.filter(tid=request.get('tags'))]
+        return self.source(self.query_user_assets(request, assetsList))      
+    
+    def group(self,request):
+        assetsList = Assets.objects.select_related().filter(group=request.get('group'),assets_type__in=["server","vmser","switch","route"])
+        return self.source(self.query_user_assets(request, assetsList))
+                
+    def service(self,request):
+        assetsList = Assets.objects.select_related().filter(business=request.get('service'),assets_type__in=["server","vmser","switch","route"])
+        return self.source(self.query_user_assets(request, assetsList))
+    
+    def inventory_groups(self,request):   
+        sList = []
+        resource = {} 
+        group_name = ''
+        try:
+            inventoryGroup = Deploy_Inventory_Groups.objects.get(id=request.get('inventory_groups'))
+            group_name = inventoryGroup.group_name
+        except Exception as ex: 
+            logger.warn(msg="资产组查询失败：{id}".format(id=request.get('inventory_groups'),ex=ex))
+        resource[inventoryGroup.group_name] = {}
+        hosts = []
+        for ser in inventoryGroup.inventory_group_server.all():
+            assets =  Assets.objects.get(id=ser.server)
+            data = {}
+            if hasattr(assets,'server_assets'):
+                try:
+                    serverIp = assets.server_assets.ip
+                    data["ip"] = serverIp
+                    data["port"] = int(assets.server_assets.port)
+                    data["username"] = assets.server_assets.username
+                    data["hostname"] = assets.server_assets.ip
+                    data["sudo_passwd"] = assets.server_assets.sudo_passwd                        
+                    if assets.server_assets.keyfile != 1:data["password"] =  assets.server_assets.passwd
+                except Exception as ex:
+                    logger.warn(msg="id:{assets}, error:{ex}".format(assets=assets.id,ex=ex))                     
+            elif hasattr(assets,'network_assets'):                 
+                try:
+                    serverIp = assets.network_assets.ip
+                    data["ip"] = serverIp
+                    data["port"] = int(assets.network_assets.port)
+                    data["password"] = assets.network_assets.passwd
+                    data["hostname"] = assets.network_assets.ip
+                    data["username"] = assets.network_assets.username
+                    data["sudo_passwd"] = assets.network_assets.sudo_passwd
+                    data["connection"] = 'local'
+                except Exception as ex:
+                    logger.warn(msg="id:{assets}, error:{ex}".format(assets=assets.id,ex=ex))
+            if assets.host_vars:
+                try:                         
+                    for k,v in eval(assets.host_vars).items():
+                        if k not in ["ip", "port", "username", "password","ip"]:data[k] = v
+                except Exception as ex:
+                    logger.warn(msg="资产: {assets},转换host_vars失败:{ex}".format(assets=assets.id,ex=ex))                        
+            if serverIp not in sList:sList.append(serverIp)
+            hosts.append(data)
+            resource[group_name]['hosts'] = hosts 
+            try:
+                if inventoryGroup.ext_vars:resource[group_name]['vars'] = eval(inventoryGroup.ext_vars)  
+            except Exception as ex: 
+                logger.warn(msg="资产组变量转换失败: {id} {ex}".format(id=request.get('inventory_groups'),ex=ex))
+                resource[inventoryGroup.group_name]['vars'] = None
+        return sList, resource     
+                
+    def source(self,assetsList): 
+        sList,resource = [],[]                            
+        for assets in assetsList:
+            data = {}
+            if hasattr(assets,'server_assets'):
+                try:
+                    sList.append(assets.server_assets.ip)
+                    data["ip"] = assets.server_assets.ip
+                    data["port"] = int(assets.server_assets.port)
+                    data["username"] = assets.server_assets.username
+                    data["hostname"] = assets.server_assets.ip
+                    data["sudo_passwd"] = assets.server_assets.sudo_passwd
+                    if assets.server_assets.keyfile == 0:data["password"] =  assets.server_assets.passwd                         
+                except Exception as ex:
+                    logger.warn(msg="id:{assets}, error:{ex}".format(assets=assets.id,ex=ex))                    
+            elif hasattr(assets,'network_assets'):
+                try:
+                    sList.append(assets.network_assets.ip)
+                    data["ip"] = assets.network_assets.ip
+                    data["port"] = int(assets.network_assets.port)
+                    data["password"] = assets.network_assets.passwd
+                    data["hostname"] = assets.network_assets.ip
+                    data["username"] = assets.network_assets.username
+                    data["sudo_passwd"] = assets.network_assets.sudo_passwd
+                    data["connection"] = 'local'
+                except Exception as ex:
+                    logger.warn(msg="id:{assets}, error:{ex}".format(assets=assets.id,ex=ex))   
+            if assets.host_vars:
+                try:                         
+                    for k,v in eval(assets.host_vars).items():
+                        if k not in ["ip", "port", "username", "password","ip"]:data[k] = v
+                except Exception as ex:
+                    logger.warn(msg="资产: {assets},转换host_vars失败:{ex}".format(assets=assets.id,ex=ex)) 
+            resource.append(data)
+        return sList,resource    
         
 ASSETS_COUNT_RBT = AssetsCount()    
 ASSETS_BASE = AssetsBase()
