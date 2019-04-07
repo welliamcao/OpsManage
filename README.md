@@ -20,12 +20,6 @@
 ## OpsManage功能说明
 ![image](https://github.com/welliamcao/OpsManage/blob/master/demo_imgs/opsmanage.png)
 
-## Demo地址
-[传送门](http://47.75.140.140:8896)
-```
-用户:demo 密码：demo
-只能演示部分功能，并且每隔两小时重置数据。
-```
 ## QQ交流群
 ![image](https://github.com/welliamcao/OpsManage/blob/master/demo_imgs/qq_group.png)
 
@@ -38,45 +32,25 @@
 # wget https://www.python.org/ftp/python/3.6.6/Python-3.6.6.tgz  #CentOS 7不用安装python2.7
 # tar -xzvf Python-3.6.6.tgz
 # cd Python-3.6.6
-# ./configure
+# ./configure --prefix=/usr/local/python3
 # make all
 # make install
 # make clean
-# make distclean 
-# mv /usr/bin/python /usr/bin/python2.6.6  
-# ln -s /usr/local/bin/python3.6 /usr/bin/python 
-# vi /usr/bin/yum  
-将文件头部的
-#!/usr/bin/python
-
-改成
-#!/usr/bin/python2.6.6
-```
-二、安装easy_install
-```
-# wget --no-check-certificate  https://pypi.python.org/packages/f7/94/eee867605a99ac113c4108534ad7c292ed48bf1d06dfe7b63daa51e49987/setuptools-28.0.0.tar.gz#md5=9b23df90e1510c7353a5cf07873dcd22
-# tar -xzvf setuptools-28.0.0.tar.gz
-# cd setuptools-28.0.0
-# python  setup.py  install
+# make distclean  
+# ln -s /usr/local/python3/bin/pip3 /usr/bin/pip3
 ```
 
-三、安装pip，CentOS7不需要安装，可以直接使用pip3	
-```
-# curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
-# python get-pip.py 
-```
 
-四、安装模块
+二、安装模块
 ```
 # cd /mnt/
 # git clone -b v3 https://github.com/welliamcao/OpsManage.git
 # cd /mnt/OpsManage/
-# pip install -r requirements.txt  #注意，如果出现错误不要跳过，请根据错误信息尝试解决
 # pip3 install -r requirements.txt  #CentOS 7使用pip3
 # easy_install paramiko==2.4.1
 ```
 
-五、安装Redis
+三、安装Redis
 ```
 # wget http://download.redis.io/releases/redis-3.2.8.tar.gz
 # tar -xzvf redis-3.2.8.tar.gz
@@ -98,7 +72,7 @@ bind 你的服务器ip地址
 # mv redis-3.2.8 /usr/local/redis
 # /usr/local/redis/src/redis-server /usr/local/redis/redis.conf
 ```
-六、安装MySQL
+四、安装MySQL
 ```
 # vim /etc/my.cnf
 [mysqld]
@@ -111,33 +85,33 @@ mysql> create database opsmanage DEFAULT CHARACTER SET utf8 COLLATE utf8_general
 mysql> grant all privileges on opsmanage.* to root@'%' identified by 'password';
 mysql>\q
 ```
-七、配置OpsManage
+五、配置OpsManage
 ```
 # cd /mnt/OpsManage/conf
 # vim opsmanage.ini
 根据自己的情况修改配置
 
 ```
-八、生成数据表与管理员账户
+六、生成数据表与管理员账户
 ```
 # cd /mnt/OpsManage/
-# python manage.py makemigrations OpsManage
-# python manage.py makemigrations wiki
-# python manage.py makemigrations orders
-# python manage.py makemigrations filemanage
-# python manage.py makemigrations navbar
-# python manage.py makemigrations databases
-# python manage.py makemigrations asset
-# python manage.py makemigrations deploy
-# python manage.py makemigrations apps
-# python manage.py makemigrations sched
-# python manage.py migrate
-# python manage.py createsuperuser  #创建管理员账户与密码
+# /usr/local/python3/bin/python3 manage.py makemigrations OpsManage
+# /usr/local/python3/bin/python3 manage.py makemigrations wiki
+# /usr/local/python3/bin/python3 manage.py makemigrations orders
+# /usr/local/python3/bin/python3 manage.py makemigrations filemanage
+# /usr/local/python3/bin/python3 manage.py makemigrations navbar
+# /usr/local/python3/bin/python3 manage.py makemigrations databases
+# /usr/local/python3/bin/python3 manage.py makemigrations asset
+# /usr/local/python3/bin/python3 manage.py makemigrations deploy
+# /usr/local/python3/bin/python3 manage.py makemigrations apps
+# /usr/local/python3/bin/python3 manage.py makemigrations sched
+# /usr/local/python3/bin/python3 manage.py migrate
+# /usr/local/python3/bin/python3 manage.py createsuperuser  #创建管理员账户与密码
 ```
 九、启动部署平台
 ```
 # cd /mnt/OpsManage/
-# python manage.py runserver 0.0.0.0:8000
+# /usr/local/python3/bin/python3 manage.py runserver 0.0.0.0:8000
 ```
 
 
