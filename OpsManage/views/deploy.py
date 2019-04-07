@@ -202,6 +202,8 @@ def deploy_version(request,pid):
                 elif request.POST.get('model') == 'tag':result = version.delTag(path=project.project_repo_dir,tagName=request.POST.get('name')) 
             elif request.POST.get('op') == 'query':
                 if project.project_model == 'branch':
+                    version.checkOut(path=project.project_repo_dir, name=request.GET.get('name'))
+                    version.pull(path=project.project_repo_dir)                     
                     result = version.log(path=project.project_repo_dir,bName=request.POST.get('name'),number=50)
                     return JsonResponse({'msg':"操作成功","code":200,'data':result}) 
                 else:result = version.tag(path=project.project_repo_dir)

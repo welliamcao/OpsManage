@@ -15,7 +15,7 @@
  * 操作系统：CentOS 6+
  * Ansible版本：2.0 + 
  * 部署平台及节点服务器：Rsync 3+
- * MySQL版本：5.1-5.6
+ * MySQL版本：5.1-5.6  #如果用5.7[请查看](https://github.com/welliamcao/OpsManage/issues/18#issuecomment-360701544)
 
 ## OpsManage功能说明
 ![image](https://github.com/welliamcao/OpsManage/blob/master/demo_imgs/opsmanage.png)
@@ -28,6 +28,7 @@
 ```
 用户:demo 密码：demo
 正在开发v3.0，demo环境暂时关闭.
+v3地址：https://github.com/welliamcao/OpsManage/tree/v3
 ```
 ## QQ交流群
 ![image](https://github.com/welliamcao/OpsManage/blob/master/demo_imgs/qq_group.png)
