@@ -354,19 +354,17 @@ $(document).ready(function() {
 	 $("#project_version").change(function(){
 		 desc = $("#project_version option:selected").text().split(" - ")
 		 if (desc.length > 1){
-			 console.log(desc[1])
 			 $("#desc").val(desc[1])
 		 }else{
 			 $("#desc").val(desc[0])
 		 }
-		 
+		 $("#btn-deploy-project").attr("disabled",false);
 	 });	
 	 
 	 
 	 $("#git_project_branch").change(function(){
 		 desc = $("#git_project_branch option:selected").text().split(" - ")
 		 if (desc.length > 1){
-			 console.log(desc[1])
 			 $("#desc").val(desc[1])
 		 }else{
 			 console.log(desc[0])
@@ -380,6 +378,8 @@ $(document).ready(function() {
 		   var index = obj.selectedIndex;
 		   var value = obj.options[index].value; 
 		   obj.options[index].selected = true;
+		   $('#project_version').html("");
+		   $("#btn-deploy-project").attr("disabled",true);
 		   if (value.length > 0 ){
 				$.ajax({
 					  type: 'get',

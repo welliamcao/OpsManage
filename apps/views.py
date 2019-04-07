@@ -373,9 +373,9 @@ class Manage(LoginRequiredMixin,AppsManage,AssetsSource,View):
     @method_decorator_adaptor(permission_required, "apps.project_change_project_config","/403/")  
     def create_branch(self,request):  
         version,project = self.apps_type(request)
-        if request.POST.get('model') == 'branch':
+        if project.project_model == 'branch':
             result = version.createBranch(path=project.project_repo_dir,branchName=request.POST.get('name'))
-        elif request.POST.get('model') == 'tag':
+        elif request.project_model == 'tag':
             result = version.createTag(path=project.project_repo_dir,tagName=request.POST.get('name'))
         if result[0] > 0:return JsonResponse({'msg':result[1],"code":500,'data':[]})
         else:return JsonResponse({'msg':"操作成功","code":200,'data':[]})   
@@ -383,14 +383,15 @@ class Manage(LoginRequiredMixin,AppsManage,AssetsSource,View):
     @method_decorator_adaptor(permission_required, "apps.project_delete_project_config","/403/")     
     def delete_branch(self,request): 
         version,project = self.apps_type(request)
-        if request.POST.get('model') == 'branch':result = version.delBranch(path=project.project_repo_dir,branchName=request.POST.get('name'))
-        elif request.POST.get('model') == 'tag':result = version.delTag(path=project.project_repo_dir,tagName=request.POST.get('name'))                                  
+        if project.project_model == 'branch':result = version.delBranch(path=project.project_repo_dir,branchName=request.POST.get('name'))
+        elif project.project_model == 'tag':result = version.delTag(path=project.project_repo_dir,tagName=request.POST.get('name'))                                  
         if result[0] > 0:return JsonResponse({'msg':result[1],"code":500,'data':[]})
         else:return JsonResponse({'msg':"操作成功","code":200,'data':[]}) 
     
     def query_repo(self,request):   
         version,project = self.apps_type(request)        
         if project.project_model == 'branch':
+            version.checkOut(path=project.project_repo_dir, name=request.GET.get('name'))
             version.pull(path=project.project_repo_dir)   
             result = version.log(path=project.project_repo_dir,bName=request.GET.get('name'),number=50)
             return JsonResponse({'msg':"操作成功","code":200,'data':result}) 

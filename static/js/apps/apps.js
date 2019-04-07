@@ -428,11 +428,17 @@ $(document).ready(function() {
 	    	    		        {
 		    	    				targets: [8],
 		    	    				render: function(data, type, row, meta) {
+		    	    					if (row.project_repertory=='git' && row.project_model == 'branch'){
+		    	    						var branch = '<button type="button" name="btn-project-branch" value="'+ row.id +'" class="btn btn-default"  aria-label="Justify"><span class="fa fa-github-alt" aria-hidden="true"></span></button>'
+		    	    					}
+		    	    					else{
+		    	    						var branch = '<button type="button" name="btn-project-branch" value="'+ row.id +'" class="btn btn-default disabled"  aria-label="Justify"><span class="fa fa-github-alt" aria-hidden="true"></span></button>'
+		    	    					}
 		    	                        return '<div class="btn-group  btn-group-sm">' +	
 			    	                           '<button type="button" name="btn-project-run" value="'+ row.id +'" class="btn btn-default"  aria-label="Justify"><a href="/apps/manage/?type=status&id='+ row.id +'"><span class="fa fa-play" aria-hidden="true"></span></a>' +	
 			    	                           '</button>' +			    	                        
 			    	                           '<button type="button" name="btn-project-edit" value="'+ row.id +'" class="btn btn-default"  aria-label="Justify"><a href="/apps/config/?type=edit&id='+ row.id +'"><span class="fa fa-pencil-square-o" aria-hidden="true"></span></a>' +	
-			    	                           '</button>' +		                				                            		                            			                          
+			    	                           '</button>' + branch +                			    	                           
 			    	                           '<button type="button" name="btn-project-delete" value="'+ row.id +'" class="btn btn-default" aria-label="Justify"><span class="fa fa-trash" aria-hidden="true"></span>' +	
 			    	                           '</button>' +			                            
 			    	                           '</div>';
@@ -539,8 +545,66 @@ $(document).ready(function() {
         })    	
     	
 	}
+
+    $('#projectList tbody').on('click',"button[name='btn-project-branch']", function(){
+		var vIds = $(this).val();  
+		var name = $(this).parent().parent().parent().find("td").eq(3).text();
+		var env = $(this).parent().parent().parent().find("td").eq(4).text(); 
+		var btnObj = $(this);
+		btnObj.attr('disabled',true);		
+	    $.confirm({
+	        icon: 'fa fa-edit',
+	        type: 'blue',
+	        title: env + '<code>' + name + '</code>' + '远程分支',
+	        content: '<form  data-parsley-validate class="form-horizontal form-label-left">' +
+			            '<div class="form-group">' +
+			            '<label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">远程分支 <span class="required">*</span>' +
+			            '</label>' +
+			            '<div class="col-md-6 col-sm-6 col-xs-12">' +
+			              '<input type="text"  name="modf_type_name" value="" required="required" class="form-control col-md-7 col-xs-12">' +
+			            '</div>' +
+			          '</div>' +		                        
+			        '</form>',
+	        buttons: {
+	            '取消': function() {},
+	            '切换': {
+	                btnClass: 'btn-blue',
+	                action: function() {
+	                    var param_name = this.$content.find("[name='modf_type_name']").val();
+				    	$.ajax({  
+				            cache: true,  
+				            type: "POST",  
+				            url:"/apps/manage/",  
+				            data:{
+				            		"name":param_name,
+				            		"id":vIds,
+				            		"type":"create_branch"
+				            	},
+				            error: function(request) {  
+				            	new PNotify({
+				                    title: 'Ops Failed!',
+				                    text: request.responseText,
+				                    type: 'error',
+				                    styling: 'bootstrap3'
+				                });       
+				            },  
+				            success: function(data) {  
+				            	new PNotify({
+				                    title: 'Success!',
+				                    text: '添加成功',
+				                    type: 'success',
+				                    styling: 'bootstrap3'
+				                }); 
+				            }  
+				    	});
+				    	btnObj.attr('disabled',false);		
+	                }
+	            }
+	        }
+	    });		  		 	
+    });	     
     
-    $("button[name='btn-project-delete']").on('click', function() {
+    $('#projectList tbody').on('click',"button[name='btn-project-delete']", function(){
 		var vIds = $(this).val();  
 		var name = $(this).parent().parent().parent().find("td").eq(3).text();
 		var env = $(this).parent().parent().parent().find("td").eq(4).text(); 
