@@ -250,12 +250,12 @@ class Manage(LoginRequiredMixin,AppsManage,AssetsSource,View):
         if project and version:
             #获取最新版本      
             vList = version.log(path=project.project_repo_dir, number=50)                                
-            return render(request, 'apps/apps_status.html',{"user":request.user,"assets":self.base(),
-                                                            'project':project,'project_data':{
-                                                                'type':project.project_model,
-                                                                'bList':self.bList(project, version),
-                                                                'vList':vList,
-                                                                'number':self.get_number(project),                                                                
+            return render(request, 'apps/apps_status.html',{"user":request.user,'project':project,
+                                                            'project_data':{
+                                                                            'type':project.project_model,
+                                                                            'bList':self.bList(project, version),
+                                                                            'vList':vList,
+                                                                            'number':self.get_number(project),                                                                
                                                                 }})
         else:return HttpResponseRedirect('/404/') 
      

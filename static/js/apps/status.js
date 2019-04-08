@@ -370,7 +370,7 @@ $(document).ready(function() {
 			 console.log(desc[0])
 			 $("#desc").val(desc[0])
 		 }
-		 
+		 $("#btn-deploy-project").attr("disabled",false);
 	 });	 
 	 
 	 $("#branch_choice").change(function(){

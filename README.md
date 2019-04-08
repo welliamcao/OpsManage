@@ -108,6 +108,11 @@ mysql>\q
 # /usr/local/python3/bin/python3 manage.py migrate
 # /usr/local/python3/bin/python3 manage.py createsuperuser  #创建管理员账户与密码
 ```
+```
+# 如果出现错误ImportError: cannot import name 'LDAPError'
+pip3 uninstall python-ldap
+pip3 install --upgrade python-ldap
+```
 九、启动部署平台
 ```
 # cd /mnt/OpsManage/

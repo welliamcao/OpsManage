@@ -189,20 +189,6 @@
 					</div>
 					<!-- /.col-lg-6 (nested) -->
 					<div class="hr hr32 hr-dotted"></div>
-					<div class="col-lg-6" id="extConfig" style="display: none;">
-						<legend>
-							<i class="fa  fa-gears"></i> 扩展配置
-						</legend>
-						<div class="item form-group">
-							<label><font color='red'>* </font>部署授权组<i class="fa fa-info-circle" data-toggle="tooltip" title="选择的用户组能够授权部署工单"></i></label> <br>
-							<select class="form-control" name="project_audit_group" id="project_audit_group">
-								<option name="project_audit_group" id="project_audit_group" selected="selected" value="0">选择一个授权组</option> 
-								{% for ds in groupList %}
-									<option name="project_audit_group"  value="{{ds.id}}">{{ds.name}}</option>
-								{% endfor %}
-							</select>
-						</div>
-					</div>
 					</form>
 				</div>
 				</div>			

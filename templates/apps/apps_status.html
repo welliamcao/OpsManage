@@ -74,109 +74,6 @@
                     </li>                                                                   
                   </ul>
                   <div id="myTabContent" class="tab-content">
-<!--                     <div role="tabpanel" class="tab-pane fade active in" id="tab_content1" aria-labelledby="#query">
-						<div class="col-md-4 col-xs-12">
-		                        <div class="panel panel-body">
-		                          <div class="x_title">
-		                            <h4>项目评分</h4>
-		                          </div>
-		                          <div class="row">
-		                            <div class="col-xs-4">
-				                      <p></p>
-				                      <br>
-				                      <br>
-				                      <input class="knob" data-width="100" data-height="120" data-min="-100" data-displayPrevious=true data-fgColor="#26B99A" value="97">
-		                            </div>
-		                            <div class="col-xs-4">
-									
-		                            </div>
-		                            <div class="col-xs-4">
-		                              <h5>达标情况</h5>
-			                          <ul class="list-unstyled project_files">
-			                            <li><a href=""><i class="fa fa-check-circle" style="color:#229954;"></i> CPU</a>
-			                            </li>
-			                            <li><a href=""><i class="fa fa-check-circle" style="color:#229954;"></i> 内存</a>
-			                            </li>
-			                            <li><a href=""><i class="fa fa-check-circle" style="color:#229954;"></i> 流入</a>
-			                            </li>
-			                            <li><a href=""><i class="fa fa-check-circle" style="color:#229954;"></i> 流出</a>
-			                            </li>	
-			                            <li><a href=""><i class="fa fa-check-circle" style="color:#229954;"></i> QPS</a>
-			                            </li>	
-			                            <li><a href=""><i class="fa fa-check-circle" style="color:#229954;"></i> 50X</a>
-			                            </li>			                            		                            		                            
-			                          </ul>	
-		                            </div>
-		                            <div class="clearfix"></div>
-		                          </div>		
-		                        </div>		
-	                    </div>
-						<div class="col-md-8 col-xs-12">
-                        <div class="panel panel-body">
-                          <div class="x_title">
-                            <h4>基础指标</h4>
-                          </div>
-
-                          <p>当前项目各项指标简述</p>
-                          <table class="table table-striped">
-                            <thead>
-                              <tr>
-                                <th style="width:20%">指标</th>
-                                <th style="width:20%">当前值</th>
-                                <th style="width:20%">百分比</th>
-                                <th style="width:70%">趋势图</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              <tr>
-                                <td>CPU</td>
-                                <td>2.0</td>
-                                <td>8%</td>
-                                <th>
-                                  <span id="sparkline_line_cpu" class="sparkline_line" style="height: 160px;">
-                                      <canvas width="600" height="60" style="display: inline-block; vertical-align: top; width: 200px; height: 30px;"></canvas>
-                                  </span>
-                                </th>
-                                
-                              </tr>
-                              <tr>
-                              	<td>内存</td>
-                                <td>16GB</td>
-                                <td>21%</td>                              	
-                                <th>
-                                  <span id="sparkline_area_mem" class="sparkline_area" style="height: 160px;">
-                                       <canvas width="600" height="60" style="display: inline-block; vertical-align: top; width: 200px; height: 30px;"></canvas>
-                                  </span>
-                                </th>
-                                
-                              </tr>
-                              <tr>
-                                <td>流入</td>
-                                <td>30Mbps</td>
-                                <td>23%</td>                                
-                                <th>
-                                  <span id="sparkline_area_bitin" class="sparkline_area" style="height: 160px;">
-                                      <canvas width="600" height="60" style="display: inline-block; vertical-align: top; width: 200px; height: 30px;"></canvas>
-                                  </span>
-                                </th>
-                                
-                              </tr>
-                              <tr>
-                                <td>流出</td>
-                                <td>201Mbps</td>
-                                <td>19%</td>                                                               
-                                <th>
-                                  <span id="sparkline_area_bitout" class="sparkline_area" style="height: 160px;">
-                                     <canvas width="600" height="60" style="display: inline-block; vertical-align: top; width: 200px; height: 30px;"></canvas>
-                                  </span>
-                                </th>
-                              </tr>
-                            </tbody>
-                          </table>
-                        </div>	
-	                    </div>	                    
-						<div class="hr hr32 hr-dotted"></div>
-					</div> -->
                     <div role="tabpanel" class="tab-pane fade" id="tab_content2" aria-labelledby="appsperformance">
 		              <div class="col-md-6 col-sm-6 col-xs-12">
 		                <div class="x_panel">
@@ -368,11 +265,6 @@
 										   			<option selected="selected" value="" name="project_branch" >请选择分支</option>									   			
 													{% for ds in project_data.bList %}
 														<option value="{{ds.name}}"  name="project_branch">{{ds.value}}</option>
-<!-- 														{% if ds.status == 1 %}
-															<option value="{{ds.name}}" selected="selected" name="project_branch">{{ds.value}}</option>
-														{% else %}
-															<option value="{{ds.name}}" name="project_branch">{{ds.value}}</option>
-														{% endif %} -->
 													{% endfor %}							   		
 											</select>							 	
 										 </div>
