@@ -1439,7 +1439,10 @@ $(document).ready(function() {
 			    	$.ajax({  
 			            cache: true,  
 			            type: "DELETE",  
-			            url:'/deploy/scripts/',  
+			            url:'/deploy/scripts/',
+			            data:{
+			            	"script_id":vIds
+			            },
 			            error: function(response) {  
 			            	new PNotify({
 			                    title: 'Ops Failed!',
@@ -1898,7 +1901,10 @@ $(document).ready(function() {
 			    	$.ajax({  
 			            cache: true,  
 			            type: "DELETE",  
-			            url:'/deploy/playbook/',  
+			            url:'/deploy/playbook/',
+			            data:{
+			            	"playbook_id":vIds
+			            },
 			            error: function(response) {  
 			            	new PNotify({
 			                    title: 'Ops Failed!',
