@@ -54,9 +54,9 @@ class OrdersPaginator(APIView):
 
     def get(self,request,*args,**kwargs):
         if request.user.is_superuser:
-            ordersList = Order_System.objects.all().order_by("-id")[0:100]
+            ordersList = Order_System.objects.all().order_by("-id")
         else:
-            ordersList = Order_System.objects.filter(Q(order_user=request.user.id) | Q(order_executor=request.user.id)).order_by("-id")[0:100]
+            ordersList = Order_System.objects.filter(Q(order_user=request.user.id) | Q(order_executor=request.user.id)).order_by("-id")
         page = serializers.PageConfig()  # 注册分页
         page_user_list = page.paginate_queryset(queryset=ordersList, request=request, view=self)
         ser = serializers.OrderSerializer(instance=page_user_list, many=True)
