@@ -1,7 +1,76 @@
+var language =  {
+	"sProcessing" : "处理中...",
+	"sLengthMenu" : "显示 _MENU_ 项结果",
+	"sZeroRecords" : "没有匹配结果",
+	"sInfo" : "显示第 _START_ 至 _END_ 项结果，共 _TOTAL_ 项",
+	"sInfoEmpty" : "显示第 0 至 0 项结果，共 0 项",
+	"sInfoFiltered" : "(由 _MAX_ 项结果过滤)",
+	"sInfoPostFix" : "",
+	"sSearch" : "搜索: ",
+	"sUrl" : "",
+	"sEmptyTable" : "表中数据为空",
+	"sLoadingRecords" : "载入中...",
+	"sInfoThousands" : ",",
+	"oPaginate" : {
+		"sFirst" : "首页",
+		"sPrevious" : "上页",
+		"sNext" : "下页",
+		"sLast" : "末页"
+	},
+	"oAria" : {
+		"sSortAscending" : ": 以升序排列此列",
+		"sSortDescending" : ": 以降序排列此列"
+	}
+}
+
 function get_url_param(name) {
 	 var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
 	 var r = window.location.search.substr(1).match(reg);
 	 if (r != null) return unescape(r[2]); return null; 
+}
+
+function makeFileUploadResultTable(dataList){
+	var trHtml = '';
+	for (var i = 0; i < dataList.length; ++i) {
+		if (dataList[i]["status"] == "success" ){
+			var stauts = '<span class="label label-success">成功</span>'
+		}else{
+			var stauts = '<span class="label label-danger">失败</span>'
+		}		
+		trHtml += '<tr>'+ 
+						'<td>'+ dataList[i]["fname"] +'</td>'+ 
+						'<td>'+ dataList[i]["host"] +'</td>'+ 
+						'<td>'+ dataList[i]["dest"] + '</td>'+ 
+						'<td>'+ dataList[i]["size"] + '</td>'+ 
+						'<td>'+ dataList[i]["changed"] + '</td>'+ 
+						'<td  class="text-center">'+ stauts + '</td>'+ 
+						'<td>'+ dataList[i]["msg"] + '</td>'+
+		          '</tr>'
+	};	
+	console.log(trHtml)
+	var vTableHtml = '<div id="result">' +
+						'<table class="table table-bordered" id="result-table">' + 
+							'<caption>文件分发结果</caption>' + 
+							'<thead>' + 
+								'<tr>'+
+									'<th>文件名</th>'+
+									'<th>目标主机</th>'+ 									
+									'<th>目标路径</th>'+
+									'<th>文件大小(MB)</th>'+
+									'<th>是否变更</th>'+
+									'<th class="text-center">分发结果</th>'+
+									'<th>失败原因</th>'+
+									'</tr>'+
+							'</thead>'+
+							'<tbody>' + trHtml +
+							'</tbody>'+
+						'</table>'+
+					'</div>'
+	$("#result").html(vTableHtml);
+	$('#result-table').dataTable( {
+	    "order": [[ 3, 'desc' ], [ 3, 'desc' ]],
+	    "language" : language,
+	});			
 }
 
 function AssetsSelect(name,dataList,selectIds){
@@ -113,54 +182,7 @@ $(document).ready(function() {
 			fileList.push($(this).val());
         });		
 		if (value>=1 && serverList.length && fileList.length){
-			$("#result").html("服务器正在处理，请稍等。。。");
-			/* 轮训获取结果 开始  */
-		   var interval = setInterval(function(){  
-		        $.ajax({  
-		            url : '/deploy/run/',  
-		            type : 'post', 
-		            data:$('#run_fileupload_order').serialize(),
-		            success : function(result){
-		            	if (result["msg"] !== null ){
-		            		$("#result").append("<p>"+result["msg"]+"</p>"); 
-		            		document.getElementById("scrollToTop").scrollIntoView(); 
-		            		if (result["msg"].indexOf("[Done]") == 0){
-		            			clearInterval(interval);
-		            			$.confirm({
-		            			    title: '执行确认',
-		            			    content: "确认工单状态",
-		            			    type: 'red',
-		            			    buttons: {
-		            			    	完成: {
-		            			            text: '完成',
-		            			            btnClass: 'btn-blue',
-		            			            action: function(){
-		            			            	confirmOrderStatus(value,5)	
-		            			            }
-		            			        },
-		            			    	失败: {
-		            			            text: '失败',
-		            			            btnClass: 'btn-red',
-		            			            action: function(){			
-		            			            	setOrderFailed(value,9)	
-		            			            }
-		            			        },		            			        
-		            			        继续: function () {
-		            			        	btnObj.removeAttr('disabled');
-		            			        	return true;
-		            			        }
-		            			    }		            			    
-		            			});			     
-		            		}
-		            	}
-		            },
-			    	error:function(response){
-			    		btnObj.removeAttr('disabled');
-			    		clearInterval(interval);
-			    	}	            
-		        });  
-		    },1000); 			
-			
+			$("#result").html('<i class="fa fa-spinner"> 服务器正在处理...</i>');
 	    	$.ajax({  
 	            cache: true,  
 	            type: "POST",  
@@ -180,13 +202,12 @@ $(document).ready(function() {
 	                    type: 'error',
 	                    styling: 'bootstrap3'
 	                }); 
-	            	clearInterval(interval);
 	            },  
 	            success: function(response) {  
 	            	btnObj.attr('disabled',false);
 					if (response["code"] == 200){
-/*						$("#order_status").html(orderStatus[response["data"]["status"]])*/
-						
+/*						$("#order_status").html(orderStatus[response["data"]["status"]])*/						
+						makeFileUploadResultTable(response["data"])
 					}
 					else {
 			    		$.alert({
@@ -194,7 +215,6 @@ $(document).ready(function() {
 			    		    content: response["msg"],
 			    		    type: 'red',
 			    		});	
-			    		clearInterval(interval);
 					};
 	            }  
 	    	});			

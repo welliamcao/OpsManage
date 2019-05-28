@@ -10,6 +10,7 @@ from databases.models import DataBase_Server_Config
 from dao.redisdb import DsRedis
 from utils.ansible.runner import ANSRunner
 from utils import base,mysql
+from utils.mysql import cmds
 from django.http import QueryDict
 from utils.mysql.inception import Inception
 from utils.logger import logger
@@ -503,7 +504,7 @@ class OrderSQLManage(OrderBase):
     
     def __file_sql(self,dbConfig,order):
         filePath = os.getcwd() + '/upload/' + str(order.sql_audit_order.order_file)
-        rc,rs = mysql.loads(    
+        rc,rs = cmds.loads(    
                             host=dbConfig.db_assets.server_assets.ip,
                             dbname=dbConfig.db_name,
                             user=dbConfig.db_user,
@@ -603,7 +604,7 @@ class OrderFileUploadManage(OrderBase,AssetsSource):
         assets_list = []
         try:
             dest_server = [ Struct(**{"id":int(ds)}) for ds in json.loads(order.fileupload_audit_order.dest_server) ]
-            assetsList = [ ds.id for ds in self.query_user_assets(request, dest_server) ]
+            assetsList = [ ds.id for ds in self.query_user_assets(request, [ x.id for x in dest_server]) ]
             if assetsList:
                 for aid in request.POST.getlist('server[]'):
                     if int(aid) in assetsList:assets_list.append(int(aid))
@@ -631,12 +632,12 @@ class OrderFileUploadManage(OrderBase,AssetsSource):
         except Exception as ex:
             return str(ex)
         
-    def __run_fileupload_by_ansible(self,redisKey,order,assetsList,fileList): 
+    def __run_fileupload_by_ansible(self,redisKey,order,assetsList,fileList):
+        dataList = [] 
         sList,resource  = self.idSourceList(assetsList)
         if order.order_status != 8: return "工单状态已经被处理"
         if len(sList) == 0: return "资产信息不存在"
-        ANS = ANSRunner(hosts=resource,redisKey=redisKey)
-        DsRedis.OpsAnsibleModel.lpush(redisKey, "[Start] file distribution".format(model='copy'))     
+        ANS = ANSRunner(resource)     
         for files in fileList:
             file = UploadFiles.objects.get(id=files)     
             filePath = os.getcwd() + '/upload/' + str(file.file_path)        
@@ -644,11 +645,43 @@ class OrderFileUploadManage(OrderBase,AssetsSource):
                                                                                                                            dest=order.fileupload_audit_order.dest_path,
                                                                                                                            chown_user=order.fileupload_audit_order.chown_user,
                                                                                                                            chown_rwx=order.fileupload_audit_order.chown_rwx
-                                                                                                       )
-            ANS.run_model(host_list=sList,module_name='copy',module_args=module_args)
-        DsRedis.OpsAnsibleModel.lpush(redisKey, "[Done] Ansible Done.")
-            
-
+                                                                                                       )      
+            ANS.run_model(host_list=sList,module_name='copy',module_args=module_args) 
+            result = json.loads(ANS.get_model_result())
+            if result.get('success'):
+                for k,v in result.get('success').items():
+                    data = dict()
+                    data['host'] = k
+                    data["fname"] = str(file.file_path).split("/")[-1]
+                    data["changed"] = v.get('changed')
+                    data["dest"] = v.get('dest')
+                    data["size"] = v.get("size")/1024/1024
+                    data["status"] = "success"
+                    data["msg"] = None
+                    dataList.append(data) 
+            if result.get('unreachable'):
+                for k,v in result.get('unreachable').items():
+                    data = dict()
+                    data['host'] = k
+                    data["fname"] = str(file.file_path).split("/")[-1]
+                    data["changed"] = "false"
+                    data["dest"] = order.fileupload_audit_order.dest_path
+                    data["size"] = "未知"
+                    data["status"] = "falied"
+                    data["msg"] = v.get("msg")
+                    dataList.append(data)  
+            if result.get('failed'):
+                for k,v in result.get('failed').items():
+                    data = dict()
+                    data['host'] = k
+                    data["fname"] = str(file.file_path).split("/")[-1]
+                    data["changed"] = "false"
+                    data["dest"] = order.fileupload_audit_order.dest_path
+                    data["size"] = "未知"
+                    data["status"] = "falied"
+                    data["msg"] = v.get("msg")
+                    dataList.append(data)                                    
+        return dataList                         
     
     def fileupload(self,request):
         order = self.check_perms(request)
@@ -694,7 +727,7 @@ class OrderFileDownloadManage(OrderBase,AssetsSource):
         assets_list = []
         try:
             dest_server = [ Struct(**{"id":int(ds)}) for ds in json.loads(order.filedownload_audit_order.dest_server) ]
-            assetsList = [ ds.id for ds in self.query_user_assets(request, dest_server) ]
+            assetsList = [ ds.id for ds in self.query_user_assets(request, [ x.id for x in dest_server]) ]
             if assetsList:
                 for aid in request.POST.getlist('server[]'):
                     if int(aid) in assetsList:assets_list.append(int(aid))
@@ -703,7 +736,7 @@ class OrderFileDownloadManage(OrderBase,AssetsSource):
             else:
                 return "您选择了没有分配给你的资产"
         except Exception as ex:
-            logger.error(msg="检查文件分发资产失败:{ex}".format(ex=ex))       
+            logger.error(msg="检查文件下载资产失败:{ex}".format(ex=ex))       
             return str(ex) 
     
         
