@@ -47,7 +47,6 @@ function makeFileUploadResultTable(dataList){
 						'<td>'+ dataList[i]["msg"] + '</td>'+
 		          '</tr>'
 	};	
-	console.log(trHtml)
 	var vTableHtml = '<div id="result">' +
 						'<table class="table table-bordered" id="result-table">' + 
 							'<caption>文件分发结果</caption>' + 
@@ -191,8 +190,7 @@ $(document).ready(function() {
 	            	"id":value,
 	            	"type":"exec_fileupload",
 	            	"server":serverList,
-	            	"files":fileList,
-	            	"ans_uuid":$("#ans_uuid").val()
+	            	"files":fileList
 	            	},
 	            error: function(response) {
 	            	btnObj.attr('disabled',false);

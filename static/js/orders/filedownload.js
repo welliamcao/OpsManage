@@ -198,7 +198,8 @@ $(document).ready(function() {
 		$("select[name='custom'] option:selected").each(function(){
 			serverList.push($(this).val());
         });		
-		if (value>=1 && serverList.length){			
+		if (value>=1 && serverList.length){	
+			$("#result").html('<i class="fa fa-spinner"> 服务器正在处理...</i>');
 	    	$.ajax({  
 	            cache: true,  
 	            type: "POST",  

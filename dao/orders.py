@@ -603,8 +603,8 @@ class OrderFileUploadManage(OrderBase,AssetsSource):
     def __check_assets(self,request,order):
         assets_list = []
         try:
-            dest_server = [ Struct(**{"id":int(ds)}) for ds in json.loads(order.fileupload_audit_order.dest_server) ]
-            assetsList = [ ds.id for ds in self.query_user_assets(request, [ x.id for x in dest_server]) ]
+            dest_server = [ self.assets(ds) for ds in json.loads(order.fileupload_audit_order.dest_server) ]
+            assetsList = [ ds.id for ds in self.query_user_assets(request, dest_server) ]
             if assetsList:
                 for aid in request.POST.getlist('server[]'):
                     if int(aid) in assetsList:assets_list.append(int(aid))
@@ -632,7 +632,7 @@ class OrderFileUploadManage(OrderBase,AssetsSource):
         except Exception as ex:
             return str(ex)
         
-    def __run_fileupload_by_ansible(self,redisKey,order,assetsList,fileList):
+    def __run_fileupload_by_ansible(self,order,assetsList,fileList):
         dataList = [] 
         sList,resource  = self.idSourceList(assetsList)
         if order.order_status != 8: return "工单状态已经被处理"
@@ -693,19 +693,16 @@ class OrderFileUploadManage(OrderBase,AssetsSource):
     def exec_fileupload(self,request):
         order = self.check_perms(request)
         if order and request.method == 'POST':
-            redisKey = request.POST.get('ans_uuid')
-            
+          
             assetsList = self.__check_assets(request, order)
             
-            if isinstance(assetsList, str):return assetsList
-            
-            if redisKey is None:return "缺少参数"
+            if isinstance(assetsList, str):return assetsList        
             
             filesList = self.__check_files(order, request)
 
             if isinstance(filesList, str):return filesList
             
-            return self.__run_fileupload_by_ansible(redisKey, order, assetsList, filesList)
+            return self.__run_fileupload_by_ansible( order, assetsList, filesList)
 
         else:
             return "工单不存在或者你没有权限操作此工单"     
@@ -726,8 +723,8 @@ class OrderFileDownloadManage(OrderBase,AssetsSource):
     def __check_assets(self,request,order):
         assets_list = []
         try:
-            dest_server = [ Struct(**{"id":int(ds)}) for ds in json.loads(order.filedownload_audit_order.dest_server) ]
-            assetsList = [ ds.id for ds in self.query_user_assets(request, [ x.id for x in dest_server]) ]
+            dest_server = [ self.assets(ds) for ds in json.loads(order.filedownload_audit_order.dest_server) ]
+            assetsList = [ ds.id for ds in self.query_user_assets(request, dest_server) ]
             if assetsList:
                 for aid in request.POST.getlist('server[]'):
                     if int(aid) in assetsList:assets_list.append(int(aid))
