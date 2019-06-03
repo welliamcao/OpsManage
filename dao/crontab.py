@@ -125,6 +125,7 @@ class CrontabManage(AssetsBase):
             cron.cron_month = QueryDict(request.body).get('cron_month')
             cron.cron_log_path = QueryDict(request.body).get('cron_log_path')
             cron.cron_script_path = QueryDict(request.body).get('cron_script_path')
+            cron.cron_command = QueryDict(request.body).get('cron_command')
             cron.save()
             self.sList.append({'assets':cron.cron_server,'cron':cron})
         except Exception as ex:
