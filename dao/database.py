@@ -557,7 +557,7 @@ class DBManage(AssetsBase):
         dbServer = self.__check_user_perms(request,'databases.databases_query_database_server_config')
         if not dbServer:return "您没有权限操作此项"
         
-        if dbServer.db_rw  in ["read","r/w"]:return "请勿在主库上面执行查询操作"
+        if dbServer.db_rw not in ["read","r/w"]:return "请勿在主库上面执行查询操作"
         
         sql_parse = self.__check_sql_parse(request, allow_sql=["select","show","desc","explain"],dbname=dbServer.db_name)
 
