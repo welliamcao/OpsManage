@@ -7,6 +7,7 @@
     <link href="/static/datatable/datatables.net-scroller-bs/css/scroller.bootstrap.min.css" rel="stylesheet"> 
     <link rel="stylesheet" href="/static/css/bootstrap-select.css"> 
     <link rel="stylesheet" href="/static/css/jquery.orgchart.css">	
+    <link href="/static/css/doublebox-bootstrap.css" rel="stylesheet"> 
 	<style type="text/css"> 
 		td.details-control {
 		    background: url('/static/images/details_open.png') no-repeat center center; */
@@ -75,6 +76,7 @@
 					                <th>架构类型</th>
 					                <th>所属项目</th>
 					                <th>业务类型</th>
+					                <th>数据库类型</th>
 					                <th>数据库名</th>
 					                <th>数据库地址</th>
 					                <th>账户</th>
@@ -188,7 +190,13 @@
 												<option  value="r/w">读写</option>						   		
 											 </select>
 										 </div>
-									</div>															
+									</div>	
+									<div class="item form-group" >
+										 <label  class="col-sm-2 control-label" > 数据库类型<span class="required">*</span></label>
+										 <div class="col-sm-10">
+										 	<input class="form-control" type="text" value="MySQL" placeholder="不能为空" name="db_type" id="db_type"  required/>
+										 </div>
+									</div>																								
 									<div class="item form-group" >
 										 <label  class="col-sm-2 control-label" > 数据库名<span class="required">*</span></label>
 										 <div class="col-sm-10">
@@ -321,19 +329,13 @@
 									<div class="form-group" >
 										 	<label > 用户<i class="fa fa-info-circle" data-toggle="tooltip" title="选择用户"></i></label>
 											<select required="required" class="selectpicker form-control" data-live-search="true"  data-size="10" data-width="100%" name="user" id="user"  autocomplete="off">
-											   	<option selected="selected" value="">请选择一个用户</option>
-<!-- 												{% for s in assets.userList %}
-													<option value="{{s.id}}" name="db_project">{{s.username}}</option>
-												{% endfor %} -->								   							
+											   	<option selected="selected" value="">请选择一个用户</option>							   							
 											</select>												
 									</div>	
 									<div class="form-group" >
 										 <label> 数据库<i class="fa fa-info-circle" data-toggle="tooltip" title="选择数据库"></i></label>
 										 <select multiple required="required" class="selectpicker form-control" data-live-search="true" name="db" id="db"  data-size="10" data-selected-text-format="count > 3"  data-width="100%"  id="db"  autocomplete="off">
-										   	<option >请选择一个数据库</option>
-<!-- 											{% for ds in databaseList %}
-												<option value="{{ds.id}}">{{ds.db_env}} | {{ds.db_assets.server_assets.ip}} | {{ds.db_name}} | {{ds.db_mark}}</option>
-											{% endfor %}	 -->							   							
+										   	<option >请选择一个数据库</option>							   							
 										 </select>											
 									</div>																														
 									<lable><button type="button" value="" class="btn btn-default" id="add_user_db_btn">保存</button></lable>
@@ -412,6 +414,53 @@
                   </div>
                 </div>
               </div>
+              
+        <div  class="modal fade bs-example-modal-user-table" data-backdrop="static"  tabindex="-1" role="dialog" aria-hidden="true">
+          <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span>
+                </button>
+                <h4 class="modal-title" id="myUserTablesModalLabel">用户权限</h4>
+              </div>
+              <div class="modal-body ue-container">
+              
+				 <select multiple="multiple" size="10" name="user-table-list" class="demo"> </select>
+
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" id="userTableListSubmit"  class="btn btn-primary">保存</button>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <div  class="modal fade bs-example-modal-user-grant" data-backdrop="static"  tabindex="-1" role="dialog" aria-hidden="true">
+          <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span>
+                </button>
+                <h4 class="modal-title" id="myUserGrantsModalLabel">用户权限</h4>
+              </div>
+              <div class="modal-body ue-container">
+              
+				 <select multiple="multiple" size="10" name="user-grants-list" class="demo"> </select>
+
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" id="userGrantsListSubmit"  class="btn btn-primary">保存</button>
+              </div>
+
+            </div>
+          </div>
+        </div>
+              
         </div>                 
 {% endblock %}
 {% block js-content %}
@@ -423,6 +472,7 @@
     <script src="/static/datatable/datatables.net-buttons/js/buttons.flash.min.js"></script>
     <script src="/static/datatable/datatables.net-buttons/js/buttons.html5.min.js"></script>
     <script src="/static/datatable/datatables.net-buttons/js/buttons.print.min.js"></script>	
+    <script src="/static/js/doublebox/doublebox-bootstrap.js"></script>
 	<script src="/static/js/database/db.js"></script>
 	<script src="/static/validator/validator.js"></script>
 	<script type="text/javascript" src="/static/js/orgchart/jquery.orgchart.js"></script>

@@ -138,26 +138,34 @@ class APBase(object):
 
    
 class MySQLPool(threading.Thread,APBase): 
-    def __init__(self,host,port,user,passwd,dbName,sql=None,num=1000,model=None,queues=None):
+    def __init__(self,dbServer,sql=None,num=1000,model=None,queues=None):
         threading.Thread.__init__(self)     
         self.queues = queues
         self.sql = sql
         self.num = num 
-        self.model = model       
-        self.host = host
-        self.port = port 
-        self.poolKeys = host+dbName+str(port)
+        self.model = model 
+        self.dbServer = dbServer      
+        self.host = dbServer.db_assets.server_assets.ip
+        self.port = dbServer.db_port
+        self.user = dbServer.db_user
+        self.passwd = dbServer.db_passwd
+        self.dbName = dbServer.db_name
+        self.poolKeys = self.host + self.dbName + str(self.port)#host+dbName+str(port)
+        
+        
         if self.poolKeys not in MySQLPool.MYSQL_POOLS.keys():  
-            self._conn = self._getTupleConn(host,port,user,passwd,dbName)  
+            self._conn = self._getTupleConn(self.host, self.port, self.user, self.passwd, self.dbName)  
             MySQLPool.MYSQL_POOLS[self.poolKeys] = self._conn
+            
         self._conn = MySQLPool.MYSQL_POOLS.get(self.poolKeys)
+        
         if not isinstance(self._conn,str):self._cursor = self._conn.cursor() 
                  
     
     def run(self):
         if hasattr(self,self.model):
             func= getattr(self,self.model)
-            self.queues.put({"db":str(self.host)+":"+str(self.port),"dataList":func(self.sql, self.num)})         
+            self.queues.put({"db":str(self.host)+":"+str(self.port),"dataList":func(self.sql, self.num),"dbId":self.dbServer.id})         
      
     def _getDictConn(self,host,port,user,passwd,dbName):
         '''返回字典类型结果集'''   

@@ -1,5 +1,6 @@
 #!/usr/bin/env python  
 # _#_ coding:utf-8 _*_
+import os
 from api import serializers
 from apps.models import *
 from dao.app import AppsCount
@@ -47,9 +48,10 @@ def project_log_detail(request, id,format=None):
         if not request.user.has_perm('apps.project_delete_project_config'):
             return Response(status=status.HTTP_403_FORBIDDEN)
         try:
-            Log_Project_Record.objects.filter(uuid=snippet.uuid).delete()
+            Log_Project_Record.objects.filter(task_id=snippet.task_id).delete()
         except Exception as ex:
             logger.error(msg="删除部署日志失败: {ex}".format(ex=str(ex)))
+        if snippet.package and os.path.exists(snippet.package):os.remove(snippet.package)
         snippet.delete()
         return Response(status=status.HTTP_204_NO_CONTENT) 
 
@@ -67,7 +69,7 @@ class AppsLogPaginator(APIView):
 class AppsLogRecord(APIView):
     
     def get(self,request,*args,**kwargs):
-        snippets = Log_Project_Record.objects.filter(uuid=kwargs.get('id'))
+        snippets = Log_Project_Record.objects.filter(task_id=kwargs.get('id'))
         serializer = serializers.AppsLogsRecordSerializer(snippets, many=True)
         return Response(serializer.data)    
     

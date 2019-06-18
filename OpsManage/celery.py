@@ -14,33 +14,12 @@ app = Celery('OpsManage')
 
 
 ''' celery config '''
-
-
-
-CELERY_QUEUES=(
-                Queue('default', exchange=Exchange('default', type='direct'), routing_key='for_default'),
-                Queue('ansible', exchange=Exchange('ansible', type='direct'), routing_key='for_ansible'),
-            )               
-CELERY_TASK_ROUTES = {
-                'celery_sql.*':{'queue':'default','routing_key':'for_default'},
-                'celery_assets.*':{'queue':'default','routing_key':'for_default'},
-                'celery_cron.*':{'queue':'default','routing_key':'for_default'},
-                'celery_sched.*':{'queue':'default','routing_key':'for_default'},
-                'celery_apsched.*':{'queue':'default','routing_key':'for_default'},
-                'celery_deploy.AnsibleScripts':{'queue':'ansible','routing_key':'for_ansible'},
-                'celery_deploy.AnsiblePlayBook':{'queue':'ansible','routing_key':'for_ansible'},
-                }   
-
-CELERY_DEFAULT_QUEUE = 'default'
-CELERY_DEFAULT_EXCHANGE_TYPE = 'topic'
-CELERY_DEFAULT_ROUTING_KEY = 'default'
-
 app.conf.update( 
                 CELERY_BROKER_URL = 'amqp://'+ config.get('amqp', 'user') +':'+ config.get('amqp', 'password') +'@' + config.get('amqp', 'host') + ":" + config.get('amqp', 'port') + '//', 
-                CELERY_RESULT_BACKEND ='django-db',              
+#                 CELERY_RESULT_BACKEND ='django-db',              
                 CELERY_TIMEZONE= 'Asia/Shanghai',
                 CELERY_ENABLE_UTC= True,
-                CELERYBEAT_SCHEDULER='django_celery_beat.schedulers:DatabaseScheduler',
+#                 CELERYBEAT_SCHEDULER='django_celery_beat.schedulers:DatabaseScheduler',
                 CELERY_TASK_RESULT_EXPIRES=60 * 60 * 24,
                 CELERYD_MAX_TASKS_PER_CHILD=40,
                 CELERY_TRACK_STARTED=True,
@@ -58,4 +37,6 @@ app.config_from_object('django.conf:settings', namespace='CELERY')
 app.autodiscover_tasks(lambda:settings.INSTALLED_APPS)
 
 
-
+# @app.task(bind=True)
+# def debug_task(self):
+#     print('Request: {0!r}'.format(self.request))

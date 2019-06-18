@@ -4,10 +4,10 @@
     <link href="/static/datatable/datatables.net-bs/css/dataTables.bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="/static/css/bootstrap-select.css"> 
     <link rel="stylesheet" href="/static/css/jquery.orgchart.css">	
-	<script src="http://cdn.bootcss.com/ace/1.2.4/ace.js"></script>
-	<script src="http://cdn.bootcss.com/ace/1.2.4/ext-language_tools.js"></script>
-	<script src="http://cdn.bootcss.com/ace/1.2.4/ext-old_ie.js"></script>
-	<script src="http://cdn.bootcss.com/ace/1.2.4/theme-monokai.js"></script>  
+	<script src="/static/ace/js/ace.js" type="text/javascript" charset="utf-8"></script>
+	<script src="/static/ace/js/ext-language_tools.js" type="text/javascript" charset="utf-8"></script>
+	<script src="/static/ace/js/ext-old_ie.js" type="text/javascript" charset="utf-8"></script>
+	<script src="/static/ace/js/theme-monokai.js" type="text/javascript" charset="utf-8"></script> 
     <link href="/static/datatable/datatables.net-buttons-bs/css/buttons.bootstrap.min.css" rel="stylesheet">
     <link href="/static/datatable/datatables.net-fixedheader-bs/css/fixedHeader.bootstrap.min.css" rel="stylesheet">
     <link href="/static/datatable/datatables.net-responsive-bs/css/responsive.bootstrap.min.css" rel="stylesheet">
@@ -63,7 +63,7 @@
               	<!--<div class="" role="tabpanel" data-example-id="togglable-tabs"  id="add_inventory" style="display:none;">-->
                 <div class="" role="tabpanel" data-example-id="togglable-tabs"  id="add_inventory">
                   <ul id="myTab" class="nav nav-tabs bar_tabs" role="tablist">
-                    <li role="presentation" class="active"><a href="#tab_content1" id="#query" role="tab" data-toggle="tab" aria-expanded="true"><i class="fa fa-cubes"></i> SQL Query</a>
+                    <li role="presentation" class="active"><a href="#tab_content1" id="#query" role="tab" data-toggle="tab" aria-expanded="true"><i class="fa fa-cubes"></i> SQL DML</a>
                     </li>
                     <li role="presentation" class=""><a href="#tab_content2" role="tab" id="#Binglog" data-toggle="tab" aria-expanded="false"><i class="fa fa-tasks"></i> BinLog解析</a>
                     </li> 
@@ -76,23 +76,20 @@
                     <div role="tabpanel" class="tab-pane fade active in" id="tab_content1" aria-labelledby="#query">
 						<div class="col-md-8 col-xs-12">
 							<legend>
-								<i class="fa  fa-paper-plane"></i> 数据库查询
+								<i class="fa  fa-paper-plane"></i> 数据库操作入口
 							</legend>
 							<form role="form" method="post" id="exec_db_query" class="main form-horizontal"  novalidate>																								
 								<div class="form-group" >
 									 <label> 数据库<i class="fa fa-info-circle" data-toggle="tooltip" title="选择数据库"></i></label>
-									 <select multiple required="required" class="selectpicker form-control" data-live-search="true" name="query_db" id="query_db"  data-size="10" data-selected-text-format="count > 3"  data-width="100%"  id="db"  autocomplete="off">
-									   	<option>请选择一个数据库</option>
-<!-- 										{% for ds in databaseList %}
-											<option value="{{ds.id}}">{{ds.db_env}} | {{ds.db_assets.server_assets.ip}} | {{ds.db_name}} | {{ds.db_mark}}</option>
-										{% endfor %} -->								   							
+									 <select required="required" class="selectpicker form-control" data-live-search="true" name="query_db" id="query_db"  data-size="10" data-selected-text-format="count > 3"  data-width="100%"  id="db"  autocomplete="off">
+									   	<option>请选择一个数据库</option>								   							
 									 </select>											
 								</div>	
 								<div class="form-group">
 									<label>SQL内容<i class="fa fa-info-circle" data-toggle="tooltip" title="输入查询SQL"></i></label>	
 									<div id="compile-editor-add" class="ace_editor"></div> 	
 								</div>																																						
-								<lable><button type="button" value="" class="btn btn-default btn-sm" id="db_query_btn">查询</button></lable>
+								<lable><button type="button" value="" class="btn btn-default btn-sm" id="db_query_btn">执行</button></lable>
 							</form> 
 						</div>
 						<div class="hr hr32 hr-dotted"></div>
@@ -194,7 +191,7 @@
 									 <label> SQL内容<i class="fa fa-info-circle" data-toggle="tooltip" title="填写SQL"></i></label>
 									 <textarea class="form-control" rows="10" name="sql"></textarea>												
 								</div>																					
-								<lable><button type="button" value="" class="btn btn-default btn-sm" id="db_optimize_btn">查询</button></lable>
+								<lable><button type="button" value="" class="btn btn-default btn-sm" id="db_optimize_btn">执行</button></lable>
 								<button type="reset" class="btn btn-default btn-sm">撤销</button>
 							</form>
 						 </div>

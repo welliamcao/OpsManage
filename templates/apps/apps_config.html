@@ -3,10 +3,10 @@
     <link rel="stylesheet" href="/static/jquery-confirm/jquery-confirm.min.css">
     <link href="/static/datatable/datatables.net-bs/css/dataTables.bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="/static/css/bootstrap-select.css">
-	<script src="http://cdn.bootcss.com/ace/1.2.4/ace.js"></script>
-	<script src="http://cdn.bootcss.com/ace/1.2.4/ext-language_tools.js"></script>
-	<script src="http://cdn.bootcss.com/ace/1.2.4/ext-old_ie.js"></script>
-	<script src="http://cdn.bootcss.com/ace/1.2.4/theme-monokai.js"></script>       
+	<script src="/static/ace/js/ace.js" type="text/javascript" charset="utf-8"></script>
+	<script src="/static/ace/js/ext-language_tools.js" type="text/javascript" charset="utf-8"></script>
+	<script src="/static/ace/js/ext-old_ie.js" type="text/javascript" charset="utf-8"></script>
+	<script src="/static/ace/js/theme-monokai.js" type="text/javascript" charset="utf-8"></script>    
 	<style type="text/css"> 
 		pre {
 			overflow: auto;
@@ -68,7 +68,7 @@
 							{% csrf_token %}
 							<div class="item form-group">
 								<label><font color='red'>* </font>产品线名称</label> 
-								<select class="form-control" id="deploy_project"  onchange="javascript:oBtProjectSelect();" required>
+								<select class="selectpicker form-control" id="deploy_project"  onchange="javascript:oBtProjectSelect();" required>
 									<option selected="selected">请选择产品线</option>
 									{% for ds in assets.projectList %}
 										<option value="{{ds.id}}">{{ds.project_name}}</option>
@@ -78,7 +78,7 @@
 							</div>
 							<div class="item form-group">
 								 <label><font color='red'>* </font>业务类型</label>
-								 <select class="form-control" name="deploy_service" id="deploy_service"  onchange="javascript:AssetsTypeSelect('service','deploy_service');" required>
+								 <select class="selectpicker form-control" name="deploy_service" id="deploy_service"  onchange="javascript:AssetsTypeSelect('service','deploy_service');" required>
 								   		<option selected="selected" value="">请选择一个类型</option>								   							
 								</select>
 							</div>
@@ -88,7 +88,7 @@
 							</div>																	
 							<div class="item form-group">
 								<label><font color='red'>* </font>项目环境</label> 
-								<select class="form-control" id="project_env" name="project_env" required>
+								<select class="selectpicker form-control" id="project_env" name="project_env" required>
 									<option selected="selected" value="">请选择项目环境</option>
 									<option value="sit" name="project_env">测试环境</option>
 									<option value="qa" name="project_env">预生产环境</option>
@@ -97,10 +97,10 @@
 							</div>																								
 							<div class="item form-group">
 								<label><font color='red'>* </font>远程仓库类型</label> 
-								<select class="form-control" id="project_repertory" name="project_repertory"  required>
+								<select class="selectpicker form-control" id="project_repertory" name="project_repertory"  required>
 									<option selected="selected" value="">请选择仓库类型</option>
 									<option value="git" name="project_repertory">Git</option>
-									<option value="svn" name="project_repertory">Svn</option>
+									<!-- <option value="svn" name="project_repertory">Svn</option> -->
 								</select>
 							</div>
 							<div class="item form-group">
@@ -120,11 +120,11 @@
 							</div>
 							<div class="item form-group">
 								<label><font color='red'>* </font>分支/Tag上线<i class="fa fa-info-circle" data-toggle="tooltip" title="选择用branch还是tag作为版本控制"></i></label> 
-								<select class="form-control" id="project_model" name="project_model" required>
+								<select class="selectpicker form-control" id="project_model" name="project_model" required>
 									<option selected="selected" value="">选择上线版本控制类型</option>
 									<option value="branch" name="project_model">Branch</option>
 									<option value="tag" name="project_model">Tag</option>
-									<option value="trunk" name="project_model">Trunk</option>
+									<!-- <option value="trunk" name="project_model">Trunk</option> -->
 								</select>
 							</div>
 							<div class="item form-group" >			 		             
@@ -147,9 +147,17 @@
 							<div class="item form-group">
 								<label><font color='red'>* </font>源代码存放地址</label> 
 								<input class="form-control" id="project_repo_dir" name="project_repo_dir" value="{{project_dir}}source/" required pattern="^/.*/$" title="正确格式：/path/" disabled>
-							</div>																					
+							</div>	
 							<div class="item form-group">
-								<label>排除文件<i class="fa fa-info-circle" data-toggle="tooltip" title="项目目录的相对路径"></i></label>
+								<label><font color='red'>* </font>排除/包含（文件）</label> 
+								<select class="selectpicker form-control" id="project_is_include" name="project_is_include" required>
+									<option value="0" >排除</option>
+									<option value="1">包含</option>
+									<!-- <option value="trunk" name="project_model">Trunk</option> -->
+								</select>							
+							</div>																											
+							<div class="item form-group">
+								<label>文件或者目录名<i class="fa fa-info-circle" data-toggle="tooltip" title="项目目录的相对路径"></i></label>
 								<textarea class="form-control" rows="3" id="project_exclude" name="project_exclude"></textarea>
 								<p class="help-block">例如：.git,data/upload</p>
 							</div>						
@@ -166,7 +174,7 @@
 							<label><font color='red'>* </font>目标服务器</label> <br> 
 							<select multiple  class="selectpicker form-control" data-live-search="true"  data-size="10" data-width="100%" name="server" id="server"  required> 
 							</select>
-						</div>						
+						</div>												
 						<div class="item form-group">
 							<label><font color='red'>* </font>用户<i class="fa fa-info-circle"
 								data-toggle="tooltip" title="部署服务跟目标服务器都需要创建该用户"></i></label> 
@@ -174,13 +182,18 @@
 							<p class="help-block">例如：www</p>
 						</div>
 						<div class="item form-group">
-							<label><font color='red'>* </font>部署目录</label> <input class="form-control" id="dir" value="" required>
+							<label><font color='red'>* </font>部署目录</label> <input class="form-control" id="project_target_root" value="" required>
 							<p class="help-block">例如：/var/www/project/</p>
 						</div>
 						<div class="item form-group">
-							<label>项目日志</label> <input class="form-control" id="logpath" value="" required>
+							<label>项目日志</label> <input class="form-control" id="project_logpath" value="" required>
 							<p class="help-block">例如：/var/www/project/logs/project.log</p>
-						</div>							
+						</div>
+						<div class="item form-group">
+							<label>部署之前执行的命令</label>
+							<textarea class="form-control" rows="3" id="project_pre_remote_command" name="project_pre_remote_command"></textarea>
+							<p class="help-block">例如：service tomcat stop</p>
+						</div>													
 						<div class="item form-group">
 							<label>部署之后执行的命令</label>
 							<textarea class="form-control" rows="3" id="project_remote_command" name="project_remote_command"></textarea>
@@ -209,5 +222,5 @@
     <script src="/static/datatable/datatables.net/js/jquery.dataTables.min.js"></script>
 	<script src="/static/datatable/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>		
 	<script src="/static/validator/validator.js"></script>
-    <script src="/static/js/apps/apps.js"></script>  
+    <script src="/static/js/apps/config.js"></script>  
 {% endblock %}

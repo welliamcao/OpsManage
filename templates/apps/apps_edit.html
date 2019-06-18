@@ -138,13 +138,21 @@
 							</div>		
 							<div class="item form-group">
 								<label><font color='red'>* </font>源代码存放地址</label> 
-								<input class="form-control" id="project_repo_dir" name="project_repo_dir" value="{{project_dir}}source/" required pattern="^/.*/$" title="正确格式：/path/" disabled>
-							</div>																					
+								<input class="form-control" id="project_repo_dir" name="project_repo_dir" value="" required pattern="^/.*/$" title="正确格式：/path/" disabled>
+							</div>	
 							<div class="item form-group">
-								<label>排除文件<i class="fa fa-info-circle" data-toggle="tooltip" title="项目目录的相对路径"></i></label>
+								<label><font color='red'>* </font>排除/包含（文件）</label> 
+								<select class="selectpicker form-control" id="project_is_include" name="project_is_include" required>
+									<option value="0" >排除</option>
+									<option value="1">包含</option>
+									<!-- <option value="trunk" name="project_model">Trunk</option> -->
+								</select>							
+							</div>	
+							<div class="item form-group">
+								<label>文件或者目录名<i class="fa fa-info-circle" data-toggle="tooltip" title="项目目录的相对路径"></i></label>
 								<textarea class="form-control" rows="3" id="project_exclude" name="project_exclude"></textarea>
 								<p class="help-block">例如：.git,data/upload</p>
-							</div>						
+							</div>																																							
 							<button type="reset" class="btn btn-default">撤销</button>
 							<button type="button" class="btn btn-default" id="btn_modf_project">修改</button>
 					</div>
@@ -166,13 +174,18 @@
 							<p class="help-block">例如：www</p>
 						</div>
 						<div class="item form-group">
-							<label><font color='red'>* </font>部署目录</label> <input class="form-control" id="dir" value="" required>
+							<label><font color='red'>* </font>部署目录</label> <input class="form-control" id="project_target_root" value="" required>
 							<p class="help-block">例如：/var/www/project/</p>
 						</div>
 						<div class="item form-group">
-							<label>项目日志</label> <input class="form-control" id="logpath" value="" required>
+							<label>项目日志</label> <input class="form-control" id="project_logpath" value="" required>
 							<p class="help-block">例如：/var/www/project/logs/project.log</p>
-						</div>							
+						</div>	
+						<div class="item form-group">
+							<label>部署之前执行的命令</label>
+							<textarea class="form-control" rows="3" id="project_pre_remote_command" name="project_pre_remote_command"></textarea>
+							<p class="help-block">例如：service tomcat stop</p>
+						</div>													
 						<div class="item form-group">
 							<label>部署之后执行的命令</label>
 							<textarea class="form-control" rows="3" id="project_remote_command" name="project_remote_command"></textarea>

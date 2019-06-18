@@ -118,33 +118,34 @@ $(document).ready(function() {
 		$("#project_name").val(project["data"]["project_name"]);
 		DynamicSelect('project_env',project["data"]["project_env"])
 		DynamicSelect('project_repertory',project["data"]["project_repertory"])
+		DynamicSelect('project_is_include',project["data"]["project_is_include"])
 		$("#project_address").val(project["data"]["project_address"]);
 		$("#project_model").val(project["data"]["project_model"]);
 		$("#project_dir").val($("#project_dir").val()+project["data"]["project_name"]+'/')
-		$("#project_repo_dir").val($("#project_repo_dir").val()+project["data"]["project_name"]+'/')
+		$("#project_repo_dir").val(project["data"]["project_repo_dir"])
 		$("#project_exclude").val(project["data"]["project_exclude"]);
 		$("#project_user").val(project["data"]["project_user"]);
 		try
 			{
-			$("#dir").val(project["data"]["number"][0]["dir"]);		  
+			$("#project_target_root").val(project["data"]["project_target_root"]);		  
 			}
 		catch(err)
 			{
-			$("#dir").val("");		
+			$("#project_target_root").val("");		
 			}
 		try
 			{
-			$("#logpath").val(project["data"]["number"][0]["logpath"]);		  
+			$("#project_logpath").val(project["data"]["project_logpath"]);		  
 			}
 		catch(err)
 			{
-			$("#logpath").val("");		
+			$("#project_logpath").val("");		
 			}	
 		$("#project_remote_command").val(project["data"]["project_remote_command"]);
+		$("#project_pre_remote_command").val(project["data"]["project_pre_remote_command"]);
 		//选中主机
-		for (var i = 0; i < project["data"]["number"].length; ++i) {
-			console.log(project["data"]["number"][i]["server"]);
-			$("#server option[value='" + project["data"]["number"][i]["server"] +"']").attr("selected",true);
+		for (var i = 0; i < project["data"]["project_servers"].length; ++i) {
+			$("#server option[value='" + project["data"]["project_servers"][i] +"']").attr("selected",true);
 		}
 		$('.selectpicker').selectpicker('refresh');			
 		
@@ -207,18 +208,20 @@ $(document).ready(function() {
     	    formData.append('project_name',$('#project_name').val());	 
     	    formData.append('project_address',$('#project_address').val());	
     	    formData.append('project_user',$('#project_user').val());
-    	    formData.append('dir',$('#dir').val());		
+    	    formData.append('project_target_root',$('#project_target_root').val());	
+    	    formData.append('project_pre_remote_command',$('#project_pre_remote_command').val());
     	    formData.append('project_remote_command',$('#project_remote_command').val());
     	    formData.append('project_exclude',$('#project_exclude').val());	
     	    formData.append('project_dir',$('#project_dir').val());	
-    	    formData.append('logpath',$('#logpath').val());
+    	    formData.append('project_logpath',$('#project_logpath').val());
+    	    formData.append('project_is_include',$('#project_is_include  option:selected').val());	
     	    formData.append('project_repo_dir',$('#project_repo_dir').val());
     	    formData.append('project_repo_user',$('#project_repo_user').val());	
     	    formData.append('project_repo_passwd',$('#project_repo_passwd').val());
     	    formData.append('project_audit_group',$('#project_audit_group  option:selected').val());	
     	    formData.append('project_repertory',$('#project_repertory option:selected').val());
     	    formData.append('project_model',$('#project_model option:selected').val());	
-    	    formData.append('server',serverList);	
+    	    formData.append('project_servers',serverList);	
     	    formData.append('project_local_command',aceEditAdd.getSession().getValue());
     	    formData.append('project_type',compile_type);
     		$.ajax({
@@ -232,7 +235,7 @@ $(document).ready(function() {
     				if (response["code"] == 200){
 		            	new PNotify({
 		                    title: 'Success!',
-		                    text: "添加成功",
+		                    text: "修改成功",
 		                    type: 'success',
 		                    styling: 'bootstrap3'
 		                });	

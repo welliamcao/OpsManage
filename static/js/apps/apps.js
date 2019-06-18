@@ -12,12 +12,11 @@ function format ( data ) {
 	serList = data["number"];
 	for  (var i=0; i <serList.length; i++){
 		serHtml += serList[i]['ip'] + ',';
-		var remote_dir = serList[i]['dir']
 	}
     var trHtml = '<tr><td>打包目录:</td><td>'+ data["project_dir"]  + '</td><td>源代码目录:</td><td>'+ data["project_repo_dir"] +'</td></tr>'	;
     trHtml += '<tr><td>远程命令:</td><td>'+ data["project_remote_command"]  + '</td><td>目标服务器:</td><td>'+ serHtml.substring(0,serHtml.length-1) +'</td></tr>';
-    trHtml += '<tr><td>远程路径:</td><td>'+ remote_dir  + '</td><td>目录宿主:</td><td>'+ data["project_user"] +'</td></tr>';	
-    trHtml += '<tr><td>排除文件:</td><td>'+ data["project_exclude"]  + '</td><td>日志目录:</td><td>'+ data["number"][0]["logpath"] +'</td></tr>';	    
+    trHtml += '<tr><td>远程路径:</td><td>'+ data["project_target_root"]  + '</td><td>目录宿主:</td><td>'+ data["project_user"] +'</td></tr>';	
+    trHtml += '<tr><td>排除文件:</td><td>'+ data["project_exclude"]  + '</td><td>日志目录:</td><td>'+ data["project_logpath"] +'</td></tr>';	    
 	if (data["project_type"]=='compile'){
 		trHtml += '<tr><td>编译类型:</td><td>编译型</td><td>编译命令:</td><td>'+ data["project_local_command"].replace(/\r\n/g,'<br>') +'</td></tr>';	   
 	}else{
@@ -329,8 +328,9 @@ $(document).ready(function() {
     	    formData.append('project_name',$('#project_name').val());	 
     	    formData.append('project_address',$('#project_address').val());	
     	    formData.append('project_user',$('#project_user').val());
-    	    formData.append('dir',$('#dir').val());		
+    	    formData.append('dir',$('#dir').val());	
     	    formData.append('project_remote_command',$('#project_remote_command').val());
+    	    formData.append('project_pre_remote_command',$('#project_pre_remote_command').val());
     	    formData.append('project_exclude',$('#project_exclude').val());	
     	    formData.append('project_dir',$('#project_dir').val());	
     	    formData.append('logpath',$('#logpath').val());

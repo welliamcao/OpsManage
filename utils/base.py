@@ -12,6 +12,27 @@ from email.mime.multipart import MIMEMultipart
 from django.core.serializers.json import DjangoJSONEncoder
 from .logger import logger
 from functools import wraps
+import ply.lex as lex, re
+
+def extract_table_name_from_sql(sql_str):
+    q = re.sub(r"/\*[^*]*\*+(?:[^*/][^*]*\*+)*/", "", sql_str)
+
+    lines = [line for line in q.splitlines() if not re.match("^\s*(--|#)", line)]
+
+    q = " ".join([re.split("--|#", line)[0] for line in lines])
+
+    tokens = re.split(r"[\s)(;]+", q)
+
+    result = []
+    get_next = False
+    for token in tokens:
+        if get_next:
+            if token.lower() not in ["", "select"]:
+                result.append(token)
+            get_next = False
+        get_next = token.lower() in ["from", "join","into","table","update"]
+
+    return result
 
 def method_decorator_adaptor(adapt_to, *decorator_args, **decorator_kwargs):
     def decorator_outer(func):
@@ -63,7 +84,10 @@ def pwd():
     return os.getcwd()   
 
 def cmds(cmds):
-    return subprocess.getstatusoutput(cmds)
+    status,result = subprocess.getstatusoutput(cmds)
+    if status > 0:
+        return {"status":"failed","msg":result}
+    return {"status":"succeed","msg":result}
 
 def chown(user,path):
     cmd = "chown -R {user}:{user} {path}".format(user=user,path=path)
@@ -76,8 +100,8 @@ def makeToken(strs):
 
 def lns(spath,dpath):
     if spath and dpath:
-        rmLn = "rm -rf {dpath}".format(dpath=dpath)
-        status,result = subprocess.getstatusoutput(rmLn)
+#         rmLn = "rm -rf {dpath}".format(dpath=dpath)
+#         status,result = subprocess.getstatusoutput(rmLn)
         mkLn = "ln -s {spath} {dpath}".format(spath=spath,dpath=dpath)
         return subprocess.getstatusoutput(mkLn)
     else:return (1,"缺少路径")    

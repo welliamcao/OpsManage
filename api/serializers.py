@@ -206,9 +206,39 @@ class CustomSQLSerializer(serializers.ModelSerializer):
         fields = ('id','sql')
         
 class HistroySQLSerializer(serializers.ModelSerializer):
+    create_time = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S")
+    db_host = serializers.SerializerMethodField(read_only=True,required=False)
+    db_name = serializers.SerializerMethodField(read_only=True,required=False)
+    db_env = serializers.SerializerMethodField(read_only=True,required=False)
     class Meta:
         model = SQL_Execute_Histroy
-        fields = ('id','exe_sql','exe_user','exec_status','exe_result')        
+        fields = ('id','exe_sql','exe_user','exec_status','exe_result','db_host','db_name','create_time','db_env','exe_db',"exe_time")        
+    
+    def get_db_env(self,obj):
+        if obj.exe_db.db_env == 'alpha':
+            return "开发环境"
+        
+        elif obj.exe_db.db_env == 'beta':
+            return "测试环境"
+        
+        elif obj.exe_db.db_env =="ga":
+            return "生产环境"
+        
+        else:
+            return "未知"
+        
+        
+    def get_db_host(self,obj):
+        try:
+            return obj.exe_db.db_assets.server_assets.ip
+        except:
+            return "未知"
+    
+    def get_db_name(self, obj):
+        try:
+            return obj.exe_db.db_name   
+        except:
+            return "未知"        
         
 class DeployInventorySerializer(serializers.ModelSerializer):
     class Meta:
@@ -299,11 +329,7 @@ class ApschedNodeJobsLogsSerializer(serializers.ModelSerializer):
             return obj.etime - obj.stime
         except:
             return 0                            
-
-class AppsNumberSerializer(serializers.ModelSerializer):
-    class  Meta:
-        model = Project_Number    
-        fields = ('id','project', 'logpath','server')           
+         
         
 class AppsSerializer(serializers.ModelSerializer):
     product_name = serializers.CharField(source='project.project_name', read_only=True)
@@ -312,8 +338,7 @@ class AppsSerializer(serializers.ModelSerializer):
         fields = ('id','project_env', 'project_name','project_type','project_local_command','project_repo_dir',
                   'project_exclude','project_address','project_uuid','project_repo_user','project_repo_passwd',
                   'project_repertory','project_status','project_remote_command','project_user','project_model',
-                  'project_service','product_name'
-                  ) 
+                  'project_service','product_name',"project_pre_remote_command") 
 
 class AppsRolesSerializer(serializers.ModelSerializer):
     class  Meta:
@@ -324,15 +349,32 @@ class AppsLogsSerializer(serializers.ModelSerializer):
     project_name = serializers.CharField(source='project.project_name', read_only=True)
     project_env = serializers.CharField(source='project.project_env', read_only=True)
     create_time = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S")
+    package = serializers.SerializerMethodField(read_only=True,required=False)
+    git_version = serializers.SerializerMethodField(read_only=True,required=False)
     class  Meta:
         model = Log_Project_Config
-        fields = ('id', 'project_name','user','version','status','uuid','project_env','content','create_time','type') 
+        fields = ('id', 'project_name','username','package','status','project_env','create_time','type','task_id','git_version') 
+        
+    def get_package(self,obj):
+        try:
+            return obj.package.split("/")[-1]
+        except:
+            return "未知"  
+          
+    def get_git_version(self,obj):
+        try:
+            if obj.project.project_model == "branch":
+                return "分支: " + obj.branch + ' 版本: ' + obj.commit_id[0:10]
+            else:
+                return "标签: " + obj.tag
+        except:
+            return "未知"              
         
 class AppsLogsRecordSerializer(serializers.ModelSerializer):
     create_time = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S")
     class  Meta:
         model = Log_Project_Record
-        fields = ('id', 'key','msg','title','status','uuid','create_time')        
+        fields = ('id', 'key','msg','title','status','task_id','create_time')        
          
 
         

@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+{% block css-content %}
+    <link rel="stylesheet" href="/static/jquery-confirm/jquery-confirm.min.css">
+    <link href="/static/datatable/datatables.net-buttons-bs/css/buttons.bootstrap.min.css" rel="stylesheet">
+    <link href="/static/datatable/datatables.net-fixedheader-bs/css/fixedHeader.bootstrap.min.css" rel="stylesheet">
+    <link href="/static/datatable/datatables.net-responsive-bs/css/responsive.bootstrap.min.css" rel="stylesheet">
+    <link href="/static/datatable/datatables.net-scroller-bs/css/scroller.bootstrap.min.css" rel="stylesheet"> 
+    <link rel="stylesheet" href="/static/tooltips/css/tooltips.css"> 
+    <link rel="stylesheet" href="/static/css/bootstrap-select.css"> 
+    <link rel="stylesheet" href="/static/css/jquery.orgchart.css">	
+	<style type="text/css"> 
+		td.details-control {
+		    background: url('/static/images/details_open.png') no-repeat center center; */
+		    cursor: pointer;
+		}
+		tr.shown td.details-control {
+		    background: url('/static/images/details_close.png') no-repeat center center;
+		} 
+		#compile-editor-add {
+			width: 100%;
+			height: 200px;
+	   }	
+		#compile-editor-modf {
+			width: 100%;
+			height: 200px;
+	   }
+		#chart-container { text-align: left; }
+
+	    .orgchart td.left, .orgchart td.right, .orgchart td.top { border-color: #aaa; }
+
+	    .orgchart .middle-level .title { background-color: #006699; }
+	    .orgchart .middle-level .content { border-color: #006699; }
+	    .orgchart .product-dept .title { background-color: #009933; }
+	    .orgchart .product-dept .content { border-color: #009933; }
+	    .orgchart .rd-dept .title { background-color: #993366; }
+	    .orgchart .rd-dept .content { border-color: #993366; }
+	    .orgchart .pipeline1 .title { background-color: #996633; }
+	    .orgchart .pipeline1 .content { border-color: #996633; }
+	    .orgchart .frontend1 .title { background-color: #cc0066; }
+	    .orgchart .frontend1 .content { border-color: #cc0066; } 	   	
+    	.orgchart { background: white; }		         	
+	</style>	  
+{% endblock %}
+{% block page-content %}
+        <div class="clearfix"></div>
+		<div class="row">
+              <div class="col-md-12 col-sm-12 col-xs-12">
+                <div class="x_panel">
+                  <div class="x_title">
+                    <h2>数据库列表 <small>Database Assets List</small></h2>
+                    <ul class="nav navbar-right panel_toolbox">
+                      <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                      </li>
+                      <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
+                        <ul class="dropdown-menu" role="menu">
+                          <li><a href="#">Settings 1</a>
+                          </li>
+                          <li><a href="#">Settings 2</a>
+                          </li>
+                        </ul>
+                      </li>
+                      <li><a class="close-link"><i class="fa fa-close"></i></a>
+                      </li>
+                    </ul>
+                    <div class="clearfix"></div>
+                  </div>
+                  <div class="x_content">
+                 		<div class="row">	
+                 			<div class="pull-left">
+                 				<select required="required" class="selectpicker form-control"  data-size="10" data-selected-text-format="count > 5" data-live-search="true" data-width="100%"   autocomplete="off"  class="form-control" name="db" id="db"  required>
+                 				</select>
+                 			</div>
+							<div class="btn-group  btn-group-sm pull-right">
+		                        <button class="btn btn-default" name="page_previous" type="button" value="">上一页</button>
+		                        <button class="btn btn-default" name="page_next" type="button" value="">下一页</button>
+	                      	</div>                     	
+                     	</div>
+                     	<br>                  
+                        <div class="row">            
+		                    <table id="databaseSQLExecuteHistroy" class="table">
+		                      <thead>
+		                        <tr>
+					                <th>ID</th>
+					                <th>环境</th>
+					                <th>数据库地址</th>
+					                <th>数据库名</th>
+					                <th>执行人</th>
+					                <th>SQL</th>
+					                <th>执行状态</th>
+					                <th>耗时(sec)</th>
+					                <th>执行结果</th>
+					                <th>执行时间</th>
+		                        </tr>
+		                      </thead>
+		                      <tbody>
+		                      </tbody>
+		                    </table>                          
+                        </div> 
+                   </div>
+                </div>		
+			  </div>                
+{% endblock %}
+{% block js-content %}
+	<script src="/static/jquery-confirm/jquery-confirm.min.js"></script>
+    <script src="/static/datatable/datatables.net/js/jquery.dataTables.min.js"></script>
+	<script src="/static/datatable/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>	
+    <script src="/static/datatable/datatables.net-buttons/js/dataTables.buttons.min.js"></script>
+    <script src="/static/datatable/datatables.net-buttons-bs/js/buttons.bootstrap.min.js"></script>
+    <script src="/static/datatable/datatables.net-buttons/js/buttons.flash.min.js"></script>
+    <script src="/static/datatable/datatables.net-buttons/js/buttons.html5.min.js"></script>
+    <script src="/static/datatable/datatables.net-buttons/js/buttons.print.min.js"></script>	
+	<script src="/static/js/database/histroy.js"></script>
+	<script src="/static/validator/validator.js"></script>
+	<script src="/static/tooltips/js/jquery.pure.tooltips.js"></script>	
+{% endblock %}

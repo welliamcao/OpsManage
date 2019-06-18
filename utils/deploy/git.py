@@ -1,101 +1,85 @@
 #!/usr/bin/env python  
 # _#_ coding:utf-8 _*_ 
 '''git版本控制方法'''
-
+import git,re
+from git import Repo
 import subprocess,os
 
 class GitTools(object):
-       
-    def reset(self,path,commintId):
-        cmd = "cd {path} && git reset --hard {commintId}".format(path=path,commintId=commintId)
-        return subprocess.getstatusoutput(cmd)
-    
-    def log(self,path,bName=None,number=None):
-        vList = []
-        if bName:cmd = "cd {path} && git log {bName} --pretty=format:'%h|%s|%cn|%ci|%H' -n {number}".format(path=path,bName=bName,number=number)
-        else:cmd = "cd {path} && git log --pretty=format:'%h|%s|%cn|%ci|%H' -n {number}".format(path=path,number=number)
-        status,result = subprocess.getstatusoutput(cmd)
-        if status == 0: 
-            for log in result.split('\n'):
-                log = log.split('|')
-                data = dict()
-                data['ver'] = log[0]
-                data['desc'] = log[1]
-                data['user'] = log[2]
-                data['comid'] = log[4]
-                vList.append(data)
-        return vList    
-    
-    def init(self,path): 
-        cmd = "cd {path} && git init".format(path=path)
-        return subprocess.getstatusoutput(cmd)    
-    
-    def branch(self,path):
-        '''获取分支列表'''
-        bList = []
-        cmd = "cd {path} && git branch".format(path=path)
-        status,result = subprocess.getstatusoutput(cmd) 
-        if status == 0: 
-            for ds in result.split('\n'):
-                if len(ds) == 0:continue
-                data = dict()
-                if ds.find('*') >= 0:data['status'] = 1
-                else:data['status'] = 0
-                data['name'] = ds.replace('* ','').strip() 
-                data['value'] =  ds.replace('* ','').strip()
-                bList.append(data)        
-        return  bList      
-        
-    def createBranch(self,path,branchName):
-        cmd = "cd {path} && git checkout -b {branchName} origin/{branchName}".format(path=path,branchName=branchName)
-        return subprocess.getstatusoutput(cmd) 
-    
-    def delBranch(self,path,branchName):
-        cmd = "cd {path} && git branch -d {branchName}".format(path=path,branchName=branchName)
-        return subprocess.getstatusoutput(cmd)  
+    path = None
 
-    def tag(self,path):
-        tagList = []
-        cmd = "cd {path} && git tag".format(path=path)
-        status,result = subprocess.getstatusoutput(cmd)
-        if status == 0: 
-            for ds in result.split('\n'):
-                if len(ds) == 0:continue
-                data = dict()
-                if ds.find('*') >= 0:data['status'] = 1
-                else:data['status'] = 0                
-                data['name'] = ds.replace('* ','').strip() 
-                data['value'] = ds.strip()
-                tagList.append(data)         
-        return  tagList
-    
-    def createTag(self,path,tagName):
-        cmd = "cd {path} && git tag {tagName}".format(path=path,tagName=tagName)
-        return subprocess.getstatusoutput(cmd) 
-    
-    def delTag(self,path,tagName):
-        cmd = "cd {path} && git tag -d {tagName}".format(path=path,tagName=tagName)
-        return subprocess.getstatusoutput(cmd) 
-     
-    def checkOut(self,path,name):
-        cmd = "cd {path} && git checkout {name}".format(path=path,name=name)
-        return subprocess.getstatusoutput(cmd)    
-    
-    def clone(self,url,dir,user=None,passwd=None):       
-        cmd = "git clone {url} {dir}".format(url=url,dir=dir)
-        return subprocess.getstatusoutput(cmd)  
+    def __init__(self, path=None):
+        self.path = path
+        self.mkdir(self.path)   
         
-    def pull(self,path):     
-        cmd = "cd {path} && git pull".format(path=path)           
-        return subprocess.getstatusoutput(cmd)                   
+    def is_git_dir(self):
+        git_dir = self.path + '/.git'
+        if os.path.isdir(git_dir):  
+            if os.path.isdir(os.path.join(git_dir, 'hooks')) and os.path.isdir(os.path.join(git_dir, 'refs')) and \
+                os.path.isdir(os.path.join(git_dir, 'objects')):
+                return True
+        return False  
+
+    def clone(self, url):
+        return Repo.clone_from(url, self.path)
+
+    def pull(self):       
+        repo = Repo(self.path)
+        return repo.remote().pull()
+
+    def init(self, url):
+        if not os.path.exists(self.path):
+            os.makedirs(self.path)
             
+        if self.is_git_dir():
+            return self.pull()       
+        else:
+            return self.clone(url)
+          
+    def branch(self):
+        '''git remote update origin --prune'''
+        bList = []
+        for name in Repo(self.path).remote().refs:
+            if not str(name).strip().startswith('origin/HEAD'):
+                bList.append(str(name).strip().lstrip('origin').lstrip('/'))
+        return bList
+
+    def tag(self):
+        tList = []
+        for tag in Repo(self.path).tags:
+            tList.append(str(tag))
+        return tList
+
+    def checkout_to_branch(self, branch):
+        Repo(self.path).git.checkout(branch)
+    
+    def checkout_to_commit(self, branch, commit):
+        self.checkout_to_branch(branch=branch)
+        Repo(self.path).git.reset('--hard', commit)    
+    
+    def commits(self, branch):
+        self.checkout_to_branch(branch)
+        commitList = []
+        commit_history = git.Git(self.path).log('--pretty=%h#@#%s#@#%cn#@#%ci#@#%H', max_count=50)
+        for log in commit_history.split('\n'):
+            log = log.split('#@#')
+            data = dict()
+            data['ver'] = log[0]
+            data['desc'] = log[1]
+            data['user'] = log[2]
+            data['comid'] = log[4]
+            commitList.append(data)
+        return commitList    
+    
+    def checkout_to_tag(self, tag):
+        Repo(self.path).git.checkout(tag)  
+        
+    def rsync_to_release_version(self, dest_path):
+        cmd = "rsync -au --delete {sourceDir} {destDir}".format(sourceDir=self.path,destDir=dest_path)
+        status,result = subprocess.getstatusoutput(cmd)  
+        if status > 0:
+            return {"status":"failed","msg":result}
+        return {"status":"succeed","msg":result}                
+                                    
     def mkdir(self,dir):
         if os.path.exists(dir) is False:os.makedirs(dir)  
-          
-    def show(self,path,branch,cid):
-        cmd = "cd {path} && git checkout {branch}".format(path=path,branch=branch) 
-        result = subprocess.getstatusoutput(cmd) 
-        if result[0] == 0 and cid: 
-            cmd = "cd {path} &&  git show {cid}".format(path=path,cid=cid)    
-            result = subprocess.getstatusoutput(cmd)       
-        return  result 

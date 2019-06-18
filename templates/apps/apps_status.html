@@ -29,7 +29,7 @@
 		#compile-editor-add {
 			width: 100%;
 			height: 300px;
-	   }   		      	
+	   }   	   	      	
 	</style>  
 {% endblock %}
 {% block page-content %}
@@ -217,64 +217,59 @@
 		                <div class="x_panel">
 		                  <div class="x_title">
 		                    <h2>代码发布 <small>Deploy Project</small></h2>
-		                    <ul class="nav navbar-right panel_toolbox">
-		                      <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
-		                      </li>
-		                      <li class="dropdown">
-		                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
-		                        <ul class="dropdown-menu" role="menu">
-		                          <li><a href="#">Settings 1</a>
-		                          </li>
-		                          <li><a href="#">Settings 2</a>
-		                          </li>
-		                        </ul>
-		                      </li>
-		                      <li><a class="close-link"><i class="fa fa-close"></i></a>
-		                      </li>
-		                    </ul>
 		                    <div class="clearfix"></div>
 		                  </div>
 		                  <div class="x_content2">
 		                     <form role="form" id="deployRun" data-parsley-validate class="form-horizontal form-label-left">{% csrf_token %}					
 									<div class="form-group" >			 		             
 											<label class="col-sm-2 control-label">项目名称</label>	
-											<div class="col-sm-6">
+											<div class="col-sm-7">
 												<input id="project_name" type="text"  class="form-control" placeholder="输入模块参数" name="project_name" value="{{project.project_name}}" disabled>	
 											</div>	
 									</div>	
 									<div  class="form-group">
 										 <label class="col-sm-2 control-label" >服务器选择</label>
-										 <div class="col-sm-6">
+										 <div class="col-sm-7">
 		                                          <select multiple class="selectpicker form-control"  data-size="10" data-selected-text-format="count > 5" data-live-search="true" data-width="100%"   autocomplete="off"  class="form-control"   autocomplete="off" name="server"  id="deploy_server" required>
 		                                          	{% for ds in project_data.number %}
-		                                          		<option name="server" value="{{ds.server}}">{{ds.ip}}</option>
+		                                          		<option name="server" selected="selected" value="{{ds.id}}">{{ds.ip}}</option>
 		                                          	{% endfor %}
 		                                          </select>
 										 </div>
 									</div>																																																																
-		                            <input  type="hidden"   class="form-control"  name="type" value="deploy">
-		                            <input  type="hidden"   class="form-control"  name="id" value="{{project.id}}">
-		                            <input  type="hidden"   class="form-control"  id="desc" name="desc" value="">
-		                            <input  type="hidden"   class="form-control"  id="ans_uuid" name="ans_uuid" value="{{assets.uuid}}">
+		                            <input  type="hidden"   class="form-control"  id="project_id" name="project_id" value="{{project.id}}">
+		                            <input  type="hidden"   class="form-control"  id="project_model" name="project_model" value="{{project.project_model}}">
 <!-- 		                            <input  type="hidden"   class="form-control"  name="project_uuid" value="{{project.project_uuid}}">	 -->										
 									{% if project.project_model == 'branch' and project.project_repertory == 'git' %}																
 									<div class="form-group">
 										 <label class="col-sm-2 control-label">分支</label>
-										 <div class="col-sm-6">
-										   <select class="form-control" name="project_branch"  id="branch_choice">	
-										   			<option selected="selected" value="" name="project_branch" >请选择分支</option>									   			
-													{% for ds in project_data.bList %}
-														<option value="{{ds.name}}"  name="project_branch">{{ds.value}}</option>
-													{% endfor %}							   		
-											</select>							 	
+										 <div class="col-sm-7">
+									        <div class="input-group"> 
+											    <select class="selectpicker form-control" name="project_branch"  id="branch_choice">	
+											   			<option selected="selected" value="" name="project_branch" >请选择分支</option>									   			
+														{% for ds in project_data.bList %}
+															<option value="{{ds}}"  name="project_branch">{{ds}}</option>
+														{% endfor %}							   		
+												</select>
+												<span class="input-group-btn">
+													<button class="btn btn-default" name="refresh-repo-branch"><i class="fa fa-refresh"></i></button>
+												</span>
+									        </div>						 	
 										 </div>
-									</div>													
-									
+									</div>		
+
 									<div class="form-group">
 										 <label class="col-sm-2 control-label">版本选择</label>
-										 <div class="col-sm-6">
-										   <select class="form-control" name="project_version" id="project_version" >					   		
-											</select>	
+										 <div class="col-sm-7">
+ 												<select class="form-control" name="project_version" id="project_version" >					   		
+												</select>										 
+<!-- 									        <div class="input-group"> 
+											    <select class="form-control" name="project_version" id="project_version" >					   		
+												</select>
+												<span class="input-group-btn">
+													<button class="btn btn-default" name="refresh-repo-commit"><i class="fa fa-refresh"></i></button>
+												</span>
+									        </div>	 -->											
 										</div>
 									</div>
 									{% elif project.project_model == 'tag' and  project.project_repertory == 'git' %}
@@ -283,8 +278,8 @@
 										 <div class="col-sm-6">
 										   <select class="form-control" name="project_branch"  id="git_project_branch">
 										   		<option value="" name="project_branch">请选择Tag</option>
-													{% for ds in project_data.bList %}
-														<option value="{{ds.name}}" name="project_branch">{{ds.value}}</option>
+													{% for ds in project_data.tList %}
+														<option value="{{ds}}" name="project_branch">{{ds}}</option>
 													{% endfor %}							   		
 											</select>							 	
 										 </div>
@@ -317,7 +312,7 @@
 									<div class="form-group">
 										<label class="col-sm-4 control-label"></label>
 										<button type="reset"  class="btn btn-default btn-sm" >撤销</button>
-								 		<button type="button"  class="btn btn-default btn-sm"  id ="btn-deploy-project" disabled>执行</button>
+								 		<button type="button"  class="btn btn-default btn-sm"  id ="btn-deploy-project" value="{{project.id}}" disabled>部署</button>
 							 		</div>									 		
 								</form> 		                    
 		                  </div>
@@ -327,26 +322,11 @@
 		                <div class="x_panel">
 		                  <div class="x_title">
 		                    <h2>部署结果 <small>Results of deploy</small></h2>
-		                    <ul class="nav navbar-right panel_toolbox">
-		                      <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
-		                      </li>
-		                      <li class="dropdown">
-		                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
-		                        <ul class="dropdown-menu" role="menu">
-		                          <li><a href="#">Settings 1</a>
-		                          </li>
-		                          <li><a href="#">Settings 2</a>
-		                          </li>
-		                        </ul>
-		                      </li>
-		                      <li><a class="close-link"><i class="fa fa-close"></i></a>
-		                      </li>
-		                    </ul>
 		                    <div class="clearfix"></div>
 		                  </div>
 		                  <div class="x_content">
 			                  <ul class="list-unstyled timeline">
-			                    <li id="pull_code_block" style="display: none;">
+			                    <li id="pre_deploy_block" style="display: none;">
 			                      <div class="block">
 			                        <div class="tags">
 			                          <a href="" class="tag">
@@ -358,13 +338,13 @@
 			                             <a>【获取指定版本代码】</a><span class="right"><i class="fa fa-check-circle" style="color:#229954;"></i></span>
 			                          </h2>
 			                          <div class="byline">
-			                            <span id="pull_code_ctime">13 hours ago</span> by <a id="pull_code_user">Jane Smith</a>
+			                            <span id="pre_deploy_ctime">13 hours ago</span> by <a id="pre_deploy_user">Jane Smith</a>
 			                          </div>
-			                          <div id="pull_code_result" name="deploy_result"></div>
+			                          <div id="pre_deploy_result" name="deploy_result"></div>
 			                        </div>
 			                      </div>
 			                    </li>
-			                    <li id="dep_code_block" style="display: none;">
+			                    <li id="post_deploy_block" style="display: none;">
 			                      <div class="block">
 			                        <div class="tags">
 			                          <a href="" class="tag">
@@ -376,13 +356,13 @@
 			                             <a>【执行编译命令脚本】</a><span class="right"><i class="fa fa-check-circle" style="color:#229954;"></i></span>
 			                          </h2>
 			                          <div class="byline">
-			                            <span id="dep_code_ctime">13 hours ago</span> by <a id="dep_code_user">Jane Smith</a>
+			                            <span id="post_deploy_ctime">13 hours ago</span> by <a id="post_deploy_user">Jane Smith</a>
 			                          </div>
-			                          <div id="dep_code_result" name="deploy_result"></div>
+			                          <div id="post_deploy_result" name="deploy_result"></div>
 			                        </div>
 			                      </div>
 			                    </li>			                    
-			                    <li id="pack_code_block" style="display: none;">
+			                    <li id="package_deploy_block" style="display: none;">
 			                      <div class="block">
 			                        <div class="tags">
 			                          <a href="" class="tag">
@@ -394,13 +374,31 @@
 			                              <a>【打包指定版本代码】</a><span class="right"><i class="fa fa-check-circle" style="color:#229954;"></i></span>
 			                          </h2>
 			                          <div class="byline">
-			                            <span id="pack_code_ctime">13 hours ago</span> by <a id="pack_code_user">Jane Smith</a>
+			                            <span id="package_deploy_ctime">13 hours ago</span> by <a id="package_deploy_user">Jane Smith</a>
 			                          </div>
-			                          <div id="pack_code_result" name="deploy_result"></div>
+			                          <div id="package_deploy_result" name="deploy_result"></div>
 			                        </div>
 			                      </div>
 			                    </li>
-			                    <li id="rsync_code_block" style="display: none;">
+			                    <li id="pre_release_block" style="display: none;">
+			                      <div class="block">
+			                        <div class="tags">
+			                          <a href="" class="tag">
+			                            <span>远程命令</span>
+			                          </a>
+			                        </div>
+			                        <div class="block_content">
+			                          <h2 class="title">
+			                              <a>【执行部署前的命令】</a><span class="right"><i class="fa fa-check-circle" style="color:#229954;"></i></span>
+			                          </h2>
+			                          <div class="byline">
+			                            <span id="pre_release_ctime">13 hours ago</span> by <a id="pre_release_user">Jane Smith</a>
+			                          </div>
+			                          <div id="pre_release_result" name="deploy_result"></div>
+			                        </div>
+			                      </div>
+			                    </li> 			                    
+			                    <li id="release_block" style="display: none;">
 			                      <div class="block">
 			                        <div class="tags">
 			                          <a href="" class="tag">
@@ -412,13 +410,13 @@
 			                               <a>【同步指定版本代码】</a><span class="right"><i class="fa fa-check-circle" style="color:#229954;"></i></span>
 			                          </h2>
 			                          <div class="byline">
-			                            <span id="rsync_code_ctime">13 hours ago</span> by <a id="rsync_code_user">Jane Smith</a>
+			                            <span id="release_ctime">13 hours ago</span> by <a id="release_user">Jane Smith</a>
 			                          </div>
-			                          <div id="rsync_code_result" name="deploy_result"></div>
+			                          <div id="release_result" name="deploy_result"></div>
 			                        </div>
 			                      </div>
 			                    </li>	
-			                    <li id="cmd_code_block" style="display: none;">
+			                    <li id="post_release_block" style="display: none;">
 			                      <div class="block">
 			                        <div class="tags">
 			                          <a href="" class="tag">
@@ -430,9 +428,9 @@
 			                              <a>【执行部署配置命令】</a><span class="right"><i class="fa fa-check-circle" style="color:#229954;"></i></span>
 			                          </h2>
 			                          <div class="byline">
-			                            <span id="cmd_code_ctime">13 hours ago</span> by <a id="cmd_code_user">Jane Smith</a>
+			                            <span id="post_release_ctime">13 hours ago</span> by <a id="post_release_user">Jane Smith</a>
 			                          </div>
-			                          <div id="cmd_code_result" name="deploy_result"></div>
+			                          <div id="post_release_result" name="deploy_result"></div>
 			                        </div>
 			                      </div>
 			                    </li>			                    		                    
@@ -483,8 +481,8 @@
 							                <th>项目名称</th>
 							                <th class="text-center">操作类型</th>
 							                <th>操作员</th>
-							                <th>版本</th>
-							                <th>内容</th>	
+							                <th>安装包</th>
+							                <th>仓库版本</th>	
 							                <th>操作时间</th>				                
 							                <th class="text-center">状态</th>
 											<th class="text-center">操作</th>
@@ -623,7 +621,7 @@
               </div>
               <div class="modal-body">
                   <ul class="list-unstyled timeline">
-                    <li id="pull_code_record_block" style="display: none;">
+                    <li id="pre_deploy_record_block" style="display: none;">
                       <div class="block">
                         <div class="tags">
                           <a href="" class="tag">
@@ -635,9 +633,9 @@
                              <a>【获取指定版本代码】</a><span class="right"><i class="fa fa-check-circle" style="color:#229954;"></i></span>
                           </h2>
                           <div class="byline">
-                            <span id="pull_code_record_ctime">13 hours ago</span> by <a id="pull_code_record_user">Jane Smith</a>
+                            <span id="pre_deploy_record_ctime">13 hours ago</span> by <a id="pre_deploy_record_user">Jane Smith</a>
                           </div>
-                          <div id="pull_code_record_result" name="deploy_record_result"></div>
+                          <div id="pre_deploy_record_result" name="deploy_record_result"></div>
                         </div>
                       </div>
                     </li>
@@ -659,7 +657,7 @@
                         </div>
                       </div>
                     </li>                    
-                    <li id="dep_code_record_block" style="display: none;">
+                    <li id="post_deploy_record_block" style="display: none;">
                       <div class="block">
                         <div class="tags">
                           <a href="" class="tag">
@@ -671,13 +669,13 @@
                              <a>【执行编译命令脚本】</a><span class="right"><i class="fa fa-check-circle" style="color:#229954;"></i></span>
                           </h2>
                           <div class="byline">
-                            <span id="dep_code_record_ctime">13 hours ago</span> by <a id="dep_code_record_user">Jane Smith</a>
+                            <span id="post_deploy_record_ctime">13 hours ago</span> by <a id="post_deploy_record_user">Jane Smith</a>
                           </div>
-                          <div id="dep_code_record_result" name="deploy_record_result"></div>
+                          <div id="post_deploy_record_result" name="deploy_record_result"></div>
                         </div>
                       </div>
                     </li>			                    
-                    <li id="pack_code_record_block" style="display: none;">
+                    <li id="package_deploy_record_block" style="display: none;">
                       <div class="block">
                         <div class="tags">
                           <a href="" class="tag">
@@ -689,13 +687,31 @@
                               <a>【打包指定版本代码】</a><span class="right"><i class="fa fa-check-circle" style="color:#229954;"></i></span>
                           </h2>
                           <div class="byline">
-                            <span id="pack_code_record_ctime">13 hours ago</span> by <a id="pack_code_record_user">Jane Smith</a>
+                            <span id="package_deploy_record_ctime">13 hours ago</span> by <a id="package_deploy_record_user">Jane Smith</a>
                           </div>
-                          <div id="pack_code_record_result" name="deploy_record_result"></div>
+                          <div id="package_deploy_record_result" name="deploy_record_result"></div>
                         </div>
                       </div>
                     </li>
-                    <li id="rsync_code_record_block" style="display: none;">
+                    <li id="pre_release_record_block" style="display: none;">
+                      <div class="block">
+                        <div class="tags">
+                          <a href="" class="tag">
+                            <span>远程命令</span>
+                          </a>
+                        </div>
+                        <div class="block_content">
+                          <h2 class="title">
+                              <a>【执行部署前的命令】</a><span class="right"><i class="fa fa-check-circle" style="color:#229954;"></i></span>
+                          </h2>
+                          <div class="byline">
+                            <span id="pre_release_record_ctime">13 hours ago</span> by <a id="pre_release_record_user">Jane Smith</a>
+                          </div>
+                          <div id="pre_release_record_result" name="deploy_record_result"></div>
+                        </div>
+                      </div>
+                    </li>                    
+                    <li id="release_record_block" style="display: none;">
                       <div class="block">
                         <div class="tags">
                           <a href="" class="tag">
@@ -707,13 +723,13 @@
                                <a>【同步指定版本代码】</a><span class="right"><i class="fa fa-check-circle" style="color:#229954;"></i></span>
                           </h2>
                           <div class="byline">
-                            <span id="rsync_code_record_ctime">13 hours ago</span> by <a id="rsync_code_record_user">Jane Smith</a>
+                            <span id="release_record_ctime">13 hours ago</span> by <a id="release_record_user">Jane Smith</a>
                           </div>
-                          <div id="rsync_code_record_result" name="deploy_record_result"></div>
+                          <div id="release_record_result" name="deploy_record_result"></div>
                         </div>
                       </div>
                     </li>	
-                    <li id="cmd_code_record_block" style="display: none;">
+                    <li id="post_release_record_block" style="display: none;">
                       <div class="block">
                         <div class="tags">
                           <a href="" class="tag">
@@ -722,12 +738,12 @@
                         </div>
                         <div class="block_content">
                           <h2 class="title">
-                              <a>【执行部署配置命令】</a><span class="right"><i class="fa fa-check-circle" style="color:#229954;"></i></span>
+                              <a>【执行部署后的命令】</a><span class="right"><i class="fa fa-check-circle" style="color:#229954;"></i></span>
                           </h2>
                           <div class="byline">
-                            <span id="cmd_code_record_ctime">13 hours ago</span> by <a id="cmd_code_record_user">Jane Smith</a>
+                            <span id="post_release_record_ctime">13 hours ago</span> by <a id="post_release_record_user">Jane Smith</a>
                           </div>
-                          <div id="cmd_code_record_result" name="deploy_record_result"></div>
+                          <div id="post_release_record_result" name="deploy_record_result"></div>
                         </div>
                       </div>
                     </li>			                    		                    
@@ -770,8 +786,26 @@
                           <div id="rollback_code_result_rb" name="deploy_result"></div>
                         </div>
                       </div>
-                    </li>		                    
-                    <li id="rsync_code_block_rb" style="display: none;">
+                    </li>	
+                    <li id="pre_release_block_rb" style="display: none;">
+                      <div class="block">
+                        <div class="tags">
+                          <a href="" class="tag">
+                            <span>远程命令</span>
+                          </a>
+                        </div>
+                        <div class="block_content">
+                          <h2 class="title">
+                              <a>【执行部署前的命令】</a><span class="right"><i class="fa fa-check-circle" style="color:#229954;"></i></span>
+                          </h2>
+                          <div class="byline">
+                            <span id="pre_release_ctime_rb">13 hours ago</span> by <a id="pre_release_user_rb">Jane Smith</a>
+                          </div>
+                          <div id="pre_release_result_rb" name="deploy_result"></div>
+                        </div>
+                      </div>
+                    </li>                     	                    
+                    <li id="release_block_rb" style="display: none;">
                       <div class="block">
                         <div class="tags">
                           <a href="" class="tag">
@@ -783,13 +817,13 @@
                                <a>【同步指定版本代码】</a><span class="right"><i class="fa fa-check-circle" style="color:#229954;"></i></span>
                           </h2>
                           <div class="byline">
-                            <span id="rsync_code_ctime_rb">13 hours ago</span> by <a id="rsync_code_user_rb">Jane Smith</a>
+                            <span id="release_ctime_rb">13 hours ago</span> by <a id="release_user_rb">Jane Smith</a>
                           </div>
-                          <div id="rsync_code_result_rb" name="deploy_result"></div>
+                          <div id="release_result_rb" name="deploy_result"></div>
                         </div>
                       </div>
                     </li>	
-                    <li id="cmd_code_block_rb" style="display: none;">
+                    <li id="post_release_block_rb" style="display: none;">
                       <div class="block">
                         <div class="tags">
                           <a href="" class="tag">
@@ -798,12 +832,12 @@
                         </div>
                         <div class="block_content">
                           <h2 class="title">
-                              <a>【执行部署配置命令】</a><span class="right"><i class="fa fa-check-circle" style="color:#229954;"></i></span>
+                              <a>【执行部署后的命令】</a><span class="right"><i class="fa fa-check-circle" style="color:#229954;"></i></span>
                           </h2>
                           <div class="byline">
-                            <span id="cmd_code_ctime">13 hours ago</span> by <a id="cmd_code_user_rb">Jane Smith</a>
+                            <span id="post_release_ctime">13 hours ago</span> by <a id="post_release_user_rb">Jane Smith</a>
                           </div>
-                          <div id="cmd_code_result_rb" name="deploy_result"></div>
+                          <div id="post_release_result_rb" name="deploy_result"></div>
                         </div>
                       </div>
                     </li>			                    		                    

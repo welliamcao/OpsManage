@@ -10,12 +10,12 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from django.contrib.auth.decorators import permission_required
-from orders.models import Order_System
 from dao.base import MySQLPool
-from dao.database import MySQLARCH
+from dao.database import MySQLARCH,DBManage
 from django.http import JsonResponse
 from utils.logger import logger
 from utils import mysql as MySQL
+from utils.base import method_decorator_adaptor
 
 @api_view(['POST'])
 @permission_required('databases.database_can_add_database_server_config',raise_exception=True)
@@ -63,70 +63,7 @@ def db_detail(request, id,format=None):
         snippet.delete()
         return Response(status=status.HTTP_204_NO_CONTENT) 
     
-    
-@api_view(['POST' ])
-@permission_required('databases.database_can_add_inception_server_config',raise_exception=True)
-def inc_list(request,format=None):
-    """
-    List all order, or create a server assets order.
-    """     
-    if request.method == 'POST':
-        serializer = serializers.InceptionSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
-@api_view(['PUT', 'DELETE'])
-@permission_required('databases.database_can_change_inception_server_config',raise_exception=True)
-def inc_detail(request, id,format=None):
-    """
-    Retrieve, update or delete a server assets instance.
-    """
-    try:
-        snippet = Inception_Server_Config.objects.get(id=id)
-    except Inception_Server_Config.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
-    if request.method == 'PUT':
-        serializer = serializers.InceptionSerializer(snippet, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-     
-    elif request.method == 'DELETE':
-        if not request.user.has_perm('databases.database_can_delete_inception_server_config'):
-            return Response(status=status.HTTP_403_FORBIDDEN)
-        snippet.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT) 
-
-    
-# @api_view(['PUT', 'DELETE'])
-# @permission_required('Datdatabasestabase_can_change_order_systemr',raise_exception=True)
-# def sql_order_detail(request, id,format=None):
-#     """
-#     Retrieve, update or delete a server assets instance.
-#     """
-#     try:
-#         snippet = Order_System.objects.get(id=id)
-#     except Order_System.DoesNotExist:
-#         return Response(status=status.HTTP_404_NOT_FOUND)
-#     if request.method == 'PUT':
-#         if int(request.data.get('order_status')) == 4:
-#             sendOrderNotice.delay(id,mask='【已取消】')  
-#         elif int(request.data.get('order_status')) == 6:
-#             sendOrderNotice.delay(id,mask='【已授权】')  
-#         serializer = serializers.AuditSqlOrderSerializer(snippet, data=request.data)
-#         if serializer.is_valid():
-#             serializer.save()
-#             return Response(serializer.data)
-#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-#      
-#     elif request.method == 'DELETE':
-#         if not request.user.has_perm('Databasdatabasesse_can_delete_order_system'):
-#             return Response(status=status.HTTP_403_FORBIDDEN)
-#         snippet.delete()
-#         return Response(status=status.HTTP_204_NO_CONTENT)       
+         
     
     
 @api_view(['POST' ])
@@ -171,19 +108,33 @@ def sql_custom_detail(request, id,format=None):
         return Response(status=status.HTTP_204_NO_CONTENT) 
     
     
-@api_view(['PUT', 'DELETE'])
-@permission_required('databases.database_can_change_sql_execute_histroy',raise_exception=True)
-def sql_exec_logs(request, id,format=None):
-    try:
-        snippet = SQL_Execute_Histroy.objects.get(id=id)
-    except SQL_Execute_Histroy.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
-     
-    if request.method == 'DELETE':
-        if not request.user.has_perm('databases.database_can_delete_sql_execute_histroy'):
-            return Response(status=status.HTTP_403_FORBIDDEN)
-        snippet.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+class DatabaseExecuteHistroy(APIView):
+    
+    @method_decorator_adaptor(permission_required, "databases.databases_read_sql_execute_histroy","/403/")        
+    def get(self,request,*args,**kwargs):
+        query_params = dict()
+        for k in request.query_params.keys():
+            if k not in ["offset"]:
+                query_params[k] = request.query_params.get(k)
+            
+        if request.user.is_superuser and query_params:
+            logs_list = SQL_Execute_Histroy.objects.filter(**query_params)
+            
+        elif not request.user.is_superuser and query_params:
+            query_params["exe_user"] = request.user.first_name
+            logs_list = SQL_Execute_Histroy.objects.filter(**query_params)
+            
+        elif request.user.is_superuser:   
+            logs_list = SQL_Execute_Histroy.objects.all()
+            
+        else:    
+            query_params["exe_user"] = request.user.first_name
+            logs_list = SQL_Execute_Histroy.objects.filter(**query_params)
+        
+        page = serializers.PageConfig()  # 注册分页
+        page_user_list = page.paginate_queryset(queryset=logs_list, request=request, view=self)
+        ser = serializers.HistroySQLSerializer(instance=page_user_list, many=True)
+        return page.get_paginated_response(ser.data)    
     
 @api_view(['POST','GET'])
 @permission_required('databases.database_can_read_database_server_config',raise_exception=True)  
@@ -194,7 +145,7 @@ def db_status(request, id,format=None):
         return Response(status=status.HTTP_404_NOT_FOUND)    
     if request.method == 'POST':
         MySQL_STATUS = {}
-        MYSQL = MySQLPool(host=dbServer.db_assets.server_assets.ip,port=dbServer.db_port,user=dbServer.db_user,passwd=dbServer.db_passwd,dbName=dbServer.db_name)
+        MYSQL = MySQLPool(dbServer=dbServer)
         STATUS = MYSQL.get_status()
         GLOBAL = MYSQL.get_global_status()
         MySQL_STATUS['base'] = STATUS[0] + GLOBAL
@@ -219,3 +170,9 @@ def db_org(request, id,format=None):
             data = ARCH_INFO.single()
         return JsonResponse({"code":200,"msg":"success","data":data})    
         
+        
+@api_view(['POST','GET'])
+@permission_required('databases.databases_query_database_server_config',raise_exception=True)  
+def db_tree(request,format=None):   
+    if request.method == 'GET':
+        return Response(DBManage().query_db_tree(request=request))         
