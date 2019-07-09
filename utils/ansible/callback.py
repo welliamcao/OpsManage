@@ -13,13 +13,13 @@ class ModelResultsCollector(CallbackBase):
         self.host_unreachable = {}  
         self.host_failed = {}  
   
-    def v2_runner_on_unreachable(self, result):  
+    def v2_runner_on_unreachable(self, result): 
         self.host_unreachable[result._host.get_name()] = result 
   
     def v2_runner_on_ok(self, result,  *args, **kwargs):  
         self.host_ok[result._host.get_name()] = result  
   
-    def v2_runner_on_failed(self, result,  *args, **kwargs):  
+    def v2_runner_on_failed(self, result,  *args, **kwargs): 
         self.host_failed[result._host.get_name()] = result  
 
 class PlayBookResultsCollector(CallbackBase):  
@@ -75,6 +75,7 @@ class ModelResultsCollectorToWebSocket(CallbackBase):
         self.websocket.send_msg(data,self.websocket.logId)            
        
     def v2_runner_on_unreachable(self, result):  
+        print(result._result)
         for remove_key in ('changed', 'invocation'):
             if remove_key in result._result:
                 del result._result[remove_key] 
@@ -92,14 +93,15 @@ class ModelResultsCollectorToWebSocket(CallbackBase):
         self.save_msg(data)
 
   
-    def v2_runner_on_failed(self, result,  *args, **kwargs):   
+    def v2_runner_on_failed(self, result,  *args, **kwargs): 
         for remove_key in ('changed', 'invocation'):
             if remove_key in result._result:
                 del result._result[remove_key]
-        if 'rc' in result._result and 'stdout' in result._result:
-            data = "<font color='#DC143C'>{host} | FAILED | rc={rc} >> \n{stdout}</font>".format(host=result._host.get_name(),rc=result._result.get('rc'),stdout=result._result.get('stdout'))
+        print(result._result)
+        if 'rc' in result._result and 'stderr' in result._result:
+            data = "<font color='#DC143C'>{host} | FAILED | rc={rc} >> \n{stderr}</font>".format(host=result._host.get_name(),rc=result._result.get('rc'),stderr=result._result.get('stderr') + result._result.get('stdout') + result._result.get('msg'))
         else:
-            data = "<font color='#DC143C'>{host} | FAILED! => {stdout}</font>".format(host=result._host.get_name(),stdout=json.dumps(result._result,indent=4))
+            data = "<font color='#DC143C'>{host} | FAILED! => {stderr}</font>".format(host=result._host.get_name(),stderr=json.dumps(result._result,indent=4))
         self.save_msg(data)
 
 
@@ -338,10 +340,10 @@ class ModelResultsCollectorToMySQL(CallbackBase):
         for remove_key in ('changed', 'invocation'):
             if remove_key in result._result:
                 del result._result[remove_key]
-        if 'rc' in result._result and 'stdout' in result._result:
-            data = "<font color='#DC143C'>{host} | FAILED | rc={rc} >> \n{stdout}</font>".format(host=result._host.get_name(),rc=result._result.get('rc'),stdout=result._result.get('stdout'))
+        if 'rc' in result._result and 'stderr' in result._result:
+            data = "<font color='#DC143C'>{host} | FAILED | rc={rc} >> \n{stderr}</font>".format(host=result._host.get_name(),rc=result._result.get('rc'),stderr=result._result.get('stderr') + result._result.get('stdout') + result._result.get('msg'))
         else:
-            data = "<font color='#DC143C'>{host} | FAILED! => {stdout}</font>".format(host=result._host.get_name(),stdout=json.dumps(result._result,indent=4))
+            data = "<font color='#DC143C'>{host} | FAILED! => {stderr}</font>".format(host=result._host.get_name(),stderr=json.dumps(result._result,indent=4))
         self.save_msg(data)        
 
 class PlayBookResultsCollectorToMySQL(CallbackBase):  

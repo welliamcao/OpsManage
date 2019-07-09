@@ -6,20 +6,21 @@ from databases.models import *
 from deploy.models import *
 from orders.models import *
 from sched.models import *
-from apps.models import *
+from cicd.models import *
 from navbar.models import * 
 from wiki.models import *
 from orders.models import *
+from apply.models import *
 from django.contrib.auth.models import Group,User
 from django_celery_beat.models  import CrontabSchedule,IntervalSchedule,PeriodicTask
 from rest_framework.pagination import CursorPagination
 
 class PageConfig(CursorPagination):
     cursor_query_param  = 'offset'
-    page_size = 20     #每页显示2个数据
+    page_size = 100     #每页显示2个数据
     ordering = '-id'   #排序
     page_size_query_param = None
-    max_page_size = 20
+    max_page_size = 200
 
 class UserSerializer(serializers.ModelSerializer):
     date_joined = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S")
@@ -428,4 +429,44 @@ class OrdersNoticeConfigSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order_Notice_Config
         fields = ('id','order_type','grant_group','mode','number')     
-                            
+           
+class IPVSSerializer(serializers.ModelSerializer):
+    sip = serializers.CharField(source='ipvs_assets.server_assets.ip', read_only=True)
+    rs_count = serializers.SerializerMethodField(read_only=True,required=False)
+    rs_list = serializers.SerializerMethodField(read_only=True,required=False)
+    project = serializers.SerializerMethodField(read_only=True,required=False)
+    class  Meta:
+        model = IPVS_CONFIG
+        fields = ('id','vip','port','scheduler','sip','rs_count','persistence','protocol','line','desc','is_active','ipvs_assets','project','rs_list')         
+    
+        extra_kwargs = {
+                        'ipvs_assets': {'required': False},
+                        'vip':{'required': False},
+                        'port':{'required': False},
+                        'scheduler':{'required': False},                   
+                        }       
+    
+    def get_project(self,obj):
+        return obj.project()
+    
+    def get_rs_count(self,obj):
+        return obj.ipvs_rs.all().count()  
+    
+    def get_rs_list(self,obj):
+        return [ x.to_json() for x in obj.ipvs_rs.all() ]     
+    
+class IPVSRealServerSerializer(serializers.ModelSerializer):
+    sip = serializers.CharField(source='rs_assets.server_assets.ip', read_only=True)
+    vip_detail = serializers.SerializerMethodField(read_only=True,required=False)
+    class  Meta:
+        model = IPVS_RS_CONFIG
+        fields = ('id','ipvs_fw_ip','forword','weight','sip','ipvs_vip','rs_assets','is_active','vip_detail')         
+        extra_kwargs = {
+                        'rs_assets': {'required': False},
+                        'ipvs_fw_ip':{'required': False},
+                        'ipvs_vip':{'required': False},
+                        'forword':{'required': False},
+                        }       
+    
+    def get_vip_detail(self,obj):
+        return obj.ipvs_vip.to_json()    

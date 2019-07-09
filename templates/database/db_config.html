@@ -158,10 +158,7 @@
 										 <label class="col-sm-2 control-label" > 所属项目<span class="required">*</span></label>
 										 <div class="col-sm-10">
 											  <select required="required" class="selectpicker form-control" data-live-search="true"  data-size="10" data-width="100%"  id="db_project"  onchange="javascript:oBtProjectSelect();" autocomplete="off">
-											   		<option selected="selected" value="">请选择一个项目</option>
-														{% for s in assets.projectList %}
-															<option value="{{s.id}}" name="db_project">{{s.project_name}}</option>
-														{% endfor %}								   							
+											   		<option selected="selected" value="">请选择一个项目</option>							   							
 											  </select>
 										 </div>
 									</div>	

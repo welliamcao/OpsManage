@@ -13,7 +13,7 @@ from utils.logger import logger
 from dao.base import DjangoCustomCursors,DataHandle
 from django.http import QueryDict
 from utils.ansible.runner import ANSRunner
-from apps.models import Project_Config
+from cicd.models import Project_Config
 
   
 
@@ -438,56 +438,51 @@ class AssetsCount(DjangoCustomCursors):
         
     def projectAssets(self):
         try:
-            self.execute("""SELECT count(*) as count,t1.project_name from opsmanage_project_assets t1, opsmanage_assets t2 WHERE t2.project = t1.id GROUP BY t2.project""");
-            return self.dictfetchall()  
+            return [ {"count":ds.count,"project_name":ds.project_name} for ds in Project_Assets.objects.raw("""SELECT t1.id,count(*) as count,t1.project_name from opsmanage_project_assets t1, opsmanage_assets t2 WHERE t2.project = t1.id GROUP BY t2.project""")]
         except Exception as ex:
             logger.error(msg="统计项目主机资产失败:{ex}".format(ex=ex))
         return self.dataList
 
     def zoneAssets(self):
         try:
-            self.execute("""SELECT count(*) as count,t1.zone_name from opsmanage_zone_assets t1, opsmanage_assets t2 WHERE t2.put_zone = t1.id GROUP BY t2.put_zone""");
-            return self.dictfetchall()  
+            return [ {"count":ds.count,"zone_name":ds.zone_name} for ds in Zone_Assets.objects.raw("""SELECT t1.id,count(*) as count,t1.zone_name from opsmanage_zone_assets t1, opsmanage_assets t2 WHERE t2.put_zone = t1.id GROUP BY t2.put_zone""")]
         except Exception as ex:
             logger.error(msg="统计机房主机资产失败:{ex}".format(ex=ex))
         return self.dataList 
 
     def statusAssets(self):
         try:
-            self.execute("""SELECT count(*) as count,status from opsmanage_assets GROUP BY status;""");
-            return self.dictfetchall()  
+            return [ {"count":ds.count,"status":ds.status} for ds in Assets.objects.raw("""SELECT id,count(*) as count,status from opsmanage_assets GROUP BY status;""")]  
         except Exception as ex:
             logger.error(msg="统计状态主机资产失败:{ex}".format(ex=ex))
         return self.dataList 
     
     def typeAssets(self):
         try:
-            self.execute("""SELECT count(*)  as count,assets_type from opsmanage_assets GROUP BY assets_type;""");
-            return self.dictfetchall()  
+            return [ {"count":ds.count,"assets_type":ds.assets_type} for ds in Assets.objects.raw("""SELECT id,count(*)  as count,assets_type from opsmanage_assets GROUP BY assets_type;""")] 
         except Exception as ex:
             logger.error(msg="统计资产类型失败:{ex}".format(ex=ex))
         return self.dataList   
     
     def databasesAssets(self):
+        dataList = []
         try:
-            self.execute("""SELECT count(*)  as count,db_env from opsmanage_database_server_config GROUP BY db_env;""");
-            dataList = self.dictfetchall()
-            for ds in dataList:
-                if ds.get("db_env") == "beta":ds["db_env"] = u"测试环境"
-                else:ds["db_env"] = u"生产环境"            
+            for ds in DataBase_Server_Config.objects.raw("""SELECT id,count(*) as count,db_env from opsmanage_database_server_config GROUP BY db_env;"""):
+                if ds.db_env == "beta":dataList.append({"count":ds.count,"db_env":"测试环境"})
+                else:
+                    dataList.append({"count":ds.count,"db_env":"生产环境"})           
             return dataList 
         except Exception as ex:
             logger.error(msg="统计数据库类型失败:{ex}".format(ex=ex))
         return self.dataList      
     
     def appsAssets(self):
+        dataList = []
         try:
-            self.execute("""SELECT count(*)  as count,project_env from opsmanage_project_config GROUP BY project_env;""")
-            dataList = self.dictfetchall()
-            for ds in dataList:
-                if ds.get("project_env") == "sit":ds["project_env"] = u"测试环境"
-                elif ds.get("project_env") == "qa":ds["project_env"] = u"灰度环境"
-                else:ds["project_env"] = u"生产环境"
+            for ds in Project_Config.objects.raw("""SELECT id,count(id)  as count,project_env from opsmanage_project_config GROUP BY project_env;"""):
+                if ds.project_env == "sit":dataList.append({"count":ds.count,"project_env":"测试环境"})
+                elif ds.project_env == "qa":dataList.append({"count":ds.count,"project_env":"灰度环境"})
+                else:dataList.append({"count":ds.count,"project_env":"生产环境"})               
             return dataList 
         except Exception as ex:
             logger.error(msg="统计代码发布类型失败:{ex}".format(ex=ex))

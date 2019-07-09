@@ -33,9 +33,10 @@ urlpatterns = [
     url(r'^deploy/',include('deploy.urls')),
     url(r'^db/',include('databases.urls')),
     url(r'^sched/',include('sched.urls')),
-    url(r'^apps/',include('apps.urls')),
+    url(r'^apps/',include('cicd.urls')),
     url(r'^nav/',include('navbar.urls')),
     url(r'^websocket/',include('websocket.urls')),
     url(r'^wiki/',include('wiki.urls')),
     url(r'^order/',include('orders.urls')),
+    url(r'^apply/',include('apply.urls')),
 ]

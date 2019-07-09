@@ -297,37 +297,19 @@ def raid_detail(request, id,format=None):
 class AssetList(APIView,DataHandle):
     
     def get(self,request,*args,**kwargs):
-        if request.user.is_superuser:
-            snippets = Assets.objects.all()
+        query_params = dict()
+        for ds in request.query_params.keys():  
+            if ds == 'assets_type' and request.query_params.get(ds) == 'ser':         
+                query_params["assets_type__in"] = ["vmser","server"]
+                continue 
+            query_params[ds] = request.query_params.get(ds)     
+        if request.user.is_superuser:             
+            snippets = Assets.objects.filter(**query_params)
         else:
-            snippets = [ ds.assets for ds in User_Server.objects.filter(user=request.user) ]
+            snippets = [ ds.assets for ds in User_Server.objects.filter(user=request.user,assets__in=[ ds.id  for ds in Assets.objects.filter(**query_params) ]) ]
         dataList = []
-        for assets in snippets:
-            data = self.convert_to_dict(assets)
-            try:
-                data["project"] = Project_Assets.objects.get(id=assets.project).project_name
-            except Exception as ex:
-                data["project"] = '未知' 
-            try:
-                data["service"] = Service_Assets.objects.get(id=assets.business).service_name
-            except Exception as ex:
-                data["service"] = '未知'    
-            try:
-                data["put_zone"] = Zone_Assets.objects.get(id=assets.put_zone).zone_name
-            except Exception as ex:
-                data["put_zone"] = '未知'                         
-            if hasattr(assets,'server_assets'):
-                try:
-                    data["detail"] = self.convert_to_dict(assets.server_assets)         
-                    data["detail"].pop("port")                       
-                except Exception as ex:
-                    data["detail"] = []                  
-            elif hasattr(assets,'network_assets'):
-                try:
-                    data["detail"] = self.convert_to_dict(assets.network_assets)                               
-                except Exception as ex:
-                    data["detail"] = []       
-            dataList.append(data)
+        for assets in snippets:      
+            dataList.append(assets.to_json())
         return Response(dataList) 
     
     def post(self,request,*args,**kwargs):    
@@ -336,7 +318,6 @@ class AssetList(APIView,DataHandle):
         serializer = serializers.AssetsSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            #recordAssets.delay(user=str(request.user),content="添加资产：{name}".format(name=request.data.get("name")),type="assets",id=serializer.data.get('id'))  
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)    
     
@@ -373,6 +354,7 @@ def asset_detail(request, id,format=None):
 
 
 @api_view(['GET', 'POST' ])
+@permission_required('asset.assets_read_server',raise_exception=True)
 def asset_server_list(request,format=None):
     """
     List all order, or create a server assets order.

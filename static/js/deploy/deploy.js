@@ -1743,10 +1743,10 @@ $(document).ready(function() {
 			    	let data = {
 							'playbook_id':$("#run_deploy_playbook").val(),
 							'server_model':$('#server_model option:selected').val(),
-							'service':$('#deploy_service option:selected').val(),
-							'group':$('#deploy_group option:selected').val(),
+							'service':$('select[name="service"] option:selected').val(),
+							'group':$('select[name="group"] option:selected').val(),
 							'tags':$('select[name="tags"] option:selected').val(),
-							'inventory_groups':$('#deploy_inventory_groups option:selected').val(),
+							'inventory_groups':$('select[name="inventory_groups"] option:selected').val(),
 							'playbook_file':contents,
 							'custom':ansible_server,
 							'ans_uuid':$("#ans_uuid").val(),

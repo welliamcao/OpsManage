@@ -179,7 +179,7 @@ $(document).ready(function() {
 		$("#order_status").html(orderStatus[data["data"]["order_status"]])
 		$("#filedownload_order_subject").val(data["data"]["order_subject"]).attr("disabled","")
 		$("#order_content").val(data["data"]["detail"]["download"]["order_content"]).attr("disabled","")
-		AssetsSelect("custom",requests('get','/api/assets/'),data["data"]["detail"]["download"]["dest_server"])
+		AssetsSelect("custom",requests('get','/api/assets/?assets_type=ser'),data["data"]["detail"]["download"]["dest_server"])
 		$("#dest_path").val(data["data"]["detail"]["download"]["dest_path"]).attr("disabled","")
 		$("#ans_uuid").val(uuid())
 		switch(data["data"]["order_status"])

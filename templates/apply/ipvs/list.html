@@ -1,0 +1,688 @@
+{% extends 'base.html' %}
+{% block css-content %}
+    <link rel="stylesheet" href="/static/css/bootstrap-select.css">
+    <link rel="stylesheet" href="/static/jquery-confirm/jquery-confirm.min.css">
+    <link href="/static/datatable/datatables.net-buttons-bs/css/buttons.bootstrap.min.css" rel="stylesheet">
+    <link href="/static/datatable/datatables.net-fixedheader-bs/css/fixedHeader.bootstrap.min.css" rel="stylesheet">
+    <link href="/static/datatable/datatables.net-responsive-bs/css/responsive.bootstrap.min.css" rel="stylesheet">
+    <link href="/static/datatable/datatables.net-scroller-bs/css/scroller.bootstrap.min.css" rel="stylesheet"> 
+    <link href="/static/datatable/datatables.net-select/css/select.dataTables.min.css" rel="stylesheet">
+    <link href="/static/css/doublebox-bootstrap.css" rel="stylesheet"> 
+    <link href="/static/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css" rel="stylesheet"> 
+    <link rel="stylesheet" href="/static/tooltips/css/tooltips.css"> 
+    <link href="/static/switchery/dist/css/bootstrap-switch.min.css" rel="stylesheet"> 
+    <link rel="stylesheet" href="/static/jstree/css/style.min.css" />   
+	
+
+	
+	<style type="text/css"> 
+		.assets-online{
+		    color:green;
+		}
+		.assets-offline{
+		    color:red;
+		}			
+        .modal-select{
+            -moz-user-select:none;/*火狐*/
+            -webkit-user-select:none;/*webkit浏览器*/
+            -ms-user-select:none;/*IE10*/
+            -khtml-user-select:none;/*早期浏览器*/
+            user-select:none;
+            }
+          .modal-header{
+            cursor:move;
+          }	
+	td.details-control {
+	    background: url('/static/images/details_open.png') no-repeat center center; */
+	    cursor: pointer;
+	}
+	tr.shown td.details-control {
+	    background: url('/static/images/details_close.png') no-repeat center center;
+	}           		
+	</style>      
+{% endblock %}
+{% block page-content %}
+        <div class="clearfix"></div>       
+        <div class="row">
+              <div class="col-md-12 col-sm-12 col-xs-12">
+                <div class="x_panel">
+                  <div class="x_title">
+                    <h2><i class="fa fa-bars"></i> IPVS管理<small>IPVS Manage</small></h2>
+                    <div class="clearfix"></div>
+                  </div>
+                  <div class="x_content">
+                    <div class="row">
+                      <div class="col-sm-2 mail_list_column"> 
+                      <input id="search-input" type="text" class="form-control" placeholder="检索关键词...">   
+                      <!-- <span class="section"></span>  -->
+					  <legend></legend>                
+                      <div id="ipvsTree"></div>                                     
+                      </div>
+                      <!-- /MAIL LIST -->
+
+                      <!-- CONTENT MAIL -->
+                      <div class="col-sm-10 mail_view">
+	                    <div class="" role="tabpanel" data-example-id="togglable-tabs">
+	                      <ul id="myTab" class="nav nav-tabs bar_tabs" role="tablist">
+	                        <li role="presentation" class="active"><a href="#tab_content1" id="home-tab" role="tab" data-toggle="tab" aria-expanded="true"><i class="fa fa-map-marker"></i> VIP列表</a>
+	                        </li>
+	                         <li role="presentation" class=""><a href="#tab_content2" role="tab" id="profile-tab" data-toggle="tab" aria-expanded="false"><i class="fa fa-tasks"></i> RS列表</a>
+	                        </li>                    
+	                      </ul>
+	                      <div id="myTabContent" class="tab-content">
+	                        <div role="tabpanel" class="tab-pane fade active in" id="tab_content1" aria-labelledby="home-tab">			              
+				              <div class="col-md-12 col-sm-12 col-xs-12">
+				                <div class="x_panel">
+				                  <div class="x_title">
+				                    <h2>VIP <small>VIP Detail</small></h2>
+				                    <div class="clearfix"></div>
+				                  </div>
+				                  <div class="x_content">
+			                  		<div class="row">			 		                  		                 		
+										<div class="btn-group btn-group-sm pull-right">
+					                        <button class="btn btn-default" name="vip_page_previous" type="button" value="">上一页</button>
+					                        <button class="btn btn-default" name="vip_page_next" type="button" value="">下一页</button>											
+				                      	</div>			                      	
+			                      	</div>
+			                      	<br>
+			                      	<div class="row">				                  
+					                    <table class="table" id="ipvsVIPManageListTable">
+					                      <thead>
+					                        <tr>
+					                          <th></th>
+					                          <th>VIP</th>
+					                          <th>主机</th>	
+					                          <th>协议</th>		                          			                          
+					                          <th>调度算法</th>
+					                          <th>后端RS</th>
+					                          <th>持久时间</th>
+					                          <th>线路类型</th>
+					                          <th>功能描述</th>
+					                          <th>激活</th>
+					                          <th class="text-center">操作</th>
+					                        </tr>
+					                      </thead>
+					                      <tbody>
+					                      </tbody>
+					                    </table>
+									</div>
+				                  </div>
+				                </div>
+				              </div>			              
+				              
+	                        </div>                        
+	                        <div role="tabpanel" class="tab-pane fade" id="tab_content2" aria-labelledby="profile-tab">
+	                        
+	 			              <div class="col-md-12 col-sm-12 col-xs-12">
+				                <div class="x_panel">
+				                  <div class="x_title">
+				                    <h2>后端服务器列表 <small>RealServer Detail</small></h2>
+				                    <div class="clearfix"></div>
+				                  </div>
+				                  <div class="x_content">
+				                  	<div class="product_price" id="divSelectedType" style="display:none;"></div> 
+			                  		<div class="row">	
+			                  			<div class="pull-left">
+							                  <div class="col-md-5 col-sm-12 col-xs-12 form-group">
+				                  				<select required="required" class="selectpicker form-control"  data-size="10" data-selected-text-format="count > 5" data-live-search="true" data-width="100%"   autocomplete="off"  class="form-control" name="ipvs_vip_rs"  id="ipvs_vip_rs"  required>
+				                  				</select>
+							                  </div>
+							
+							                  <div class="col-md-5 col-sm-12 col-xs-12 form-group">
+				                                <select  required="required" class="selectpicker form-control"  data-size="10" data-selected-text-format="count > 5" data-live-search="true" data-width="100%"   autocomplete="off"  class="form-control" name="ipvs_sip"  id="ipvs_sip"  required>
+				                                </select>
+							                  </div>		                  					                  				
+			                  			</div>
+										<div class="btn-group  btn-group-sm pull-right">
+					                        <button class="btn btn-default" name="rs_page_previous" type="button" value="">上一页</button>
+					                        <button class="btn btn-default" name="rs_page_next" type="button" value="">下一页</button>
+				                      	</div>			                      	
+			                      	</div>
+			                      	<br>
+			                      	<div class="row">
+					                    <table class="table" id="ipvsRSManageListTable">
+					                      <thead>
+					                        <tr>
+					                          <th></th>
+					                          <th>VIP</th>					                          
+					                          <th>转发IP</th>
+					                          <th>调度类型</th>
+					                          <th>权重</th>
+					                          <th>管理IP</th>
+					                          <th>激活</th>
+					                          <th class="text-center">操作</th>
+					                        </tr>
+					                      </thead>
+					                      <tbody>
+					                      </tbody>
+					                    </table>
+									</div>
+				                  </div>
+				                </div>
+				              </div>
+	                       
+	                        
+							</div>
+	                        <div role="tabpanel" class="tab-pane fade" id="tab_content3" aria-labelledby="profile-tab">
+	            	               
+	                        </div>
+	                        
+	                        <div role="tabpanel" class="tab-pane fade" id="tab_content4" aria-labelledby="profile-tab">
+	                        
+	                        </div>                        
+	                        
+	                      </div>
+	                    </div>
+	                    
+			            <div class="col-md-12 col-sm-12 col-xs-12" id="ipvs_vip_realserver_detail" style="display:none;">
+			                <div class="x_panel">
+			                  <div class="x_title">
+			                    <h2>VIP Service<small>RealServer Detail</small></h2>
+			                    <div class="clearfix"></div>
+			                  </div>
+			                  <div class="x_content">
+		                      	<div class="row">
+				                    <table class="table" id="ipvsVipRealServerManageListTable">
+				                      <thead>
+				                        <tr>
+				                          <th></th>
+				                          <th>VIP</th>
+				                          <th>转发IP</th>
+				                          <th>调度类型</th>
+				                          <th>权重</th>
+				                          <th>管理IP</th>
+				                          <th>激活</th>
+				                          <th class="text-center">操作</th>
+				                        </tr>
+				                      </thead>
+				                      <tbody>
+				                      </tbody>
+				                    </table>
+								</div>
+			                  </div>
+			                </div>
+		                </div>	                    
+	                    
+			             <div class="col-md-8 col-xs-12" id="add_ipvs_rs_task" style="display:none;">
+			               <div class="x_panel">
+			                 <div class="x_title">
+			                   <h2>后端RealServer <small>Forward RealServer</small></h2>
+			                   <div class="clearfix"></div>
+			                 </div>
+			                 <div class="x_content">
+			                 	<div class="row">
+				                 	<div class="col-lg-12">	                 		                 		
+					                    <form  id="addIpvsRsForm" class="main form-horizontal">{% csrf_token %}
+										<fieldset>																																																										
+											<div class="item form-group">
+												 <label class="col-sm-2 control-label" >VIP选择</label>
+												 <div class="col-sm-8">
+					                                    <select required="required" class="selectpicker form-control"  data-size="10" data-selected-text-format="count > 5" data-live-search="true" data-width="100%"   autocomplete="off"  class="form-control" name="ipvs_vip"  id="ipvs_vip"  required>
+					                                    </select>
+												 </div>
+											</div>	
+																									
+											<div class="item form-group">
+												 <label class="col-sm-2 control-label" > 所属项目<span class="required"></span></label>
+												 <div class="col-sm-8">
+													  <select required="required" class="selectpicker form-control" data-live-search="true"  data-size="10" data-width="100%" id="ipvs_rs_project" name="ipvs_rs_project"   onchange="javascript:ipvsRealServerProjectSelect();" autocomplete="off">
+													   		<option selected="selected" value="">请选择一个项目</option>							   							
+													  </select>
+												 </div>
+											</div>	
+											<div class="item form-group">
+												 <label class="col-sm-2 control-label" > 业务类型<span class="required"></span></label>		
+												 <div class="col-sm-8">								 
+													 <select required="required" class="selectpicker form-control" data-live-search="true"  data-size="10" data-width="100%" id="ipvs_rs_service" name="ipvs_rs_service" onchange="javascript:IpvsRealServerAssetsTypeSelect('service','ipvs_rs_service');" autocomplete="off">
+														  <option selected="selected" value="">请选择一个业务</option>								   							
+													 </select>
+												 </div>
+											</div>	
+											
+											<div class="item form-group" >
+												 <label  class="col-sm-2 control-label" ><font color="red">* </font>RS服务器</label>
+			 									 <div class="col-sm-8">
+													 <select class="selectpicker form-control" data-live-search="true"  data-size="10" data-width="100%" name="rs_assets" id="rs_assets" autocomplete="off">
+													   	<option selected="selected" value="">请选择服务器</option>						   							
+													 </select>	
+												 </div>					 	
+											</div>																				
+							
+					
+											<div class="item form-group">
+												 <label class="col-sm-2 control-label"><font color="red">* </font>转发IP</label>
+												 <div class="col-sm-8">
+												 	<input type="text" class="form-control" id="ipvs_fw_ip" name="ipvs_fw_ip" placeholder="输入IP地址" value="" class="input-xlarge" required></input>
+												 </div>
+											</div>		
+											
+											<div class="item form-group">
+												<label class="col-sm-2 control-label">调度类型<span class="required">*</span></label>
+												<div class="col-sm-8">
+													<select class="selectpicker form-control" name="forword">
+														<option value="-m">NAT</option>
+														<option value="-i">TUN</option>
+														<option selected="selected" value="-g">DR</option>
+													</select>
+												</div>
+											</div>												
+											
+											<div class="item form-group">
+												 <label class="col-sm-2 control-label"><font color="red">* </font>权重</label>
+												 <div class="col-sm-8">
+												 	<input type="text"  class="form-control" id="weight" name="weight" placeholder="权重" value="1" class="input-xlarge" required></input>
+												 </div>
+											</div>													
+																									
+											</fieldset>
+											<legend></legend>
+											<div class="item form-group">
+												<label class="col-sm-4 control-label"></label>								
+												<button type="reset" class="btn btn-default btn-sm" id="save_deploy_script">撤销</button>
+												<button type="button" class="btn btn-default btn-sm" id="modf_crontab" style="display:none;">修改</button>
+												<button type="button"  class="btn btn-default btn-sm" value=""  id="add_ipvs_rs">添加</button>
+									 		</div>									 		
+										</form>
+									</div>
+								</div>
+			                 </div>
+			               </div>
+			             </div>	
+			             
+<!-- 			              <div class="col-md-4 col-xs-12" id="ipvs_instructions" style="display:none;">
+			                <div class="x_panel">
+			                  <div class="x_title">
+			                    <h2>使用说明 <small>Instructions</small></h2>
+			                    <div class="clearfix"></div>
+			                  </div>
+			                  <div class="x_content">
+			                    <div class="col-xs-9">
+			                      Tab panes
+			                      <div class="tab-content">
+			                        <div class="tab-pane active" id="home-r">
+			                          <p class="lead">调度类型</p>
+			                          <p>分为三种：Crontab，间隔，日期</p>
+			                          <p>Cron类型：类似Linux Crontab，但是可以使用到秒级调度。</p>
+			                          <p>间隔类型：间隔多少时间执行一次任务。</p>
+			                          <p>日期类型：在具体某一天的时刻执行任务（一次性任务）。</p>
+			                        </div>
+			                        <div class="tab-pane" id="profile-r">
+			                        	<p class="lead">时间调度，参数如下</p>
+										<ul>
+											<li>year (int|str) – 4位数字</li>
+											<li>month (int|str) – 月 (范围1-12)</li>
+											<li>day (int|str) –  日(范围1-31) </li>
+											<li>week (int|str) – 周 (范围1-53)</li>
+											<li>day_of_week (int|str) – 周内第几天或者星期几 (范围0-6 或者 mon,tue,wed,thu,fri,sat,sun)</li>
+											<li>hour (int|str) – 时 (范围0-23)</li>
+											<li>minute (int|str) – 分 (范围0-59)</li>
+											<li>second (int|str) – 秒 (范围0-59)</li>
+											<li>start_date (datetime|str) – 最早开始日期(包含)</li>
+											<li>end_date (datetime|str) – 最晚结束时间(包含)</li>
+										</ul>                        	
+			                        </div>
+			                        <div class="tab-pane" id="messages-r">
+			                        	<p class="lead">间隔调度，参数如下</p>
+										<ul>
+											<li>weeks (int) – 间隔几周</li>
+											<li>days (int) – 间隔几天 </li>
+											<li>hours (int) – 间隔几小时</li>
+											<li>minutes (int) – 间隔几分钟 </li>
+											<li>seconds (int) – 间隔多少秒</li>
+											<li>start_date (datetime|str) – 开始日期</li>
+											<li>end_date (datetime|str) – 结束日期 </li>
+										</ul>                         
+			                        </div>
+			                        <div class="tab-pane" id="settings-r">
+			                        	<p class="lead">日期调度，只会执行一次</p>
+										<ul>
+											<li>run_date (datetime|str) – 指定日期执行任务</li>
+										</ul>                       
+			                        </div>
+			                      </div>
+			                    </div>
+			
+			                    <div class="col-xs-3">
+			                      required for floating
+			                      Nav tabs
+			                      <ul class="nav nav-tabs tabs-right">
+			                        <li class="active"><a href="#home-r" data-toggle="tab">调度类型</a>
+			                        </li>
+			                        <li><a href="#profile-r" data-toggle="tab">Cron</a>
+			                        </li>
+			                        <li><a href="#messages-r" data-toggle="tab">间隔</a>
+			                        </li>
+			                        <li><a href="#settings-r" data-toggle="tab">日期</a>
+			                        </li>
+			                      </ul>
+			                    </div>                 
+			                  </div>
+			                </div>
+			              </div> -->			             
+			             	                    
+                      </div>					  				
+                      <!-- /CONTENT MAIL -->
+                    </div>
+                  </div>
+                </div>
+              </div>        
+        </div>        
+	
+		<div class="row">
+            <div class="col-md-12 col-xs-12" id="sched_jobs_log" style="display:none;">
+              <div class="x_panel">
+                <div class="x_title">
+                  <h2>任务日志<small>Jobs Logs</small></h2>
+                  <ul class="nav navbar-right panel_toolbox">
+                    <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                    </li>
+                    <li class="dropdown">
+                      <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
+                      <ul class="dropdown-menu" role="menu">
+                        <li><a href="#">Settings 1</a>
+                        </li>
+                        <li><a href="#">Settings 2</a>
+                        </li>
+                      </ul>
+                    </li>
+                    <li><a class="close-link"><i class="fa fa-close"></i></a>
+                    </li>
+                  </ul>
+                  <div class="clearfix"></div>
+                </div>
+                <div class="x_content">      
+	                <div class="x_content">        
+	                	<div class="row">
+	                		<div class="pull-left"> 
+								<h3>
+	                             	<i class="fa fa-laptop" id="jobs_nodes_name"></i>        
+	                            </h3>                                                         
+	                        </div>             	
+							<div class="btn-group  btn-group-sm pull-right">
+		                        <button class="btn btn-default" name="log_page_previous" type="button" value="">上一页</button>
+		                        <button class="btn btn-default" name="log_page_next" type="button" value="">下一页</button>
+	                      	</div>      
+	                    </div>    
+	                    <br>             
+	                	<div class="row">
+		                    <table class="table" id="schedNodeJobsLogsListTable">
+		                      <thead>
+		                        <tr>
+		                          <th>ID</th>
+		                          <th>任务名称</th>
+		                          <th>命令</th>
+		                          <th>开始时间</th>
+		                          <th>结束时间</th>
+		                          <th>耗时(sec)</th>
+		                          <th>结果</th>
+		                          <th>状态</th>
+		                          <th class="text-center">操作</th>
+		                        </tr>
+		                      </thead>
+		                      <tbody>
+		                      </tbody>
+		                    </table>       
+	                    </div>        
+	                </div>
+                </div>
+              </div>
+            </div>		
+		</div>
+
+        <div id="myModfIpvsRsModal" class="modal fade bs-example-modal-vip" data-backdrop="static" tabindex="-1" role="dialog" aria-hidden="true">
+          <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span>
+                </button>
+                <h4 class="modal-title" id="myModfRSModalLabel">批量修改虚拟IP</h4>
+              </div>
+              <div class="modal-body">
+                   <form  id="addIpvsRsForm" class="main form-horizontal">{% csrf_token %}
+					<fieldset>																																																										
+					<div class="item form-group">
+						 <label class="col-sm-2 control-label" >VIP选择</label>
+						 <div class="col-sm-8">
+                                   <select required="required" class="selectpicker form-control"  data-size="10" data-selected-text-format="count > 5" data-live-search="true" data-width="100%"   autocomplete="off"  class="form-control" name="ipvs_vip"   required>
+                                   </select>
+						 </div>
+					</div>																						
+		
+					<div class="item form-group">
+						<label class="col-sm-2 control-label">调度类型<span class="required">*</span></label>
+						<div class="col-sm-8">
+							<select class="selectpicker form-control" name="forword">
+								<option value="-m">NAT</option>
+								<option value="-i">TUN</option>
+								<option selected="selected" value="-g">DR</option>
+							</select>
+						</div>
+					</div>			
+		
+					<div class="item form-group">
+						 <label class="col-sm-2 control-label"><font color="red">* </font>权重</label>
+						 <div class="col-sm-8">
+						 	<input type="text"  class="form-control" id="weight" name="weight" placeholder="权重" value="1" class="input-xlarge" required></input>
+						 </div>
+					</div>													
+																			
+					</fieldset>								 		
+				</form>
+			  </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="modfIpvsRealServersubmit" >修改</button>
+              </div>			  
+            </div>
+          </div>
+        </div>	
+
+        <div id="myAddIpvsVIPModal" class="modal fade bs-example-modal-navbar" data-backdrop="static" tabindex="-1" role="dialog" aria-hidden="true">
+          <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span>
+                </button>
+                <h4 class="modal-title" id="myModalLabel">新增虚拟IP</h4>
+              </div>
+              <div class="modal-body">
+				<form id="addIpvsVipForm" class="main form-horizontal">
+					<fieldset>
+						<div class="item form-group">
+							 <label class="col-sm-3 control-label" > 所属项目<span class="required"></span></label>
+							 <div class="col-sm-6">
+								  <select required="required" class="selectpicker form-control" data-live-search="true"  data-size="10" data-width="100%"  id="ipvs_vip_project"   onchange="javascript:ipvsVipProjectSelect();" autocomplete="off">
+								   		<option selected="selected" value="">请选择一个项目</option>							   							
+								  </select>
+							 </div>
+						</div>	
+						<div class="item form-group">
+							 <label class="col-sm-3 control-label" > 业务类型<span class="required"></span></label>		
+							 <div class="col-sm-6">								 
+								 <select required="required" class="selectpicker form-control" data-live-search="true"  data-size="10" data-width="100%"  id="ipvs_vip_service"  onchange="javascript:IpvsVipAssetsTypeSelect('service','ipvs_vip_service');" autocomplete="off">
+									  <option selected="selected" value="">请选择一个业务</option>								   							
+								 </select>
+							 </div>
+						</div>	
+						
+						<div class="item form-group" >
+							 <label required="required" class="col-sm-3 control-label" >IPVS服务器<span class="required">*</span></label>
+							 <div class="col-sm-6">
+								 <select class="selectpicker form-control" data-live-search="true"  data-size="10" data-width="100%" name="ipvs_assets"  id="ipvs_assets" autocomplete="off">
+								   	<option selected="selected" value="">请选择服务器</option>						   							
+								 </select>	
+							 </div>					 	
+						</div>						
+
+						<div class="item form-group">
+							<label class="col-sm-3 control-label">VIP地址<span class="required">*</span></label>
+							<div class="col-sm-6">
+								<input type="text" class="form-control" placeholder="VIP" name="vip" required/>
+							</div>
+						</div>	
+											
+						<div class="item form-group">
+							<label class="col-sm-3 control-label">端口<span class="required">*</span></label>
+							<div class="col-sm-6">
+								<input type="text" class="form-control" placeholder="端口" name="port" required/>
+							</div>
+						</div>										
+
+						<div class="item form-group">
+							<label class="col-sm-3 control-label">协议<span class="required">*</span></label>
+							<div class="col-sm-6">
+								<select class="selectpicker form-control" name="service">
+									<option value="-u">UDP</option>
+									<option selected="selected" value="-t">TCP</option>								
+								</select>
+							</div>
+						</div>
+												
+						
+						<div class="item form-group">
+							<label class="col-sm-3 control-label">调度算法<span class="required">*</span></label>
+							<div class="col-sm-6">
+								<select class="selectpicker form-control" name="scheduler">
+									<option value="sh">sh</option>
+									<option value="rr">rr</option>
+									<option selected="selected" value="wrr">wrr</option>
+									<option value="lc">lc</option>
+									<option value="wlc">wlc</option>									
+								</select>
+							</div>
+						</div>							
+								
+						<div class="item form-group">
+							<label class="col-sm-3 control-label">持久化</label>
+							<div class="col-sm-6">
+								<input type="text" class="form-control" placeholder="填入数字(单位秒)" name="persistence" required/>
+							</div>
+						</div>									
+
+						<div class="item form-group">
+							<label class="col-sm-3 control-label">线路</label>
+							<div class="col-sm-6">
+								<input type="text" class="form-control" placeholder="电信|联通|移动" name="line" required/>
+							</div>
+						</div>	
+
+						<div class="item form-group">
+							<label class="col-sm-3 control-label">功能描述</label>
+							<div class="col-sm-6">
+								<input type="text" class="form-control" placeholder="备注" name="desc" required/>
+							</div>
+						</div>	
+															
+					</fieldset>
+				</form>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" id="addIpvsVipsubmit"  class="btn btn-primary">添加</button>
+              </div>
+
+            </div>
+          </div>
+        </div>   	
+
+        <div id="myModfIpvsVIPModal" class="modal fade bs-example-modal-vip" data-backdrop="static" tabindex="-1" role="dialog" aria-hidden="true">
+          <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span>
+                </button>
+                <h4 class="modal-title" id="myModfVIPModalLabel">批量修改虚拟IP</h4>
+              </div>
+              <div class="modal-body">
+				<form id="modfIpvsVipForm" class="main form-horizontal">
+					<fieldset>
+							
+						<div class="item form-group">
+							 <label class="col-sm-3 control-label" >VIP选择</label>
+							 <div class="col-sm-6">
+                                    <select multiple required="required" class="selectpicker  form-control"  data-size="10" data-selected-text-format="count > 5" data-live-search="true" data-width="100%"   autocomplete="off"  class="form-control" name="ipvs_vip"  id="modf_ipvs_vip"  required>
+                                    </select>
+							 </div>
+						</div>
+																			
+						<div class="item form-group">
+							<label class="col-sm-3 control-label">协议<span class="required">*</span></label>
+							<div class="col-sm-6">
+								<select class="selectpicker form-control" name="service">
+									<option value="-u">UDP</option>
+									<option selected="selected" value="-t">TCP</option>								
+								</select>
+							</div>
+						</div>
+																	
+						<div class="item form-group">
+							<label class="col-sm-3 control-label">调度算法<span class="required">*</span></label>
+							<div class="col-sm-6">
+								<select class="selectpicker form-control" name="scheduler">
+									<option value="sh">sh</option>
+									<option value="rr">rr</option>
+									<option selected="selected" value="wrr">wrr</option>
+									<option value="lc">lc</option>
+									<option value="wlc">wlc</option>									
+								</select>
+							</div>
+						</div>							
+								
+						<div class="form-group">
+							<label class="col-sm-3 control-label">持久化</label>
+							<div class="col-sm-6">
+								<input type="text" class="form-control" placeholder="填入数字(单位秒)" name="persistence" required/>
+							</div>
+						</div>									
+
+						<div class="item form-group">
+							<label class="col-sm-3 control-label">线路</label>
+							<div class="col-sm-6">
+								<input type="text" class="form-control" placeholder="电信|联通|移动" name="line" required/>
+							</div>
+						</div>	
+
+						<div class="item form-group">
+							<label class="col-sm-3 control-label">功能描述</label>
+							<div class="col-sm-6">
+								<input type="text" class="form-control" placeholder="备注" name="desc" required/>
+							</div>
+						</div>	
+															
+					</fieldset>
+				</form>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" id="modfIpvsVipsubmit" value=""  class="btn btn-primary">修改</button>
+              </div>
+
+            </div>
+          </div>
+        </div>
+                         
+{% endblock %}
+{% block js-content %}
+	<script src="/static/jquery-confirm/jquery-confirm.min.js"></script>
+    <script src="/static/datatable/datatables.net/js/jquery.dataTables.min.js"></script>
+	<script src="/static/datatable/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>	
+    <script src="/static/datatable/datatables.net-buttons/js/dataTables.buttons.min.js"></script>
+    <script src="/static/datatable/datatables.net-buttons-bs/js/buttons.bootstrap.min.js"></script>
+    <script src="/static/datatable/datatables.net-buttons/js/buttons.flash.min.js"></script>
+    <script src="/static/datatable/datatables.net-buttons/js/buttons.html5.min.js"></script>
+    <script src="/static/datatable/datatables.net-buttons/js/buttons.print.min.js"></script>	
+    <script src="/static/datatable/datatables.net-select/js/dataTables.select.min.js"></script>
+    <script src="/static/js/doublebox/doublebox-bootstrap.js"></script>
+    <script src="/static/switchery/dist/js/bootstrap-switch.min.js"></script>       
+	<script src="/static/tooltips/js/jquery.pure.tooltips.js"></script>	 
+	<script src="/static/js/apply/ipvs.js"></script>
+	<script src="/static/js/dragable/dragable.js"></script>
+	<script src="/static/validator/validator.js"></script>
+	<script src="/static/jstree/js/jstree.min.js"></script>
+	
+    <!-- bootstrap-daterangepicker -->
+    <script src="/static/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js"></script>		 
+{% endblock %}

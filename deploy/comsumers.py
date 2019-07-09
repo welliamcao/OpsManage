@@ -45,7 +45,7 @@ class AnsibleModel(WebsocketConsumer,AssetsAnsible):
         except Exception as ex:
             self.send(text_data="Ansible Doc运行失败: {ex}".format(ex=ex))   
             self.close() 
-            
+
         self.run_model(request)
     
     def record_resullt(self,user, ans_model, ans_server, ans_args):
@@ -75,10 +75,10 @@ class AnsibleModel(WebsocketConsumer,AssetsAnsible):
         if count > 0:
             
             self.logId = self.record_resullt(self.scope["user"].username, model_name, ','.join(sList), request.get('deploy_args',""))
-            
+
             if request.get('deploy_debug') == 'on':
-                ANS = ANSRunner(resource,websocket=self,verbosity=4)
-                
+                ANS = ANSRunner(hosts=resource,websocket=self,verbosity=4)
+
             else:
                 ANS = ANSRunner(hosts=resource,websocket=self)
                 
@@ -247,9 +247,9 @@ class AnsiblePlaybook(WebsocketConsumer,AssetsAnsible):
         
         else:
             server_model = playbook.playbook_type
-        
+
         sList,resource = self.allowcator(server_model, request)         
-        
+
         count = len(sList)
                                                             
         playbook_file = os.getcwd()  + str(playbook.playbook_file)                 
@@ -265,11 +265,8 @@ class AnsiblePlaybook(WebsocketConsumer,AssetsAnsible):
             self.send("读取剧本错误: {ex}" % str(ex))
             self.close()
         #执行ansible playbook
-        if server_model == 'inventory_groups':
-            sList = ",".join(resource.keys())
-            
         if count > 0:           
-            self.logId = self.record_resullt(playbook.id, self.scope["user"].username, playbook.playbook_name, playbook.playbook_desc, ','.join(sList))
+            self.logId = self.record_resullt(playbook.id, self.scope["user"].username, playbook.playbook_name, playbook.playbook_desc, sList)
             
             ANS = ANSRunner(hosts=resource,websocket=self)                  
             ANS.run_playbook(host_list=sList, playbook_path=playbook_file,extra_vars=playbook_vars)

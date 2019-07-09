@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding=utf-8 -*-
+import os
 from ansible.inventory.host import Host
 from ansible.vars.manager import VariableManager
 from ansible.inventory.manager import InventoryManager
@@ -43,12 +44,13 @@ class HostInventory(Host):
         return self.name
 
 
-class MyInventory(InventoryManager):
+class DynamicInventory(InventoryManager):
     def __init__(self, resource=None):
         self.resource = resource
         self.loader = DataLoader()
         self.variable_manager = VariableManager()
-        super(MyInventory,self).__init__(self.loader)
+        super(DynamicInventory,self).__init__(self.loader)
+
         
     def get_groups(self):
         return self._inventory.groups
@@ -95,6 +97,16 @@ class MyInventory(InventoryManager):
         
                     for x, y in v['vars'].items():
                         self._inventory.groups[k].set_variable( x, y)
+
                                           
     def get_matched_hosts(self, pattern):
         return self.get_hosts(pattern)
+    
+def get_inventory(hosts):
+    if isinstance(hosts, str):
+        if os.path.isfile(hosts):
+            return InventoryManager(loader=DataLoader(), sources=hosts)
+        else:
+            return False
+    else:
+        return DynamicInventory(hosts)    

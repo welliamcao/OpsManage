@@ -252,29 +252,6 @@ function Percentage(num, total) {
 		        }
 		    });
 	    }  	
-	
-
-	  //添加应用资产
-   
-
-		  //添加使用组资产
-	    
-	    
-		  //添加使用组资产
-	  
-	    
-		  //添加使用组资产
-	    
-	    
-		  //添加使用组资产
-	    
-	    
-		  //添加机柜信息
-
-	    
-		  //添加使用组资产
-	    
-	    	
 		
 		//更新资产
 		$('#assetsListTable tbody').on('click','button[name="btn-assets-update"]',function(){

@@ -3,6 +3,7 @@
 from django.db import models
 import django.utils.timezone as timezone
 from django.contrib.auth.models import User
+from datetime import datetime
 
 class Assets(models.Model):
     assets_type_choices = (
@@ -48,7 +49,62 @@ class Assets(models.Model):
         ) 
         verbose_name = '总资产表'  
         verbose_name_plural = '总资产表'  
+    
+    def get_put_zone(self):
+        try:
+            return Zone_Assets.objects.get(id=self.put_zone).zone_name
+        except:
+            return '未知'        
 
+    def get_buy_user(self):
+        try:
+            return User.objects.get(id=self.buy_user).username
+        except:
+            return '未知'  
+    
+    def get_project(self):
+        try:
+            return Project_Assets.objects.get(id=self.project).project_name
+        except:
+            return '未知'         
+    
+    def get_service(self):
+        try:
+            return Service_Assets.objects.get(id=self.business).service_name
+        except:
+            return '未知'         
+        
+    def to_json(self):  
+        if hasattr(self,'server_assets'):
+            detail = self.server_assets.to_json()
+        elif hasattr(self,'network_assets'):
+            detail = self.network_assets.to_json() 
+            
+        json_format = {
+           "id": self.id,
+            "assets_type": self.assets_type,
+            "name": self.name,
+            "sn": self.sn,
+            "buy_time": self.buy_time,
+            "expire_date": self.expire_date,
+            "buy_user": self.get_buy_user(),
+            "management_ip": self.management_ip,
+            "manufacturer": self.manufacturer,
+            "provider": self.provider,
+            "model": self.model,
+            "status": self.status,
+            "put_zone": self.get_put_zone(),
+            "group": self.group,
+            "project": self.get_project(),
+            "host_vars": self.host_vars,
+            "mark": self.mark,
+            "cabinet": self.cabinet,
+            "create_date": datetime.strftime(self.create_date, '%Y-%m-%d %H:%M:%S'),
+            "update_date": datetime.strftime(self.update_date, '%Y-%m-%d %H:%M:%S'),
+            "service": self.get_service(),
+            "detail":detail,
+        }
+        return  json_format
 
 class Server_Assets(models.Model): 
     assets = models.OneToOneField('Assets', on_delete=models.CASCADE) 
@@ -87,7 +143,43 @@ class Server_Assets(models.Model):
         )
         verbose_name = '服务器资产表'  
         verbose_name_plural = '服务器资产表' 
+    
+    def get_line(self):
+        try:
+            return Line_Assets.objects.get(id=self.line).line_name
+        except:
+            return '未知'        
 
+    def get_raid(self):
+        try:
+            return Raid_Assets.objects.get(id=self.raid).raid_name
+        except:
+            return '未知' 
+        
+    def to_json(self):
+        json_format = {
+            "id": self.id,
+            "assets_id": self.assets.id,
+            "ip": self.ip,
+            "hostname": self.hostname,
+            "username": self.username,
+            "keyfile": self.keyfile,
+            "line": self.get_line(),
+            "cpu": self.cpu,
+            "cpu_number": self.cpu_number,
+            "vcpu_number": self.vcpu_number,
+            "cpu_core":self.cpu_core,
+            "disk_total": self.disk_total,
+            "ram_total": self.ram_total,
+            "kernel": self.kernel,
+            "selinux": self.selinux,
+            "swap": self.swap,
+            "raid": self.get_raid(),
+            "system": self.system,
+            "create_date": datetime.strftime(self.create_date, '%Y-%m-%d %H:%M:%S'),
+            "update_date": datetime.strftime(self.update_date, '%Y-%m-%d %H:%M:%S')
+        }
+        return  json_format
 
 class Network_Assets(models.Model):
     assets = models.OneToOneField('Assets', on_delete=models.CASCADE)
@@ -116,6 +208,23 @@ class Network_Assets(models.Model):
         verbose_name = '网络资产表'  
         verbose_name_plural = '网络资产表' 
 
+    def to_json(self):
+        json_format = {
+            "id": self.id,
+            "assets_id": self.assets.id,
+            "bandwidth": self.bandwidth,
+            "ip": self.ip,            
+            "username": self.username,
+            "port": self.port,
+            "port_number": self.port_number,
+            "firmware": self.firmware,
+            "cpu": self.cpu,
+            "stone": self.stone,
+            "configure_detail":self.configure_detail,
+            "create_date": datetime.strftime(self.create_date, '%Y-%m-%d %H:%M:%S'),
+            "update_date": datetime.strftime(self.update_date, '%Y-%m-%d %H:%M:%S'),
+        }
+        return  json_format
     
 class Disk_Assets(models.Model):      
     assets = models.ForeignKey('Assets', on_delete=models.CASCADE)

@@ -2,11 +2,11 @@
 # _#_ coding:utf-8 _*_  
 import time,uuid,json,os
 from utils.deploy.git import GitTools
-from apps.models import Project_Config
+from cicd.models import Project_Config
 from OpsManage.settings import WORKSPACES
 from utils.logger import logger
 from utils import base
-from apps.service.utils import tar_excludes_format,tar_includes_format
+from cicd.service.utils import tar_excludes_format,tar_includes_format
 from dao.assets import AssetsSource
 from utils.ansible.runner import ANSRunner
 

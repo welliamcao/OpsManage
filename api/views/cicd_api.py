@@ -2,8 +2,8 @@
 # _#_ coding:utf-8 _*_
 import os
 from api import serializers
-from apps.models import *
-from dao.app import AppsCount
+from cicd.models import *
+from dao.cicd import AppsCount
 from rest_framework import status
 from django.http import Http404
 from rest_framework.response import Response

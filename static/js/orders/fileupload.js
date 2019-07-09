@@ -156,7 +156,7 @@ $(document).ready(function() {
 		$("#order_status").html(orderStatus[data["data"]["order_status"]])
 		$("#fileupload_order_subject").val(data["data"]["order_subject"]).attr("disabled","")
 		$("#order_content").val(data["data"]["detail"]["upload"]["order_content"]).attr("disabled","")
-		AssetsSelect("custom",requests('get','/api/assets/'),data["data"]["detail"]["upload"]["dest_server"])
+		AssetsSelect("custom",requests('get','/api/assets/?assets_type=ser'),data["data"]["detail"]["upload"]["dest_server"])
 		AssetsSelect("files",data["data"]["detail"]["files"])
 		$("#dest_path").val(data["data"]["detail"]["upload"]["dest_path"]).attr("disabled","")
 		$("#ans_uuid").val(uuid())

@@ -74,11 +74,12 @@ INSTALLED_APPS = [
     'orders',
     'wiki',
     'filemanage',
-    'apps',
+    'cicd',
     'sched',
     'django_celery_beat',
     'django_celery_results',
-    'websocket'
+    'websocket',
+    'apply'
 ]
 
 MIDDLEWARE = [

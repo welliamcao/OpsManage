@@ -1,7 +1,7 @@
 #!/usr/bin/env python  
 # _#_ coding:utf-8 _*_ 
 #coding: utf8
-from apps.models import Project_Config,Log_Project_Config,Log_Project_Record,Project_Roles
+from cicd.models import Project_Config,Log_Project_Config,Log_Project_Record,Project_Roles
 from asset.models import Project_Assets,Service_Assets 
 from utils.logger import logger
 from .assets import AssetsBase
@@ -11,7 +11,7 @@ from utils.deploy.svn import SvnTools
 from django.contrib.auth.models import User
 from utils import base
 import uuid,random,json
-from apps.service.deploy import DeployRunner
+from cicd.service.deploy import DeployRunner
 
 class AppsCount:
     def __init__(self):

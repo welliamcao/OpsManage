@@ -95,7 +95,6 @@ mysql>\q
 六、生成数据表与管理员账户
 ```
 # cd /mnt/OpsManage/
-# /usr/local/python3/bin/python3 manage.py makemigrations OpsManage
 # /usr/local/python3/bin/python3 manage.py makemigrations wiki
 # /usr/local/python3/bin/python3 manage.py makemigrations orders
 # /usr/local/python3/bin/python3 manage.py makemigrations filemanage
@@ -105,6 +104,7 @@ mysql>\q
 # /usr/local/python3/bin/python3 manage.py makemigrations deploy
 # /usr/local/python3/bin/python3 manage.py makemigrations apps
 # /usr/local/python3/bin/python3 manage.py makemigrations sched
+# /usr/local/python3/bin/python3 manage.py makemigrations apply
 # /usr/local/python3/bin/python3 manage.py migrate
 # /usr/local/python3/bin/python3 manage.py createsuperuser  #创建管理员账户与密码
 ```

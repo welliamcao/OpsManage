@@ -2,7 +2,7 @@
 # _#_ coding:utf-8 _*_
 import random
 from api import serializers
-from apps.models import *
+from cicd.models import *
 from rest_framework import status
 from django.http import Http404
 from rest_framework import status
@@ -13,7 +13,7 @@ from utils.logger import logger
 from rest_framework.views import  APIView,Response
 from rest_framework.pagination import CursorPagination
 from dao.assets import AssetsBase
-from dao.app import AppsManage
+from dao.cicd import AppsManage
 from utils import base
 
 class AssetsMonitor(APIView,AssetsBase):

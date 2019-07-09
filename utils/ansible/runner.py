@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding=utf-8 -*-
-import json,re
+import os,re
 from collections import Mapping,namedtuple
 from ansible import constants
 from ansible.playbook.play import Play
@@ -12,10 +12,7 @@ from ansible.executor.playbook_executor import PlaybookExecutor
 from ansible.utils.vars import load_extra_vars
 from ansible.utils.vars import load_options_vars
 from .callback import *
-from .inventory import MyInventory
-from dao.redisdb import DsRedis 
-from dao.dispos import DeploySaveResult
-from utils.logger import logger
+from .inventory import get_inventory
 
 
 
@@ -94,7 +91,7 @@ class ANSRunner(object):
         self.websocket = websocket      
         self.mysql = mysql 
         self.loader = DataLoader()
-        self.inventory = MyInventory(resource=hosts)
+        self.inventory = get_inventory(hosts)
         self.variable_manager = VariableManager(self.loader, self.inventory)
         self.variable_manager.extra_vars = load_extra_vars(loader=self.loader, options=self.options)
         self.variable_manager.options_vars = load_options_vars(self.options, "")
@@ -126,7 +123,7 @@ class ANSRunner(object):
             tqm.run(play)  
         except Exception as err: 
             logger.error(msg="run model failed: {err}".format(err=str(err)))
-            if self.websocket:self.websocket.send(data=err)              
+            if self.websocket:self.websocket.send(str(err))              
         finally:  
             if tqm is not None:  
                 tqm.cleanup()  
@@ -152,7 +149,7 @@ class ANSRunner(object):
             executor.run()  
         except Exception as err: 
             logger.error(msg="run playbook failed: {err}".format(err=str(err)))
-            if self.websocket:self.websocket.send(data=err)        
+            if self.websocket:self.websocket.send(str(err))       
             return False
             
     def get_model_result(self):  
@@ -279,7 +276,7 @@ class ANSRunner(object):
                     data = {}                  
                     data['ip'] = x
                     try:
-                        data['msg'] = y.get('stdout').replace('\t\t','<br>').replace('\r\n','<br>').replace('\t','<br>')
+                        data['msg'] = y.get('stderr').replace('\t\t','<br>').replace('\r\n','<br>').replace('\t','<br>')
                     except:
                         data['msg'] = None
                     if y.get('rc') == 0:
@@ -324,7 +321,7 @@ class ANSRunner(object):
                 for x,y in failed.items():   
                     data = {}                  
                     data['ip'] = x
-                    data['msg'] = y.get('msg')
+                    data['msg'] = y.get('stderr') + y.get('msg')
                     data['status'] = 'failed'
                     data_list.append(data)  
                                                   
@@ -360,8 +357,8 @@ if __name__ == '__main__':
 #                     } 
 #                 } 
     
-    rbt = ANSRunner(resource,redisKey='1')
-    rbt.run_model(host_list=["192.168.1.235","192.168.1.234","192.168.1.233"],module_name='yum',module_args="name=htop state=present")
+    rbt = ANSRunner(resource)
+    rbt.run_model(host_list=["192.168.1.235","192.168.1.234","192.168.1.233"],module_name='ping',module_args="")
 #     data = rbt.get_model_result()
 #     print data
 #     print data
