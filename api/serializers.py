@@ -469,4 +469,15 @@ class IPVSRealServerSerializer(serializers.ModelSerializer):
                         }       
     
     def get_vip_detail(self,obj):
-        return obj.ipvs_vip.to_json()    
+        return obj.ipvs_vip.to_json() 
+
+class IPVSNanmeServerSerializer(serializers.ModelSerializer):
+    vip = serializers.CharField(source='ipvs_vip.vip', read_only=True)
+    class  Meta:
+        model = IPVS_NS_CONFIG
+        fields = ('id','nameserver','desc','ipvs_vip','vip')         
+        extra_kwargs = {
+                        'ipvs_vip':{'required': False},
+                        }       
+    
+  

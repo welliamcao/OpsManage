@@ -93,12 +93,32 @@ class IPVSRunner(AssetsSource):
             for rs in ds.ipvs_rs.all():
                 if int(rs.is_active) == 1 and rs.id in rsList:
                     cmds =  rs.modf_realsever() + ';' + cmds
-
-            result = self.run_ans_cmd(ds.ipvs_assets.server_assets.ip,AnsRbt,cmds[:-1])
-            if result:batch_result += batch_result + str(result)
+                    
+            if len(cmds) > 0:
+                result = self.run_ans_cmd(ds.ipvs_assets.server_assets.ip,AnsRbt,cmds[:-1])
+            
+                if result:batch_result += batch_result + str(result)
             
         if len(batch_result) > 0:return batch_result
         
+
+    def batch_del_rs(self,request=None):
+        batch_result = ''
+        host_list,AnsRbt = self.get_vip_ans()
+        rsList = [ ds.id for ds in self.realserver ]
+        for ds in self.vip:
+#             print(ds.ipvs_assets.server_assets.ip,ds.vip)
+            cmds = ''
+            for rs in ds.ipvs_rs.all():
+                if int(rs.is_active) == 1 and rs.id in rsList:
+                    cmds =  rs.del_realsever() + ';' + cmds
+            
+            if len(cmds) > 0:
+                result = self.run_ans_cmd(ds.ipvs_assets.server_assets.ip,AnsRbt,cmds[:-1])
+                
+                if result:batch_result += batch_result + str(result)
+            
+        if len(batch_result) > 0:return batch_result
                 
             
     def run_ans_cmd(self,host_list,AnsRbt,cmd): 

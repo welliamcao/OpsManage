@@ -109,6 +109,9 @@ class IVPSManage():
         else:
             return "vip不存在可能已被删除"
 
+    def vip_rule(self,request):
+        pass
+
     def rs_status(self,request):
         realserver = self.get_ipvs_rs(QueryDict(request.body).get('id'))
         if realserver:
@@ -155,20 +158,9 @@ class IVPSManage():
         for ds in realserver:
             if ds.ipvs_vip not in vipList and int(ds.ipvs_vip.is_active) == 1:
                 vipList.append(ds.ipvs_vip)
-#             
+        
         IPVS = IPVSRunner(vip=vipList,realserver=realserver) 
-        IPVS.run('batch_modf_rs') 
-#          
-#         cmds = ''
-#          
-#         for ds in realserver:
-#             if int(ds.is_active) == 1:cmds = cmds + ';' +ds.modf_realsever()
-#              
-#         if len(cmds) > 0:
-#             result = IPVS.run('batch_modf_rs',cmds)  
-#                      
-#             if result:            
-#                 return str(result)        
+        return IPVS.run('batch_modf_rs') 
         
                 
     def rs_batch_delete(self,request):
@@ -176,9 +168,19 @@ class IVPSManage():
         rs_id_list = QueryDict(request.body).getlist('rs_ids[]')
         args.pop('rs_ids[]')
         try:
-            IPVS_RS_CONFIG.objects.filter(id__in=rs_id_list).delete() 
+            realserver = IPVS_RS_CONFIG.objects.filter(id__in=rs_id_list)
+            realserver.delete()  
         except Exception as ex:
             logger.error(msg="Ipvs RealServer批量删除失败: {ex}".format(ex=ex))                   
             return "Ipvs RealServer批量删除失败: {ex}".format(ex=ex)        
-                                                                      
+     
+        vipList = [ ]
+        for ds in realserver:
+            if ds.ipvs_vip not in vipList and int(ds.ipvs_vip.is_active) == 1:
+                vipList.append(ds.ipvs_vip)
+        
+        IPVS = IPVSRunner(vip=vipList,realserver=realserver) 
+        return IPVS.run('batch_del_rs')    
+    
+                                                                       
 ASSETSIPVS = AssetsIpvs()

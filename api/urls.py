@@ -101,5 +101,7 @@ urlpatterns = [
             url(r'^apply/ipvs/rs/(?P<pk>[0-9]+)/$', ipvs_api.IPVS_RS_LIST_DETAIL.as_view()),   
             url(r'^apply/ipvs/tree/$', ipvs_api.ipvs_tree),  
             url(r'^apply/ipvs/rs/assets/$', ipvs_api.ipvs_assets),
-            url(r'^apply/ipvs/tree/service/(?P<id>[0-9]+)/$', ipvs_api.ipvs_tree_service),                                                         
+            url(r'^apply/ipvs/tree/service/(?P<id>[0-9]+)/$', ipvs_api.ipvs_tree_service),     
+            url(r'^apply/ipvs/ns/$', ipvs_api.IPVS_NS_LIST.as_view()),     
+            url(r'^apply/ipvs/ns/(?P<pk>[0-9]+)/$', ipvs_api.IPVS_NS_LIST_DETAIL.as_view()),                                                                 
     ]    

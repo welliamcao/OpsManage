@@ -159,6 +159,7 @@ class IPVS_RS_CONFIG(models.Model):
 class IPVS_NS_CONFIG(models.Model):
     ipvs_vip = models.ForeignKey('IPVS_CONFIG',related_name='ipvs_ns_total', on_delete=models.CASCADE,verbose_name='vip_id')  
     nameserver = models.CharField(max_length=100,verbose_name='nameserver',blank=True,null=True)
+    desc = models.CharField(max_length=200,verbose_name='备注',blank=True,null=True)
     class Meta:
         db_table = 'opsmanage_ipvs_ns_config'
         default_permissions = ()   

@@ -203,7 +203,7 @@
 			                </div>
 		                </div>	                    
 	                    
-			             <div class="col-md-8 col-xs-12" id="add_ipvs_rs_task" style="display:none;">
+			             <div class="col-md-7 col-xs-12" id="add_ipvs_rs_task" style="display:none;">
 			               <div class="x_panel">
 			                 <div class="x_title">
 			                   <h2>后端RealServer <small>Forward RealServer</small></h2>
@@ -278,8 +278,7 @@
 											<legend></legend>
 											<div class="item form-group">
 												<label class="col-sm-4 control-label"></label>								
-												<button type="reset" class="btn btn-default btn-sm" id="save_deploy_script">撤销</button>
-												<button type="button" class="btn btn-default btn-sm" id="modf_crontab" style="display:none;">修改</button>
+												<button type="reset" class="btn btn-default btn-sm">撤销</button>
 												<button type="button"  class="btn btn-default btn-sm" value=""  id="add_ipvs_rs">添加</button>
 									 		</div>									 		
 										</form>
@@ -289,76 +288,54 @@
 			               </div>
 			             </div>	
 			             
-<!-- 			              <div class="col-md-4 col-xs-12" id="ipvs_instructions" style="display:none;">
+			              <div class="col-md-5 col-xs-12" id="ipvs_ns" style="display:none;">
 			                <div class="x_panel">
 			                  <div class="x_title">
-			                    <h2>使用说明 <small>Instructions</small></h2>
+			                    <h2>域名关联 <small>NameServer</small></h2>
 			                    <div class="clearfix"></div>
 			                  </div>
 			                  <div class="x_content">
-			                    <div class="col-xs-9">
-			                      Tab panes
-			                      <div class="tab-content">
-			                        <div class="tab-pane active" id="home-r">
-			                          <p class="lead">调度类型</p>
-			                          <p>分为三种：Crontab，间隔，日期</p>
-			                          <p>Cron类型：类似Linux Crontab，但是可以使用到秒级调度。</p>
-			                          <p>间隔类型：间隔多少时间执行一次任务。</p>
-			                          <p>日期类型：在具体某一天的时刻执行任务（一次性任务）。</p>
-			                        </div>
-			                        <div class="tab-pane" id="profile-r">
-			                        	<p class="lead">时间调度，参数如下</p>
-										<ul>
-											<li>year (int|str) – 4位数字</li>
-											<li>month (int|str) – 月 (范围1-12)</li>
-											<li>day (int|str) –  日(范围1-31) </li>
-											<li>week (int|str) – 周 (范围1-53)</li>
-											<li>day_of_week (int|str) – 周内第几天或者星期几 (范围0-6 或者 mon,tue,wed,thu,fri,sat,sun)</li>
-											<li>hour (int|str) – 时 (范围0-23)</li>
-											<li>minute (int|str) – 分 (范围0-59)</li>
-											<li>second (int|str) – 秒 (范围0-59)</li>
-											<li>start_date (datetime|str) – 最早开始日期(包含)</li>
-											<li>end_date (datetime|str) – 最晚结束时间(包含)</li>
-										</ul>                        	
-			                        </div>
-			                        <div class="tab-pane" id="messages-r">
-			                        	<p class="lead">间隔调度，参数如下</p>
-										<ul>
-											<li>weeks (int) – 间隔几周</li>
-											<li>days (int) – 间隔几天 </li>
-											<li>hours (int) – 间隔几小时</li>
-											<li>minutes (int) – 间隔几分钟 </li>
-											<li>seconds (int) – 间隔多少秒</li>
-											<li>start_date (datetime|str) – 开始日期</li>
-											<li>end_date (datetime|str) – 结束日期 </li>
-										</ul>                         
-			                        </div>
-			                        <div class="tab-pane" id="settings-r">
-			                        	<p class="lead">日期调度，只会执行一次</p>
-										<ul>
-											<li>run_date (datetime|str) – 指定日期执行任务</li>
-										</ul>                       
-			                        </div>
-			                      </div>
-			                    </div>
-			
-			                    <div class="col-xs-3">
-			                      required for floating
-			                      Nav tabs
-			                      <ul class="nav nav-tabs tabs-right">
-			                        <li class="active"><a href="#home-r" data-toggle="tab">调度类型</a>
-			                        </li>
-			                        <li><a href="#profile-r" data-toggle="tab">Cron</a>
-			                        </li>
-			                        <li><a href="#messages-r" data-toggle="tab">间隔</a>
-			                        </li>
-			                        <li><a href="#settings-r" data-toggle="tab">日期</a>
-			                        </li>
-			                      </ul>
-			                    </div>                 
+			                 	<div class="row">
+				                 	<div class="col-lg-12">	                 		                 		
+					                    <form  id="addIpvsNsForm" class="main form-horizontal">
+										<fieldset>																																																										
+											<div class="item form-group">
+												 <label class="col-sm-2 control-label" >VIP选择</label>
+												 <div class="col-sm-8">
+					                                    <select required="required" class="selectpicker form-control"  data-size="10" data-selected-text-format="count > 5" data-live-search="true" data-width="100%"   autocomplete="off"  class="form-control" name="ipvs_vip"   required>
+					                                    </select>
+												 </div>
+											</div>	
+																																																											
+					
+											<div class="item form-group">
+												 <label class="col-sm-2 control-label"><font color="red">* </font>域名</label>
+												 <div class="col-sm-8">
+												 	<input type="text" class="form-control"  name="nameserver" placeholder="www.opsmanage.com" value="" class="input-xlarge" required></input>
+												 </div>
+											</div>		
+																						
+											
+											<div class="item form-group">
+												 <label class="col-sm-2 control-label">备注</label>
+												 <div class="col-sm-8">
+												 	<input type="text"  class="form-control" name="desc" placeholder="备注" value="" class="input-xlarge"></input>
+												 </div>
+											</div>													
+																									
+											</fieldset>
+											<legend></legend>
+											<div class="item form-group">
+												<label class="col-sm-4 control-label"></label>								
+												<button type="reset" class="btn btn-default btn-sm">撤销</button>
+												<button type="button"  class="btn btn-default btn-sm" value=""  id="add_ipvs_ns">添加</button>
+									 		</div>									 		
+										</form>
+									</div>
+								</div>	               
 			                  </div>
 			                </div>
-			              </div> -->			             
+			              </div>		             
 			             	                    
                       </div>					  				
                       <!-- /CONTENT MAIL -->
@@ -368,66 +345,37 @@
               </div>        
         </div>        
 	
-		<div class="row">
-            <div class="col-md-12 col-xs-12" id="sched_jobs_log" style="display:none;">
-              <div class="x_panel">
-                <div class="x_title">
-                  <h2>任务日志<small>Jobs Logs</small></h2>
-                  <ul class="nav navbar-right panel_toolbox">
-                    <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
-                    </li>
-                    <li class="dropdown">
-                      <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
-                      <ul class="dropdown-menu" role="menu">
-                        <li><a href="#">Settings 1</a>
-                        </li>
-                        <li><a href="#">Settings 2</a>
-                        </li>
-                      </ul>
-                    </li>
-                    <li><a class="close-link"><i class="fa fa-close"></i></a>
-                    </li>
-                  </ul>
-                  <div class="clearfix"></div>
-                </div>
-                <div class="x_content">      
-	                <div class="x_content">        
-	                	<div class="row">
-	                		<div class="pull-left"> 
-								<h3>
-	                             	<i class="fa fa-laptop" id="jobs_nodes_name"></i>        
-	                            </h3>                                                         
-	                        </div>             	
-							<div class="btn-group  btn-group-sm pull-right">
-		                        <button class="btn btn-default" name="log_page_previous" type="button" value="">上一页</button>
-		                        <button class="btn btn-default" name="log_page_next" type="button" value="">下一页</button>
-	                      	</div>      
-	                    </div>    
-	                    <br>             
-	                	<div class="row">
-		                    <table class="table" id="schedNodeJobsLogsListTable">
-		                      <thead>
-		                        <tr>
-		                          <th>ID</th>
-		                          <th>任务名称</th>
-		                          <th>命令</th>
-		                          <th>开始时间</th>
-		                          <th>结束时间</th>
-		                          <th>耗时(sec)</th>
-		                          <th>结果</th>
-		                          <th>状态</th>
-		                          <th class="text-center">操作</th>
-		                        </tr>
-		                      </thead>
-		                      <tbody>
-		                      </tbody>
-		                    </table>       
-	                    </div>        
-	                </div>
-                </div>
+        <div id="myModfIpvsNsModal" class="modal fade bs-example-modal-vip" data-backdrop="static" tabindex="-1" role="dialog" aria-hidden="true">
+          <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span>
+                </button>
+                <h4 class="modal-title" id="myModfNSModalLabel">域名管理</h4>
               </div>
-            </div>		
-		</div>
+              <div class="modal-body">
+	                 <div class="row">
+	                    <table class="table" id="ipvsVipNameServerManageListTable">
+	                      <thead>
+	                        <tr>
+	                          <th></th>
+	                          <th>VIP</th>
+	                          <th>域名</th>
+	                          <th>备注</th>
+	                          <th class="text-center">操作</th>
+	                        </tr>
+	                      </thead>
+	                      <tbody>
+	                      </tbody>
+	                    </table>
+					 </div>			
+			  </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              </div>			  
+            </div>
+          </div>
+        </div>	
 
         <div id="myModfIpvsRsModal" class="modal fade bs-example-modal-vip" data-backdrop="static" tabindex="-1" role="dialog" aria-hidden="true">
           <div class="modal-dialog modal-lg">
