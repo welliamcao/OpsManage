@@ -313,7 +313,7 @@ class ANSRunner(object):
                     data = {}
                     data['ip'] = x
                     if y.get('invocation'):
-                        data['msg'] = "Ansible %s with %s execute success." % (module_name,module_args)
+                        data['msg'] = y.get('stdout').replace('\t\t','<br>').replace('\r\n','<br>').replace('\t','<br>').replace('\n','<br>')
                         data['status'] = 'succeed'
                     data_list.append(data) 
                     

@@ -119,6 +119,16 @@ class IPVSRunner(AssetsSource):
                 if result:batch_result += batch_result + str(result)
             
         if len(batch_result) > 0:return batch_result
+
+    def vip_rate(self,request=None):
+        host_list,AnsRbt = self.get_vip_ans()
+        AnsRbt.run_model(host_list, 'shell', self.vip.rate_vip())
+        return AnsRbt.handle_model_data(AnsRbt.get_model_result(), 'shell', self.vip.rate_vip())        
+        
+    def vip_stats(self,request=None):                        
+        host_list,AnsRbt = self.get_vip_ans()
+        AnsRbt.run_model(host_list, 'shell', self.vip.stats_vip())
+        return AnsRbt.handle_model_data(AnsRbt.get_model_result(), 'shell', self.vip.stats_vip())  
                 
             
     def run_ans_cmd(self,host_list,AnsRbt,cmd): 
@@ -126,5 +136,4 @@ class IPVSRunner(AssetsSource):
         AnsRbt.run_model(host_list, 'shell', cmd)
         result = AnsRbt.handle_model_data(AnsRbt.get_model_result(), 'shell', cmd)
         for ds in result:
-            if ds.get('status') != 'succeed':return result                
-            
+            if ds.get('status') != 'succeed':return result  

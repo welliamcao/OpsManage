@@ -1,3 +1,31 @@
+var webssh = false
+function make_terminal(term,element,ws_url,data) { 
+    if (webssh) {
+        return;
+    }        
+    webssh = true;        	
+    term.open(element);
+
+    term.write('正在连接...')
+             
+    var ws = new WebSocket(ws_url);
+    ws.onopen = function (event) {
+        term.resize(term.cols, term.rows);
+
+        ws.send(data); 
+
+        ws.onmessage = function (event) {
+        	term.write(event.data);
+        };      
+    };
+    ws.onerror = function (e) {
+    	term.write('\r\n连接失败')
+    	ws = false
+    };
+   
+    return {socket: ws, term: term};
+}
+
 function requests(method,url,data){
 	var ret = '';
 	$.ajax({
@@ -954,8 +982,8 @@ function makeipvsNameServerManageTableList(ids,url){
    	    				targets: [4],
    	    				render: function(data, type, row, meta) {  	    					
    	                        return '<div class="btn-group  btn-group-xs">' +	
-	    	                           '<button type="button" name="btn-nameserver-edit" value="'+ row.id +'" class="btn btn-default"><span class="fa fa-edit" aria-hidden="true"></span>' +	
-	    	                           '</button>' + 	    	                           	    	                           
+/*	    	                           '<button type="button" name="btn-nameserver-edit" value="'+ row.id +'" class="btn btn-default"><span class="fa fa-edit" aria-hidden="true"></span>' +	
+	    	                           '</button>' +*/ 	    	                           	    	                           
 	    	                           '<button type="button" name="btn-nameserver-delete" value="'+ row.id +'" class="btn btn-default" aria-label="Justify"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span>' +	
 	    	                           '</button>' +			                            
 	    	                           '</div>';
@@ -979,9 +1007,11 @@ function makeipvsNameServerManageTableList(ids,url){
                        	}else{
                        		let ipvs_ns_id = new Array()
                        		let ipvs_ns = new Array()
+                       		let ipvs_vip = 0
                			    for (var i=0; i< dataList.length; i++){
                			    	ipvs_ns_id.push(dataList[i]["id"])
                			    	ipvs_ns.push(dataList[i]["nameserver"])
+               			    	ipvs_vip = dataList[i]["ipvs_vip"]
                			    } 
                				$.confirm({
                				    title: '删除确认',
@@ -993,7 +1023,7 @@ function makeipvsNameServerManageTableList(ids,url){
                							url:"/apply/ipvs/ns/batch/", 
                							type:"DELETE",  		
                							data:{
-               								"rs_ids":ipvs_ns_id,
+               								"ns_ids":ipvs_ns_id,
                							}, 
                							success:function(response){
 							            	new PNotify({
@@ -1001,7 +1031,8 @@ function makeipvsNameServerManageTableList(ids,url){
 							                    text: '删除成功',
 							                    type: 'success',
 							                    styling: 'bootstrap3'
-							                }); 												
+							                }); 
+							            	RefreshRealServerTable('ipvsVipNameServerManageListTable', '/api/apply/ipvs/ns/?ipvs_vip='+ipvs_vip)
                							},
                					    	error:function(response){
                					           	new PNotify({
@@ -1072,7 +1103,23 @@ function removeself(obj) {
 function viewIpvsNs(obj){
 	var ids = obj["id"] - 30000
 	makeipvsNameServerManageTableList('ipvsVipNameServerManageListTable','/api/apply/ipvs/ns/?ipvs_vip='+ids)
-	$('#myModfIpvsNsModal').modal({backdrop:"static",show:true});
+	$('#myModfIpvsNsModal').modal({show:true});
+}
+
+function viewRate(obj){
+	var ids = obj["id"] - 30000
+	$("#myModfVipStatusModalLabel").html('<p class="text-blank">IPVS VIP <code>'+obj["text"].split(" ")[0]+ '</code>Rate/速率</p>')
+	$("#webssh_tt").html("")
+	$('#vipsVipRealtimeStatus').val("rate|"+ids)
+	$('#myModfIpvsVipStatusModal').modal({show:true});	
+}
+
+function viewStats(obj){
+	var ids = obj["id"] - 30000   
+	$("#myModfVipStatusModalLabel").html('<p class="text-blank">IPVS VIP <code>'+obj["text"].split(" ")[0]+ '</code>Stat/状态</p>')
+	$("#webssh_tt").html("")
+	$('#vipsVipRealtimeStatus').val("stats|"+ids)
+	$('#myModfIpvsVipStatusModal').modal({show:true});
 }
 
 function customMenu(node) {
@@ -1103,24 +1150,24 @@ function customMenu(node) {
 						viewIpvsNs(obj)
 					}
           },              
-            "monitor":{
+            "rate":{
           		"separator_before"	: false,
 					"separator_after"	: false,
 					"_disabled"			: false, 
-					"label"				: "监控信息",
+					"label"				: "传输速率",
 					"shortcut_label"	: 'F2',
 					"icon"				: "fa fa-bar-chart",
 					"action"			: function (data) {
 						var inst = $.jstree.reference(data.reference),
 						obj = inst.get_node(data.reference);
-						viewMonitor(obj)				
+						viewRate(obj)				
 					}
           }, 
-          "webssh":{
+          "stats":{
       		"separator_before"	: false,
 				"separator_after"	: false,
 				"_disabled"			: false, 
-				"label"				: "推送配置",
+				"label"				: "连接状态",
 				"shortcut_label"	: 'F2',
 				"icon"				: "fa fa-terminal",
 				"action"			: function (data) {
@@ -1131,16 +1178,16 @@ function customMenu(node) {
 					for (var i=0; i <parents.length; i++){
 						parentsName = parentsName + parents[i].split("(")[0]
 					}
-					openTerminal(obj,parentsName)				
+					viewStats(obj)				
 				}
           },            
 	  }
     if(node["id"]>10000 && node["id"] <= 20000){
   		try {    	  
 	    	  delete items.view
-	    	  delete items.monitor
+	    	  delete items.rate
 	    	  delete items.config
-	    	  delete items.webssh
+	    	  delete items.stats
   		}
   		catch(err) {
   			console.log(err)
@@ -1148,9 +1195,7 @@ function customMenu(node) {
     }else if(node["id"]>30000){
 	    	try {    	  
 	    	  delete items.new
-	    	  delete items.view
-	    	  delete items.monitor
-	    	  delete items.webssh	    	  
+	    	  delete items.view	    	  
 			}
 			catch(err) {
 				console.log(err)
@@ -1159,9 +1204,9 @@ function customMenu(node) {
 		try {
 	      	  delete items.new
 	    	  delete items.view
-	    	  delete items.monitor
+	    	  delete items.rate
 	    	  delete items.config
-	    	  delete items.webssh
+	    	  delete items.stats
 		}
 		catch(err) {
 			console.log(err)
@@ -1265,7 +1310,9 @@ function makeIPVSVipTableListForJstree(url,position,parent,ids){
 }
 
 $(document).ready(function() {	
-		
+	
+	var randromChat = makeRandomId()
+	
 	drawTree('#ipvsTree',"/api/apply/ipvs/tree/")
 	
     $("#ipvsTree").click(function () {
@@ -2025,7 +2072,6 @@ $(document).ready(function() {
                 });       
             },  
             success: function(response) {  
-//            	console.log(response)
             	new PNotify({
                     title: 'Success!',
                     text: '添加成功',
@@ -2036,85 +2082,87 @@ $(document).ready(function() {
     	});    	
     }); 
  
-    ipvsVipNameServerManageListTable
 
-	$('#ipvsVipNameServerManageListTable tbody').on('click',"button[name='btn-nameserver-edit']",function(){
-    	var vIds = $(this).val();
-    	try {
-    		  var data = requests('get',"/api/apply/ipvs/ns/"+vIds+"/")
-    		}
-		catch(error) {
-		  console.error(error);
-		  return false
-		}
-    	var td = $(this).parent().parent().parent().find("td")
-    	let ipvs_vip_ns = td.eq(2).text() 	
-		let desc = td.eq(3).text()		
-		var contentHtml = '<form role="form" name="modfrealServerForm" data-parsley-validate class="form-horizontal form-label-left">' +
-							'<fieldset>' +	
-							'<div class="item form-group">'+
-								 '<label class="col-sm-2 control-label">域名</label>'+
-								 '<div class="col-sm-8">'+
-								 	'<input type="text"  class="form-control"  name="nameserver" placeholder="域名" value="'+ data["nameserver"] +'" class="input-xlarge"></input>'+
-								 '</div>'+
-							'</div>'+								
-							'<div class="item form-group">'+
-								 '<label class="col-sm-2 control-label">备注</label>'+
-								 '<div class="col-sm-8">'+
-								 	'<input type="text"  class="form-control"  name="desc" placeholder="备注" value="'+ data["desc"] +'" class="input-xlarge"></input>'+
-								 '</div>'+
-							'</div>'+								
-							'</fieldset>'+									 		
-						   '</form>'		
-	    $.confirm({
-	        icon: 'fa fa-edit',
-	        type: 'blue',
-	        title: '修改NameServer: <strong>'+ ipvs_vip_ns +'</strong>',
-	        content: contentHtml,
-	        buttons: {
-	            '取消': function() {},
-	            '修改': {
-	                btnClass: 'btn-blue',
-	                action: function() {
-	                	var formData = {};	
-	            		var realServerForm = this.$content.find('input');                	
-	            		for (var i = 0; i < realServerForm.length; ++i) {
-	            			var name =  realServerForm[i].name
-	            			var value = realServerForm[i].value 
-	            			if (name.length >0 && value.length > 0){
-	            				formData[name] = value	
-	            			};		            						
-	            		};	
-				    	$.ajax({  
-				            type: "PUT",  
-				            url:"/api/apply/ipvs/ns/"+vIds+'/', 
-				            dataType: "json",
-							data:formData,					
-				            error: function(response) {  
-				            	new PNotify({
-				                    title: 'Ops Failed!',
-				                    text: response.responseText,
-				                    type: 'error',
-				                    styling: 'bootstrap3'
-				                });       
-				            },  
-				            success: function(response) {  
-				            	new PNotify({
-				                    title: 'Success!',
-				                    text: '修改成功',
-				                    type: 'success',
-				                    styling: 'bootstrap3'
-				                }); 
-								RefreshRealServerTable('ipvsVipNameServerManageListTable', '/api/apply/ipvs/ns/?ipvs_vip='+data["ipvs_vip"])
-				            }  
-				    	});
-	                }
-	            }
-	        }
-	    });
-    });
+//	$('#ipvsVipNameServerManageListTable tbody').on('click',"button[name='btn-nameserver-edit']",function(){
+//    	var vIds = $(this).val();
+//    	try {
+//    		  var data = requests('get',"/api/apply/ipvs/ns/"+vIds+"/")
+//    		}
+//		catch(error) {
+//		  console.error(error);
+//		  return false
+//		}
+//    	var td = $(this).parent().parent().parent().find("td")
+//    	let ipvs_vip_ns = td.eq(2).text() 	
+//		let desc = td.eq(3).text()		
+//		var contentHtml = '<form role="form" class="form-horizontal form-label-left">' +
+//							'<fieldset>' +	
+//							'<div class="form-group">'+
+//								 '<label class="col-sm-2 control-label">域名</label>'+
+//								 '<div class="col-sm-8">'+
+//								 	'<input type="text"  class="form-control"  name="nameserver" placeholder="域名" value="'+ data["nameserver"] +'" class="input-xlarge"></input>'+
+//								 '</div>'+
+//							'</div>'+								
+//							'<div class="form-group">'+
+//								 '<label class="col-sm-2 control-label">备注</label>'+
+//								 '<div class="col-sm-8">'+
+//								 	'<input type="text"  class="form-control"  name="desc" placeholder="备注" value="'+ data["desc"] +'" class="input-xlarge"></input>'+
+//								 '</div>'+
+//							'</div>'+								
+//							'</fieldset>'+									 		
+//						   '</form>'							
+//	    $.confirm({
+//	        icon: 'fa fa-edit',
+//	        type: 'blue',
+//	        title: '修改NameServer: <strong>'+ ipvs_vip_ns +'</strong>',
+//	        content: contentHtml,
+//	        keyboardEnabled : true,
+//	        modal : true,
+//	        buttons: {
+//	            '取消': function() {},
+//	            '修改': {
+//	                btnClass: 'btn-blue',
+//	                action: function() {
+//	                	var formData = {};	
+//	            		var realServerForm = this.$content.find('input');                	
+//	            		for (var i = 0; i < realServerForm.length; ++i) {
+//	            			var name =  realServerForm[i].name
+//	            			var value = realServerForm[i].value 
+//	            			if (name.length >0 && value.length > 0){
+//	            				formData[name] = value	
+//	            			};		            						
+//	            		};	
+//				    	$.ajax({  
+//				            type: "PUT",  
+//				            url:"/api/apply/ipvs/ns/"+vIds+'/', 
+//				            dataType: "json",
+//							data:formData,					
+//				            error: function(response) {  
+//				            	new PNotify({
+//				                    title: 'Ops Failed!',
+//				                    text: response.responseText,
+//				                    type: 'error',
+//				                    styling: 'bootstrap3'
+//				                });       
+//				            },  
+//				            success: function(response) {  
+//				            	new PNotify({
+//				                    title: 'Success!',
+//				                    text: '修改成功',
+//				                    type: 'success',
+//				                    styling: 'bootstrap3'
+//				                }); 
+//								RefreshRealServerTable('ipvsVipNameServerManageListTable', '/api/apply/ipvs/ns/?ipvs_vip='+data["ipvs_vip"])
+//				            }  
+//				    	});
+//	                }
+//	            }
+//	        }
+//	    });
+//    });
 	
 	$('#ipvsVipNameServerManageListTable tbody').on('click',"button[name='btn-nameserver-delete']",function(){
+		var vIds = $(this).val();
     	try {
   		  var data = requests('get',"/api/apply/ipvs/ns/"+vIds+"/")
   		}
@@ -2122,7 +2170,6 @@ $(document).ready(function() {
 		  console.error(error);
 		  return false
 		}		
-		var vIds = $(this).val();  
 		var name = $(this).parent().parent().parent().find("td").eq(2).text()
 		$.confirm({
 		    title: '删除确认',
@@ -2153,5 +2200,34 @@ $(document).ready(function() {
 		});			  		 	
     });	     
     
+    $("#vipsVipRealtimeStatus").on("click", function(){
+    	var data = $(this).val();
+    	let ws_scheme = window.location.protocol === "https:" ? "wss" : "ws";
+    	var ws_path = ws_scheme + '://' + window.location.host + '/ws/ipvs/stats/'+ data.split("|")[1] + '/' + randromChat + '/';
+    	let term =  new Terminal({
+    	      cols: 92,
+    	      rows: 22,
+    	      cursorBlink: false, // 光标闪烁
+    	      cursorStyle: 'bar', // 光标样式  null | 'block' | 'underline' | 'bar'
+    	      scrollback: 800, //回滚
+    	      tabStopWidth: 8, //制表宽度
+    	      screenKeys: false// 		
+    	});    
+    	websocket = make_terminal(term,document.getElementById('webssh_tt'),ws_path,JSON.stringify({"id":data.split("|")[1],"action":data.split("|")[0],"status":"open"})); 
+	    $(this).attr("disabled",true);
+      });     
+    
+    $('.bs-example-modal-vip-status').on('hidden.bs.modal', function () {
+		try {
+			websocket["socket"].close()
+		}
+		catch(err) {
+			console.log(err)
+		} 
+		finally {
+			webssh = false
+		}    	
+    	$("#vipsVipRealtimeStatus").attr("disabled",false);
+    }); 	
 	
 })

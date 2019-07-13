@@ -83,6 +83,12 @@ class IPVS_CONFIG(models.Model):
     
     def del_vip(self):
         return "ipvsadm -D {protocol} {vip}:{port}".format(protocol=self.protocol,vip=self.vip,port=self.port)    
+    
+    def stats_vip(self):
+        return "ipvsadm -ln {protocol} {vip}:{port} --stats".format(protocol=self.protocol,vip=self.vip,port=self.port)
+    
+    def rate_vip(self):
+        return "ipvsadm -ln {protocol} {vip}:{port} --rate".format(protocol=self.protocol,vip=self.vip,port=self.port)    
         
 class IPVS_RS_CONFIG(models.Model):   
     forword_type = (

@@ -22,6 +22,7 @@ class VipStatus(LoginRequiredMixin,IVPSManage,View):
         if isinstance(res, str):return JsonResponse({'msg':res,"code":500,'data':[]})
         return JsonResponse({'msg':"修改成功","code":200,'data':res}) 
 
+
 class RsStatus(LoginRequiredMixin,IVPSManage,View):
     login_url = '/login/'
     
@@ -53,4 +54,13 @@ class RsBatch(LoginRequiredMixin,IVPSManage,View):
     def delete(self, request, *args, **kwagrs):
         res = self.rs_batch_delete(request=request)
         if isinstance(res, str):return JsonResponse({'msg':res,"code":500,'data':[]})
-        return JsonResponse({'msg':"修改成功","code":200,'data':res})     
+        return JsonResponse({'msg':"修改成功","code":200,'data':res})  
+    
+class NsBatch(LoginRequiredMixin,IVPSManage,View):
+    login_url = '/login/'
+
+    @method_decorator_adaptor(permission_required, "apply.ipvs_delete_ipvs_config","/403/")     
+    def delete(self, request, *args, **kwagrs):
+        res = self.ns_batch_delete(request=request)
+        if isinstance(res, str):return JsonResponse({'msg':res,"code":500,'data':[]})
+        return JsonResponse({'msg':"修改成功","code":200,'data':res})        

@@ -109,9 +109,6 @@ class IVPSManage():
         else:
             return "vip不存在可能已被删除"
 
-    def vip_rule(self,request):
-        pass
-
     def rs_status(self,request):
         realserver = self.get_ipvs_rs(QueryDict(request.body).get('id'))
         if realserver:
@@ -132,6 +129,16 @@ class IVPSManage():
                 return str(result)
         else:
             return "realserver不存在可能已被删除"
+    
+    def vip_rate(self,request):
+        vip = self.get_ipvs_vip(request.get('id'))
+        IPVS = IPVSRunner(vip=vip) 
+        return IPVS.run('vip_rate')
+
+    def vip_stats(self,request):
+        vip = self.get_ipvs_vip(request.get('id'))
+        IPVS = IPVSRunner(vip=vip) 
+        return IPVS.run('vip_stats')
     
     def vip_batch_modf(self,request):
         args = QueryDict(request.body).dict()
@@ -181,6 +188,17 @@ class IVPSManage():
         
         IPVS = IPVSRunner(vip=vipList,realserver=realserver) 
         return IPVS.run('batch_del_rs')    
+
+    def ns_batch_delete(self,request):
+        args = QueryDict(request.body).dict()  
+        rs_id_list = QueryDict(request.body).getlist('ns_ids[]')
+        args.pop('ns_ids[]')
+        try:
+            nameserver = IPVS_NS_CONFIG.objects.filter(id__in=rs_id_list)
+            nameserver.delete()  
+        except Exception as ex:
+            logger.error(msg="Ipvs NameServer批量删除失败: {ex}".format(ex=ex))                   
+            return "Ipvs NameServer批量删除失败: {ex}".format(ex=ex)        
     
                                                                        
 ASSETSIPVS = AssetsIpvs()

@@ -9,4 +9,5 @@ urlpatterns = [
     url(r'^ipvs/rs/status/(?P<id>[0-9]+)/$', ipvsViews.RsStatus.as_view()), 
     url(r'^ipvs/vip/batch/$', ipvsViews.VipBatch.as_view()), 
     url(r'^ipvs/rs/batch/$', ipvsViews.RsBatch.as_view()), 
+    url(r'^ipvs/ns/batch/$', ipvsViews.NsBatch.as_view()),
 ]

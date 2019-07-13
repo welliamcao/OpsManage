@@ -11,11 +11,21 @@
     <link href="/static/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css" rel="stylesheet"> 
     <link rel="stylesheet" href="/static/tooltips/css/tooltips.css"> 
     <link href="/static/switchery/dist/css/bootstrap-switch.min.css" rel="stylesheet"> 
-    <link rel="stylesheet" href="/static/jstree/css/style.min.css" />   
-	
-
-	
+    <link rel="stylesheet" href="/static/jstree/css/style.min.css" /> 
+    <link rel="stylesheet" href="/static/xterm/xterm.css"/>  
 	<style type="text/css"> 
+		pre {
+			overflow: auto;
+			white-space: normal;
+			white-space: pre-wrap; /* css-3 */
+			white-space: -moz-pre-wrap; /* Mozilla, since 1999 */
+			white-space: -pre-wrap; /* Opera 4-6 */
+			white-space: -o-pre-wrap; /* Opera 7 */
+			word-wrap: break-word; /* Internet Explorer 5.5+ */
+			font-family: Consolas, monospace;
+			color: #ADFF2F;
+			background-color: #000000;
+		}	
 		.assets-online{
 		    color:green;
 		}
@@ -31,7 +41,7 @@
             }
           .modal-header{
             cursor:move;
-          }	
+          }	        
 	td.details-control {
 	    background: url('/static/images/details_open.png') no-repeat center center; */
 	    cursor: pointer;
@@ -345,7 +355,7 @@
               </div>        
         </div>        
 	
-        <div id="myModfIpvsNsModal" class="modal fade bs-example-modal-vip" data-backdrop="static" tabindex="-1" role="dialog" aria-hidden="true">
+        <div id="myModfIpvsNsModal" class="modal fade bs-example-modal-vip"  tabindex="-1" role="dialog" aria-hidden="true">
           <div class="modal-dialog modal-lg">
             <div class="modal-content">
               <div class="modal-header">
@@ -376,6 +386,29 @@
             </div>
           </div>
         </div>	
+
+        <div id="myModfIpvsVipStatusModal" class="modal fade bs-example-modal-vip-status"  tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+          <div class="modal-dialog modal-lg">
+<!--           <div class="modal-dialog modal-lg"  style="width:1290px;height: 600px"> -->
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span>
+                </button>
+                <h4 class="modal-title" id="myModfVipStatusModalLabel">IPVS VIP Rate</h4>
+              </div>
+              <div class="modal-body">
+              <div id="row">
+				<div id="webssh_tt">
+				</div>	             	
+				</div>
+			  </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="vipsVipRealtimeStatus" ><span class="fa fa-play-circle" aria-hidden="true"></span>实时状态</button>
+              </div>			  
+            </div>
+          </div>
+        </div>
 
         <div id="myModfIpvsRsModal" class="modal fade bs-example-modal-vip" data-backdrop="static" tabindex="-1" role="dialog" aria-hidden="true">
           <div class="modal-dialog modal-lg">
@@ -627,10 +660,12 @@
     <script src="/static/switchery/dist/js/bootstrap-switch.min.js"></script>       
 	<script src="/static/tooltips/js/jquery.pure.tooltips.js"></script>	 
 	<script src="/static/js/apply/ipvs.js"></script>
+	<script src="/static/xterm/xterm.js"></script>
+  	<script src="/static/xterm/addons/fit/fit.js"></script>
+ 	<script src="/static/xterm/addons/fullscreen/fullscreen.js"></script> 
 	<script src="/static/js/dragable/dragable.js"></script>
 	<script src="/static/validator/validator.js"></script>
 	<script src="/static/jstree/js/jstree.min.js"></script>
-	
     <!-- bootstrap-daterangepicker -->
     <script src="/static/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js"></script>		 
 {% endblock %}

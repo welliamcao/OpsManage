@@ -102,7 +102,7 @@ mysql>\q
 # /usr/local/python3/bin/python3 manage.py makemigrations databases
 # /usr/local/python3/bin/python3 manage.py makemigrations asset
 # /usr/local/python3/bin/python3 manage.py makemigrations deploy
-# /usr/local/python3/bin/python3 manage.py makemigrations apps
+# /usr/local/python3/bin/python3 manage.py makemigrations cicd
 # /usr/local/python3/bin/python3 manage.py makemigrations sched
 # /usr/local/python3/bin/python3 manage.py makemigrations apply
 # /usr/local/python3/bin/python3 manage.py migrate
