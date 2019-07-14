@@ -482,6 +482,44 @@ function InitRealServerDataTable(tableId,url,buttons,columns,columnDefs){
 	  
 }
 
+function InitNameServerDataTable(tableId,url,buttons,columns,columnDefs){
+    if ($('#'+tableId).hasClass('dataTable')) {
+        dttable = $('#'+tableId).dataTable();
+        dttable.fnClearTable(); 
+        dttable.fnDestroy(); 
+      }	
+	  var data = requests('get',url)
+	  oOverviewTable =$('#'+tableId).dataTable(
+			  {
+				  	"dom": "Bfrtip",
+				  	"buttons":buttons,
+		    		"bScrollCollapse": false, 				
+		    	    "bRetrieve": true,	
+		    		"destroy": true, 
+		    		"data":	data['results'],
+		    		"columns": columns,
+		    		"columnDefs" :columnDefs,			  
+		    		"language" : language,
+		    		"iDisplayLength": 20,
+		            "select": {
+		                "style":    'multi',
+		                "selector": 'td:first-child'
+		            },			    		
+		    		"order": [[ 0, "ase" ]],
+		    		"autoWidth": false	    			
+		    	});	 
+	  if (data['next']){
+		  $("button[name='ns_page_next']").attr("disabled", false).val(data['next']);	
+	  }else{
+		  $("button[name='ns_page_next']").attr("disabled", true).val();
+	  }
+	  if (data['previous']){
+		  $("button[name='ns_page_previous']").attr("disabled", false).val(data['next']);	
+	  }else{
+		  $("button[name='ns_page_previous']").attr("disabled", true).val();
+	  }	  
+}
+
 function RefreshRealServerTable(tableId, urlData){
 	$.getJSON(urlData, null, function( dataList ){
     table = $('#'+tableId).dataTable();
@@ -966,33 +1004,7 @@ function makeipvsRealServerManageTableList(ids,url){
     InitRealServerDataTable(ids,url,buttons,columns,columnDefs);	
 }
 
-function InitNameServerDataTable(tableId,url,buttons,columns,columnDefs){
-    if ($('#'+tableId).hasClass('dataTable')) {
-        dttable = $('#'+tableId).dataTable();
-        dttable.fnClearTable(); 
-        dttable.fnDestroy(); 
-      }	
-	  var data = requests('get',url)
-	  oOverviewTable =$('#'+tableId).dataTable(
-			  {
-				  	"dom": "Bfrtip",
-				  	"buttons":buttons,
-		    		"bScrollCollapse": false, 				
-		    	    "bRetrieve": true,	
-		    		"destroy": true, 
-		    		"data":	data['results'],
-		    		"columns": columns,
-		    		"columnDefs" :columnDefs,			  
-		    		"language" : language,
-		    		"iDisplayLength": 20,
-		            "select": {
-		                "style":    'multi',
-		                "selector": 'td:first-child'
-		            },			    		
-		    		"order": [[ 0, "ase" ]],
-		    		"autoWidth": false	    			
-		    	});	  
-}
+
 
 function makeipvsNameServerManageTableList(ids,url){
     var columns = [  
