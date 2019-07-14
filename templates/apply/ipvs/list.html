@@ -74,13 +74,15 @@
                       <div class="col-sm-10 mail_view">
 	                    <div class="" role="tabpanel" data-example-id="togglable-tabs">
 	                      <ul id="myTab" class="nav nav-tabs bar_tabs" role="tablist">
-	                        <li role="presentation" class="active"><a href="#tab_content1" id="home-tab" role="tab" data-toggle="tab" aria-expanded="true"><i class="fa fa-map-marker"></i> VIP列表</a>
+	                        <li role="presentation" class="active"><a href="#tab_content1" id="vip-tab" role="tab" data-toggle="tab" aria-expanded="true"><i class="fa fa-map-marker"></i> VIP列表</a>
 	                        </li>
-	                         <li role="presentation" class=""><a href="#tab_content2" role="tab" id="profile-tab" data-toggle="tab" aria-expanded="false"><i class="fa fa-tasks"></i> RS列表</a>
-	                        </li>                    
+	                         <li role="presentation" class=""><a href="#tab_content2" role="tab" id="realserver-tab" data-toggle="tab" aria-expanded="false"><i class="fa fa-tasks"></i> RS列表</a>
+	                        </li> 
+	                         <li role="presentation" class=""><a href="#tab_content3" role="tab" id="nameserver-tab" data-toggle="tab" aria-expanded="false"><i class="fa fa-bookmark"></i> NS列表</a>
+	                        </li>  	                                           
 	                      </ul>
 	                      <div id="myTabContent" class="tab-content">
-	                        <div role="tabpanel" class="tab-pane fade active in" id="tab_content1" aria-labelledby="home-tab">			              
+	                        <div role="tabpanel" class="tab-pane fade active in" id="tab_content1" aria-labelledby="vip-tab">			              
 				              <div class="col-md-12 col-sm-12 col-xs-12">
 				                <div class="x_panel">
 				                  <div class="x_title">
@@ -121,7 +123,7 @@
 				              </div>			              
 				              
 	                        </div>                        
-	                        <div role="tabpanel" class="tab-pane fade" id="tab_content2" aria-labelledby="profile-tab">
+	                        <div role="tabpanel" class="tab-pane fade" id="tab_content2" aria-labelledby="realserver-tab">
 	                        
 	 			              <div class="col-md-12 col-sm-12 col-xs-12">
 				                <div class="x_panel">
@@ -173,13 +175,52 @@
 	                       
 	                        
 							</div>
-	                        <div role="tabpanel" class="tab-pane fade" id="tab_content3" aria-labelledby="profile-tab">
-	            	               
+	                        <div role="tabpanel" class="tab-pane fade" id="tab_content3" aria-labelledby="nameserver-tab">
+
+	 			              <div class="col-md-12 col-sm-12 col-xs-12">
+				                <div class="x_panel">
+				                  <div class="x_title">
+				                    <h2>域名管理列表 <small>NameServer Detail</small></h2>
+				                    <div class="clearfix"></div>
+				                  </div>
+				                  <div class="x_content">
+				                  	<div class="product_price" id="divSelectedType" style="display:none;"></div> 
+			                  		<div class="row">	
+			                  			<div class="pull-left">
+							                  <div class="col-md-5 col-sm-12 col-xs-12 form-group">
+				                  				<select required="required" class="selectpicker form-control"  data-size="10" data-selected-text-format="count > 5" data-live-search="true" data-width="100%"   autocomplete="off"  class="form-control" name="ipvs_vip_ns" id="ipvs_vip_ns"   required>
+				                  				</select>
+							                  </div>	                  					                  				
+			                  			</div>
+										<div class="btn-group  btn-group-sm pull-right">
+					                        <button class="btn btn-default" name="ns_page_previous" type="button" value="">上一页</button>
+					                        <button class="btn btn-default" name="ns_page_next" type="button" value="">下一页</button>
+				                      	</div>			                      	
+			                      	</div>
+			                      	<br>
+			                      	<div class="row">
+					                    <table class="table" id="ipvsVipAllNameServerManageListTable">
+					                      <thead>
+					                        <tr>
+					                          <th></th>
+					                          <th>VIP</th>
+					                          <th>域名</th>
+					                          <th>备注</th>
+					                          <th class="text-center">操作</th>
+					                        </tr>
+					                      </thead>
+					                      <tbody>
+					                      </tbody>
+					                    </table>
+									</div>
+				                  </div>
+				                </div>
+				              </div>	                         
 	                        </div>
 	                        
-	                        <div role="tabpanel" class="tab-pane fade" id="tab_content4" aria-labelledby="profile-tab">
+<!-- 	                        <div role="tabpanel" class="tab-pane fade" id="tab_content4" aria-labelledby="realserver-tab">
 	                        
-	                        </div>                        
+	                        </div>   -->                      
 	                        
 	                      </div>
 	                    </div>

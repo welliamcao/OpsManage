@@ -534,6 +534,35 @@ function RefreshRealServerTable(tableId, urlData){
   });	
 }
 
+function RefreshNameServerTable(tableId, urlData){
+	$.getJSON(urlData, null, function( dataList ){
+    table = $('#'+tableId).dataTable();
+    oSettings = table.fnSettings();
+    
+    table.fnClearTable(this);
+
+    for (var i=0; i<dataList['results'].length; i++)
+    {
+      table.oApi._fnAddData(oSettings, dataList['results'][i]);
+    }
+
+    oSettings.aiDisplay = oSettings.aiDisplayMaster.slice();
+    table.fnDraw();
+    
+    if (dataList['next']){
+  	  $("button[name='ns_page_next']").attr("disabled", false).val(dataList['next']);	
+    }else{
+  	  $("button[name='ns_page_next']").attr("disabled", true).val();
+    }
+    if (dataList['previous']){
+  	  $("button[name='ns_page_previous']").attr("disabled", false).val(dataList['previous']);	
+    }else{
+  	  $("button[name='ns_page_previous']").attr("disabled", true).val();
+    } 
+          
+  });	
+}
+
 function updateIpvsStatus(urls,data,ids){
 	$.ajax({  
         type: "PUT",  
@@ -982,8 +1011,8 @@ function makeipvsNameServerManageTableList(ids,url){
    	    				targets: [4],
    	    				render: function(data, type, row, meta) {  	    					
    	                        return '<div class="btn-group  btn-group-xs">' +	
-/*	    	                           '<button type="button" name="btn-nameserver-edit" value="'+ row.id +'" class="btn btn-default"><span class="fa fa-edit" aria-hidden="true"></span>' +	
-	    	                           '</button>' +*/ 	    	                           	    	                           
+	    	                           '<button type="button" name="btn-nameserver-edit" value="'+ row.id +'" class="btn btn-default"><span class="fa fa-edit" aria-hidden="true"></span>' +	
+	    	                           '</button>' +    	                           	    	                           
 	    	                           '<button type="button" name="btn-nameserver-delete" value="'+ row.id +'" class="btn btn-default" aria-label="Justify"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span>' +	
 	    	                           '</button>' +			                            
 	    	                           '</div>';
@@ -1393,10 +1422,18 @@ $(document).ready(function() {
         }
         changepage(1);
     })     
+
+    $('#ipvs_vip_ns').change(function () {
+        if ($('#ipvs_vip_ns').val() != "") {
+        	let url = '/api/apply/ipvs/ns/?ipvs_vip='+ $('#ipvs_vip_ns').val()
+        	RefreshNameServerTable('ipvsVipAllNameServerManageListTable', url);
+        }
+    })     
     
 	if($("#ipvs_vip_rs").length || $("#ipvs_vip").length){
 		var dataList = requests('get','/api/apply/ipvs/')
 		IpvsVipSelect("ipvs_vip_rs",dataList["results"]) 
+		IpvsVipSelect("ipvs_vip_ns",dataList["results"])
 		IpvsVipSelect("ipvs_vip",dataList["results"]) 
 		makeipvsVipManageTableList(dataList["results"])	
 	}		
@@ -1407,8 +1444,21 @@ $(document).ready(function() {
 	}		
 	
 	
+	if($("#ipvsVipAllNameServerManageListTable").length){
+	    $("button[name^='ns_page_']").on("click", function(){
+	      	var url = $(this).val();
+	      	$(this).attr("disabled",true);
+	      	if (url.length){
+	      		RefreshNameServerTable('ipvsVipAllNameServerManageListTable', url);
+	      	}      	
+	    	$(this).attr('disabled',false);
+	      }); 			
+	    makeipvsNameServerManageTableList('ipvsVipAllNameServerManageListTable','/api/apply/ipvs/ns/')  
+	}
+	
+	
 	if($("#ipvsRSManageListTable").length){
-	    $("button[name^='page_']").on("click", function(){
+	    $("button[name^='rs_page_']").on("click", function(){
 	      	var url = $(this).val();
 	      	$(this).attr("disabled",true);
 	      	if (url.length){
@@ -2083,83 +2133,108 @@ $(document).ready(function() {
     }); 
  
 
-//	$('#ipvsVipNameServerManageListTable tbody').on('click',"button[name='btn-nameserver-edit']",function(){
-//    	var vIds = $(this).val();
-//    	try {
-//    		  var data = requests('get',"/api/apply/ipvs/ns/"+vIds+"/")
-//    		}
-//		catch(error) {
-//		  console.error(error);
-//		  return false
-//		}
-//    	var td = $(this).parent().parent().parent().find("td")
-//    	let ipvs_vip_ns = td.eq(2).text() 	
-//		let desc = td.eq(3).text()		
-//		var contentHtml = '<form role="form" class="form-horizontal form-label-left">' +
-//							'<fieldset>' +	
-//							'<div class="form-group">'+
-//								 '<label class="col-sm-2 control-label">域名</label>'+
-//								 '<div class="col-sm-8">'+
-//								 	'<input type="text"  class="form-control"  name="nameserver" placeholder="域名" value="'+ data["nameserver"] +'" class="input-xlarge"></input>'+
-//								 '</div>'+
-//							'</div>'+								
-//							'<div class="form-group">'+
-//								 '<label class="col-sm-2 control-label">备注</label>'+
-//								 '<div class="col-sm-8">'+
-//								 	'<input type="text"  class="form-control"  name="desc" placeholder="备注" value="'+ data["desc"] +'" class="input-xlarge"></input>'+
-//								 '</div>'+
-//							'</div>'+								
-//							'</fieldset>'+									 		
-//						   '</form>'							
-//	    $.confirm({
-//	        icon: 'fa fa-edit',
-//	        type: 'blue',
-//	        title: '修改NameServer: <strong>'+ ipvs_vip_ns +'</strong>',
-//	        content: contentHtml,
-//	        keyboardEnabled : true,
-//	        modal : true,
-//	        buttons: {
-//	            '取消': function() {},
-//	            '修改': {
-//	                btnClass: 'btn-blue',
-//	                action: function() {
-//	                	var formData = {};	
-//	            		var realServerForm = this.$content.find('input');                	
-//	            		for (var i = 0; i < realServerForm.length; ++i) {
-//	            			var name =  realServerForm[i].name
-//	            			var value = realServerForm[i].value 
-//	            			if (name.length >0 && value.length > 0){
-//	            				formData[name] = value	
-//	            			};		            						
-//	            		};	
-//				    	$.ajax({  
-//				            type: "PUT",  
-//				            url:"/api/apply/ipvs/ns/"+vIds+'/', 
-//				            dataType: "json",
-//							data:formData,					
-//				            error: function(response) {  
-//				            	new PNotify({
-//				                    title: 'Ops Failed!',
-//				                    text: response.responseText,
-//				                    type: 'error',
-//				                    styling: 'bootstrap3'
-//				                });       
-//				            },  
-//				            success: function(response) {  
-//				            	new PNotify({
-//				                    title: 'Success!',
-//				                    text: '修改成功',
-//				                    type: 'success',
-//				                    styling: 'bootstrap3'
-//				                }); 
-//								RefreshRealServerTable('ipvsVipNameServerManageListTable', '/api/apply/ipvs/ns/?ipvs_vip='+data["ipvs_vip"])
-//				            }  
-//				    	});
-//	                }
-//	            }
-//	        }
-//	    });
-//    });
+	$('#ipvsVipAllNameServerManageListTable tbody').on('click',"button[name='btn-nameserver-edit']",function(){
+		var vIds = $(this).val();
+    	var td = $(this).parent().parent().parent().find("td")
+    	let nameserver = td.eq(2).text() 	
+		let desc = td.eq(3).text()		
+		var contentHtml = '<form role="form" class="form-horizontal form-label-left">' +
+							'<fieldset>' +	
+							'<div class="form-group">'+
+								 '<label class="col-sm-2 control-label">域名</label>'+
+								 '<div class="col-sm-8">'+
+								 	'<input type="text"  class="form-control"  name="nameserver" placeholder="域名" value="'+ nameserver +'" class="input-xlarge"></input>'+
+								 '</div>'+
+							'</div>'+								
+							'<div class="form-group">'+
+								 '<label class="col-sm-2 control-label">备注</label>'+
+								 '<div class="col-sm-8">'+
+								 	'<input type="text"  class="form-control"  name="desc" placeholder="备注" value="'+ desc +'" class="input-xlarge"></input>'+
+								 '</div>'+
+							'</div>'+								
+							'</fieldset>'+									 		
+						   '</form>'							
+	    $.confirm({
+	        icon: 'fa fa-edit',
+	        type: 'blue',
+	        title: '修改NameServer: <strong>'+ nameserver +'</strong>',
+	        content: contentHtml,
+	        keyboardEnabled : true,
+	        modal : true,
+	        buttons: {
+	            '取消': function() {},
+	            '修改': {
+	                btnClass: 'btn-blue',
+	                action: function() {
+	                	var formData = {};	
+	            		var realServerForm = this.$content.find('input');                	
+	            		for (var i = 0; i < realServerForm.length; ++i) {
+	            			var name =  realServerForm[i].name
+	            			var value = realServerForm[i].value 
+	            			if (name.length >0 && value.length > 0){
+	            				formData[name] = value	
+	            			};		            						
+	            		};	
+				    	$.ajax({  
+				            type: "PUT",  
+				            url:"/api/apply/ipvs/ns/"+vIds+'/', 
+				            dataType: "json",
+							data:formData,					
+				            error: function(response) {  
+				            	new PNotify({
+				                    title: 'Ops Failed!',
+				                    text: response.responseText,
+				                    type: 'error',
+				                    styling: 'bootstrap3'
+				                });       
+				            },  
+				            success: function(response) {  
+				            	new PNotify({
+				                    title: 'Success!',
+				                    text: '修改成功',
+				                    type: 'success',
+				                    styling: 'bootstrap3'
+				                }); 
+								RefreshRealServerTable('ipvsVipAllNameServerManageListTable', '/api/apply/ipvs/ns/')
+				            }  
+				    	});
+	                }
+	            }
+	        }
+	    });
+    });
+	
+	$('#ipvsVipAllNameServerManageListTable tbody').on('click',"button[name='btn-nameserver-delete']",function(){	
+		var vIds = $(this).val();
+		var name = $(this).parent().parent().parent().find("td").eq(2).text()
+		$.confirm({
+		    title: '删除确认',
+		    content: '<strong>RealServer</strong> <code>' + name + '</code>?',
+		    type: 'red',
+		    buttons: {
+		        删除: function () {		       
+				$.ajax({
+					url:"/api/apply/ipvs/ns/"+vIds+'/', 
+					type:"DELETE",  		
+					success:function(response){
+			            RefreshRealServerTable('ipvsVipNameServerManageListTable', '/api/apply/ipvs/ns/')											
+					},
+			    	error:function(response){
+			           	new PNotify({
+			                   title: 'Ops Failed!',
+			                   text: response.responseText,
+			                   type: 'error',
+			                   styling: 'bootstrap3'
+			               }); 
+			    	}
+				});	
+		        },
+		        取消: function () {
+		            return true;			            
+		        },			        
+		    }
+		});			  		 	
+    });		
 	
 	$('#ipvsVipNameServerManageListTable tbody').on('click',"button[name='btn-nameserver-delete']",function(){
 		var vIds = $(this).val();
