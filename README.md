@@ -47,7 +47,6 @@
 # git clone -b v3 https://github.com/welliamcao/OpsManage.git
 # cd /mnt/OpsManage/
 # pip3 install -r requirements.txt  #CentOS 7使用pip3
-# easy_install paramiko==2.4.1
 ```
 
 三、安装Redis
@@ -59,7 +58,7 @@
 # make install
 # vim redis.conf
 ```
-修改以下配置
+修改以下配置（不要配置认证）
 ```
 daemonize yes
 loglevel warning

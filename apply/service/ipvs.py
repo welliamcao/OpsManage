@@ -92,7 +92,7 @@ class IPVSRunner(AssetsSource):
             cmds = ''
             for rs in ds.ipvs_rs.all():
                 if int(rs.is_active) == 1 and rs.id in rsList:
-                    cmds =  rs.modf_realsever() + ';' + cmds
+                    cmds =  rs.modf_realsever() + '&&' + cmds
                     
             if len(cmds) > 0:
                 result = self.run_ans_cmd(ds.ipvs_assets.server_assets.ip,AnsRbt,cmds[:-1])
@@ -111,7 +111,7 @@ class IPVSRunner(AssetsSource):
             cmds = ''
             for rs in ds.ipvs_rs.all():
                 if int(rs.is_active) == 1 and rs.id in rsList:
-                    cmds =  rs.del_realsever() + ';' + cmds
+                    cmds =  rs.del_realsever() + '&&' + cmds
             
             if len(cmds) > 0:
                 result = self.run_ans_cmd(ds.ipvs_assets.server_assets.ip,AnsRbt,cmds[:-1])
