@@ -13,21 +13,22 @@ class PermsManage(DataHandle):
     
     def get_apps(self):
         dataList = []
-        for ds in ContentType.objects.values("app_label").distinct():
-            dataList.append(ds.get('app_label'))
+        for ds in ContentType.objects.all():
+            dataList.append({"label":ds.app_label,"content_type":ds.id,"apps_name":ds.name})
         return dataList    
     
-    def perms(self,model):
+    def perms(self,content_type):
         perms = []
-        for ds in Permission.objects.filter(codename__startswith=model):
+        for ds in Permission.objects.filter(content_type=content_type):
             perms.append(self.convert_to_dict(ds)) 
         return perms       
     
     def get_perms(self): 
         permsList = []
-        for ds in self.get_apps():        
-            if ds in ["auth","contenttypes","admin","sessions"] or ds.startswith("django"):continue
-            for ps in self.perms(model=ds):
+        for ds in self.get_apps():             
+            if ds.get("label") in ["auth","contenttypes","admin","sessions"] or ds.get("label").startswith("django"):continue
+            for ps in self.perms(content_type=ds.get("content_type")):
+                ps["apps_name"] = ds.get("apps_name")
                 permsList.append(ps)
         return permsList     
         

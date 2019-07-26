@@ -20,7 +20,7 @@ class Log_Deploy_Model(models.Model):
             ("deploy_add_log_deploy_model", "添加部署模块执行记录权限"),
             ("deploy_delete_log_deploy_model", "删除部署模块执行记录权限"),         
         )
-        verbose_name = 'Ansible模块执行记录表'  
+        verbose_name = '应用部署管理'  
         verbose_name_plural = 'Ansible模块执行记录表' 
         
 class Deploy_Playbook(models.Model):   
@@ -48,7 +48,7 @@ class Deploy_Playbook(models.Model):
             ("deploy_delete_deploy_playbook", "删除部署剧本权限"),        
             ("deploy_exec_deploy_playbook", "执行部署剧本权限"),       
         )
-        verbose_name = '部署剧本配置表'  
+        verbose_name = '应用部署管理'  
         verbose_name_plural = '部署剧本配置表' 
     
     def to_json(self):
@@ -102,7 +102,7 @@ class Deploy_Script(models.Model):
             ("deploy_exec_deploy_model", "执行部署模块权限"),      
             ("deploy_read_deploy_model", "读取部署模块权限"),   
         )
-        verbose_name = '部署脚本配置表'  
+        verbose_name = '应用部署管理'  
         verbose_name_plural = '部署脚本配置表'         
 
     def to_json(self):
@@ -142,7 +142,7 @@ class Log_Deploy_Playbook(models.Model):
             ("deploy_add_log_deploy_playbook", "添加部署剧本执行记录权限"),
             ("deploy_delete_log_deploy_playbook", "删除部署剧本执行记录权限"),
         )
-        verbose_name = '部署剧本操作记录表'  
+        verbose_name = '应用部署管理'  
         verbose_name_plural = '部署剧本操作记录表' 
     
 class Deploy_Inventory(models.Model):    
@@ -159,7 +159,7 @@ class Deploy_Inventory(models.Model):
             ("deploy_add_deploy_inventory", "添加部署资产权限"),
             ("deploy_delete_deploy_inventory", "删除部署资产权限"),             
         )
-        verbose_name = '部署资产表'  
+        verbose_name = '应用部署管理'  
         verbose_name_plural = '部署资产表'
 
 
@@ -170,7 +170,7 @@ class Deploy_Inventory_Groups(models.Model):
     class Meta:
         db_table = 'opsmanage_deploy_inventory_groups'
         default_permissions = ()
-        verbose_name = '部署资产成员表'  
+        verbose_name = '应用部署管理'  
         verbose_name_plural = '部署资产成员表'
         unique_together = (("inventory", "group_name"))
 
@@ -189,7 +189,7 @@ class Deploy_CallBack_Model_Result(models.Model):
     class Meta:
         db_table = 'opsmanage_deploy_callback_model_result'
         default_permissions = ()
-        verbose_name = '部署模块操作记录详情表'  
+        verbose_name = '应用部署管理'  
         verbose_name_plural = '部署剧本操作记录表'
     
     
@@ -199,5 +199,5 @@ class Deploy_CallBack_PlayBook_Result(models.Model):
     class Meta:
         db_table = 'opsmanage_deploy_callback_playbook_result'
         default_permissions = ()
-        verbose_name = '部署剧本操作记录详情表'  
+        verbose_name = '应用部署管理'  
         verbose_name_plural = '部署剧本操作记录详情表'         

@@ -21,13 +21,14 @@ class Cron_Config(models.Model):
     cron_status = models.SmallIntegerField(verbose_name='任务状态',default=None)
     class Meta:
         db_table = 'opsmanage_cron_config'
+        default_permissions = ()
         permissions = (
-            ("cron_can_read_cron_config", "读取任务配置权限"),
-            ("cron_can_change_cron_config", "更改任务配置权限"),
-            ("cron_can_add_cron_config", "添加任务配置权限"),
-            ("cron_can_delete_cron_config", "删除任务配置权限"),            
+            ("sched_can_read_cron_config", "读取任务配置权限"),
+            ("sched_can_change_cron_config", "更改任务配置权限"),
+            ("sched_can_add_cron_config", "添加任务配置权限"),
+            ("sched_can_delete_cron_config", "删除任务配置权限"),            
         )
-        verbose_name = '任务配置表'  
+        verbose_name = '计划任务管理'  
         verbose_name_plural = '任务配置表' 
         unique_together = (("cron_name", "cron_server","cron_user"))
         
@@ -40,7 +41,8 @@ class Log_Cron_Config(models.Model):
     create_time = models.DateTimeField(auto_now_add=True,blank=True,null=True,verbose_name='执行时间')
     class Meta:
         db_table = 'opsmanage_log_cron_config'
-        verbose_name = '任务配置操作记录表'  
+        default_permissions = ()
+        verbose_name = '计划任务管理'  
         verbose_name_plural = '任务配置操作记录表'
          
 
@@ -53,7 +55,8 @@ class Sched_Node(models.Model):
     enable = models.SmallIntegerField(verbose_name='端口',default=1)
     class Meta:
         db_table = 'opsmanage_sched_node'
-        verbose_name = '任务节点表'  
+        default_permissions = ()
+        verbose_name = '计划任务管理'  
         verbose_name_plural = '任务节点表'     
         unique_together = (("sched_server", "port"))
         
@@ -112,7 +115,8 @@ class Sched_Job_Config(models.Model):
     atime = models.IntegerField(blank=True,null=True,verbose_name='告警时间')
     class Meta:
         db_table = 'opsmanage_sched_job_config'
-        verbose_name = '任务配置表'  
+        default_permissions = ()
+        verbose_name = '计划任务管理'  
         verbose_name_plural = '任务配置表'    
     
     def to_alert_json(self):
@@ -187,7 +191,8 @@ class Sched_Job_Logs(models.Model):
     result = models.TextField(verbose_name='执行结果',default=None)  
     class Meta:
         db_table = 'opsmanage_sched_job_logs'
-        verbose_name = '任务执行日志表'  
+        default_permissions = ()
+        verbose_name = '计划任务管理'  
         verbose_name_plural = '任务执行日志表'  
         
     def to_json(self):

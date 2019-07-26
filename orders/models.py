@@ -49,7 +49,7 @@ class Order_System(models.Model):
             ("orders_delete_order_system", "删除工单系统权限"),            
         )
         unique_together = (("order_subject","order_user","order_type"))
-        verbose_name = '工单系统表'  
+        verbose_name = '工单管理'  
         verbose_name_plural = '工单系统表'        
 
 
@@ -72,7 +72,7 @@ class SQL_Audit_Order(models.Model):
             ("orders_add_sql_audit_order", "添加SQL审核工单权限"),
             ("orders_delete_sql_audit_order", "删除SQL审核工单权限"),              
         )
-        verbose_name = 'SQL审核工单表'  
+        verbose_name = '工单管理'  
         verbose_name_plural = 'SQL审核工单表'              
 
 class SQL_Order_Execute_Result(models.Model):
@@ -97,7 +97,7 @@ class SQL_Order_Execute_Result(models.Model):
     class Meta:
         db_table = 'opsmanage_sql_execute_result'
         default_permissions = ()
-        verbose_name = 'SQL工单执行记录表'  
+        verbose_name = '工单管理'  
         verbose_name_plural = 'SQL工单执行记录表' 
         
 class Order_Notice_Config(models.Model):   
@@ -127,5 +127,5 @@ class Order_Notice_Config(models.Model):
             ("orders_delete_notice_config", "删除工单通知配置表权限"),              
         )        
         unique_together = (("order_type","mode"))
-        verbose_name = '工单通知配置表'  
+        verbose_name = '工单管理'  
         verbose_name_plural = '工单通知配置表'          

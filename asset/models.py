@@ -47,7 +47,7 @@ class Assets(models.Model):
             ("assets_delete_assets", "删除资产权限"),
             ("assets_dumps_assets", "导出资产权限"),
         ) 
-        verbose_name = '总资产表'  
+        verbose_name = '资产管理'  
         verbose_name_plural = '总资产表'  
     
     def get_put_zone(self):
@@ -141,7 +141,7 @@ class Server_Assets(models.Model):
             ("assets_delete_server", "删除服务器资产权限"),   
             ("assets_webssh_server", "登陆服务器资产权限"),         
         )
-        verbose_name = '服务器资产表'  
+        verbose_name = '资产管理' 
         verbose_name_plural = '服务器资产表' 
     
     def get_line(self):
@@ -205,7 +205,7 @@ class Network_Assets(models.Model):
             ("assets_add_network", "添加网络资产权限"),
             ("assets_delete_network", "删除网络资产权限"), 
         ) 
-        verbose_name = '网络资产表'  
+        verbose_name = '资产管理' 
         verbose_name_plural = '网络资产表' 
 
     def to_json(self):
@@ -246,7 +246,7 @@ class Disk_Assets(models.Model):
             ("assets_delete_disk", "删除磁盘资产权限"),             
         ) 
         unique_together = (("assets", "device_slot"))
-        verbose_name = '磁盘资产表'  
+        verbose_name = '资产管理' 
         verbose_name_plural = '磁盘资产表'  
 
 class Ram_Assets(models.Model):   
@@ -268,7 +268,7 @@ class Ram_Assets(models.Model):
             ("assets_delete_ram", "删除内存资产权限"),             
         ) 
         unique_together = (("assets", "device_slot"))
-        verbose_name = '内存资产表'  
+        verbose_name = '资产管理'  
         verbose_name_plural = '内存资产表'         
         
 class NetworkCard_Assets(models.Model):   
@@ -282,7 +282,7 @@ class NetworkCard_Assets(models.Model):
     class Meta:
         db_table = 'opsmanage_networkcard_assets'
         default_permissions = ()
-        verbose_name = '服务器网卡资产表'  
+        verbose_name = '资产管理'  
         verbose_name_plural = '服务器网卡资产表'  
         unique_together = (("assets", "macaddress"))    
                     
@@ -300,7 +300,7 @@ class Project_Assets(models.Model):
             ("assets_add_project", "添加产品线权限"),
             ("assets_delete_project", "删除产品线权限"),              
         )  
-        verbose_name = '项目资产表'  
+        verbose_name = '资产管理'  
         verbose_name_plural = '项目资产表' 
               
     
@@ -319,7 +319,7 @@ class Service_Assets(models.Model):
             ("assets_delete_service", "删除业务资产权限"),              
         )  
         unique_together = (("project", "service_name"))
-        verbose_name = '业务分组表'  
+        verbose_name = '资产管理' 
         verbose_name_plural = '业务分组表'  
         
         
@@ -339,7 +339,7 @@ class Zone_Assets(models.Model):
             ("assets_add_zone", "添加机房资产权限"),
             ("assets_delete_zone", "删除机房资产权限"),             
         )  
-        verbose_name = '机房资产表'  
+        verbose_name = '资产管理'  
         verbose_name_plural = '机房资产表'     
         
 class Cabinet_Assets(models.Model):  
@@ -350,7 +350,7 @@ class Cabinet_Assets(models.Model):
         unique_together = (("zone", "cabinet_name"))
         default_permissions = ()
         db_table = 'opsmanage_cabinet_assets'
-        verbose_name = '机柜资产表'  
+        verbose_name = '资产管理' 
         verbose_name_plural = '机柜资产表'              
                 
 class Line_Assets(models.Model):   
@@ -365,7 +365,7 @@ class Line_Assets(models.Model):
             ("assets_add_line", "添加出口线路资产权限"),
             ("assets_delete_line", "删除出口线路资产权限"),             
         )
-        verbose_name = '出口线路资产表'  
+        verbose_name = '资产管理'  
         verbose_name_plural = '出口线路资产表' 
         
 class Raid_Assets(models.Model):   
@@ -380,7 +380,7 @@ class Raid_Assets(models.Model):
             ("assets_add_raid", "添加Raid资产权限"),
             ("assets_delete_raid", "删除Raid资产权限"),             
         )
-        verbose_name = 'Raid资产表'  
+        verbose_name = '资产管理'  
         verbose_name_plural = 'Raid资产表' 
 
 class Log_Assets(models.Model): 
@@ -392,7 +392,7 @@ class Log_Assets(models.Model):
     class Meta:
         db_table = 'opsmanage_log_assets'
         default_permissions = ()
-        verbose_name = '项目配置操作记录表'  
+        verbose_name = '资产管理' 
         verbose_name_plural = '项目配置操作记录表'      
         
 class Tags_Assets(models.Model): 
@@ -407,7 +407,7 @@ class Tags_Assets(models.Model):
             ("assets_delete_tags", "删除标签资产权限"),  
             ("assets_read_tree", "读取资产数权限"),            
         )        
-        verbose_name = '资产标签表'  
+        verbose_name = '资产管理' 
         verbose_name_plural = '资产标签表' 
         
 class Tags_Server_Assets(models.Model): 
@@ -417,7 +417,7 @@ class Tags_Server_Assets(models.Model):
         unique_together = (("aid", "tid"))
         db_table = 'opsmanage_tags_server'
         default_permissions = ()
-        verbose_name = '资产标签对应表'  
+        verbose_name = '资产管理'  
         verbose_name_plural = '资产标签对应表'     
         
         
@@ -434,5 +434,5 @@ class User_Server(models.Model):
             ("assets_read_user", "读取用户权限"),            
         )         
         unique_together = (("assets", "user"))
-        verbose_name = '用户资产表'  
+        verbose_name = '资产管理'  
         verbose_name_plural = '用户资产表'                           

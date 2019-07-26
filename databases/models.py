@@ -47,7 +47,7 @@ class DataBase_Server_Config(models.Model):
             ("database_optimize_database_server_config", "数据库SQL优化建议权限"),
         )
         unique_together = (("db_port", "db_assets","db_env","db_name"))
-        verbose_name = '数据库信息表'  
+        verbose_name = '数据库管理'  
         verbose_name_plural = '数据库信息表'
     
     def get_modes(self):
@@ -77,7 +77,7 @@ class Database_User(models.Model):
         db_table = 'opsmanage_database_user'
         default_permissions = ()
         unique_together = (("db", "user"))
-        verbose_name = '用户数据库分配表'  
+        verbose_name = '数据库管理'   
         verbose_name_plural = '用户数据库分配表'
     
 class Database_Group(models.Model):
@@ -85,8 +85,9 @@ class Database_Group(models.Model):
     group = models.SmallIntegerField(verbose_name='用户id')    
     class Meta:
         db_table = 'opsmanage_database_group'
+        default_permissions = ()
         unique_together = (("db", "group"))
-        verbose_name = '用户组数据库分配表'  
+        verbose_name = '数据库管理'  
         verbose_name_plural = '用户组数据库分配表'
 
 
@@ -107,7 +108,7 @@ class SQL_Execute_Histroy(models.Model):
             ("database_add_sql_execute_histroy", "添加SQL执行历史表权限"),
             ("database_delete_sql_execute_histroy", "删除SQL执行历史表权限"),              
         )
-        verbose_name = 'SQL执行历史记录表'  
+        verbose_name = '数据库管理'  
         verbose_name_plural = 'SQL执行历史记录表'     
         
 class Custom_High_Risk_SQL(models.Model):
@@ -121,7 +122,7 @@ class Custom_High_Risk_SQL(models.Model):
             ("database_add_custom_high_risk_sql", "添加高危SQL表权限"),
             ("database_delete_custom_high_risk_sql", "删除高危SQL表权限"),              
         )
-        verbose_name = '自定义高危SQL表'  
+        verbose_name = '数据库管理'   
         verbose_name_plural = '自定义高危SQL表' 
         
         

@@ -47,7 +47,7 @@ class Project_Config(models.Model):
             ("project_delete_project_config", "删除项目部署权限"),               
         )
         unique_together = (("project_env", "project","project_name"))
-        verbose_name = '项目管理表'  
+        verbose_name = '项目发布管理'  
         verbose_name_plural = '项目管理表'  
  
 class Log_Project_Config(models.Model):
@@ -66,7 +66,7 @@ class Log_Project_Config(models.Model):
     class Meta:
         default_permissions = ()
         db_table = 'opsmanage_log_project_config'
-        verbose_name = '项目配置操作日志配置表'  
+        verbose_name = '项目发布管理'  
         verbose_name_plural = '项目配置操作日志配置表'                
 
     def get_version(self):
@@ -88,7 +88,7 @@ class Log_Project_Record(models.Model):
     class Meta:
         default_permissions = ()
         db_table = 'opsmanage_log_project_record'
-        verbose_name = '项目配置操作记录表'  
+        verbose_name = '项目发布管理'  
         verbose_name_plural = '项目配置操作记录表'      
            
     
@@ -104,6 +104,6 @@ class Project_Roles(models.Model):
         default_permissions = ()
         db_table = 'opsmanage_project_role'
         unique_together = (("project", "user"))
-        verbose_name = '项目角色管理表'  
+        verbose_name = '项目发布管理' 
         verbose_name_plural = '项目角色管理表' 
         

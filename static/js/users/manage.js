@@ -22,10 +22,10 @@ function GetPermsOrGroups(url,uid){
 	if(response["code"]=="200"){
 		for (var i=0; i <response["data"].length; i++){
 			if(response["data"][i]["status"]==1){
-				sList.push({"id":response["data"][i]["id"],"name":response["data"][i]["name"]})
+				sList.push({"id":response["data"][i]["id"],"name":response["data"][i]["apps_name"]+ ' - ' + response["data"][i]["name"]})
 			}
 			else{
-				aList.push({"id":response["data"][i]["id"],"name":response["data"][i]["name"]})
+				aList.push({"id":response["data"][i]["id"],"name":response["data"][i]["apps_name"]+ ' - ' + response["data"][i]["name"]})
 			}
 		}			
 		

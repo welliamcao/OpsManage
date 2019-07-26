@@ -13,7 +13,7 @@ class Nav_Type(models.Model):
             ("nav_add_nav_type", "添加站内导航权限"),
             ("nav_delete_nav_type", "删除站内导航权限"),              
         )  
-        verbose_name = '站内导航分类表'  
+        verbose_name = '站内导航管理'  
         verbose_name_plural = '站内导航分类表' 
               
     
@@ -34,7 +34,7 @@ class Nav_Type_Number(models.Model):
             ("nav_delete_nav_number", "删除站内导航详情权限"),              
         )  
         unique_together = (("nav_type", "nav_name"))
-        verbose_name = '站内导航详情表'  
+        verbose_name = '站内导航管理'  
         verbose_name_plural = '站内导航详情表' 
         
         
@@ -44,7 +44,7 @@ class Nav_Third(models.Model):
     class Meta:
         db_table = 'opsmanage_nav_third'
         default_permissions = () 
-        verbose_name = '第三方站点分类表'  
+        verbose_name = '站内导航管理'  
         verbose_name_plural = '第三方站点分类表' 
               
     
@@ -59,5 +59,5 @@ class Nav_Third_Number(models.Model):
         db_table = 'opsmanage_nav_third_number'
         default_permissions = () 
         unique_together = (("nav_third", "nav_name"))
-        verbose_name = '第三方站点详情表'  
+        verbose_name = '站内导航管理'  
         verbose_name_plural = '第三方站点详情表'         

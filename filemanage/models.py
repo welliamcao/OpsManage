@@ -22,7 +22,7 @@ class FileUpload_Audit_Order(models.Model):
             ("filemanage_delete_fileupload_audit_order", "删除文件上传审核工单权限"),              
         )
         default_permissions = ()
-        verbose_name = '文件上传审核工单表'  
+        verbose_name = '工单管理'  
         verbose_name_plural = '文件上传审核工单表'  
 
 class UploadFiles(models.Model):
@@ -47,5 +47,5 @@ class FileDownload_Audit_Order(models.Model):
             ("filemanage_delete_filedownload_audit_order", "删除文件下载审核工单权限"),              
         )
         default_permissions = ()
-        verbose_name = '文件上传审核工单表'  
+        verbose_name = '工单管理'  
         verbose_name_plural = '文件下载审核工单表'  

@@ -35,7 +35,7 @@ class IPVS_CONFIG(models.Model):
             ("ipvs_delete_ipvs_config", "删除IPVS信息表权限"),     
         )
         unique_together = (("vip", "port", "ipvs_assets"))
-        verbose_name = 'IPVS信息表'  
+        verbose_name = '应用管理'  
         verbose_name_plural = 'IPVS信息表'
     
     def project(self):
@@ -107,7 +107,7 @@ class IPVS_RS_CONFIG(models.Model):
         db_table = 'opsmanage_ipvs_rs_config'
         default_permissions = ()  
         unique_together = (("ipvs_vip", "ipvs_fw_ip")) 
-        verbose_name = 'IPVS_RS_信息表'  
+        verbose_name = '应用管理'  
         verbose_name_plural = 'IPVS_RS_信息表'  
 
     def project(self):
@@ -170,7 +170,7 @@ class IPVS_NS_CONFIG(models.Model):
         db_table = 'opsmanage_ipvs_ns_config'
         default_permissions = ()   
         unique_together = (("ipvs_vip", "nameserver")) 
-        verbose_name = 'IPVS_NS_信息表'  
+        verbose_name = '应用管理' 
         verbose_name_plural = 'IPVS_NS_信息表'          
         
 class IPVS_OPS_LOG(models.Model):
@@ -181,5 +181,5 @@ class IPVS_OPS_LOG(models.Model):
     class Meta:
         db_table = 'opsmanage_ipvs_ops_log'
         default_permissions = ()   
-        verbose_name = 'IPVS操作记录表'  
+        verbose_name = '应用管理' 
         verbose_name_plural = 'IPVS操作记录表'         

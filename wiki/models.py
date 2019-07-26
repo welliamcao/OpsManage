@@ -20,7 +20,7 @@ class Category(models.Model):
             ("wiki_can_add_wiki_category", "添加分类权限"),
             ("wiki_can_delete_wiki_category", "删除分类权限"),              
         )
-        verbose_name = 'wiki分类'  
+        verbose_name = '文档管理'  
         verbose_name_plural = 'wiki分类'     
     def __str__(self):
         return self.name
@@ -38,7 +38,7 @@ class Tag(models.Model):
             ("wiki_can_add_wiki_tag", "添加标签权限"),
             ("wiki_can_delete_wiki_tag", "删除标签权限"),              
         )
-        verbose_name = 'wiki标签'  
+        verbose_name = '文档管理'  
         verbose_name_plural = 'wiki标签'    
     def __str__(self):
         return self.name
@@ -63,7 +63,7 @@ class Post(models.Model):
             ("wiki_can_add_wiki_post", "添加文章权限"),
             ("wiki_can_delete_wiki_post", "删除文章权限"),              
         )
-        verbose_name = 'wiki文章'  
+        verbose_name = '文档管理'  
         verbose_name_plural = 'wiki文章'
 
     def __str__(self):
@@ -86,7 +86,7 @@ class Comment(models.Model):
             ("wiki_can_add_wiki_comment", "添加评论权限"),
             ("wiki_can_delete_wiki_comment", "删除评论权限"),              
         )
-        verbose_name = 'wiki文章评论'  
+        verbose_name = '文档管理'  
         verbose_name_plural = 'wiki文章评论'    
 
     def __str__(self):
