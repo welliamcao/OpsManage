@@ -247,7 +247,7 @@
 		                        <input  type="hidden" class="form-control" id="ans_uuid" name="ans_uuid" value="{{assets.uuid}}">  								
 								<button type="button" class="btn btn-default btn-sm" id="save_deploy_script">保存</button>
 								<button type="button" class="btn btn-default btn-sm" value="" id="modf_deploy_script" style="display:none;">修改</button>
-								{% if perms.Deploy.can_exec_deploy_scripts %}
+								{% if perms.deploy.deploy_exec_deploy_script %}
 						 			<button type="button"  class="btn btn-default btn-sm"  id="run_deploy_script">执行</button>
 						 		{% else %}
 						 			<button type="button"  class="btn btn-default btn-sm"  disabled>执行</button>

@@ -311,10 +311,11 @@ class ANSRunner(object):
             if success:
                 for x,y in success.items():
                     data = {}
+                    data['msg'] = "success"
                     data['ip'] = x
-                    if y.get('invocation'):
-                        data['msg'] = y.get('stdout').replace('\t\t','<br>').replace('\r\n','<br>').replace('\t','<br>').replace('\n','<br>')
-                        data['status'] = 'succeed'
+                    if y.get('invocation') and y.get('stdout'):
+                        data['msg'] = y.get('stdout').replace('\t\t','<br>').replace('\r\n','<br>').replace('\t','<br>').replace('\n','<br>')                          
+                    data['status'] = 'succeed'    
                     data_list.append(data) 
                     
             if failed:

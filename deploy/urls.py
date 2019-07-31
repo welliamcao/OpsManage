@@ -5,12 +5,9 @@ from . import views
 
 urlpatterns = [
     url(r'^model/$', views.DelolyModel.as_view()), 
-    url(r'^run/$', views.DeployRun.as_view()),
     url(r'^inventory/$', views.DeployInventory.as_view()),
     url(r'^inventory/group/(?P<id>[0-9]+)/$', views.DeployInventoryGroups.as_view()),
     url(r'^scripts/$', views.DeployScripts.as_view()),
-    url(r'^scripts/run/$', views.DeployScriptsRun.as_view()),
     url(r'^playbook/$', views.DeployPlaybooks.as_view()),
-    url(r'^playbook/run/$', views.DeployPlaybookRun.as_view()),
     url(r'^logs/$', views.DelolyLogs.as_view()),
 ]

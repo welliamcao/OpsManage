@@ -75,7 +75,6 @@ class ModelResultsCollectorToWebSocket(CallbackBase):
         self.websocket.send_msg(data,self.websocket.logId)            
        
     def v2_runner_on_unreachable(self, result):  
-        print(result._result)
         for remove_key in ('changed', 'invocation'):
             if remove_key in result._result:
                 del result._result[remove_key] 
@@ -97,7 +96,6 @@ class ModelResultsCollectorToWebSocket(CallbackBase):
         for remove_key in ('changed', 'invocation'):
             if remove_key in result._result:
                 del result._result[remove_key]
-        print(result._result)
         if 'rc' in result._result and 'stderr' in result._result:
             data = "<font color='#DC143C'>{host} | FAILED | rc={rc} >> \n{stderr}</font>".format(host=result._host.get_name(),rc=result._result.get('rc'),stderr=result._result.get('stderr') + result._result.get('stdout') + result._result.get('msg'))
         else:
