@@ -3,7 +3,7 @@ FROM python:3.6-slim
 WORKDIR /usr/src/app
 
 RUN apt update \
- && apt install -y default-libmysqlclient-dev gcc python-dev libldap2-dev libsasl2-dev git \
+ && apt install -y default-libmysqlclient-dev gcc python-dev libldap2-dev libsasl2-dev git sshpass \
  && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt ./

@@ -139,8 +139,8 @@ class PlayBookResultsCollectorWebSocket(CallbackBase):
         else:
             if delegated_vars:
                 msg = "<font color='green'>ok: [%s -> %s]</font>" % (result._host.get_name(), delegated_vars['ansible_host'])
-            elif 'msg' in result._result:
-                msg = "<font color='green'>ok: [{host}] => {stdout}</font>".format(host=result._host.get_name(),stdout=json.dumps(result._result,indent=4))  
+            elif 'rc' in result._result and 'stdout' in result._result:
+                msg = "<font color='green'>ok: [{host}] => \n{stdout}</font>".format(host=result._host.get_name(), stdout=result._result.get('stdout'))
             else:
                 msg = "<font color='green'>ok: [%s]</font>" % result._host.get_name()  
         if result._task.loop and 'results' in result._result:
