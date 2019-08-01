@@ -319,10 +319,12 @@ class ANSRunner(object):
                     data_list.append(data) 
                     
             if failed:
-                for x,y in failed.items():   
-                    data = {}                  
+                for x,y in failed.items():                      
+                    data = {}   
+                    data['msg'] = "failed"               
                     data['ip'] = x
-                    data['msg'] = y.get('stderr') + y.get('msg')
+                    if y.get('stderr'):
+                        data['msg'] = y.get('stderr') + y.get('msg')
                     data['status'] = 'failed'
                     data_list.append(data)  
                                                   
