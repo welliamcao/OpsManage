@@ -167,7 +167,7 @@
 							<div class="form-group">
 								<label class="col-sm-4 control-label"></label>
 								<button type="reset"  class="btn btn-default btn-sm" >撤销</button>
-								{% if perms.Deploy.can_exec_ansible_model %}
+								{% if perms.deploy.deploy_exec_deploy_script %}
 						 			<button type="button"  class="btn btn-default btn-sm" id="run_deploy_model">执行</button>
 						 		{% else %}
 						 			<button type="button"  class="btn btn-default btn-sm"  disabled>执行</button>
