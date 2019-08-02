@@ -1121,10 +1121,12 @@ $(document).ready(function() {
     	    websocket.onerror = function(event) {
     	    	console.log(event)
     	    	websocket.close();
+				out_print.append('\n服务器连接异常\n\n');
     	    };    
     	    
     	    websocket.onclose = function () {
     	    	btnObj.removeAttr('disabled');
+				out_print.append('\n服务器处理结束\n\n');
     	    }		    		    	
 	    })
 
@@ -1143,8 +1145,7 @@ $(document).ready(function() {
 	            }); 
 		    	btnObj.removeAttr('disabled');
 		    	return false;
-		    };	
-		    $("#result").html("服务器正在处理，请稍等。。。\n");
+		    };
 			var ansible_server = new Array();
 			$("select[name='custom'] option:selected").each(function(){
 				ansible_server.push($(this).val());
@@ -1179,10 +1180,12 @@ $(document).ready(function() {
 		    websocket.onerror = function(event) {
 		    	console.log(event)
 		    	websocket.close();
+				out_print.append('\n服务器连接异常\n\n');
 		    };    
 		    
 		    websocket.onclose = function () {
 		    	btnObj.removeAttr('disabled');
+				out_print.append('\n服务器处理结束\n\n');
 		    }			    
 		        	
 	    }) 
@@ -1654,8 +1657,7 @@ $(document).ready(function() {
 		            }); 
 			    	btnObj.removeAttr('disabled');
 			    	return false;
-			    };	
-			    $("#result").html("服务器正在处理，请稍等。。。");
+			    };
 				var ansible_server = new Array();
 				$("#deploy_server option:selected").each(function(){
 					ansible_server.push($(this).val());
@@ -1689,10 +1691,12 @@ $(document).ready(function() {
 			    websocket.onerror = function(event) {
 			    	console.log(event)
 			    	websocket.close();
+			    	out_print.append('\n服务器连接异常\n\n');
 			    };    
 			    
 			    websocket.onclose = function () {
 			    	btnObj.removeAttr('disabled');
+			    	out_print.append('\n服务器处理结束\n\n');
 			    }				
   				
 			}else{
