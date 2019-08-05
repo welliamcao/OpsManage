@@ -66,11 +66,11 @@ class AnsibleModel(WebsocketConsumer,AssetsAnsible):
         
         sList,resource = self.allowcator(request.get('server_model'), request)
         
-        if len(request.get('custom_model')) > 0:
+        if request.get('deploy_model') == 'custom':
             model_name = request.get('custom_model')
         else:
             model_name = request.get('deploy_model',None)
-        
+
         count = len(sList)
         
         if count > 0 and request["user"].has_perm('deploy.deploy_exec_deploy_model'):

@@ -95,7 +95,7 @@ function AssetsSelect(name,dataList,selectIds){
 		   default:
 			   action = ''	       
 	   }
-	var binlogHtml = '<select required="required" class="selectpicker form-control" data-live-search="true"  data-size="10" data-width="100%" '+ action +' name="'+ name +'"autocomplete="off"><option value="">选择一个进行操作</option>'
+	var binlogHtml = '<select required="required" class="selectpicker form-control" data-live-search="true"  data-size="10" data-width="100%" '+ action +' name="'+ name +'"autocomplete="off"><option value="" disabled>选择一个进行操作</option>'
 	var selectHtml = '';
 	for (var i=0; i <dataList.length; i++){
 		if(dataList[i][name+"_name"]){
@@ -1072,7 +1072,6 @@ $(document).ready(function() {
     		var btnObj = $(this);
     		btnObj.attr('disabled',true);
     		var form = document.getElementById('deployModelRun');
-    		var post_data = {};
     		for (var i = 1; i < form.length; ++i) {
     			var name = form[i].name;
     			var value = form[i].value;
@@ -1088,13 +1087,31 @@ $(document).ready(function() {
     				return false;
     			}
     		};
+			var ansible_server = new Array();
+			$("select[name='custom'] option:selected").each(function(){
+				if ($(this).val().length){
+					ansible_server.push($(this).val());
+				}				
+	        });    		
     	    let ws_scheme = window.location.protocol === "https:" ? "wss" : "ws";
     	    let websocket = new WebSocket(ws_scheme + '://' + window.location.host + "/ws/ansible/model/" + randromChat + '/');
     	    let out_print = $("#result");
 
     	    websocket.onopen = function () {
     	    	out_print.html('服务器正在处理，请稍等。。。\n\n');
-    	    	websocket.send(JSON.stringify($('#deployModelRun').serializeObject()));
+		    	let data = {
+						'server_model':$('#server_model option:selected').val(),
+						'service':$('select[name="service"] option:selected').val(),
+						'group':$('select[name="group"] option:selected').val(),
+						'tags':$('select[name="tags"] option:selected').val(),
+						'inventory_groups':$('select[name="inventory_groups"] option:selected').val(),
+						'deploy_model':$('select[name="deploy_model"] option:selected').val(),
+						'custom_model':$('input[name="custom_model"]').val(),
+						'deploy_args':$("#deploy_args").val(),
+						'debug':$('#deploy_debug option:selected').val(),
+						'custom':ansible_server
+					}    	    	
+    	    	websocket.send(JSON.stringify(data));
     	    };
 
     	    websocket.onmessage = function (event) {
@@ -1110,97 +1127,7 @@ $(document).ready(function() {
     	    	btnObj.removeAttr('disabled');
     	    }		    		    	
 	    })
-	    //new
-//	    $('#run_deploy_script').on('click', function() {
-//			var btnObj = $(this);
-//			btnObj.attr('disabled',true);
-//			var form = document.getElementById('deployScriptRun');
-//		    var contents = aceEditAdd.getSession().getValue(); 
-//		    var script_name = document.getElementById("script_name").value;
-//		    if ( contents.length == 0 || script_name.length == 0){
-//	        	new PNotify({
-//	                title: 'Warning!',
-//	                text: '脚本内容与名称不能为空',
-//	                type: 'warning',
-//	                styling: 'bootstrap3'
-//	            }); 
-//		    	btnObj.removeAttr('disabled');
-//		    	return false;
-//		    };	
-//		    $("#result").html("服务器正在处理，请稍等。。。\n");
-//			var ansible_server = new Array();
-//			$("select[name='custom'] option:selected").each(function(){
-//				ansible_server.push($(this).val());
-//	        });
-//			/* 轮训获取结果 开始  */
-//	 	   var interval = setInterval(function(){  
-//		        $.ajax({  
-//		            url : '/deploy/run/',  
-//		            type : 'post', 
-//		            data:$('#deployScriptRun').serialize(),
-//		            success : function(result){
-//		            	if (result["msg"] !== null ){
-//		            		$("#result").append("<p>"+result["msg"]+"</p>"); 
-//		            		document.getElementById("scrollToTop").scrollIntoView(); 
-//		            		if (result["msg"].indexOf("[Done]") == 0){
-//		            			clearInterval(interval);
-//		            			btnObj.removeAttr('disabled');
-//		        				$.confirm({
-//		        				    title: '执行完成',
-//		        				    content: '',
-//		        				    type: 'blue',
-//		        				    typeAnimated: true,
-//		        				    buttons: {
-//		        				        close: function () {
-//		        				        }
-//		        				    }
-//		        				});			            			
-//		            		}
-//		            	}
-//		            },
-//			    	error:function(response){
-//			    		btnObj.removeAttr('disabled');
-//			    		clearInterval(interval);
-//			    	}	            
-//		        });  
-//		    },1000); 			
-////	 	    /* 轮训获取结果结束  */
-//			$.ajax({
-//				url:'/deploy/scripts/run/', //请求地址
-//				type:"POST",  //提交类似
-//				data:{
-//					'script_name':$("#script_name").val(),
-//					'server_model':$('#server_model option:selected').val(),
-//					'service':$('select[name="service"] option:selected').val(),
-//					'group':$('select[name="group"] option:selected').val(),
-//					'tags':$('select[name="tags"] option:selected').val(),
-//					'inventory_groups':$('select[name="inventory_groups"] option:selected').val(),
-//					'script_args':$("#script_args").val(),
-//					'ans_uuid':$("#ans_uuid").val(),
-//					'script_file':contents,
-//					'debug':$('#deploy_debug option:selected').val(),
-//					'server':ansible_server
-//				},//$('#deployModelRun').serialize() + '&script_file=' + contents,  //不能是被脚本里面的&&符号
-//				success:function(response){
-//					btnObj.removeAttr('disabled');
-//					if (response["code"] == "500"){
-//						clearInterval(interval);
-//						btnObj.removeAttr('disabled');
-//		            	new PNotify({
-//		                    title: 'Ops Failed!',
-//		                    text: "执行失败",
-//		                    type: 'error',
-//		                    styling: 'bootstrap3'
-//		                }); 
-//					}					
-//				},
-//		    	error:function(response){
-//		    		btnObj.removeAttr('disabled');
-//		    		clearInterval(interval);
-//		    	}
-//			})	    	
-//	    }) 
-	    
+
 	    $('#run_deploy_script').on('click', function() {
 			var btnObj = $(this);
 			btnObj.attr('disabled',true);
