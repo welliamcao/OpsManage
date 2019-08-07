@@ -232,10 +232,10 @@ class UsersManage(PermsManage,AssetsBase):
             return "用户不存在"         
     
         
-class GroupManage(PermsManage):  
+class GroupManageBase(PermsManage):
     
     def __init__(self):
-        super(GroupManage, self).__init__()     
+        super(GroupManageBase, self).__init__()
     
     def allowcator(self,sub,args):
         if hasattr(self,sub):

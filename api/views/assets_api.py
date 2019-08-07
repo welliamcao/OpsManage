@@ -546,7 +546,6 @@ def asset_count(request,format=None):
                                                             "statusCount":ASSETS_COUNT_RBT.statusAssets(),
                                                             "typeCount":ASSETS_COUNT_RBT.typeAssets(),
                                                             "zoneCount":ASSETS_COUNT_RBT.zoneAssets(),
-                                                            "statusCount":ASSETS_COUNT_RBT.statusAssets(),
                                                             "appsCount":ASSETS_COUNT_RBT.appsAssets(),
                                                             "dbCount":ASSETS_COUNT_RBT.databasesAssets(),
                                                             "tagCount":ASSETS_COUNT_RBT.tagsAssets(),
