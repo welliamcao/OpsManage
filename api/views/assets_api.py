@@ -56,7 +56,7 @@ def project_detail(request, id,format=None):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
      
     elif request.method == 'DELETE':
-        if not request.user.has_perm('asset.assets_delete_rroject_Assets'):
+        if not request.user.has_perm('asset.assets_delete_project_Assets'):
             return Response(status=status.HTTP_403_FORBIDDEN)
         snippet.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)   
