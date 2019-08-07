@@ -14,7 +14,6 @@ from rest_framework.decorators import api_view
 from django.contrib.auth.decorators import permission_required
 from utils.logger import logger
 from django.http import JsonResponse
-from tasks.celery_assets import recordAssets
 from dao.base import DataHandle
 
 
@@ -56,7 +55,7 @@ def project_detail(request, id,format=None):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
      
     elif request.method == 'DELETE':
-        if not request.user.has_perm('asset.assets_delete_rroject_Assets'):
+        if not request.user.has_perm('asset.assets_delete_project_assets'):
             return Response(status=status.HTTP_403_FORBIDDEN)
         snippet.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)   
@@ -116,27 +115,7 @@ def service_detail(request, id,format=None):
         snippet.delete()
         #recordAssets.delay(user=str(request.user),content="删除业务类型：{service_name}".format(service_name=snippet.service_name),type="service",id=id)
         return Response(status=status.HTTP_204_NO_CONTENT)   
-  
-@api_view(['GET', 'DELETE'])
-@permission_required('OpsManage.read_log_assets',raise_exception=True)
-def assetsLog_detail(request, id,format=None):
-    """
-    Retrieve, update or delete a server assets instance.
-    """    
-    try:
-        snippet = Log_Assets.objects.get(id=id)
-    except Log_Assets.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
- 
-    if request.method == 'GET':
-        serializer = serializers.AssetsLogsSerializer(snippet)
-        return Response(serializer.data)
-     
-    elif request.method == 'DELETE' and request.user.has_perm('OpsManage.delete_log_assets'):
-        if not request.user.has_perm('OpsManage.delete_log_assets'):
-            return Response(status=status.HTTP_403_FORBIDDEN)
-        snippet.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)    
+      
     
 @api_view(['GET', 'POST' ])
 def group_list(request,format=None):
@@ -546,7 +525,6 @@ def asset_count(request,format=None):
                                                             "statusCount":ASSETS_COUNT_RBT.statusAssets(),
                                                             "typeCount":ASSETS_COUNT_RBT.typeAssets(),
                                                             "zoneCount":ASSETS_COUNT_RBT.zoneAssets(),
-                                                            "statusCount":ASSETS_COUNT_RBT.statusAssets(),
                                                             "appsCount":ASSETS_COUNT_RBT.appsAssets(),
                                                             "dbCount":ASSETS_COUNT_RBT.databasesAssets(),
                                                             "tagCount":ASSETS_COUNT_RBT.tagsAssets(),

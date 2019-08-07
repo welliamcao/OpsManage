@@ -382,18 +382,7 @@ class Raid_Assets(models.Model):
         )
         verbose_name = '资产管理'  
         verbose_name_plural = 'Raid资产表' 
-
-class Log_Assets(models.Model): 
-    assets_id = models.IntegerField(verbose_name='资产类型id',blank=True,null=True,default=None)
-    assets_user = models.CharField(max_length=50,verbose_name='操作用户',default=None)
-    assets_content = models.CharField(max_length=100,verbose_name='名称',default=None)
-    assets_type = models.CharField(max_length=50,default=None)
-    create_time = models.DateTimeField(auto_now_add=True,blank=True,null=True,verbose_name='执行时间')
-    class Meta:
-        db_table = 'opsmanage_log_assets'
-        default_permissions = ()
-        verbose_name = '资产管理' 
-        verbose_name_plural = '项目配置操作记录表'      
+  
         
 class Tags_Assets(models.Model): 
     tags_name = models.CharField(unique=True,max_length=100,verbose_name='名称',default=None)

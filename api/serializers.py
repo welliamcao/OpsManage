@@ -118,12 +118,7 @@ class ServerSerializer(serializers.ModelSerializer):
         data['assets'] = assets;
         server = Server_Assets.objects.create(**data)  
         return server 
-    
-class AssetsLogsSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Log_Assets
-        fields = ('id','assets_id','assets_user','assets_content','assets_type','create_time') 
-        
+            
 
 class DeployPlaybookSerializer(serializers.ModelSerializer): 
     class Meta:

@@ -74,7 +74,6 @@ urlpatterns = [
             url(r'^apps/count/$', cicd_api.AppsCounts.as_view()), 
             url(r'^apps/roles/$', cicd_api.apps_roles_list),    
             url(r'^apps/roles/(?P<id>[0-9]+)/$', cicd_api.apps_roles_detail),                       
-            url(r'^logs/assets/(?P<id>[0-9]+)/$', assets_api.assetsLog_detail),
             url(r'^logs/ansible/model/$', deploy_api.DeployModelLogPaginator.as_view()),
             url(r'^logs/ansible/model/(?P<id>[0-9]+)/$', deploy_api.modelLogsdetail),
             url(r'^logs/ansible/playbook/$', deploy_api.DeployPlaybookLogPaginator.as_view()),            
