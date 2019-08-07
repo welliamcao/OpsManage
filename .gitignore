@@ -12,4 +12,5 @@ media*
 ./logs/opsmanage.log
 .quarantine
 .msyh.ttf
-
+dump.rdb
+.idea/
