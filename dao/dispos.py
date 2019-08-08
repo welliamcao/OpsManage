@@ -76,12 +76,12 @@ class DeployScript(DataHandle):
         except Exception as ex:
             return "查询部署脚本{ids}，失败{ex}".format(ids=ids,ex=ex)
         script_file = os.getcwd()  + str(script.script_file)
+        content = ''
         if os.path.exists(script_file):
-            content = ''
             with open(script_file,"r") as f:
                 for line in f.readlines(): 
                     content =  content + line 
-            script.script_contents = content  
+        script.script_contents = content
         return  json.dumps(self.convert_to_dict(script))         
        
     
@@ -158,12 +158,12 @@ class DeployPlaybook(DataHandle):
         except Exception as ex:
             return "查询部署剧本{ids}，失败{ex}".format(ids=ids,ex=ex)
         playbook_file = os.getcwd()  + str(playbook.playbook_file)
+        content = ''
         if os.path.exists(playbook_file):
-            content = ''
             with open(playbook_file,"r") as f:
                 for line in f.readlines(): 
                     content =  content + line 
-            playbook.playbook_contents = content  
+        playbook.playbook_contents = content  
         return  json.dumps(self.convert_to_dict(playbook))         
        
     
