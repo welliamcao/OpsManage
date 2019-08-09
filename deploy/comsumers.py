@@ -92,7 +92,7 @@ class AnsibleModel(WebsocketConsumer,AssetsAnsible):
             self.send("未选择主机或者您没有主机权限")
             self.close()
             
-        self.send("\n执行完成，总共{count}台机器，耗时：{time}".format(count=count, time=format_time(int(time.time())-self.stime)))
+        self.send("\n<font color='white'>执行完成，总共{count}台机器，耗时：{time}</font>".format(count=count, time=format_time(int(time.time())-self.stime)))
         self.close()         
         
     def disconnect(self, close_code):
@@ -181,7 +181,7 @@ class AnsibleScript(WebsocketConsumer,AssetsAnsible):
             self.send("未选择主机或者您没有主机权限")
             self.close()
                
-        self.send("\n执行完成，总共{count}台机器，耗时：{time}".format(count=count, time=format_time(int(time.time())-self.stime)))
+        self.send("\n<font color='white'>执行完成，总共{count}台机器，耗时：{time}</font>".format(count=count, time=format_time(int(time.time())-self.stime)))
         self.close()       
       
         
@@ -279,7 +279,7 @@ class AnsiblePlaybook(WebsocketConsumer,AssetsAnsible):
             self.send("未选择主机或者您没有主机权限")
             self.close()
                
-        self.send("\n执行完成，总共{count}台机器，耗时：{time}".format(count=count, time=format_time(int(time.time())-self.stime)))
+        self.send("\n<font color='white'>执行完成，总共{count}台机器，耗时：{time}</font>".format(count=count, time=format_time(int(time.time())-self.stime)))
         self.close()           
       
         
