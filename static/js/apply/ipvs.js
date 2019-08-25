@@ -46,7 +46,7 @@ function makeMultipleVipSelect(ids,name,dataList){
 	var binlogHtml = '<select multiple required="required" class="selectpicker form-control" data-live-search="true"  data-size="10" data-width="100%" id='+ ids +' name="'+ name +'"autocomplete="off">'
 	var selectHtml = '';
 	for (var i=0; i <dataList.length; i++){
-		var text = dataList[i]["vip"] + ':' + dataList[i]["port"] + ' | ' + dataList[i]["project"]+' | '+dataList[i]["line"]+' | '+dataList[i]["desc"]					
+		var text = dataList[i]["vip"] + ':' + dataList[i]["port"] + ' | ' +dataList[i]["line"]+' | '+dataList[i]["desc"]					
 		selectHtml += '<option selected="selected" value="'+ dataList[i]["id"] +'">'+text +'</option>'				 
 	};                        
 	binlogHtml =  binlogHtml + selectHtml + '</select>';
@@ -54,89 +54,60 @@ function makeMultipleVipSelect(ids,name,dataList){
 	$("#"+ids).selectpicker('refresh');	
 }
 
-function ipvsVipProjectSelect(){
+function ipvsVipBusinessSelect(){
 	   $("#ipvs_vip_service").removeAttr("disabled");
 	   $("#ipvs_assets").empty();
-	   var obj = document.getElementById("ipvs_vip_project"); 
+	   var obj = document.getElementById("ipvs_vip_business"); 
 	   var index = obj.selectedIndex;
 	   var projectId = obj.options[index].value; 
 	   if ( projectId > 0){	 
 			$.ajax({
 				dataType: "JSON",
-				url:'/api/project/'+ projectId + '/', //请求地址
+				url:'/api/business/nodes/assets/'+ projectId + '/', //请求地址
 				type:"GET",  //提交类似
-				success:function(response){
-					var binlogHtml = '<select class="selectpicker" name="ipvs_vip_service" id="ipvs_vip_service" required><option selected="selected" value="">请选择业务类型</option>'
-					var selectHtml = '';
-					for (var i=0; i <response["service_assets"].length; i++){
-						 selectHtml += '<option name="ipvs_vip_service" value="'+ response["service_assets"][i]["id"] +'">' + response["service_assets"][i]["service_name"] + '</option>' 
-					};                        
-					binlogHtml =  binlogHtml + selectHtml + '</select>';
-					$("#ipvs_vip_service").html(binlogHtml)
-					$(".selectpicker").selectpicker('refresh');	
-						
-				},
-			});	
-	   }
-	   else{
-		   $("select[name='ipvs_vip_service']").attr("disabled",true);
-	   }
-}
-
-function IpvsVipAssetsTypeSelect(model,ids){
-	   var obj = document.getElementById(ids); 
-	   var index = obj.selectedIndex;
-	   var sId = obj.options[index].value; 
-	   if ( sId  > 0){	 
-			$.ajax({
-				dataType: "JSON",
-				url:'/assets/server/query/', //请求地址
-				type:"POST",  //提交类似
-				async:false,
-				data:{
-					"query":model,
-					"id":sId
-				},
 				success:function(response){
 					var binlogHtml = '<select class="selectpicker" name="ipvs_assets" id="ipvs_assets" required><option  name="ipvs_assets" value="">请选择服务器</option>'
 					var selectHtml = '';
-					for (var i=0; i <response["data"].length; i++){
-						 selectHtml += '<option name="ipvs_assets" value="'+ response["data"][i]["id"] +'">' + response["data"][i]["ip"] + '</option>' 
+					for (var i=0; i <response.length; i++){
+						 selectHtml += '<option name="ipvs_assets" value="'+ response[i]["id"] +'">' + response[i]["detail"]["ip"] + '</option>' 
 					};                        
 					binlogHtml =  binlogHtml + selectHtml + '</select>';
 					$("#ipvs_assets").html(binlogHtml)
-					$('.selectpicker').selectpicker('refresh');			
-				},
-			});	
-	   }
-}
-
-function ipvsRealServerProjectSelect(){
-	   $("#ipvs_rs_service").removeAttr("disabled");
-	   $("#rs_assets").empty();
-	   var obj = document.getElementById("ipvs_rs_project"); 
-	   var index = obj.selectedIndex;
-	   var projectId = obj.options[index].value; 
-	   if ( projectId > 0){	 
-			$.ajax({
-				dataType: "JSON",
-				url:'/api/project/'+ projectId + '/', //请求地址
-				type:"GET",  //提交类似
-				success:function(response){
-					var binlogHtml = '<select class="selectpicker" name="ipvs_rs_service" id="ipvs_rs_service" required><option selected="selected" value="">请选择业务类型</option>'
-					var selectHtml = '';
-					for (var i=0; i <response["service_assets"].length; i++){
-						 selectHtml += '<option name="ipvs_rs_service" value="'+ response["service_assets"][i]["id"] +'">' + response["service_assets"][i]["service_name"] + '</option>' 
-					};                        
-					binlogHtml =  binlogHtml + selectHtml + '</select>';
-					$("#ipvs_rs_service").html(binlogHtml)
-					$(".selectpicker").selectpicker('refresh');	
-						
+					$('.selectpicker').selectpicker('refresh');							
 				},
 			});	
 	   }
 	   else{
-		   $("select[name='ipvs_vip_service']").attr("disabled",true);
+		   $("select[name='ipvs_assets']").attr("disabled",true);
+	   }
+}
+
+function ipvsRealServerBusinessSelect(){
+	   $("#ipvs_rs_business").removeAttr("disabled");
+	   $("#rs_assets").empty();
+	   var obj = document.getElementById("ipvs_rs_business"); 
+	   var index = obj.selectedIndex;
+	   var projectId = obj.options[index].value; 
+	   if ( projectId > 0){	 			
+			$.ajax({
+				dataType: "JSON",
+				url:'/api/business/nodes/assets/'+ projectId + '/', //请求地址
+				type:"GET",  //提交类似
+				success:function(response){
+					var binlogHtml = '<select class="selectpicker" name="rs_assets" id="rs_assets" required><option  name="ipvs_assets" value="">请选择服务器</option>'
+					var selectHtml = '';
+					for (var i=0; i <response.length; i++){
+						 selectHtml += '<option name="rs_assets" value="'+ response[i]["id"] +'">' + response[i]["detail"]["ip"] + '</option>' 
+					};                        
+					binlogHtml =  binlogHtml + selectHtml + '</select>';
+					$("#rs_assets").html(binlogHtml)
+					$('.selectpicker').selectpicker('refresh');							
+				},
+			});			
+			
+	   }
+	   else{
+		   $("select[name='rs_assets']").attr("disabled",true);
 	   }
 }
 
@@ -166,6 +137,19 @@ function IpvsRealServerAssetsTypeSelect(model,ids){
 				},
 			});	
 	   }
+}
+
+function makeDynamicBusinessSelect(dataList,selectName,selectValue){
+	var makeSelect = '<select class="form-control" name="'+selectName+'">'
+	var selectOption = ''
+	for (var i = 0; i < dataList.length; ++i) {
+		if(dataList[i]["paths"]==selectValue){
+			selectOption += '<option value="'+ dataList[i]["id"] +'" selected="selected">'+ dataList[i]["paths"] +'</option>'
+		}else{
+			selectOption += '<option value="'+ dataList[i]["id"] +'" >'+ dataList[i]["paths"] +'</option>'
+		}        				 
+	}		
+	return makeSelect = makeSelect + selectOption + '</select>'    	
 }
 
 function makeDynamicSelect(dataList,selectName,selectValue){
@@ -226,7 +210,7 @@ function AssetsSelect(name,dataList,selectIds){
 	switch(name)
 	   {
 		   case "project":
-			   action = 'onchange="javascript:ipvsVipProjectSelect(this);"'
+			   action = 'onchange="javascript:ipvsVipBusinessSelect(this);"'
 		       break;			       
 		   default:
 			   action = ''	       
@@ -234,7 +218,7 @@ function AssetsSelect(name,dataList,selectIds){
 	var binlogHtml = '<select required="required" class="selectpicker form-control" data-live-search="true"  data-size="10" data-width="100%" '+ action +' name="'+ name +'"autocomplete="off"><option value="">选择一个进行操作</option>'
 	var selectHtml = '';
 	for (var i=0; i <dataList.length; i++){
-		var text = dataList[i]["ip"]+ ' | ' + dataList[i]["project"]+' | '+dataList[i]["service"]				
+		var text = dataList[i]["ip"]			
 		if(selectIds==dataList[i]["id"]){
 			selectHtml += '<option selected="selected" value="'+ dataList[i]["id"] +'">'+text +'</option>' 	
 		}else{
@@ -254,7 +238,7 @@ function IpvsVipSelect(name,dataList,selectIds){
 	switch(name)
 	   {
 		   case "project":
-			   action = 'onchange="javascript:ipvsVipProjectSelect(this);"'
+			   action = 'onchange="javascript:ipvsVipBusinessSelect(this);"'
 		       break;			       
 		   default:
 			   action = ''	       
@@ -262,7 +246,7 @@ function IpvsVipSelect(name,dataList,selectIds){
 	var binlogHtml = '<select required="required" class="selectpicker form-control" data-live-search="true"  data-size="10" data-width="100%" '+ action +' name="'+ name +'"autocomplete="off"><option value="">选择一个VIP进行操作</option>'
 	var selectHtml = '';
 	for (var i=0; i <dataList.length; i++){
-		var text = dataList[i]["vip"]+ ':' + dataList[i]["port"] + ' | '  + dataList[i]["project"] + ' | ' + dataList[i]["line"] + ' | ' + dataList[i]["desc"]			
+		var text = dataList[i]["vip"]+ ':' + dataList[i]["port"] + ' | ' + dataList[i]["line"] + ' | ' + dataList[i]["desc"]			
 		if(selectIds==dataList[i]["id"]){
 			selectHtml += '<option selected="selected" value="'+ dataList[i]["id"] +'">'+text +'</option>' 	
 		}else{
@@ -649,6 +633,40 @@ function updateIpvsStatus(urls,data,ids){
 	});	
 }
 
+function customMenu(node) {
+    var items = {  	  
+    }
+    return items
+}
+
+function drawTree(ids,url){
+    $(ids).jstree({	
+	    "core" : {
+	      "check_callback": function (op, node, par, pos, more) {  	  
+	    	    if (op === "move_node" || op === "copy_node") {	    	    	
+	    	        return false;
+	    	    }
+	    	    return true;
+	    	},
+	      'data' : {
+	        "url" : url,
+	        "dataType" : "json" // needed only if you do not supply JSON headers
+	      }
+	    },	    
+/*	    "plugins": ["contextmenu", "dnd", "search","themes","state", "types", "wholerow","json_data","unique","checkbox"],*/
+	    "plugins": ["contextmenu", "dnd", "search","themes","state", "types", "wholerow","json_data","unique"],
+/*        "checkbox": {
+            "keep_selected_style": false,//是否默认选中
+            "three_state": false,//父子级别级联选择
+            "tie_selection": false
+        },*/	    
+	    "contextmenu":{
+		    	select_node:false,
+		    	show_at_node:true,
+		    	'items': customMenu
+		      }	    
+	});		
+}
 	
 function makeipvsVipManageTableList(dataList){
     var columns = [
@@ -657,8 +675,9 @@ function makeipvsVipManageTableList(dataList){
 		                "data":      null,
 		                "className": 'select-checkbox', 
 		                "defaultContent": ''
-		            },                    
-                   {"data": "vip"},
+		            },   
+		           {"data": "business_paths"},
+                   {"data": "vip"},                   
                    {"data": "sip"},     
                    {"data": "protocol"},
 	               {"data": "scheduler"},
@@ -670,21 +689,21 @@ function makeipvsVipManageTableList(dataList){
 	               ]
    var columnDefs = [                      
 	    		        {
-	   	    				targets: [1],
+	   	    				targets: [2],
 	   	    				render: function(data, type, row, meta) {  	    					
 	   	                        return row.vip + ':' + row.port
 	   	    				},	
 	   	    				"className": "text-center",
 		    		    },  	    		    
 	    		        {
-	   	    				targets: [3],
+	   	    				targets: [4],
 	   	    				render: function(data, type, row, meta) {  	    					
 	   	                        return protocol_type[row.protocol]
 	   	    				},
 	   	    				"className": "text-center",
 		    		    }, 		    		    
 	    		        {
-	   	    				targets: [9],
+	   	    				targets: [10],
 	   	    				render: function(data, type, row, meta) {
 	   	    					if(row.is_active==1){
 	   	    						return '<input class="switch switch-mini" name="vip_is_active" type="checkbox" data-size="mini"  value="'+ row.id + '" checked />'
@@ -694,7 +713,7 @@ function makeipvsVipManageTableList(dataList){
 	   	    				}
 	    		        }, 		    		    
 	    		        {
-   	    				targets: [10],
+   	    				targets: [11],
    	    				render: function(data, type, row, meta) {  	    					
    	                        return '<div class="btn-group  btn-group-xs">' +	
 	    	                           '<button type="button" name="btn-vip-edit" value="'+ row.id +'" class="btn btn-default"><span class="fa fa-edit" aria-hidden="true"></span>' +	
@@ -702,6 +721,10 @@ function makeipvsVipManageTableList(dataList){
 	    	                           '<button type="button" name="btn-vip-add" value="'+ row.id +'" class="btn btn-default"><span class="fa fa-plus" aria-hidden="true"></span>' +	
 	    	                           '</button>' +	
 	    	                           '<button type="button" name="btn-vip-rs" value="'+ row.id +'" class="btn btn-default"><span class="fa fa-search" aria-hidden="true"></span>' +	
+	    	                           '</button>' +	
+	    	                           '<button type="button" name="btn-vip-rate" value="'+ row.id +'" class="btn btn-default"><span class="fa fa-bar-chart" aria-hidden="true"></span>' +	
+	    	                           '</button>' +	    	
+	    	                           '<button type="button" name="btn-vip-stats" value="'+ row.id +'" class="btn btn-default"><span class="fa fa-terminal" aria-hidden="true"></span>' +	
 	    	                           '</button>' +	    	                           
 	    	                           '<button type="button" name="btn-vip-delete" value="'+ row.id +'" class="btn btn-default" aria-label="Justify"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span>' +	
 	    	                           '</button>' +			                            
@@ -715,6 +738,21 @@ function makeipvsVipManageTableList(dataList){
         className: "btn-sm",
         action: function ( e, dt, node, config ) {        	
         	$('#myAddIpvsVIPModal').modal("show")
+			$.ajax({
+				async : true,  
+				url:'/api/business/last/', //请求地址
+				type:"GET",  //提交类似
+				success:function(response){
+					var binlogHtml = '<select required="required" class="selectpicker form-control" data-live-search="true"  data-size="10" data-width="100%" name="ipvs_vip_business"  id="ipvs_vip_business" autocomplete="off" onchange="javascript:ipvsVipBusinessSelect();"><option selected="selected" value="">请选择一个进行操作</option>'
+					var selectHtml = '';
+					for (var i=0; i <response.length; i++){
+						selectHtml += '<option value="'+ response[i]["id"] +'">'+ response[i]["paths"] +'</option>' 					 
+					};                        
+					binlogHtml =  binlogHtml + selectHtml + '</select>';
+					$("#ipvs_vip_business").html(binlogHtml)							
+					$("#ipvs_vip_business").selectpicker('refresh');							
+				}					
+			});	        	
         	}
     	},
         {
@@ -1141,260 +1179,45 @@ function removeself(obj) {
     changepage(1);
 }	
 
-function viewIpvsNs(obj){
-	var ids = obj["id"] - 30000
-	makeipvsNameServerManageTableList('ipvsVipNameServerManageListTable','/api/apply/ipvs/ns/?ipvs_vip='+ids)
-	$('#myModfIpvsNsModal').modal({show:true});
-}
-
-function viewRate(obj){
-	var ids = obj["id"] - 30000
-	$("#myModfVipStatusModalLabel").html('<p class="text-blank">IPVS VIP <code>'+obj["text"].split(" ")[0]+ '</code>Rate/速率</p>')
-	$("#webssh_tt").html("")
-	$('#vipsVipRealtimeStatus').val("rate|"+ids)
-	$('#myModfIpvsVipStatusModal').modal({show:true});	
-}
-
-function viewStats(obj){
-	var ids = obj["id"] - 30000   
-	$("#myModfVipStatusModalLabel").html('<p class="text-blank">IPVS VIP <code>'+obj["text"].split(" ")[0]+ '</code>Stat/状态</p>')
-	$("#webssh_tt").html("")
-	$('#vipsVipRealtimeStatus').val("stats|"+ids)
-	$('#myModfIpvsVipStatusModal').modal({show:true});
-}
-
-function customMenu(node) {
-    var items = {
-            "view":{
-            		"separator_before"	: false,
-					"separator_after"	: false,
-					"_disabled"			: false, 
-					"label"				: "RealServer",
-					"shortcut_label"	: 'F2',
-					"icon"				: "fa fa-search-plus",
-					"action"			: function (data) {
-						var inst = $.jstree.reference(data.reference),
-						obj = inst.get_node(data.reference);
-						viewRealServer(obj)
-					}
-            },
-            "config":{
-          		"separator_before"	: false,
-					"separator_after"	: false,
-					"_disabled"			: false, 
-					"label"				: "域名管理",
-					"shortcut_label"	: 'F2',
-					"icon"				: "fa fa-bookmark",
-					"action"			: function (data) {
-						var inst = $.jstree.reference(data.reference),
-						obj = inst.get_node(data.reference);
-						viewIpvsNs(obj)
-					}
-          },              
-            "rate":{
-          		"separator_before"	: false,
-					"separator_after"	: false,
-					"_disabled"			: false, 
-					"label"				: "传输速率",
-					"shortcut_label"	: 'F2',
-					"icon"				: "fa fa-bar-chart",
-					"action"			: function (data) {
-						var inst = $.jstree.reference(data.reference),
-						obj = inst.get_node(data.reference);
-						viewRate(obj)				
-					}
-          }, 
-          "stats":{
-      		"separator_before"	: false,
-				"separator_after"	: false,
-				"_disabled"			: false, 
-				"label"				: "连接状态",
-				"shortcut_label"	: 'F2',
-				"icon"				: "fa fa-terminal",
-				"action"			: function (data) {
-					var inst = $.jstree.reference(data.reference),
-					obj = inst.get_node(data.reference);
-					var parents = inst.get_path('#' + obj.parent ,false)
-					var parentsName = ''
-					for (var i=0; i <parents.length; i++){
-						parentsName = parentsName + parents[i].split("(")[0]
-					}
-					viewStats(obj)				
-				}
-          },            
-	  }
-    if(node["id"]>10000 && node["id"] <= 20000){
-  		try {    	  
-	    	  delete items.view
-	    	  delete items.rate
-	    	  delete items.config
-	    	  delete items.stats
-  		}
-  		catch(err) {
-  			console.log(err)
-  		}     	  
-    }else if(node["id"]>30000){
-	    	try {    	  
-	    	  delete items.new
-	    	  delete items.view	    	  
-			}
-			catch(err) {
-				console.log(err)
-			}     	  
-    }else if(node["id"]>20000 && node["id"]<30000){
-		try {
-	      	  delete items.new
-	    	  delete items.view
-	    	  delete items.rate
-	    	  delete items.config
-	    	  delete items.stats
-		}
-		catch(err) {
-			console.log(err)
-		} 
-    }
-    return items
-}
-
-function viewRealServer(obj){
-	$("#ipvs_vip_realserver_detail").show()
-	let ids = obj["id"] - 30000
-    if ($('#ipvsVipRealServerManageListTable').hasClass('dataTable')) {
-        dttable = $('#ipvsVipRealServerManageListTable').dataTable();
-        dttable.fnClearTable(); 
-        dttable.fnDestroy(); 
-    }	
-	makeipvsRealServerManageTableList('ipvsVipRealServerManageListTable','/api/apply/ipvs/rs/?ipvs_vip='+ids)
-}
-
-function drawTree(ids,url){
-    $(ids).jstree({	
-	    "core" : {
-	      "check_callback": function (op, node, par, pos, more) {  	  
-	    	    if ((op === "move_node" || op === "copy_node") && node.type && node.id > 10000  && node.id < 30000) {	    	    	
-	    	        return false;
-	    	    }
-	    	    else if ((op === "move_node" || op === "copy_node") && node.type && node.id > 30000 && par.parent > 20000 && par.parent < 30000 ) {	
-	    	    	return false;
-	    	    	
-	    	    }
-	    	    return true;
-	    	},
-	      'data' : {
-	        "url" : url,
-	        "dataType" : "json" // needed only if you do not supply JSON headers
-	      }
-	    },	    
-/*	    "plugins": ["contextmenu", "dnd", "search","themes","state", "types", "wholerow","json_data","unique","checkbox"],*/
-	    "plugins": ["contextmenu", "dnd", "search","themes","state", "types", "wholerow","json_data","unique"],
-/*        "checkbox": {
-            "keep_selected_style": false,//是否默认选中
-            "three_state": false,//父子级别级联选择
-            "tie_selection": false
-        },*/	    
-	    "contextmenu":{
-		    	select_node:false,
-		    	show_at_node:true,
-		    	'items': customMenu
-		      }	    
-	});		
-}
-
-function makeIPVSVipTableListForJstree(url,position,parent,ids){
-	$.ajax({  
-        cache: true,  
-        type: "GET",  
-        url:url, 
-        async : false,  
-        error: function(response) {
-        	new PNotify({
-                title: 'Ops Failed!',
-                text: response.responseText,
-                type: 'error',
-                styling: 'bootstrap3'
-            });       
-        },  
-        success: function(response) {
-        	if(ids=="service"){
-    			for (var i=0; i <response["results"].length; i++){
-    				if (response["results"][i]["is_active"]==1){
-    					var icon = "fa fa-check-circle assets-online"
-    				}else{
-    					var icon = "fa fa-check-circle-o assets-offline"
-    				}
-    				var text = response["results"][i]["vip"]+':'+ response["results"][i]["port"]+' ('+ response["results"][i]["rs_count"] +')'
-                    var newNode = {
-                            "id": response["results"][i]["id"]+30000,
-                            "text": text,
-                            "icon": icon
-                        }        						
-    				$('#ipvsTree').jstree('create_node', parent, newNode, position, false, false);	
-    			}
-    			$("#ipvsTree").jstree("open_node", parent);       		
-        	}
-	        if ($('#ipvsVIPManageListTable').hasClass('dataTable')) {
-	            dttable = $('#ipvsVIPManageListTable').dataTable();
-	            dttable.fnClearTable(); //清空table
-	            dttable.fnDestroy(); //还原初始化datatable
-	        }
-	        if ($('#ipvsVipRealServerManageListTable').hasClass('dataTable')) {
-	            dttable = $('#ipvsVipRealServerManageListTable').dataTable();
-	            dttable.fnClearTable();
-	            dttable.fnDestroy();
-	        }	
-            $("#ipvs_vip_realserver_detail").hide()
-            $("#add_ipvs_rs_task").hide()
-            $("#ipvs_ns").hide()	        
-			makeipvsVipManageTableList(response["results"])
-        } 
-	}); 	
-}
 
 $(document).ready(function() {	
 	
 	var randromChat = makeRandomId()
 	
 	drawTree('#ipvsTree',"/api/apply/ipvs/tree/")
+
+    $("#search-input").keyup(function () {
+        var searchString = $(this).val();
+        $('#ipvsTree').jstree('search', searchString);
+    });		
 	
-    $("#ipvsTree").click(function () {
-        var position = 'last';
-        var parent = $("#ipvsTree").jstree("get_selected");
-        if (parent[0] > 20000 && parent[0] < 30000){
-        	$("#projectTree").jstree("open_node", parent[0]);
-            let serviceId = parent[0]-20000
-            ipvs_vip_table_type["key"] = 'service'
-            ipvs_vip_table_type["id"] = serviceId	            
-            makeIPVSVipTableListForJstree("/api/apply/ipvs/tree/service/" + serviceId + "/",position,parent,'service') 
-            $("#modfIpvsVipsubmit").val("service|"+serviceId)
-        }else if(parent[0] > 30000){
-        	let vip_id = parent[0]-30000
-            ipvs_vip_table_type["key"] = 'vip'
-            ipvs_vip_table_type["id"] = vip_id         	  	
-        	makeIPVSVipTableListForJstree('/api/apply/ipvs/?id='+vip_id,position,parent,'')     
-        	$("#modfIpvsVipsubmit").val("vip|"+vip_id)       	
-        }
-    });	
+	$("#ipvsTree").click(function () {
+	     var position = 'last';
+	     let select_node = $(this).jstree("get_selected",true)[0]["original"];
+	     if(select_node["last_node"] == 1){
+				$.ajax({
+					  type: 'GET',
+					  url: '/api/apply/ipvs/tree/business/'+ select_node["id"] + '/',
+				      success:function(response){	
+				    	  if ($('#ipvsVIPManageListTable').hasClass('dataTable')) {
+				            dttable = $('#ipvsVIPManageListTable').dataTable();
+				            dttable.fnClearTable(); //清空table
+				            dttable.fnDestroy(); //还原初始化datatable
+				    	  }			    	  
+				    	  makeipvsVipManageTableList(response)
+				      },
+		              error:function(response){
+		            	new PNotify({
+		                    title: 'Ops Failed!',
+		                    text: response.responseText,
+		                    type: 'error',
+		                    styling: 'bootstrap3'
+		                }); 
+		              }
+				});
+	     }
+	});	
 	
-	$(function() {
-		if($("#ipvs_vip_project").length){
-			$.ajax({
-				async : true,  
-				url:'/api/project/', //请求地址
-				type:"GET",  //提交类似
-				success:function(response){
-					var binlogHtml = '<select required="required" class="selectpicker form-control" data-live-search="true"  data-size="10" data-width="100%" name="ipvs_vip_project"  id="ipvs_vip_project" autocomplete="off" onchange="javascript:ipvsVipProjectSelect();"><option selected="selected" value="">请选择一个进行操作</option>'
-					var selectHtml = '';
-					for (var i=0; i <response.length; i++){
-						selectHtml += '<option value="'+ response[i]["id"] +'">'+ response[i]["project_name"] +'</option>' 					 
-					};                        
-					binlogHtml =  binlogHtml + selectHtml + '</select>';
-					$("#ipvs_vip_project").html(binlogHtml)							
-					$("#ipvs_vip_project").selectpicker('refresh');							
-				}					
-			});			
-		}	 		
-	})		
-		
     $('#ipvs_vip_rs').change(function () {
         if ($('#ipvs_vip_rs').val() != "") {
             var span = "<span class='tag' id='span_ipvs_vip_rs'>" + $("#ipvs_vip_rs").find("option:selected").text()
@@ -1516,12 +1339,14 @@ $(document).ready(function() {
 	$('#ipvsVIPManageListTable tbody').on('click',"button[name='btn-vip-edit']",function(){
     	var vIds = $(this).val();
     	var td = $(this).parent().parent().parent().find("td")
-    	let vip =  td.eq(1).text()
+    	let business =  td.eq(1).text()
+    	let vip =  td.eq(2).text()
     	let scheduler =  td.eq(4).text()    	
     	let protocol =  td.eq(3).text() 
     	let persistence =  td.eq(6).text()
     	let line =  td.eq(7).text()
     	let desc =  td.eq(8).text()  
+    	let businessList = requests('get','/api/business/last/')
 		switch(protocol)
 		{
 		    case "TCP":
@@ -1538,6 +1363,13 @@ $(document).ready(function() {
 	        type: 'blue',
 	        title: '修改IPVS: <strong>'+ vip +'</strong>配置',
 	        content: '<form  data-parsley-validate class="form-horizontal form-label-left">' +
+			            '<div class="form-group">' +
+				            '<label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">业务归属<span class="required">*</span>' +
+				            '</label>' +
+				            '<div class="col-md-6 col-sm-6 col-xs-12">' +
+				            	makeDynamicBusinessSelect(businessList,'business',business) +
+				            '</div>' +
+				        '</div>' +		        
 			            '<div class="form-group">' +
 			              '<label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">协议<span class="required">*</span>' +
 			              '</label>' +
@@ -1641,17 +1473,17 @@ $(document).ready(function() {
     	$("#ipvs_ns").show()
 		$.ajax({
 			async : true,  
-			url:'/api/project/', //请求地址
+			url:'/api/business/last/', //请求地址
 			type:"GET",  //提交类似
 			success:function(response){
-				var binlogHtml = '<select required="required" class="selectpicker form-control" data-live-search="true"  data-size="10" data-width="100%" name="ipvs_rs_project"  id="ipvs_vip_project" autocomplete="off" onchange="javascript:ipvsRealServerProjectSelect();"><option selected="selected" value="">请选择一个项目</option>'
+				var binlogHtml = '<select required="required" class="selectpicker form-control" data-live-search="true"  data-size="10" data-width="100%" name="ipvs_rs_business"  id="ipvs_vip_business" autocomplete="off" onchange="javascript:ipvsRealServerBusinessSelect();"><option selected="selected" value="">请选择一个项目</option>'
 				var selectHtml = '';
 				for (var i=0; i <response.length; i++){
-					selectHtml += '<option value="'+ response[i]["id"] +'">'+ response[i]["project_name"] +'</option>' 					 
+					selectHtml += '<option value="'+ response[i]["id"] +'">'+ response[i]["paths"] +'</option>' 					 
 				};                        
 				binlogHtml =  binlogHtml + selectHtml + '</select>';
-				$("#ipvs_rs_project").html(binlogHtml)							
-				$("#ipvs_rs_project").selectpicker('refresh');							
+				$("#ipvs_rs_business").html(binlogHtml)							
+				$("#ipvs_rs_business").selectpicker('refresh');					
 			}					
 		});
 	})
@@ -1670,7 +1502,7 @@ $(document).ready(function() {
 	$('#ipvsVIPManageListTable tbody').on('click',"button[name='btn-vip-delete']",function(){
 		var vIds = $(this).val();  
     	var td = $(this).parent().parent().parent().find("td")
-    	var node =  td.eq(1).text()
+    	var node =  td.eq(2).text()
 		$.confirm({
 		    title: '删除确认',
 		    content: '<strong>VIP: </strong> <code>' + node + '</code>?',
@@ -1709,6 +1541,26 @@ $(document).ready(function() {
 		});			  		 	
     });		
 
+	$('#ipvsVIPManageListTable tbody').on('click',"button[name='btn-vip-rate']",function(){
+		var vIds = $(this).val();  
+    	var td = $(this).parent().parent().parent().find("td")
+    	var node =  td.eq(2).text()
+		$("#myModfVipStatusModalLabel").html('<p class="text-blank">IPVS VIP <code>'+node+ '</code>Rate/速率</p>')
+		$("#webssh_tt").html("")
+		$('#vipsVipRealtimeStatus').val("rate|"+vIds)
+		$('#myModfIpvsVipStatusModal').modal({show:true});			  		 	
+    });		
+
+	$('#ipvsVIPManageListTable tbody').on('click',"button[name='btn-vip-stats']",function(){
+		var vIds = $(this).val();  
+    	var td = $(this).parent().parent().parent().find("td")
+    	var node =  td.eq(2).text()
+    	$("#myModfVipStatusModalLabel").html('<p class="text-blank">IPVS VIP <code>'+node+ '</code>Stat/状态</p>')
+    	$("#webssh_tt").html("")
+    	$('#vipsVipRealtimeStatus').val("stats|"+vIds)
+    	$('#myModfIpvsVipStatusModal').modal({show:true});		  		 	
+    });		
+	
     $("#addIpvsVipsubmit").on('click', function() {
     	var form = document.getElementById('addIpvsVipForm');
     	var post_data = {};

@@ -31,23 +31,29 @@ class UserSerializer(serializers.ModelSerializer):
                   'first_name','last_name','email','is_staff',
                   'is_active','date_joined')       
  
-
-class ServiceSerializer(serializers.ModelSerializer):
-    project_name = serializers.CharField(source='project.project_name', read_only=True)
-    project_id = serializers.IntegerField(source='project.id', read_only=True)
-    class Meta:
-        model = Service_Assets
-        fields = ('id','service_name','project_name','project_id')
            
-
-
-class ProjectSerializer(serializers.ModelSerializer):
-    service_assets = ServiceSerializer(many=True, read_only=True,required=False)
+class BusinessEnvSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Project_Assets
-        fields = ('id','project_name','project_owner','service_assets')   
-                  
-
+        model = Business_Env_Assets
+        fields = ('id','name')
+        
+class BusinessTreeSerializer(serializers.ModelSerializer):
+    paths = serializers.SerializerMethodField(read_only=True,required=False)
+    icon = serializers.SerializerMethodField(read_only=True,required=False)
+    last_node = serializers.SerializerMethodField(read_only=True,required=False)
+    class Meta:
+        model = Business_Tree_Assets
+        fields = ('id','text','env','manage','parent','group','desc','icon','paths','last_node','tree_id')          
+        
+    def get_paths(self,obj):
+        return obj.node_path()
+    
+    def get_last_node(self,obj):
+        return obj.last_node()
+    
+    def get_icon(self,obj):
+        return obj.icon()
+    
 class GroupSerializer(serializers.ModelSerializer):
     class Meta:
         model = Group
@@ -59,22 +65,49 @@ class TagsSerializer(serializers.ModelSerializer):
         fields = ('id','tags_name')          
 
 class CabinetSerializer(serializers.ModelSerializer):
-    zone_name = serializers.CharField(source='zone.zone_name', read_only=True)
-    zone_id = serializers.IntegerField(source='zone.id', read_only=True)
+    idc_name = serializers.CharField(source='idc.idc_name', read_only=True)
     class Meta:
         model = Cabinet_Assets
-        fields = ('id','cabinet_name','zone_name','zone_id')   
+        fields = ('id','cabinet_name','idc_name') 
+          
+    def create(self,  validated_data):
+        return Cabinet_Assets.objects.create(idc=self.context["idc"], **validated_data)
 
-class ZoneSerializer(serializers.ModelSerializer):
+class IdcSerializer(serializers.ModelSerializer):
+    zone_name = serializers.CharField(source='zone.zone_name', read_only=True)
     cabinet_assets = CabinetSerializer(many=True, read_only=True,required=False)
     class Meta:
+        model = Idc_Assets
+        fields = ('id','zone_name','idc_name','idc_bandwidth','idc_linkman','idc_phone','idc_address','idc_network','idc_operator','idc_desc','cabinet_assets')      
+
+    def create(self,  validated_data):
+        return Idc_Assets.objects.create(zone=self.context["zone"], **validated_data)
+
+class IdleAssetsSerializer(serializers.ModelSerializer): 
+    idc_name = serializers.CharField(source='idc.idc_name', read_only=True)
+    update_time = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S",required=False)
+    idle_username = serializers.SerializerMethodField(read_only=True,required=False)
+    class Meta:
+        model =  Idle_Assets
+        fields = ('id','idc_name','idle_name','idle_number','idle_user','idle_desc','update_time','idle_username')             
+
+    def create(self,  validated_data):
+        return Idle_Assets.objects.create(idc=self.context["idc"], **validated_data)        
+    
+    def get_idle_username(self,obj):
+        return obj.get_username()
+    
+class ZoneSerializer(serializers.ModelSerializer):
+    idc_assets = IdcSerializer(many=True, read_only=True,required=False)
+    class Meta:
         model = Zone_Assets
-        fields = ('id','zone_name','zone_network','zone_local','zone_contact','zone_number','cabinet_assets')            
+        fields = ('id','zone_name','idc_assets')  
 
 class LineSerializer(serializers.ModelSerializer):
+    update_time = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S",required=False)
     class Meta:
         model = Line_Assets
-        fields = ('id','line_name')          
+        fields = ('id','line_name','line_price','update_time')          
 
 class RaidSerializer(serializers.ModelSerializer):
     class Meta:
@@ -90,8 +123,8 @@ class AssetsSerializer(serializers.ModelSerializer):
         model = Assets
         fields = ('id','assets_type','name','sn','buy_time','expire_date',
                   'buy_user','management_ip','manufacturer','provider','mark',
-                  'model','status','put_zone','group','business','project',
-                  'crontab_total','database_total',)  
+                  'model','status','put_zone','group','project',
+                  'crontab_total','cabinet','database_total',)  
 
     def get_crontab_total(self, obj):
         return [ cron.id for cron in obj.crontab_total.all() ]  #返回列表          
@@ -108,7 +141,7 @@ class ServerSerializer(serializers.ModelSerializer):
                   'line','cpu','cpu_number','vcpu_number','keyfile',
                   'cpu_core','disk_total','ram_total','kernel',
                   'selinux','swap','raid','system','assets',
-                  'sudo_passwd') 
+                  'sudo_passwd','keyfile_path') 
     def create(self, data):
         if(data.get('assets')):
             assets_data = data.pop('assets')
@@ -118,7 +151,6 @@ class ServerSerializer(serializers.ModelSerializer):
         data['assets'] = assets;
         server = Server_Assets.objects.create(**data)  
         return server 
-            
 
 class DeployPlaybookSerializer(serializers.ModelSerializer): 
     class Meta:
@@ -186,15 +218,16 @@ class OrderSerializer(serializers.ModelSerializer):
                         }                 
         
 class DataBaseServerSerializer(serializers.ModelSerializer):
-    db_service = serializers.IntegerField(source='db_assets.business', read_only=True)
-    db_project = serializers.IntegerField(source='db_assets.project', read_only=True)
+    detail = serializers.SerializerMethodField(read_only=True,required=False)
     class Meta:
         model = DataBase_Server_Config
         fields = ('id','db_env','db_name','db_assets_id',
                   'db_user','db_port','db_mark','db_type',
-                  "db_mode","db_service","db_project",
-                  "db_rw")  
-        
+                  "db_mode","db_business","db_rw","detail")  
+    
+    def get_detail(self,obj):
+        return obj.to_json()
+            
         
 class CustomSQLSerializer(serializers.ModelSerializer):
     class Meta:
@@ -328,13 +361,16 @@ class ApschedNodeJobsLogsSerializer(serializers.ModelSerializer):
          
         
 class AppsSerializer(serializers.ModelSerializer):
-    product_name = serializers.CharField(source='project.project_name', read_only=True)
+    project_business_paths = serializers.SerializerMethodField(read_only=True,required=False)
     class  Meta:
         model = Project_Config
-        fields = ('id','project_env', 'project_name','project_type','project_local_command','project_repo_dir',
+        fields = ('id','project_env','project_business_paths', 'project_name','project_type','project_local_command','project_repo_dir',
                   'project_exclude','project_address','project_uuid','project_repo_user','project_repo_passwd',
                   'project_repertory','project_status','project_remote_command','project_user','project_model',
-                  'project_service','product_name',"project_pre_remote_command") 
+                  'project_business',"project_pre_remote_command") 
+    
+    def get_project_business_paths(self,obj):
+        return obj.business_paths()
 
 class AppsRolesSerializer(serializers.ModelSerializer):
     class  Meta:
@@ -428,11 +464,11 @@ class OrdersNoticeConfigSerializer(serializers.ModelSerializer):
 class IPVSSerializer(serializers.ModelSerializer):
     sip = serializers.CharField(source='ipvs_assets.server_assets.ip', read_only=True)
     rs_count = serializers.SerializerMethodField(read_only=True,required=False)
-    rs_list = serializers.SerializerMethodField(read_only=True,required=False)
-    project = serializers.SerializerMethodField(read_only=True,required=False)
+#     rs_list = serializers.SerializerMethodField(read_only=True,required=False)
+    business_paths = serializers.SerializerMethodField(read_only=True,required=False)
     class  Meta:
         model = IPVS_CONFIG
-        fields = ('id','vip','port','scheduler','sip','rs_count','persistence','protocol','line','desc','is_active','ipvs_assets','project','rs_list')         
+        fields = ('id','vip','port','scheduler','sip','rs_count','persistence','business','business_paths','protocol','line','desc','is_active','ipvs_assets')         
     
         extra_kwargs = {
                         'ipvs_assets': {'required': False},
@@ -441,14 +477,16 @@ class IPVSSerializer(serializers.ModelSerializer):
                         'scheduler':{'required': False},                   
                         }       
     
-    def get_project(self,obj):
-        return obj.project()
+
     
     def get_rs_count(self,obj):
         return obj.ipvs_rs.all().count()  
     
     def get_rs_list(self,obj):
         return [ x.to_json() for x in obj.ipvs_rs.all() ]     
+    
+    def get_business_paths(self,obj):
+        return obj.business_paths()
     
 class IPVSRealServerSerializer(serializers.ModelSerializer):
     sip = serializers.CharField(source='rs_assets.server_assets.ip', read_only=True)

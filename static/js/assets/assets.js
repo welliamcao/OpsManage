@@ -1,8 +1,12 @@
-function Percentage(num, total) {
-		return (Math.round(num / total * 10000) / 100);
+	function Percentage(num, total) {
+			return (Math.round(num / total * 10000) / 100);
 	}	
 
-	function projectCount (ids,dataList) {
+	function getRandomColor(){
+		return '#'+(Math.random()*0xffffff<<0).toString(16);
+	}
+
+	function groupCount (ids,dataList) {
 		if(dataList.length){
         	var labels = [];	
         	var data = [];
@@ -11,21 +15,21 @@ function Percentage(num, total) {
         	var colorList = ["aero","purple","green","blue","red"]
         	for (var i=0; i < dataList.length; i++){
         		data.push(dataList[i]["count"]);
-        		labels.push(dataList[i]["project_name"]);
+        		labels.push(dataList[i]["name"]);
         		total = total + dataList[i]["count"]
         	}
         	for (var i=0; i < dataList.length; i++){
         		trHtml = trHtml +  '<tr>' +
 			                          '<td>' +
-			                             '<p><i class="fa fa-square '+ colorList[i] +'"></i>'+ dataList[i]["project_name"] +'</p>' +
+			                             '<p><i class="fa fa-square '+ colorList[i] +'"></i>'+ dataList[i]["name"] +'</p>' +
 			                          '</td>' +
 			                          '<td>'+ Percentage(dataList[i]["count"],total) + '%</td>' +
 			                       '</tr>'            		
         	}
-        	$("#project_count").html(trHtml);	
+        	$("#group_count").html(trHtml);	
         	init_chart_doughnut(ids,labels,data);			
 		}else{
-        	var labels = ["项目一", "项目二", "项目三", "项目四", "项目五"];	
+        	var labels = ["DBA", "运维", "开发一组", "开发二组", "开发三组"];	
 			var data = [1, 2, 3, 1, 3];
 			init_chart_doughnut(ids,labels,data);  			
 		}
@@ -39,16 +43,54 @@ function Percentage(num, total) {
 			var labelsList = ["物理服务器","虚拟机"];
 			var values = [203,124];			
 		}
-	    if ($("#pieChart").length) {        
+	    if ($("#pieChart").length) { 
+	    	let colorList = []
         	for (var i=0; i < dataList.length; i++){
         		values.push(dataList[i]["count"]);
         		labelsList.push(dataList[i]["assets_type"]);
+        		colorList.push(getRandomColor())
         	}		    
 	        var f = document.getElementById("pieChart"),        
 	        i = {
 	            datasets: [{
 	                data: values,
-	                backgroundColor: ["#228B22", "#1E90FF","#FF8C00","#8470FF"],
+	                backgroundColor: colorList,
+	                label: "My dataset"
+	            }],
+	            labels: labelsList
+	        };
+	        new Chart(f, {
+	            data: i,
+	            type: "pie",
+	            otpions: {
+	                legend: !1
+	            }
+	        })
+	    }
+	}	
+
+
+	
+	function tagsCount (dataList) {
+		if (dataList.length){
+       		var labelsList = [];	
+        	var values = [];				
+		}else{
+			var labelsList = ["物理服务器","虚拟机"];
+			var values = [203,124];			
+		}
+	    if ($("#pieTagsChart").length) { 
+	    	let colorList = []
+        	for (var i=0; i < dataList.length; i++){
+        		values.push(dataList[i]["count"]);
+        		labelsList.push(dataList[i]["tags_name"]);
+        		colorList.push(getRandomColor())
+        	}		    
+	        var f = document.getElementById("pieTagsChart"),        
+	        i = {
+	            datasets: [{
+	                data: values,
+	                backgroundColor: colorList,
 	                label: "My dataset"
 	            }],
 	            labels: labelsList
@@ -63,7 +105,7 @@ function Percentage(num, total) {
 	    }
 	}	
 	
-	function zoneCount (dataList) {
+	function idcCount (dataList) {
 		if(dataList.length){
         	var labels = [];	
         	var data = [];
@@ -71,13 +113,13 @@ function Percentage(num, total) {
         	var total = 0;
         	for (var i=0; i < dataList.length; i++){
         		data.push(dataList[i]["count"]);
-        		labels.push(dataList[i]["zone_name"]);
+        		labels.push(dataList[i]["idc_name"]);
         		total = total + dataList[i]["count"]
         	}
         	for (var i=0; i < dataList.length; i++){
         		divHtml = divHtml +     '<div class="widget_summary">' +
 					                    '<div class="w_left w_25">' +
-					                      '<span>'+ dataList[i]["zone_name"] +'</span>' +
+					                      '<span>'+ dataList[i]["idc_name"] +'</span>' +
 					                    '</div>' +
 					                    '<div class="w_center w_55">' +
 					                      '<div class="progress">' +
@@ -127,7 +169,139 @@ function Percentage(num, total) {
         	 $("#zj_count").text(total);			
 		}
 	}
-		
+
+	function requests(method,url,data){
+		var ret = '';
+		$.ajax({
+			async:false,
+			url:url, //请求地址
+			type:method,  //提交类似
+	       	success:function(response){
+	             ret = response;
+	        },
+	        error:function(data){
+	            ret = {};
+	        }
+		});	
+		return 	ret
+	}
+	
+	var language =  {
+			"sProcessing" : "处理中...",
+			"sLengthMenu" : "显示 _MENU_ 项结果",
+			"sZeroRecords" : "没有匹配结果",
+			"sInfo" : "显示第 _START_ 至 _END_ 项结果，共 _TOTAL_ 项",
+			"sInfoEmpty" : "显示第 0 至 0 项结果，共 0 项",
+			"sInfoFiltered" : "(由 _MAX_ 项结果过滤)",
+			"sInfoPostFix" : "",
+			"sSearch" : "搜索: ",
+			"sUrl" : "",
+			"sEmptyTable" : "表中数据为空",
+			"sLoadingRecords" : "载入中...",
+			"sInfoThousands" : ",",
+			"oPaginate" : {
+				"sFirst" : "首页",
+				"sPrevious" : "上页",
+				"sNext" : "下页",
+				"sLast" : "末页"
+			},
+			"oAria" : {
+				"sSortAscending" : ": 以升序排列此列",
+				"sSortDescending" : ": 以降序排列此列"
+			}
+	}
+	
+	function InitDataTable(tableId,dataList,buttons,columns,columnDefs){
+		oOverviewTable =$('#'+tableId).dataTable({
+					    "dom": "Bfrtip",
+					    "buttons":buttons,				  
+			    		"bScrollCollapse": false, 				
+			    	    "bRetrieve": true,			
+			    		"destroy": true, 
+			    		"data":	dataList,
+			    		"columns": columns,
+			    		"columnDefs" :columnDefs,			  
+			    		"language" : language,
+			    		"iDisplayLength": 20,
+			            "select": {
+			                "style":    'multi',
+			                "selector": 'td:first-child'
+			            },		    		
+			    		"order": [[ 0, "ase" ]],
+			    		"autoWidth": false	    			
+		});		  
+	}	
+	
+	function RefreshAssetsTable(tableId, urlData){
+		$.getJSON(urlData, null, function( dataList ){
+	    table = $('#'+tableId).dataTable();
+	    oSettings = table.fnSettings();
+	    
+	    table.fnClearTable(this);
+
+	    for (var i=0; i<dataList.length; i++)
+	    {
+	      table.oApi._fnAddData(oSettings, dataList[i]);
+	    }    
+	    oSettings.aiDisplay = oSettings.aiDisplayMaster.slice();
+	    table.fnDraw();
+	  });	
+	}	
+	
+	function updateAssetsByAnsible(dataList){
+		var serverId = [];
+		for (var i=0; i <dataList.length; i++){
+			serverId.push(dataList[i]["id"])
+		}
+		$.ajax({
+			  type: 'POST',
+			  url: '/assets/batch/',
+			  dataType:"json",
+			  data:{
+				  'ids':serverId,
+				  'model':'batch'
+			  },
+		      success:function(response){	
+		    	var sip = '';
+		    	var fip = '';
+		    	var modal = '';
+	    		for  (var i = 0; i < response['data']['success'].length; i++){
+	    			 sip += response['data']['success'][i] + '<br>'
+	    		}
+	    		for  (var i = 0; i < response['data']['failed'].length; i++){
+	    			 fip += response['data']['failed'][i] + '<br>'
+	    		}	
+	    		msg = '成功：'+ '<br>' + sip + '<br>' + '失败：'+ '<br>' + fip;	
+		    	if (response['code']==200){
+	            	new PNotify({
+	                    title: 'Success!',
+	                    text: msg,
+	                    type: 'success',
+	                    styling: 'bootstrap3',
+	                    delay: 18000
+	                }); 
+	            	RefreshAssetsTable("assetsListTable", "/api/assets/")
+		    	}
+		    	else{
+	            	new PNotify({
+	                    title: 'Ops Failed!',
+	                    text: response["msg"],
+	                    type: 'error',
+	                    styling: 'bootstrap3',
+	                    delay: 18000
+	                }); 
+		    	}	            
+		      },
+            error:function(response){
+	          	new PNotify({
+	                  title: 'Ops Failed!',
+	                  text: '资产修改失败',
+	                  type: 'error',
+	                  styling: 'bootstrap3'
+	              }); 
+            }
+		});			
+	}
 	
 	$(document).ready(function() {		
     	$.ajax({  
@@ -136,12 +310,13 @@ function Percentage(num, total) {
             url:"/api/assets/count/",  
             async : true,  
             error: function(request) {  
-            	projectCount([])      
+            	groupCount([])      
             },  
             success: function(request) {  
- 				projectCount("projectCountcanvasDoughnut",request["data"]["projectCount"])
+ 				groupCount("groupCountcanvasDoughnut",request["data"]["groupCount"])
  				typeCount(request["data"]["typeCount"])
- 				zoneCount(request["data"]["zoneCount"])
+ 				tagsCount(request["data"]["tagsCount"])
+ 				idcCount(request["data"]["idcCount"])
  				statusCount(request["data"]["statusCount"])
             }  
     	}); 			 
@@ -177,61 +352,102 @@ function Percentage(num, total) {
 				},	      	        
 	      	    });		
 	      };	      
-	      if ($("#assetsListTable").length) {
-		    var table = $('#assetsListTable').DataTable( {
-		        "columns": [
+	      if ($("#assetsListTable").length) {		    
+		    function makeAssetsTableList(dataList){
+		        var columns = [		                       
+		    		           {
+		   		                "orderable": false,
+		   		                "data":      null,
+		   		                "className": 'select-checkbox', 
+		   		                "defaultContent": ''
+		    		           },  
+		                       {
+								"className": 'details-control',
+								"orderable": false,
+								"data":      null,
+								"defaultContent": ''
+		                       },	
+//			                   {"data": "status"},
+			                   {"data": "name"},
+		                       {"data": "assets_type"},		                       
+		                       {"data": "detail.ip"},     
+		                       {"data": "detail.system"},
+		    	               {"data": "detail.kernel"},
+		    	               {
+		    	            	   "data": "detail.vcpu_number",
+		    	            	   "defaultContent": ''
+		    	               },
+		    	               {"data": "detail.ram_total"},
+		    	               {"data": "detail.disk_total"},
+		    	               {"data": "put_zone"},
+		    	               ]
+		       var columnDefs = [                      	    		     		    		    	    		    
+		    	    		        {
+		       	    				targets: [11],
+		       	    				render: function(data, type, row, meta) {  	    					
+		       	                        return '<div class="btn-group  btn-group-sm">' +	
+					       	                     	'<button type="button" name="btn-assets-alter" value="'+ row.id +'" class="btn btn-default" aria-label="Center Align"><a href="/assets/manage/?id='+row.id+'&model=edit" target="view_window"><span class="glyphicon glyphicon-check" aria-hidden="true"></span></a>' +
+						                            '</button>' +
+						                            '<button type="button" name="btn-assets-info" value="'+ row.id +'" class="btn btn-default" aria-label="Right Align" data-toggle="modal" data-target=".bs-example-modal-info"><span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>' +
+						                            '</button>' +	                            
+						                            '<button type="button" name="btn-assets-update" value="'+ row.id +'" class="btn btn-default" aria-label="Right Align"><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span>' +
+						                            '</button>' +
+						                            '<button type="button" name="btn-assets-delete" value="'+ row.id +'" class="btn btn-default" aria-label="Justify"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span>' +
+						                            '</button>' +
+		    	    	                           '</div>';
+		       	    				},
+		       	    				"className": "text-center",
+		    	    		        },
+		    	    		      ]	
+		        var buttons = [{
+		            text: '更新',
+		            className: "btn-sm",
+		            action: function ( e, dt, node, config ) {        	
+		                	let dataList = dt.rows('.selected').data()
+		                	var vips = ''
+		                	if (dataList.length==0){
+		                		$.alert({
+		                		    title: '操作失败',
+		                		    content: '批量更新资产失败，请先选择资产',
+		                		    type: 'red',		    
+		                		});	            		
+		                	}else{ 
+		                		updateAssetsByAnsible(dataList)
+		                	} 
+	                	} 
+		        	},
 		            {
-		                "className": 'details-control',
-		                "orderable": false,
-		                "data":      null,
-		                "defaultContent": ''
-		            },
-		            { "data": "全选" },
-		            { "data": "资产ID" },
-		            { "data": "所属项目" },
-		            { "data": "应用类型" },
-		            { "data": "IP地址" },
-		            { "data": "操作系统" },
-		            { "data": "内核版本" },
-		            { "data": "CPU" },
-		            { "data": "内存(GB)" },
-		            { "data": "硬盘(GB)" },
-		            { "data": "放置区域" },
-		            { "data": "操作" }
-		        ],
-		        "order": [[2, 'desc']],
-				language : {
-					"sProcessing" : "处理中...",
-					"sLengthMenu" : "显示 _MENU_ 项结果",
-					"sZeroRecords" : "没有匹配结果",
-					"sInfo" : "显示第 _START_ 至 _END_ 项结果，共 _TOTAL_ 项",
-					"sInfoEmpty" : "显示第 0 至 0 项结果，共 0 项",
-					"sInfoFiltered" : "(由 _MAX_ 项结果过滤)",
-					"sInfoPostFix" : "",
-					"sSearch" : "搜索:",
-					"sUrl" : "",
-					"sEmptyTable" : "表中数据为空",
-					"sLoadingRecords" : "载入中...",
-					"sInfoThousands" : ",",
-					"oPaginate" : {
-						"sFirst" : "首页",
-						"sPrevious" : "上页",
-						"sNext" : "下页",
-						"sLast" : "末页"
-					},
-					"oAria" : {
-						"sSortAscending" : ": 以升序排列此列",
-						"sSortDescending" : ": 以降序排列此列"
-					}
-			},		        
-		    } );
-		     
+		                text: '修改',
+		                className: "btn-sm",
+		                action: function (e, dt, button, config) {
+		                	//dt.rows().select();          	
+		                }
+		            },       
+		            {
+		                text: '全选',
+		                className: "btn-sm",
+		                action: function (e, dt, button, config) {
+		                	dt.rows().select();
+		                }
+		            },        
+		            {
+		                text: '反选',
+		                className: "btn-sm",
+		                action: function (e, dt, button, config) {
+		                	dt.rows().deselect();
+		                }
+		            }    	
+		        ]    
+		    	InitDataTable('assetsListTable',dataList,buttons,columns,columnDefs);	
+		    }		    
+		    makeAssetsTableList(requests("get","/api/assets/"))
 		    // Add event listener for opening and closing details
 		    $('#assetsListTable tbody').on('click', 'td.details-control', function () {
+		    	var table = $('#assetsListTable').DataTable();
 		    	var dataList = [];
 		        var tr = $(this).closest('tr');
 		        var row = table.row( tr );
-		        aId = row.data()["资产ID"];
+		        aId = row.data()["id"];
 		        $.ajax({
 		            url : "/api/assets/info/"+aId+"/",
 		            type : "post",
@@ -255,6 +471,7 @@ function Percentage(num, total) {
 		
 		//更新资产
 		$('#assetsListTable tbody').on('click','button[name="btn-assets-update"]',function(){
+			var table = $('#assetsListTable').DataTable();
 			$(this).attr('disabled',true);
 	    	var vIds = $(this).val();
 	    	var ip = $("#assets_"+vIds).text(); 
@@ -745,10 +962,12 @@ function Percentage(num, total) {
 		   var index = obj.selectedIndex;
 		   var value = obj.options[index].value; 
 		   if (value=="0"){
-			   document.getElementById("auth_accout_select").style.display = "";  	   
+			   document.getElementById("auth_accout_select").style.display = ""; 
+			   document.getElementById("auth_keyfile_select").style.display = "none";
 		   }
 		   else {
 			   document.getElementById("auth_accout_select").style.display = "none";	
+			   document.getElementById("auth_keyfile_select").style.display = "";
 		   }
 	}	
 
@@ -772,9 +991,9 @@ function Percentage(num, total) {
 				else
 					value = filler;
 			}
-			var assetStart = name.indexOf("asset_");
-			var serverStart = name.indexOf("server_");
-			var netStart = name.indexOf("net_");
+			let assetStart = name.indexOf("asset_");
+			let serverStart = name.indexOf("server_");
+			let netStart = name.indexOf("net_");
 			if (assetStart==0){
 				var asz = "assets."+name.replace("asset_","")+" = '" + value + "'";
 				try {
@@ -785,12 +1004,20 @@ function Percentage(num, total) {
 			}
 			else if(serverStart==0){
 				var ssz = "server."+name.replace("server_","")+" = '" + value + "'";
-				try {
+				try {					
 					eval(ssz);
 				} catch (e) {
 					alert(e);
 				}
 			}			
+			else if(netStart==0){
+				var nsz = "net."+name.replace("net_","")+" = '" + value + "'";
+				try {					
+					eval(nsz);
+				} catch (e) {
+					alert(e);
+				}
+			}
 			else if(netStart==0){
 				var nsz = "net."+name.replace("net_","")+" = '" + value + "'";
 				try {
@@ -811,7 +1038,7 @@ function Percentage(num, total) {
 		}
 	}	
 	
-	 var assets = ['asset_assets_type','asset_name','asset_sn','asset_expire_date','asset_buy_time','asset_buy_user','asset_management_ip','asset_manufacturer','asset_provider','asset_model','asset_status','asset_put_zone','asset_group','asset_business','asset_project'];
+	 var assets = ['asset_name'];
 	 $("#assets_type_select").change(function(){
 		   var obj = document.getElementById("assets_type_select"); 
 		   var index = obj.selectedIndex;
@@ -819,20 +1046,29 @@ function Percentage(num, total) {
 		   if (value=="server"){
 			   document.getElementById("asset_net_chioce").style.display = "none";
 			   document.getElementById("asset_server_chioce").style.display = "";  
+			   document.getElementById("asset_server_common_div").style.display = "";
+			   document.getElementById("asset_net_common_div").style.display = "none";
 			   document.getElementById("asset_vmserver_chioce").style.display = "";	
-			   assets = ['asset_assets_type','asset_name','asset_sn','asset_expire_date','asset_buy_time','asset_buy_user','asset_management_ip','asset_manufacturer','asset_provider','asset_model','asset_status','asset_put_zone','asset_group','asset_business','asset_cabinet','asset_project'];
+			   document.getElementById("asset_common_chioce").style.display = "";
+//			   assets = ['asset_assets_type','asset_name','asset_sn','asset_expire_date','asset_buy_time','asset_buy_user','asset_management_ip','asset_manufacturer','asset_provider','asset_model','asset_status','asset_put_zone','asset_group','asset_business','asset_cabinet','asset_project'];
 		   }
 		   else if (value=="vmser"){
-			   document.getElementById("asset_server_chioce").style.display = "";  
+			   document.getElementById("asset_server_chioce").style.display = ""; 
+			   document.getElementById("asset_server_common_div").style.display = "";
+			   document.getElementById("asset_net_common_div").style.display = "none";			   			   
 			   document.getElementById("asset_net_chioce").style.display = "none";		
-			   document.getElementById("asset_vmserver_chioce").style.display = "none";	
-			   assets = ['asset_assets_type','asset_name','asset_status','asset_put_zone','asset_group','asset_business','asset_cabinet'];
+			   document.getElementById("asset_vmserver_chioce").style.display = "none";
+			   document.getElementById("asset_common_chioce").style.display = "";
+//			   assets = ['asset_assets_type','asset_name','asset_status','asset_put_zone','asset_group','asset_business','asset_cabinet'];
 		   }		   
  		   else {
 			   document.getElementById("asset_net_chioce").style.display = "";
+			   document.getElementById("asset_net_common_div").style.display = "";
+			   document.getElementById("asset_server_common_div").style.display = "none";
 			   document.getElementById("asset_server_chioce").style.display = "none";	
-			   document.getElementById("asset_vmserver_chioce").style.display = "";	
-			   assets = ['asset_assets_type','asset_name','asset_sn','asset_expire_date','asset_buy_time','asset_buy_user','asset_management_ip','asset_manufacturer','asset_provider','asset_model','asset_status','asset_put_zone','asset_group','asset_business','asset_project','asset_cabinet'];
+			   document.getElementById("asset_vmserver_chioce").style.display = "none";	
+			   document.getElementById("asset_common_chioce").style.display = "none";
+//			   assets = ['asset_assets_type','asset_name','asset_sn','asset_expire_date','asset_buy_time','asset_buy_user','asset_management_ip','asset_manufacturer','asset_provider','asset_model','asset_status','asset_put_zone','asset_group','asset_business','asset_project','asset_cabinet'];
 		   }			 
 	 });	
 	
@@ -874,11 +1110,7 @@ function Percentage(num, total) {
                     styling: 'bootstrap3'
                 }); 				
 				return false;
-			}else if (assetStart==0 && value.length > 0){
-				$("[name='"+ name +"']").parent().removeClass("has-error");
-				$("[name='"+ name +"']").parent().addClass("has-success");
-			}
-			
+			}		
 		};
 		var asset_data = getFormData(document.getElementById('addAssets'),''); 
 		var btnObj = $(obj);
@@ -1075,24 +1307,24 @@ function Percentage(num, total) {
         })  
         
 		//所属项目
-        $('#selProject').change(function () {
-            if ($('#selProject').val() != "") {
-                $("#hdnProject").val($('#selProject').val());
-                var span = "<span class='tag' id='spanSelinux'>" + $("#selProject").find("option:selected").text()
-                + "&nbsp;&nbsp;<a  title='Removing tag' onclick='removeself(this)'>x</a><input name='project' type='hidden' value='"
-                + $('#selProject').val() + "'/></span> &nbsp;";
-                if ($("#spanSelinux").length == 0) {
+        $('#selTags').change(function () {
+            if ($('#selTags').val() != "") {
+                $("#hdnTags").val($('#selTags').val());
+                var span = "<span class='tag' id='spanTags'>" + $("#selTags").find("option:selected").text()
+                + "&nbsp;&nbsp;<a  title='Removing tag' onclick='removeself(this)'>x</a><input name='tags' type='hidden' value='"
+                + $('#selTags').val() + "'/></span> &nbsp;";
+                if ($("#spanTags").length == 0) {
                 	$("#divSelectedType").show();
                     $('#divSelectedType').append(span);
                 }
                 else {
-                    $("#spanSelinux").html($("#selProject").find("option:selected").text()
-                     + "&nbsp;&nbsp;<a  title='Removing tag' onclick='removeself(this)'>x</a><input name='project' type='hidden' value='"
-                     + $('#selProject').val() + "'/></span> &nbsp;");
+                    $("#spanTags").html($("#selTags").find("option:selected").text()
+                     + "&nbsp;&nbsp;<a  title='Removing tag' onclick='removeself(this)'>x</a><input name='tags' type='hidden' value='"
+                     + $('#selTags').val() + "'/></span> &nbsp;");
                 }
                 changepage(1);
             }
-        })         
+        })        
         
         //ip地址
         $('#ip').change(function () {

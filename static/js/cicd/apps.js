@@ -202,7 +202,6 @@ function draw_apps_graph_line(ids,dataList){
 $(document).ready(function() {
 	$(function() {
 		var respone = requests("get","/api/apps/count/")
-		console.log(respone)
 		draw_apps_graph_bar("all_apps_graph_bar",respone["releaseCount"])
 		draw_apps_graph_pie("all_apps_graph_pie",respone["successRate"])
 		draw_apps_graph_line("all_apps_graph_line",respone["monthCount"])		
@@ -392,7 +391,7 @@ $(document).ready(function() {
 				                "defaultContent": ''
 				            },
 		                    {"data": "id"},
-			                {"data": "product_name"},
+			                {"data": "project_business_paths"},
 			                {"data": "project_name"},		
 			                {"data": "project_env"},	
 			                {"data": "project_repo_dir"},	

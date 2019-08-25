@@ -1,7 +1,7 @@
 #!/usr/bin/env python  
 # _#_ coding:utf-8 _*_  
 from django.db import models
-from asset.models import Project_Assets,Service_Assets      
+from asset.models import Business_Tree_Assets      
 
 class IPVS_CONFIG(models.Model):   
     scheduler_mode = (
@@ -19,6 +19,7 @@ class IPVS_CONFIG(models.Model):
     ipvs_assets = models.ForeignKey('asset.Assets',related_name='ipvs_total', on_delete=models.CASCADE,verbose_name='assets_id')
     vip = models.CharField(max_length=100,verbose_name='VIP')
     port = models.IntegerField(verbose_name='端口')
+    business = models.IntegerField(verbose_name='业务关联')
     scheduler = models.CharField(choices=scheduler_mode,max_length=10,verbose_name='调度算法')
     protocol = models.CharField(choices=protocol_type,max_length=10,verbose_name='tcp/udp',default='-t')   
     persistence = models.IntegerField(verbose_name='转发模式',blank=True,null=True)
@@ -37,19 +38,15 @@ class IPVS_CONFIG(models.Model):
         unique_together = (("vip", "port", "ipvs_assets"))
         verbose_name = '应用管理'  
         verbose_name_plural = 'IPVS信息表'
-    
-    def project(self):
+     
+                
+    def business_paths(self):
         try:
-            return Project_Assets.objects.get(id=self.ipvs_assets.project).project_name
+            business = Business_Tree_Assets.objects.get(id=self.business)
+            return business.business_env() + '/' +business.node_path()
         except:
-            return "未知"    
-    
-    def business(self):
-        try:
-            return Service_Assets.objects.get(id=self.ipvs_assets.business).service_name
-        except:
-            return "未知"              
-    
+            return "未知"
+        
     def to_json(self):
         try:
             sip = self.ipvs_assets.server_assets.ip
@@ -60,11 +57,13 @@ class IPVS_CONFIG(models.Model):
             "sip":sip,
             "vip":self.vip,
             "port":self.port,
-            "project":self.project(),
             "protocol":self.protocol,           
             "scheduler":self.scheduler,
             "persistence":self.persistence,
             "ipvs_assets":self.ipvs_assets.id,
+            "business":self.business,
+            "rs_count":self.ipvs_rs.all().count(),
+            "business_paths":self.business_paths(),
             "line":self.line,
             "desc":self.desc,
             "is_active":self.is_active
@@ -110,17 +109,6 @@ class IPVS_RS_CONFIG(models.Model):
         verbose_name = '应用管理'  
         verbose_name_plural = 'IPVS_RS_信息表'  
 
-    def project(self):
-        try:
-            return Project_Assets.objects.get(id=self.rs_assets.project).project_name
-        except:
-            return "未知"    
-    
-    def business(self):
-        try:
-            return Service_Assets.objects.get(id=self.rs_assets.business).service_name
-        except:
-            return "未知" 
 
     def to_assets(self):
         try:
@@ -130,8 +118,6 @@ class IPVS_RS_CONFIG(models.Model):
         json_format = {
             "id":self.rs_assets.id,
             "ip":sip,
-            "project":self.project(),
-            "service":self.business(),
         }
         return  json_format 
 

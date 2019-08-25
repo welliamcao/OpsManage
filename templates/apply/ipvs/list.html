@@ -62,16 +62,15 @@
                   </div>
                   <div class="x_content">
                     <div class="row">
-                      <div class="col-sm-2 mail_list_column"> 
+                      <!-- /MAIL LIST -->
+                      <div class="col-sm-3 mail_list_column"> 
                       <input id="search-input" type="text" class="form-control" placeholder="检索关键词...">   
                       <!-- <span class="section"></span>  -->
 					  <legend></legend>                
                       <div id="ipvsTree"></div>                                     
                       </div>
-                      <!-- /MAIL LIST -->
-
                       <!-- CONTENT MAIL -->
-                      <div class="col-sm-10 mail_view">
+                      <div class="col-sm-9 mail_view">
 	                    <div class="" role="tabpanel" data-example-id="togglable-tabs">
 	                      <ul id="myTab" class="nav nav-tabs bar_tabs" role="tablist">
 	                        <li role="presentation" class="active"><a href="#tab_content1" id="vip-tab" role="tab" data-toggle="tab" aria-expanded="true"><i class="fa fa-map-marker"></i> VIP列表</a>
@@ -102,6 +101,7 @@
 					                      <thead>
 					                        <tr>
 					                          <th></th>
+					                          <th>业务归属</th>
 					                          <th>VIP</th>
 					                          <th>主机</th>	
 					                          <th>协议</th>		                          			                          
@@ -274,21 +274,21 @@
 											</div>	
 																									
 											<div class="item form-group">
-												 <label class="col-sm-2 control-label" > 所属项目<span class="required"></span></label>
+												 <label class="col-sm-2 control-label" > 业务线<span class="required"></span></label>
 												 <div class="col-sm-8">
-													  <select required="required" class="selectpicker form-control" data-live-search="true"  data-size="10" data-width="100%" id="ipvs_rs_project" name="ipvs_rs_project"   onchange="javascript:ipvsRealServerProjectSelect();" autocomplete="off">
-													   		<option selected="selected" value="">请选择一个项目</option>							   							
+													  <select required="required" class="selectpicker form-control" data-live-search="true"  data-size="10" data-width="100%" id="ipvs_rs_business" name="ipvs_rs_business"   onchange="javascript:ipvsRealServerBusinessSelect();" autocomplete="off">
+													   		<option selected="selected" value="">请选择一个业务线</option>							   							
 													  </select>
 												 </div>
 											</div>	
-											<div class="item form-group">
+<!-- 											<div class="item form-group">
 												 <label class="col-sm-2 control-label" > 业务类型<span class="required"></span></label>		
 												 <div class="col-sm-8">								 
 													 <select required="required" class="selectpicker form-control" data-live-search="true"  data-size="10" data-width="100%" id="ipvs_rs_service" name="ipvs_rs_service" onchange="javascript:IpvsRealServerAssetsTypeSelect('service','ipvs_rs_service');" autocomplete="off">
 														  <option selected="selected" value="">请选择一个业务</option>								   							
 													 </select>
 												 </div>
-											</div>	
+											</div>	 -->
 											
 											<div class="item form-group" >
 												 <label  class="col-sm-2 control-label" ><font color="red">* </font>RS服务器</label>
@@ -513,19 +513,11 @@
 				<form id="addIpvsVipForm" class="main form-horizontal">
 					<fieldset>
 						<div class="item form-group">
-							 <label class="col-sm-3 control-label" > 所属项目<span class="required"></span></label>
+							 <label class="col-sm-3 control-label" > 业务线<span class="required">*</span></label>
 							 <div class="col-sm-6">
-								  <select required="required" class="selectpicker form-control" data-live-search="true"  data-size="10" data-width="100%"  id="ipvs_vip_project"   onchange="javascript:ipvsVipProjectSelect();" autocomplete="off">
-								   		<option selected="selected" value="">请选择一个项目</option>							   							
+								  <select required="required" class="selectpicker form-control" data-live-search="true"  data-size="10" data-width="100%"  id="ipvs_vip_business" name="business"   onchange="javascript:ipvsVipBusinessSelect();" autocomplete="off">
+								   		<option selected="selected" value="">请选择一个业务</option>							   							
 								  </select>
-							 </div>
-						</div>	
-						<div class="item form-group">
-							 <label class="col-sm-3 control-label" > 业务类型<span class="required"></span></label>		
-							 <div class="col-sm-6">								 
-								 <select required="required" class="selectpicker form-control" data-live-search="true"  data-size="10" data-width="100%"  id="ipvs_vip_service"  onchange="javascript:IpvsVipAssetsTypeSelect('service','ipvs_vip_service');" autocomplete="off">
-									  <option selected="selected" value="">请选择一个业务</option>								   							
-								 </select>
 							 </div>
 						</div>	
 						

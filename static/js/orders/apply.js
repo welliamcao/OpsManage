@@ -58,7 +58,7 @@ function AssetsSelect(name,dataList,selectIds){
 		if(dataList[i][name+"_name"]){
 			var text = dataList[i][name+"_name"]
 		}else if(name=="custom"){
-			var text = dataList[i]["detail"]["ip"]+ ' | ' + dataList[i]["project"]+' | '+dataList[i]["service"]	
+			var text = dataList[i]["detail"]["ip"]
 		}
 		else{
 			var text = dataList[i]["name"]
@@ -114,13 +114,8 @@ function makeUserSelect(ids,dataList){
 function makeDatabaseSelect(ids,response){	
 	var binlogHtml = '<select required="required" class="selectpicker form-control" data-live-search="true" name="db" id="db"  data-size="10" data-selected-text-format="count > 3"  data-width="100%"  id="db"  autocomplete="off"><option  name="db" value="">请选择一个数据库</option>'
 	var selectHtml = '';
-	for (var i=0; i <response["data"].length; i++){
-		if(response["data"][i]["db_env"]=="beta"){
-			var db_env = "测试环境"
-		}else{
-			var db_env = "生产环境"
-		}
-		selectHtml += '<option name="db" value="'+ response["data"][i]["id"] +'">' + db_env + ' | ' + response["data"][i]["ip"] +  ' | ' + response["data"][i]["db_name"] +  ' | ' + response["data"][i]["db_mark"] + '</option>' 					 
+	for (var i=0; i <response["results"].length; i++){
+		selectHtml += '<option name="db" value="'+ response["results"][i]["id"] +'">' + response["results"][i]["detail"]["db_env"] + ' | ' + response["results"][i]["detail"]["ip"] +  ' | ' + response["results"][i]["detail"]["db_name"] +  ' | ' + response["results"][i]["detail"]["db_mark"] + '</option>' 					 
 	};                        
 	binlogHtml =  binlogHtml + selectHtml + '</select>';
 	document.getElementById(ids).innerHTML= binlogHtml;							
@@ -197,7 +192,7 @@ $(document).ready(function() {
 		$('#order_db option:selected').empty();
 		$("#ops_service").val("");
 		$.ajax({
-			url:"/db/users/?type=get_user_db&env="+$(this).val(),  
+			url:"/api/db/query/?db_env="+$(this).val(),  
 			type:"get",  		
 			success:function(response){
 				makeDatabaseSelect("order_db",response)

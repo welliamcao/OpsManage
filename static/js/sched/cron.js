@@ -31,39 +31,6 @@ function DynamicSelect(ids,value){
 	$("#" + ids +" option[value='" + value +"']").prop("selected",true);	
 }
 
-function ServicetSelect(projectId,serviceId){
-	   if ( projectId > 0){	 
-	   		var response = requests('get','/api/project/'+ projectId + '/',{})
-			var binlogHtml = '<select class="selectpicker" name="deploy_service" id="deploy_service" onchange="javascript:AssetsTypeSelect();" required><option selected="selected" name="deploy_service" value="">请选择业务类型</option>'
-			var selectHtml = '';
-			for (var i=0; i <response["service_assets"].length; i++){
-					if (serviceId == response["service_assets"][i]["id"]){
-						selectHtml += '<option selected="selected" name="deploy_service" value="'+ response["service_assets"][i]["id"] +'">' + response["service_assets"][i]["service_name"] + '</option>' 
-					}else{
-						selectHtml += '<option name="deploy_service" value="'+ response["service_assets"][i]["id"] +'">' + response["service_assets"][i]["service_name"] + '</option>' 
-					}	
-			};                        
-			binlogHtml =  binlogHtml + selectHtml + '</select>';
-			return binlogHtml			
-		} 
-}
-
-function InventoryGroupsSelect(inventoryId,groupId){
-	   if ( inventoryId > 0){
-	   		var response = requests('get','/api/inventory/groups/'+ inventoryId + '/',{})
-			var binlogHtml = '<select class="form-control" name="deploy_inventory_groups" id="deploy_inventory_groups"   required><option selected="selected" name="deploy_inventory_groups" value="">请选择一个资产组</option>'
-			var selectHtml = '';
-			for (var i = 0; i < response["data"].length; ++i) {
-				if (groupId == response["data"][i]["id"]){
-					selectHtml += '<option selected="selected" name="deploy_inventory_groups" value="'+ response["data"][i]["id"] +'">' + response["data"][i]["name"] + '</option>' 	                
-				}else{
-					selectHtml += '<option name="deploy_inventory_groups" value="'+ response["data"][i]["id"] +'">' + response["data"][i]["name"] + '</option>'
-				}						
-			}
-			binlogHtml =  binlogHtml + selectHtml + '</select>'; 
-			return binlogHtml				
-		} 
-}
 
 function AssetsSelect(name,dataList,selectIds){
 	
@@ -80,7 +47,7 @@ function AssetsSelect(name,dataList,selectIds){
 	var binlogHtml = '<select required="required" class="selectpicker form-control" data-live-search="true"  data-size="10" data-width="100%" '+ action +' name="'+ name +'"autocomplete="off"><option value="">选择一个进行操作</option>'
 	var selectHtml = '';
 	for (var i=0; i <dataList.length; i++){
-		var text = dataList[i]["detail"]["ip"]+ ' | ' + dataList[i]["project"]+' | '+dataList[i]["service"]				
+		var text = dataList[i]["detail"]["ip"]			
 		if(selectIds==dataList[i]["id"]){
 			selectHtml += '<option selected="selected" value="'+ dataList[i]["id"] +'">'+text +'</option>' 	
 		}else{

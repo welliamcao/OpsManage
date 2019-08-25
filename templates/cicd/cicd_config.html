@@ -46,12 +46,6 @@
                   </li>
                   <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
-                    <ul class="dropdown-menu" role="menu">
-                      <li><a href="#">Settings 1</a>
-                      </li>
-                      <li><a href="#">Settings 2</a>
-                      </li>
-                    </ul>
                   </li>
                   <li><a class="close-link"><i class="fa fa-close"></i></a>
                   </li>
@@ -67,24 +61,14 @@
 						<form role="form" method="post" id="add_deploy_project">
 							{% csrf_token %}
 							<div class="item form-group">
-								<label><font color='red'>* </font>产品线名称</label> 
-								<select class="selectpicker form-control" id="deploy_project"  onchange="javascript:oBtProjectSelect();" required>
-									<option selected="selected">请选择产品线</option>
-									{% for ds in assets.projectList %}
-										<option value="{{ds.id}}">{{ds.project_name}}</option>
-									{% endfor %}
-								</select>									
-								<p class="help-block">例如：opsmanage</p>
-							</div>
-							<div class="item form-group">
-								 <label><font color='red'>* </font>业务类型</label>
-								 <select class="selectpicker form-control" name="deploy_service" id="deploy_service"  onchange="javascript:AssetsTypeSelect('service','deploy_service');" required>
-								   		<option selected="selected" value="">请选择一个类型</option>								   							
-								</select>
+								<label><font color='red'>* </font>业务线</label> 
+								<select class="selectpicker form-control" id="project_business"  onchange="javascript:oBtBusinessSelect();" required>
+								</select>																	
 							</div>
 							<div class="item form-group">
 								 <label><font color='red'>* </font>项目名称</label>
 								 <input class="form-control" id="project_name" required>
+								 <p class="help-block">例如：opsmanage</p>
 							</div>																	
 							<div class="item form-group">
 								<label><font color='red'>* </font>项目环境</label> 

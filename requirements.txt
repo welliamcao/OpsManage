@@ -31,6 +31,7 @@ django-db==0.0.7
 django-timezone-field==3.0
 djangorestframework==3.9.0
 djangorestframework-jwt==1.11.0
+django-mptt==0.10.0
 et-xmlfile==1.0.1
 future==0.15.2
 gitdb2==2.0.5

@@ -5,7 +5,7 @@ from django.views.generic import View
 from django.http import QueryDict
 from django.shortcuts import render,HttpResponseRedirect
 from django.contrib.auth.mixins import LoginRequiredMixin
-from .models import Assets,Server_Assets,NetworkCard_Assets
+from .models import Assets,Server_Assets,NetworkCard_Assets,Tags_Server_Assets
 from dao.assets import AssetsBase,AssetsSource
 from utils.logger import logger
 from django.http import JsonResponse
@@ -43,7 +43,7 @@ class AssetsTree(LoginRequiredMixin,AssetsBase,View):
     login_url = '/login/'  
     @method_decorator_adaptor(permission_required, "asset.assets_read_assets","/403/")   
     def get(self, request, *args, **kwagrs):
-        return render(request, 'assets/assets_tree.html',{"user":request.user})     
+        return render(request, 'assets/assets_business_tree.html',{"user":request.user})     
 
 
 class AssetsServer(LoginRequiredMixin,AssetsBase,View):
@@ -70,15 +70,24 @@ class AssetsSearch(LoginRequiredMixin,AssetsBase,View):
         return render(request, 'assets/assets_search.html',{"user":request.user,"assets":self.base()})
     
     def post(self, request, *args, **kwagrs):
-        AssetIntersection = list(set(request.POST.keys()).intersection(set(self.AssetFieldsList)))
-        ServerAssetIntersection = list(set(request.POST.keys()).intersection(set(self.ServerAssetFieldsList)))
-        assetsList = []
+        
+        interDataList = []
+        
         data = dict()
-        #格式化查询条件
+        
+        tags = None
+        
         for (k,v)  in request.POST.items() :
+            if k == "tags": 
+                tags = v
+                continue
             if v is not None and v != u'':
-                data[k] = v 
-
+                data[k] = v
+                
+        AssetIntersection = list(set(data.keys()).intersection(set(self.AssetFieldsList)))
+        ServerAssetIntersection = list(set(data.keys()).intersection(set(self.ServerAssetFieldsList)))
+        assetsList = []
+        
         if list(set(['buy_time' , 'expire_date' , 'vcpu_number',
                      'cpu_core','cpu_number','ram_total',
                      'swap','disk_total']).intersection(set(request.POST.keys()))):
@@ -147,7 +156,7 @@ class AssetsSearch(LoginRequiredMixin,AssetsBase,View):
             if len(AssetIntersection) > 0 and len(ServerAssetIntersection) > 0:
                 assetsData = dict()
                 for a in AssetIntersection:
-                    for k in data.keys():
+                    for k in list(data.keys()):
                         if k.find(a) != -1:
                             assetsData[k] = data[k]
                             data.pop(k)
@@ -161,70 +170,32 @@ class AssetsSearch(LoginRequiredMixin,AssetsBase,View):
             elif len(AssetIntersection) == 0 and len(ServerAssetIntersection) > 0:
                 for ds in Server_Assets.objects.filter(**data):
                     if ds.assets not in assetsList:assetsList.append(ds.assets)
-                
-        baseAssets = self.base()
+            
+            if 'tags' in list(data.keys()):
+                for ds in Tags_Server_Assets.objects.filter(tid=data.get("tags")):
+                    if ds.assets not in assetsList:assetsList.append(ds.assets)
+                    
         dataList = []
-        for a in assetsList:
-            if hasattr(a,'server_assets'):
-                sip = a.server_assets.ip
-            elif hasattr(a,'network_assets'):
-                sip = a.network_assets.ip
-            else:
-                sip = '未知'
-            management_ip = '''{ip}'''.format(ip=sip)  
-            try:  
-                system = a.server_assets.system
-            except:
-                system =  '无数据'   
-            try:  
-                kernel = a.server_assets.kernel
-            except:
-                kernel =  '无数据'   
-            try:  
-                vcpu_number = a.server_assets.vcpu_number
-            except:
-                vcpu_number =  '无数据'                   
-            try:
-                ram_total = str(a.server_assets.ram_total) + 'GB' 
-            except:
-                ram_total = '无数据'
-            try:
-                disk_total = str(a.server_assets.disk_total) + 'GB' 
-            except:
-                disk_total = '无数据'                
-            for p in baseAssets.get('projectList'):
-                if p.id == a.project:project = '''{project}'''.format(project=p.project_name)                                      
-            for s in baseAssets.get('serviceList'):
-                if s.id == a.business:service = '''{service}'''.format(service=s.service_name)
-            for z in baseAssets.get('zoneList'):
-                if z.id == a.put_zone:put_zone = '''{zone_name}'''.format(zone_name=z.zone_name)      
-            opt = ''' <div class="btn-group btn-group-sm">                
-                    <button type="button" name="btn-assets-alter" value="{id}" class="btn btn-default" aria-label="Center Align"><a href="/assets/manage/?id={id}&model=edit" target="view_window"><span class="glyphicon glyphicon-check" aria-hidden="true"></span></a>
-                    </button>
-                    <button type="button" name="btn-assets-info" value="{id}" class="btn btn-default" aria-label="Right Align" data-toggle="modal" data-target=".bs-example-modal-info"><span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
-                    </button>
-                    <button type="button" name="btn-assets-update" value="{id}" class="btn btn-default" aria-label="Right Align"><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span>
-                    </button>
-                    <button type="button" name="btn-assets-hw" value="{id}" class="btn btn-default" aria-label="Right Align"><span class="fa fa-hdd-o" aria-hidden="true"></span>
-                    </button>                    
-                    <button type="button" name="btn-assets-delete" value="{id}" class="btn btn-default" aria-label="Justify"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
-                    </button></div>
-                 '''.format(id=a.id)
-            dataList.append(
-                             {"详情":'',
-                             '全选':'<input type="checkbox" class="flat" value="{id}" name="table_records"/>'.format(id=a.id),
-                             '资产ID':a.id,
-                             '所属项目':project,
-                             '应用类型':service,                             
-                             'IP地址':management_ip,
-                             '操作系统':system,
-                             '内核版本':kernel,                             
-                             'CPU':vcpu_number,
-                             '内存(GB)':ram_total,
-                             '硬盘(GB)':disk_total,
-                             '放置区域':put_zone,
-                             '操作':opt}
-                             )                                                                                                                                                                                          
+        
+        tagsAssetsList = []
+
+        if tags: 
+            tagsAssetsList = [ t.aid for t in Tags_Server_Assets.objects.filter(tid=tags)]
+            
+            if assetsList and tagsAssetsList:
+                
+                interDataList = list(set(assetsList).intersection(set(tagsAssetsList)))
+            
+            elif len(data.keys()) > 0 and len(assetsList) == 0: 
+                interDataList = [] 
+                
+            elif len(data.keys()) == 0  and tagsAssetsList: 
+                interDataList = tagsAssetsList  
+        else:
+            interDataList = assetsList
+        
+        for a in interDataList:            
+            dataList.append(a.to_json())                                                                                                                                                                                          
         return JsonResponse({'msg':"数据查询成功","code":200,'data':dataList,'count':0})   
     
 class AssetsBatch(LoginRequiredMixin,AssetsSource,View):  

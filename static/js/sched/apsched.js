@@ -162,7 +162,7 @@ function AssetsSelect(name,dataList,selectIds){
 	var binlogHtml = '<select required="required" class="selectpicker form-control" data-live-search="true"  data-size="10" data-width="100%" '+ action +' name="'+ name +'"autocomplete="off"><option value="">选择一个进行操作</option>'
 	var selectHtml = '';
 	for (var i=0; i <dataList.length; i++){
-		var text = dataList[i]["detail"]["ip"]+ ' | ' + dataList[i]["project"]+' | '+dataList[i]["service"]				
+		var text = dataList[i]["detail"]["ip"]				
 		if(selectIds==dataList[i]["id"]){
 			selectHtml += '<option selected="selected" value="'+ dataList[i]["id"] +'">'+text +'</option>' 	
 		}else{

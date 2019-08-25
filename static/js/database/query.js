@@ -1,3 +1,42 @@
+var language =  {
+		"sProcessing" : "处理中...",
+		"sLengthMenu" : "显示 _MENU_ 项结果",
+		"sZeroRecords" : "没有匹配结果",
+		"sInfo" : "显示第 _START_ 至 _END_ 项结果，共 _TOTAL_ 项",
+		"sInfoEmpty" : "显示第 0 至 0 项结果，共 0 项",
+		"sInfoFiltered" : "(由 _MAX_ 项结果过滤)",
+		"sInfoPostFix" : "",
+		"sSearch" : "搜索: ",
+		"sUrl" : "",
+		"sEmptyTable" : "表中数据为空",
+		"sLoadingRecords" : "载入中...",
+		"sInfoThousands" : ",",
+		"oPaginate" : {
+			"sFirst" : "首页",
+			"sPrevious" : "上页",
+			"sNext" : "下页",
+			"sLast" : "末页"
+		},
+		"oAria" : {
+			"sSortAscending" : ": 以升序排列此列",
+			"sSortDescending" : ": 以降序排列此列"
+		}
+	}
+function requests(method,url,data){
+	var ret = '';
+	$.ajax({
+		async:false,
+		url:url, //请求地址
+		type:method,  //提交类似
+       	success:function(response){
+             ret = response;
+        },
+        error:function(data){
+            ret = {};
+        }
+	});	
+	return 	ret
+}
 function setAceEditMode(ids,model,theme) {
 	try
 	  {
@@ -18,136 +57,102 @@ function setAceEditMode(ids,model,theme) {
 	catch(err)
 	  {
 		console.log(err)
-	  }
+	  }		 
+}
 
-			 
-}
-function makeRandomId() {
-  var text = "";
-  var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  for (var i = 0; i < 8; i++)
-    text += possible.charAt(Math.floor(Math.random() * possible.length));
-  return text;
-}
-var webconsole = false
-function make_terminal(element, size, ws_url) { 
-    var term = new Terminal({
-        cols: size.cols,
-        rows: size.rows,
-        screenKeys: true,
-        useStyle: true,
-        cursorBlink: true,  // Blink the terminal's cursor
-    });         	
-    if (webconsole) {
-        return;
-    }        
-    webconsole = true;        	
-    term.open(element, false);
-    term.write('正在连接...')
-/*             term.fit(); */
-    var ws = new WebSocket(ws_url);
-    ws.onopen = function (event) {
-        term.resize(term.cols, term.rows);
-/*                 ws.send(JSON.stringify(["id", id,term.cols, term.rows]));  */
-        term.on('data', function (data) {
-            <!--console.log(data);-->
-             ws.send(data); 
-        });
+function InitDataTable(tableId,dataList,buttons,columns,columnDefs){
+	  oOverviewTable =$('#'+tableId).dataTable(
+			  {
+				    "dom": "Bfrtip",
+				    "buttons":buttons,				  
+		    		"bScrollCollapse": false, 				
+		    	    "bRetrieve": true,			
+		    		"destroy": true, 
+		    		"data":	dataList["results"],
+		    		"columns": columns,
+		    		"columnDefs" :columnDefs,			  
+		    		"language" : language,
+		    		"iDisplayLength": 20,
+		            "select": {
+		                "style":    'multi',
+		                "selector": 'td:first-child'
+		            },		    		
+		    		"order": [[ 0, "ase" ]],
+		    		"autoWidth": false	    			
+		    	});
 
-        term.on('title', function (title) {
-            document.title = title;
-        });
-        ws.onmessage = function (event) {
-        	term.write(event.data);
-        };      
-    };
-    ws.onerror = function (e) {
-    	term.write('\r\n连接失败')
-    	ws = false
-    };
-/*    ws.onclose = function () {
-        term.destroy();
-    }; */     
-    return {socket: ws, term: term};
+	    if (dataList['next']){
+	    	  $("button[name='db_page_next']").attr("disabled", false).val(dataList['next']);	
+	      }else{
+	    	  $("button[name='db_page_next']").attr("disabled", true).val();
+	      }
+	      if (dataList['previous']){
+	    	  $("button[name='db_page_previous']").attr("disabled", false).val(dataList['previous']);	
+	      }else{
+	    	  $("button[name='db_page_previous']").attr("disabled", true).val();
+	      }	  	  
 }
+
+function RefreshTable(tableId, urlData){
+	  $.getJSON(urlData, null, function( dataList )
+	  {
+	    table = $(tableId).dataTable();
+	    oSettings = table.fnSettings();
+	    
+	    table.fnClearTable(this);
+
+	    for (var i=0; i<dataList["results"].length; i++)
+	    {
+	      table.oApi._fnAddData(oSettings, dataList["results"][i]);
+	    }
+
+	    oSettings.aiDisplay = oSettings.aiDisplayMaster.slice();
+	    table.fnDraw();	
+	    
+	    if (dataList['next']){
+	    	  $("button[name='db_page_next']").attr("disabled", false).val(dataList['next']);	
+	      }else{
+	    	  $("button[name='db_page_next']").attr("disabled", true).val();
+	      }
+	      if (dataList['previous']){
+	    	  $("button[name='db_page_previous']").attr("disabled", false).val(dataList['previous']);	
+	      }else{
+	    	  $("button[name='db_page_previous']").attr("disabled", true).val();
+	      }		    	
+	  });
+}
+
+
+function makeDbQueryTableList(dataList){
+    var columns = [
+		            { "data": "detail.db_env" },
+		            { "data": "detail.db_business_paths"},
+		            { "data": "detail.db_name"},
+		            { "data": "detail.db_mode" },    		            
+		            { "data": "detail.db_type"},    		            
+		            { "data": "detail.db_mark"},
+		            { "data": "detail.db_rw"},     
+	        ]
+   var columnDefs = [       		    		        
+	    		        {
+   	    				targets: [7],
+   	    				render: function(data, type, row, meta) {
+   	                        return '<div class="btn-group  btn-group-xs">' +	
+	    	                           '<button type="button" name="btn-database-query" value="'+ row.id +'" class="btn btn-default"  aria-label="Justify"><span class="glyphicon glyphicon glyphicon-zoom-in" aria-hidden="true"></span>' +	
+	    	                           '</button>' +	
+	    	                           '<button type="button" name="btn-database-table" value="'+ row.id +'" class="btn btn-default"  aria-label="Justify"><span class="fa fa-bar-chart" aria-hidden="true"></span>' +	
+	    	                           '</button>' +    		    	                           			                            
+	    	                           '</div>';
+   	    				},
+   	    				"className": "text-center",
+	    		        },
+	    		      ]	
+    var buttons = []  
+    InitDataTable('UserDatabaseListTable',dataList,buttons,columns,columnDefs);	
+}
+
 function customMenu(node) {
-      var items = {
-              "new":{  
-                  "label":"查询数据",  
-                  "icon": "glyphicon glyphicon-plus",
-                  "action":function(data){
-                  	var inst = $.jstree.reference(data.reference),
-						obj = inst.get_node(data.reference);
-						querySQL(obj);
-                  }  
-              },           
-              "monitor":{
-            		"separator_before"	: false,
-					"separator_after"	: false,
-					"_disabled"			: false, 
-					"label"				: "监控信息",
-					"shortcut_label"	: 'F2',
-					"icon"				: "fa fa-bar-chart",
-					"action"			: function (data) {
-						var inst = $.jstree.reference(data.reference),
-						obj = inst.get_node(data.reference);
-						$.alert({
-						    title: '警告!',
-						    type: 'red',
-						    content: '您无权操作此项',
-						});				
-					}
-            }, 
-            "view":{
-              		"separator_before"	: false,
-					"separator_after"	: false,
-					"_disabled"			: false, 
-					"label"				: "查看表结构",
-					"shortcut_label"	: 'F2',
-					"icon"				: "fa fa-search-plus",
-					"action"			: function (data) {
-						var inst = $.jstree.reference(data.reference),
-						obj = inst.get_node(data.reference);
-						viewTableSchema(obj)
-					}
-            },            
-            "webconsole":{
-        		"separator_before"	: false,
-				"separator_after"	: false,
-				"_disabled"			: false, 
-				"label"				: "终端查询",
-				"shortcut_label"	: 'F2',
-				"icon"				: "fa fa-terminal",
-				"action"			: function (data) {
-					var inst = $.jstree.reference(data.reference),
-					obj = inst.get_node(data.reference);
-					var parents = inst.get_path('#' + obj.parent ,false)
-					var parentsName = ''
-					for (var i=0; i <parents.length; i++){
-						parentsName = parentsName + parents[i].split("(")[0]
-					}
-					openTerminal(obj,parentsName)				
-				}
-        }            
-	  }
-      if(node["id"].indexOf("table_")>=0){
-    		try {    
-    			delete items.new	  
-	    	  	delete items.monitor
-	    	  	delete items.webconsole
-    		}
-    		catch(err) {
-    			console.log(err)
-    		}     	  
-      }else if(node["id"]>100000 && node["id"]<200000){
-  		try {
-	    	  delete items.view
-	    	  delete items.webconsole
-		}
-		catch(err) {
-			console.log(err)
-		} 
-      }
+      var items = {}
       return items
 }
 
@@ -156,27 +161,17 @@ function drawTree(ids,url){
     $(ids).jstree({	
 	    "core" : {
 	      "check_callback": function (op, node, par, pos, more) {  	  
-	    	    if ((op === "move_node" || op === "copy_node") && node.type && node.id > 10000  && node.id < 30000) {	    	    	
+	    	    if (op === "move_node" || op === "copy_node") {	    	    	
 	    	        return false;
-	    	    }
-	    	    else if ((op === "move_node" || op === "copy_node") && node.id.indexOf("table_")>=0 ) {	
-	    	    	return false;
-	    	    	
 	    	    }
 	    	    return true;
 	    	},
 	      'data' : {
 	        "url" : url,
-	        "dataType" : "json" // needed only if you do not supply JSON headers
+	        "dataType" : "json" 
 	      }
 	    },	    
-/*	    "plugins": ["contextmenu", "dnd", "search","themes","state", "types", "wholerow","json_data","unique","checkbox"],*/
-	    "plugins": ["contextmenu", "dnd", "search","themes","state", "types", "wholerow","json_data","unique"],
-/*        "checkbox": {
-            "keep_selected_style": false,//是否默认选中
-            "three_state": false,//父子级别级联选择
-            "tie_selection": false
-        },*/	    
+	    "plugins": ["contextmenu", "dnd", "search","themes","state", "types", "wholerow","json_data","unique"],    
 	    "contextmenu":{
 		    	select_node:false,
 		    	show_at_node:true,
@@ -185,6 +180,39 @@ function drawTree(ids,url){
 	});		
 }
 
+function drawTableTree(ids,jsonData){
+    $(ids).jstree({	
+	    "core" : {
+	      "check_callback": function (op, node, par, pos, more) {  	  
+	    	    if (op === "move_node" || op === "copy_node") {	    	    	
+	    	        return false;
+	    	    }
+	    	    return true;
+	    	},
+	      'data' : jsonData
+	    },	    
+	    "plugins": ["contextmenu", "dnd", "search","themes","state", "types", "wholerow","json_data","unique"],    
+	    "contextmenu":{
+		    	select_node:false,
+		    	show_at_node:true,
+		    	'items': {
+		            "view":{
+	              		"separator_before"	: false,
+						"separator_after"	: false,
+						"_disabled"			: false, 
+						"label"				: "查看表结构",
+						"shortcut_label"	: 'F2',
+						"icon"				: "fa fa-search-plus",
+						"action"			: function (data) {
+							var inst = $.jstree.reference(data.reference),
+							obj = inst.get_node(data.reference);
+							viewTableSchema(obj)
+						}
+	            }		    		
+		    	}
+		      }	    
+	});		
+}
 
 $(document).ready(function () {
 
@@ -195,31 +223,36 @@ $(document).ready(function () {
 		console.log(err)
 	}		
 	
-	drawTree('#dbTree',"/api/db/tree/")
 	
-    $("#search-input").keyup(function () {
-        var searchString = $(this).val();
-        $('#dbTree').jstree('search', searchString);
-    });	
-	
-	function sleep(){
-		alert("1")
-		return false
-	}
-	
-    $("#dbTree").click(function () {
-        var position = 'last';
-        var parent = $("#dbTree").jstree("get_selected");
-        if (parent[0] > 100000 && parent[0] < 200000){
-        	$("#dbTree").jstree("open_node", parent[0]);
-            var dbId = parent[0]-100000
+    if ($("#UserDatabaseListTable").length) {
+    	let dataList = requests('get','/api/db/query/',{})
+    	makeDbQueryTableList(dataList)
+    	
+    	$('#UserDatabaseListTable tbody').on('click',"button[name='btn-database-query']",function(){   
+        	var vIds = $(this).val();
+        	var td = $(this).parent().parent().parent().find("td")
+			$("#dbChoice").html('<i  class="fa  fa-paper-plane" >'+ td.eq(1).text()+' 数据库  <u class="red">'+ td.eq(2).text() +'</u>查询</i>')
+			$("#db_query_btn").removeClass("disabled").text("查询").val(vIds)	        		
+        });	    
+    	
+    	$('#UserDatabaseListTable tbody').on('click',"button[name='btn-database-table']",function(){   
+        	let vIds = $(this).val();
+        	let td = $(this).parent().parent().parent().find("td")
+        	$("#dbTables").html('<i  class="fa  fa-paper-plane" >'+ td.eq(1).text()+' 数据库  <u class="red">'+ td.eq(2).text() +'</u>表结构</i>')
+        	let dbname = td.eq(2).text()
+        	var jsonData = {
+                "id": 1,
+                "text": dbname,
+                "icon": "fa fa-database",
+                "children":[]
+        	}
         	$.ajax({  
                 cache: true,  
                 type: "POST",  
                 url:"/db/manage/", 
                 data:{
                 	"model": "table_list",
-                	"db":dbId
+                	"db":vIds
                 },
                 async : false,  
 	            error: function(response) {
@@ -241,27 +274,57 @@ $(document).ready(function () {
 					}else{
 		            	let respone = response["data"]		            	       	        	  
 						for (var i=0; i <respone.length; i++){				    
-	                        var newNode = {
-	                        		"id":"table_"+ dbId +"_" + i,
-	                                "text": respone[i],
-	                                "icon": "fa fa-bar-chart assets-online"
-	                            }                            						
-							;	
-	                        $('#dbTree').jstree('create_node', parent, newNode, position, false, false)
+							jsonData["children"].push({"db":vIds,"id":respone[i],"text":respone[i],"icon": "fa fa-bar-chart"})
 	                        if (i>1000){
 	                        	break
 	                        }
-//	                        var s = i % 1000
-//							if(s == 0){
-//								setTimeout('console.log("Wait draw table list")',100)
-////								console.log(i,s)
-//							}
+
 						}
-						$("#dbTree").jstree("open_node", parent); 
-					}	            	
+		            	drawTableTree("#dbTableTree",[jsonData])
+		                $("#table-search-input").keyup(function () {
+		                    var searchString = $(this).val();
+		                    $('#dbTableTree').jstree('search', searchString);
+		                });			            	
+					}	
+	            	
 	            } 
-        	});                    
-        }
+        	});          	
+        });	    	
+    	
+    }	
+	
+	drawTree('#dbTree',"/api/db/tree/")
+	
+    $("#search-input").keyup(function () {
+        var searchString = $(this).val();
+        $('#dbTree').jstree('search', searchString);
+    });	
+		
+    $("#dbTree").click(function () {
+	     var position = 'last';
+	     let select_node = $(this).jstree("get_selected",true)[0]["original"];
+	     if(select_node["last_node"] == 1){
+				$.ajax({
+					  type: 'GET',
+					  url: '/api/db/query/?db_business='+ select_node["id"],
+				      success:function(response){	
+				    	  if ($('#UserDatabaseListTable').hasClass('dataTable')) {
+				            dttable = $('#UserDatabaseListTable').dataTable();
+				            dttable.fnClearTable();
+				            dttable.fnDestroy(); 
+				    	  }			    	  
+				    	  makeDbQueryTableList(response)
+				      },
+		              error:function(response){
+		            	new PNotify({
+		                    title: 'Ops Failed!',
+		                    text: response.responseText,
+		                    type: 'error',
+		                    styling: 'bootstrap3'
+		                }); 
+		              }
+				});
+	     }
     });	
     
 	$("#db_query_btn").on('click', function() {
@@ -394,27 +457,12 @@ $(document).ready(function () {
 			});			
 		}
 	});    
-    
-})
+})    
 
-
-function querySQL(obj){
-	if (obj["id"]>=100000){
-		console.log(obj["text"])
-		$("#dbChoice").html(" <code>"+obj["text"]+"</code>")
-		$("#db_query_btn").removeClass("disabled").text("查询").val(obj["id"]-100000)	
-	}else{
-		$.alert({
-		    title: '警告!',
-		    type: 'red',
-		    content: '暂无更多信息',
-		});			
-	}
-}
 
 function viewTableSchema(obj){
-	if (obj["id"].indexOf("table_")>=0){
-		var aId = obj["id"].split("_")
+	console.log(obj)
+	if (obj["original"]["db"]){
     	$.ajax({  
             cache: true,  
             type: "POST",    
@@ -422,8 +470,8 @@ function viewTableSchema(obj){
             url:"/db/manage/",
             data:{
             	"model": "table_schema",
-            	"db": aId[1],
-            	"table_name":obj["text"]
+            	"db": obj["original"]["db"],
+            	"table_name":obj["original"]["text"]
             }, 
             error: function(response) {
             	new PNotify({

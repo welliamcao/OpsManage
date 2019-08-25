@@ -3,17 +3,25 @@
 import uuid,xlrd
 from asset.models import *
 from apply.models import *
-from django.contrib.auth.models import User,Group
 from utils.logger import logger
 from dao.base import DataHandle
 from django.http import QueryDict
 from apply.service.ipvs import IPVSRunner 
-
-  
+from django.db.models import Count
+from mptt.templatetags.mptt_tags import cache_tree_children  
 
 class AssetsIpvs(DataHandle):
     def __init__(self):
         super(AssetsIpvs, self).__init__()        
+
+    def recursive_node_to_dict(self,node):
+        json_format = node.to_json()
+        children = [self.recursive_node_to_dict(c) for c in node.get_children()]
+        if children:
+            json_format['children'] = children
+        else:
+            json_format['icon'] = 'fa fa-minus-square-o'        
+        return json_format
         
     def assets(self):
         dataList,aList = [],[]
@@ -35,38 +43,39 @@ class AssetsIpvs(DataHandle):
             logger.error(msg="AssetsIpvs没有{sub}方法".format(sub=sub))       
             return []         
     
-    def tree(self,tree=None):
-        dataList = []
-        for ds in IPVS_CONFIG.objects.raw("""SELECT t1.id,t2.project,count(t2.project) as pcount from opsmanage_ipvs_config as t1,opsmanage_assets as t2 WHERE t1.ipvs_assets_id = t2.id GROUP BY t2.project;"""):
-            data = dict()
-            try:
-                project = Project_Assets.objects.get(id=ds.project)
-                data["text"] = "{name} ({num})".format(name=str(project.project_name),num=str(ds.pcount))
-            except Exception as ex:
-                logger.error("获取ipvs tree项目失败: {msg}".format(msg=str(ex)))
-                continue
-            data["id"] = ds.id + 10000
-            data["state"] = {"opened" : 'true' }
-            data["icon"] = "fa fa-database"
-            data["children"] = [] 
-            for svr in Service_Assets.objects.filter(project=project):
-                sData = {}
-                for ds in IPVS_CONFIG.objects.raw("""SELECT t2.id,count(t2.business) as scount from opsmanage_ipvs_config as t1,opsmanage_assets as t2 WHERE t1.ipvs_assets_id = t2.id and t2.business={sid} GROUP BY t2.business;""".format(sid=svr.id)):
-                    sData["id"] = svr.id + 20000
-                    sData["text"] = "{name} ({num})".format(name=str(svr.service_name),num=str(ds.scount))
-                    sData["icon"] =  "fa fa-circle-o"
-                    data["children"].append(sData)
-            dataList.append(data)
-        return dataList   
+    def business_paths_id_list(self,business):
+        tree_list = []
+        dataList = Business_Tree_Assets.objects.raw("""SELECT id FROM opsmanage_business_assets WHERE tree_id = {tree_id} AND  lft < {lft} AND  rght > {rght} ORDER BY lft ASC;""".format(tree_id=business.tree_id,lft=business.lft,rght=business.rght))
+        for ds in dataList:
+            tree_list.append(ds.id)
+        tree_list.append(business.id)
+        return tree_list
     
-    def service(self,service=0):
+    def tree_business(self,business):
         dataList = []
-        for ds in IPVS_CONFIG.objects.raw("""SELECT t1.*  from opsmanage_ipvs_config as t1,opsmanage_assets as t2 WHERE t1.ipvs_assets_id = t2.id and t2.business={service};""".format(service=service)):
-            data = ds.to_json()
-            data["rs_list"] = [ x.to_json() for x in ds.ipvs_rs.all() ]
-            data["rs_count"] = len(data["rs_list"])
-            dataList.append(data)
-        return {"next":None,"previous":None,"results":dataList}       
+        for ds in IPVS_CONFIG.objects.filter(business=business):
+            dataList.append(ds.to_json())
+        return dataList
+    
+    def tree(self):
+        ipvs_business = [ ds.get("business") for ds in IPVS_CONFIG.objects.values('business').annotate(dcount=Count('business')) ]
+        
+        business_list = []
+        
+        for business in Business_Tree_Assets.objects.filter(id__in=ipvs_business):
+            business_list += self.business_paths_id_list(business)
+            
+        business_list = list(set(business_list))
+        
+        business_node = Business_Tree_Assets.objects.filter(id__in=business_list)
+        
+        root_nodes = cache_tree_children(business_node)
+        
+        dataList = []
+        for n in root_nodes:
+            dataList.append(self.recursive_node_to_dict(n))         
+        return dataList      
+          
 
 class IVPSManage():
     def __init__(self):

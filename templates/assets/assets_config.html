@@ -28,17 +28,6 @@
                     <ul class="nav navbar-right panel_toolbox">
                       <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
                       </li>
-                      <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
-                        <ul class="dropdown-menu" role="menu">
-                          <li><a href="#">Settings 1</a>
-                          </li>
-                          <li><a href="#">Settings 2</a>
-                          </li>
-                        </ul>
-                      </li>
-                      <li><a class="close-link"><i class="fa fa-close"></i></a>
-                      </li>
                     </ul>
                     <div class="clearfix"></div>
                   </div>
@@ -47,181 +36,97 @@
 
                     <div class="" role="tabpanel" data-example-id="togglable-tabs">
                       <ul id="myTab" class="nav nav-tabs bar_tabs" role="tablist">
-                        <li role="presentation" class="active"><a href="#tab_content1" id="home-tab" role="tab" data-toggle="tab" aria-expanded="true"><i class="fa fa-line-chart"></i> 项目应用</a>
-                        </li>
-                        <li role="presentation" class=""><a href="#tab_content2" role="tab" id="profile-tab" data-toggle="tab" aria-expanded="false"><i class="fa fa-building"></i> 机房信息</a>
+                        <li role="presentation" class="active"><a href="#tab_content2" role="tab" id="profile-tab" data-toggle="tab" aria-expanded="false"><i class="fa fa-building"></i> 机房信息</a>
                         </li>
                         <li role="presentation" class=""><a href="#tab_content3" role="tab" id="profile-tab2" data-toggle="tab" aria-expanded="false"><i class="fa fa-bars"></i> 机柜线路</a>
                         </li>
                         <li role="presentation" class=""><a href="#tab_content4" role="tab" id="profile-tab3" data-toggle="tab" aria-expanded="false"><i class="fa fa-bookmark"></i> 标签分组</a>
                         </li>                        
                       </ul>
-                      <div id="myTabContent" class="tab-content">
-                        <div role="tabpanel" class="tab-pane fade active in" id="tab_content1" aria-labelledby="home-tab">
-			              <div class="col-md-6 col-sm-6 col-xs-12">
+                      <div id="myTabContent" class="tab-content">                      
+                        <div role="tabpanel" class="tab-pane fade active in" id="tab_content2" aria-labelledby="profile-tab">
+                        
+			              <div class="col-md-3 col-sm-3 col-xs-3">
 			                <div class="x_panel">
 			                  <div class="x_title">
-			                    <h2>项目信息 <small>Project</small></h2>
-			                    <ul class="nav navbar-right panel_toolbox">
-			                      <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
-			                      </li>
-			                      <li class="dropdown">
-			                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
-			                        <ul class="dropdown-menu" role="menu">
-			                          <li><a href="#">Settings 1</a>
-			                          </li>
-			                          <li><a href="#">Settings 2</a>
-			                          </li>
-			                        </ul>
-			                      </li>
-			                      <li><a class="close-link"><i class="fa fa-close"></i></a>
-			                      </li>
-			                    </ul>
+			                    <h2>区域信息 <small>Zone</small></h2>
 			                    <div class="clearfix"></div>
 			                  </div>
 			                  <div class="x_content">
-			                    <table class="table" id="projectTableLists">
-			                      <thead>
-			                        <tr>
-			                          <th>ID</th>
-			                          <th>项目名称</th>
-			                          <th>项目负责人</th>
-			                          <th class="text-center">操作</th>
-			                        </tr>
-			                      </thead>
-			                      <tbody>
-			                      </tbody>
-			                    </table>
-			
-			                  </div>
-			                </div>
-			              </div>
-			              
-			              <div class="col-md-6 col-sm-6 col-xs-12">
-			                <div class="x_panel">
-			                  <div class="x_title">
-			                    <h2>应用信息 <small>Application</small></h2>
-			                    <ul class="nav navbar-right panel_toolbox">
-			                      <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
-			                      </li>
-			                      <li class="dropdown">
-			                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
-			                        <ul class="dropdown-menu" role="menu">
-			                          <li><a href="#">Settings 1</a>
-			                          </li>
-			                          <li><a href="#">Settings 2</a>
-			                          </li>
-			                        </ul>
-			                      </li>
-			                      <li><a class="close-link"><i class="fa fa-close"></i></a>
-			                      </li>
-			                    </ul>
-			                    <div class="clearfix"></div>
-			                  </div>
-			                  <div class="x_content">
-<!-- 			                    <div>
-			                     	<button type="button" class="btn btn-xs btn-default" data-toggle="modal" data-target=".bs-example-modal-service"><i class="glyphicon glyphicon-plus"></i></button>
-			                    </div> -->
-			                    <table class="table" id="serviceAssetsTable">
-			                      <thead>
-			                        <tr>
-			                          <th>ID</th>
-			                          <th>项目</th>
-			                          <th>应用类型</th>
-			                          <th class="text-center">操作</th>
-			                        </tr>
-			                      </thead>
-			                      <tbody>
-<!-- 			                      	{% for ds in assets.serviceList %}
-			                        <tr>
-			                          <th scope="row">{{ds.id}}</th>
-			                          <td>{{ds.project.project_name}}</td>
-			                          <td id="serviceIds-{{ds.id}}">{{ds.service_name}}</td>
-			                          <td class="text-center">
-										<div class="btn-group  btn-group-xs">																											
-												<button type="button" class="btn btn-xs btn-default" value="{{ds.id}}" name="btn-service-modf">
-													<i class="fa fa-edit"></i>
-												</button>
-												<button type="button" class="btn btn-xs btn-default" value="{{ds.id}}" name="btn-service-confirm">
-													<i class="fa fa-trash"></i>
-												</button>											
-										</div>  	                                			
-			                           </td>
-			                        </tr>
-			                        {% endfor %} -->
-			                      </tbody>
-			                    </table>
-			
-			                  </div>
-			                </div>
-			              </div>			              
-			              
-                        </div>                        
-                        <div role="tabpanel" class="tab-pane fade" id="tab_content2" aria-labelledby="profile-tab">
-			              <div class="col-md-12 col-sm-6 col-xs-12">
-			                <div class="x_panel">
-			                  <div class="x_title">
-			                    <h2>机房信息 <small>Zone</small></h2>
-			                    <ul class="nav navbar-right panel_toolbox">
-			                      <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
-			                      </li>
-			                      <li class="dropdown">
-			                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
-			                        <ul class="dropdown-menu" role="menu">
-			                          <li><a href="#">Settings 1</a>
-			                          </li>
-			                          <li><a href="#">Settings 2</a>
-			                          </li>
-			                        </ul>
-			                      </li>
-			                      <li><a class="close-link"><i class="fa fa-close"></i></a>
-			                      </li>
-			                    </ul>
-			                    <div class="clearfix"></div>
-			                  </div>
-			                  <div class="x_content">
-<!-- 			                    <div>
-			                     	<button type="button" class="btn btn-xs btn-default" data-toggle="modal" data-target=".bs-example-modal-zone"><i class="glyphicon glyphicon-plus"></i></button>
-			                    </div> -->
 			                    <table class="table" id="zoneAssetsTable">
 			                      <thead>
 			                        <tr>
 			                          <th>ID</th>
-			                          <th>机房名称</th>
-			                          <th>机房负责人</th>
-			                          <th>机房地址</th>
-			                          <th>联系方式</th>
-			                          <th>网段</th>
+			                          <th>区域名称</th>
 			                          <th class="text-center">操作</th>
 			                        </tr>
 			                      </thead>
 			                      <tbody>
-<!-- 			                      	{% for ds in assets.zoneList %}
-			                        <tr>
-			                          <th scope="row">{{ds.id}}</th>
-			                          <td id="zoneIds-{{ds.id}}">{{ds.zone_name}}</td>
-			                          <td>{{ds.zone_contact}}</td>
-			                          <td>{{ds.zone_local}}</td>
-			                          <td>{{ds.zone_number}}</td>
-			                          <td>{{ds.zone_network}}</td>
-			                          <td class="text-center">
-										<div class="btn-group  btn-group-xs">																			
-												<button type="button" class="btn btn-xs btn-default" value="{{ds.id}}"  data-toggle="modal" data-target=".bs-example-modal-zone-{{ds.id}}">
-													<i class="fa fa-edit"></i>
-												</button>
-												<button type="button" class="btn btn-xs btn-default" value="{{ds.id}}" name="btn-zone-confirm">
-													<i class="fa fa-trash"></i>
-												</button>											
-										</div> 
-									   </td>                         
-			                        </tr>
-			                        {% endfor %} -->
 			                      </tbody>
 			                    </table>
-			
+			                  </div>
+			                </div>
+			              </div>                        
+                        
+			              <div class="col-md-9 col-sm-9 col-xs-9">
+			                <div class="x_panel">
+			                  <div class="x_title">
+			                    <h2>机房信息 <small>Idc</small></h2>
+			                    <div class="clearfix"></div>
+			                  </div>
+			                  <div class="x_content">
+			                    <table class="table" id="idcAssetsTable">
+			                      <thead>
+			                        <tr>
+			                          <th>ID</th>
+			                          <th>区域</th>
+			                          <th>机房名称</th>
+			                          <th>运营商</th>
+			                          <th>机房带宽</th>
+			                          <th>联系人</th>
+			                          <th>联系电话</th>
+			                          <th>机房地址</th>
+			                          <th>IP地址段</th>
+			                          <th>备注</th>
+			                          <th class="text-center">操作</th>
+			                        </tr>
+			                      </thead>
+			                      <tbody>
+			                      </tbody>
+			                    </table>
 			                  </div>
 			                </div>
 			              </div> 
+			              
+			              <div class="col-md-3 col-sm-3 col-xs-3"></div> 			              
+			              
+			              <div class="col-md-9 col-sm-9 col-xs-9">
+			                <div class="x_panel">
+			                  <div class="x_title">
+			                    <h2>机房闲置资产信息 <small>Idle Assets</small></h2>
+			                    <div class="clearfix"></div>
+			                  </div>
+			                  <div class="x_content">
+			                    <table class="table" id="idleAssetsTable">
+			                      <thead>
+			                        <tr>
+			                          <th>ID</th>
+			                          <th>所在机房</th>
+			                          <th>资产名称</th>
+			                          <th>数量</th>
+			                          <th>登记员</th>
+			                          <th>备注</th>
+			                          <th>记录时间</th>
+			                          <th class="text-center">操作</th>
+			                        </tr>
+			                      </thead>
+			                      <tbody>
+			                      </tbody>
+			                    </table>
+			                  </div>
+			                </div>
+			              </div> 			              
+			              
                         </div>
                         <div role="tabpanel" class="tab-pane fade" id="tab_content3" aria-labelledby="profile-tab">
                         
@@ -229,52 +134,20 @@
 			                <div class="x_panel">
 			                  <div class="x_title">
 			                    <h2>出口线路 <small>Line</small></h2>
-			                    <ul class="nav navbar-right panel_toolbox">
-			                      <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
-			                      </li>
-			                      <li class="dropdown">
-			                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
-			                        <ul class="dropdown-menu" role="menu">
-			                          <li><a href="#">Settings 1</a>
-			                          </li>
-			                          <li><a href="#">Settings 2</a>
-			                          </li>
-			                        </ul>
-			                      </li>
-			                      <li><a class="close-link"><i class="fa fa-close"></i></a>
-			                      </li>
-			                    </ul>
 			                    <div class="clearfix"></div>
 			                  </div>
 			                  <div class="x_content">
-<!-- 			                    <div>
-			                     	<button type="button" class="btn btn-xs btn-default" data-toggle="modal" data-target=".bs-example-modal-line"><i class="glyphicon glyphicon-plus"></i></button>
-			                    </div> -->
 			                    <table class="table" id="lineAssetsTable">
 			                      <thead>
 			                        <tr>
 			                          <th>ID</th>
 			                          <th>出口线路</th>
+			                          <th>单价</th>
+			                          <th>更新日期</th>
 			                          <th class="text-center">操作</th>
 			                        </tr>
 			                      </thead>
 			                      <tbody>
-<!-- 			                      	{% for ds in assets.lineList %}
-			                        <tr>
-			                          <th scope="row">{{ds.id}}</th>
-			                          <td id="lineIds-{{ds.id}}">{{ds.line_name}}</td>
-			                          <td class="text-center">
-										<div class="btn-group  btn-group-xs">																		
-												<button type="button" class="btn btn-xs btn-default" value="{{ds.id}}" name="btn-line-modf">
-													<i class="fa fa-edit"></i>
-												</button>
-												<button type="button" class="btn btn-xs btn-default" value="{{ds.id}}" name="btn-line-confirm">
-													<i class="fa fa-trash"></i>
-												</button>											
-										</div> 
-									   </td>   
-			                        </tr>
-			                        {% endfor %} -->
 			                      </tbody>
 			                    </table>
 			
@@ -286,27 +159,9 @@
 			                <div class="x_panel">
 			                  <div class="x_title">
 			                    <h2>机柜信息 <small>Cabinet</small></h2>
-			                    <ul class="nav navbar-right panel_toolbox">
-			                      <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
-			                      </li>
-			                      <li class="dropdown">
-			                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
-			                        <ul class="dropdown-menu" role="menu">
-			                          <li><a href="#">Settings 1</a>
-			                          </li>
-			                          <li><a href="#">Settings 2</a>
-			                          </li>
-			                        </ul>
-			                      </li>
-			                      <li><a class="close-link"><i class="fa fa-close"></i></a>
-			                      </li>
-			                    </ul>
 			                    <div class="clearfix"></div>
 			                  </div>
 			                  <div class="x_content">
-<!-- 			                    <div>
-			                     	<button type="button" class="btn btn-xs btn-default" data-toggle="modal" data-target=".bs-example-modal-cabinet"><i class="glyphicon glyphicon-plus"></i></button>
-			                    </div> -->
 			                    <table class="table" id="cabinetAssetsTable">
 			                      <thead>
 			                        <tr>
@@ -317,23 +172,6 @@
 			                        </tr>
 			                      </thead>
 			                      <tbody>
-<!-- 			                      	{% for ds in assets.cabinetList %}
-			                        <tr>
-			                          <th scope="row">{{ds.id}}</th>
-			                          <td>{{ds.zone.zone_name}}</td>
-			                          <td id="cabinetIds-{{ds.id}}">{{ds.cabinet_name}}</td>
-			                          <td class="text-center">
-										<div class="btn-group  btn-group-xs">																					
-												<button type="button" class="btn btn-xs btn-default" value="{{ds.id}}" name="btn-cabinet-modf">
-													<i class="fa fa-edit"></i>
-												</button>
-												<button type="button" class="btn btn-xs btn-default" value="{{ds.id}}" name="btn-cabinet-confirm">
-													<i class="fa fa-trash"></i>
-												</button>											
-										</div>  	                                			
-			                           </td>
-			                        </tr>
-			                        {% endfor %} -->
 			                      </tbody>
 			                    </table>
 			
@@ -345,21 +183,6 @@
 			                <div class="x_panel">
 			                  <div class="x_title">
 			                    <h2>Raid类型 <small>Raid</small></h2>
-			                    <ul class="nav navbar-right panel_toolbox">
-			                      <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
-			                      </li>
-			                      <li class="dropdown">
-			                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
-			                        <ul class="dropdown-menu" role="menu">
-			                          <li><a href="#">Settings 1</a>
-			                          </li>
-			                          <li><a href="#">Settings 2</a>
-			                          </li>
-			                        </ul>
-			                      </li>
-			                      <li><a class="close-link"><i class="fa fa-close"></i></a>
-			                      </li>
-			                    </ul>
 			                    <div class="clearfix"></div>
 			                  </div>
 			                  <div class="x_content">
@@ -388,27 +211,9 @@
 				                <div class="x_panel">
 				                  <div class="x_title">
 				                    <h2>标签类型 <small>Tags</small></h2>
-				                    <ul class="nav navbar-right panel_toolbox">
-				                      <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
-				                      </li>
-				                      <li class="dropdown">
-				                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
-				                        <ul class="dropdown-menu" role="menu">
-				                          <li><a href="#">Settings 1</a>
-				                          </li>
-				                          <li><a href="#">Settings 2</a>
-				                          </li>
-				                        </ul>
-				                      </li>
-				                      <li><a class="close-link"><i class="fa fa-close"></i></a>
-				                      </li>
-				                    </ul>
 				                    <div class="clearfix"></div>
 				                  </div>
 				                  <div class="x_content">
-<!-- 				                    <div>
-				                     	<button type="button" class="btn btn-xs btn-default" data-toggle="modal" data-target=".bs-example-modal-tags"><i class="glyphicon glyphicon-plus"></i></button>
-				                    </div> -->
 				                    <table class="table" id="tagsAssetsTable">
 				                      <thead>
 				                        <tr>
@@ -429,21 +234,6 @@
 				                <div class="x_panel">
 				                  <div class="x_title">
 				                    <h2>使用分组 <small>Groups</small></h2>
-				                    <ul class="nav navbar-right panel_toolbox">
-				                      <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
-				                      </li>
-				                      <li class="dropdown">
-				                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
-				                        <ul class="dropdown-menu" role="menu">
-				                          <li><a href="#">Settings 1</a>
-				                          </li>
-				                          <li><a href="#">Settings 2</a>
-				                          </li>
-				                        </ul>
-				                      </li>
-				                      <li><a class="close-link"><i class="fa fa-close"></i></a>
-				                      </li>
-				                    </ul>
 				                    <div class="clearfix"></div>
 				                  </div>
 				                  <div class="x_content">
@@ -495,86 +285,7 @@
             </div>
           </div>
         </div>	
-        
-        <div id="addProjectModal" class="modal fade bs-example-modal-project" tabindex="-1" role="dialog" aria-hidden="true">
-          <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-
-              <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span>
-                </button>
-                <h4 class="modal-title" id="myModalLabel">添加项目</h4>
-              </div>
-              <div class="modal-body">
-                    <form id="projectAssetsform" data-parsley-validate class="form-horizontal form-label-left">{% csrf_token %}
-                      <div class="form-group">
-                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="first-name">项目名称 <span class="required">*</span>
-                        </label>
-                        <div class="col-md-6 col-sm-6 col-xs-12">
-                          <input type="text" id="first-name" required="required" name="project_name" class="form-control col-md-7 col-xs-12">
-                        </div>
-                      </div>
-                      <div class="form-group">
-                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">负责人 <span class="required">*</span>
-                        </label>
-                        <div class="col-md-6 col-sm-6 col-xs-12">
-                          <select class="form-control" id="project_owner" name="project_owner">
-<!--                           		<option value="" selected="selected">选择一个用户</option>
-							{% for user in assets.userList %}
-								<option value="{{user.id}}">{{user.username}}</option>
-							{% endfor %} -->
-                          </select>
-                        </div>
-                      </div>
-                    </form>
-              </div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                <button type="button" id="projectsubmit"  class="btn btn-primary">保存</button>
-              </div>
-
-            </div>
-          </div>
-        </div>   
-        
-        <div id="addServiceModal" class="modal fade bs-example-modal-service" tabindex="-1" role="dialog" aria-hidden="true">
-          <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-
-              <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span>
-                </button>
-                <h4 class="modal-title" id="myModalLabel">添加应用</h4>
-              </div>
-              <div class="modal-body">
-                    <form id="serviceAssetsform" data-parsley-validate class="form-horizontal form-label-left">
-
-                      <div class="form-group">
-                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="first-name">项目名称 <span class="required">*</span>
-                        </label>
-                        <div class="col-md-6 col-sm-6 col-xs-12">
-                          <select class="form-control" id="project_service_select">	
-                          </select>
-                        </div>
-                      </div>
-                      <div class="form-group">
-                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">应用类型<span class="required">*</span>
-                        </label>
-                        <div class="col-md-6 col-sm-6 col-xs-12">
-                          <input type="text" id="service_name" name="last-name" required="required" class="form-control col-md-7 col-xs-12">
-                        </div>
-                      </div>
-
-                    </form>
-              </div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                <button type="button" id="servicesubmit"  class="btn btn-primary">保存</button>
-              </div>
-
-            </div>
-          </div>
-        </div>  
+                          
  
         <div id="addCabinetModal" class="modal fade bs-example-modal-cabinet" tabindex="-1" role="dialog" aria-hidden="true">
           <div class="modal-dialog modal-lg">
@@ -592,10 +303,7 @@
                         <label class="control-label col-md-3 col-sm-3 col-xs-12" for="first-name">机房信息 <span class="required">*</span>
                         </label>
                         <div class="col-md-6 col-sm-6 col-xs-12">
-                          <select class="form-control" id="zone_cabinet_select">	
-							{% for zone in assets.zoneList %}
-								<option  value="{{zone.id}}">{{zone.zone_name}}</option>
-							{% endfor %}
+                          <select class="form-control" id="idc_cabinet_select">	
                           </select>
                         </div>
                       </div>
@@ -692,38 +400,10 @@
               <div class="modal-body">
 				<form class="form-horizontal" role="form" id="zoneAssetsform">
 					<div class="form-group">
-						<label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">机房名称<span class="required">*</span>	
+						<label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">区域名称<span class="required">*</span>	
 						</label>																											
 						<div class="col-md-6 col-sm-6 col-xs-12">
 							<input class="form-control" type="text" id="zone_name" />	
-						</div>											
-					</div>	
-					<div class="form-group">
-						<label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">机房网段<span class="required">*</span>
-						</label>																												
-						<div class="col-md-6 col-sm-6 col-xs-12">
-							<input class="form-control" type="text" id="zone_network" />	
-						</div>											
-					</div>	
-					<div class="form-group">
-						<label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">机房位置<span class="required">*</span>
-						</label>																												
-						<div class="col-md-6 col-sm-6 col-xs-12">
-							<input class="form-control" type="text" id="zone_local" />	
-						</div>											
-					</div>										
-					<div class="form-group">
-						<label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">机房联系人<span class="required">*</span>		
-						</label>																										
-						<div class="col-md-6 col-sm-6 col-xs-12">
-							<input class="form-control" type="text" id="zone_contact" />	
-						</div>											
-					</div>	
-					<div class="form-group">
-						<label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">联系人号码<span class="required">*</span>	
-						</label>																											
-						<div class="col-md-6 col-sm-6 col-xs-12">
-							<input class="form-control" type="text" id="zone_number" />	
 						</div>											
 					</div>																				
 				</form>
@@ -737,6 +417,143 @@
           </div>
         </div>                   
                     
+        <div id="addIdcModal" class="modal fade bs-example-modal-zone" tabindex="-1" role="dialog" aria-hidden="true">
+          <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span>
+                </button>
+                <h4 class="modal-title">添加机房区域信息</h4>
+              </div>
+              <div class="modal-body">
+				<form class="form-horizontal" role="form" id="idcAssetsform">
+                      <div class="form-group">
+                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="first-name">机房信息 <span class="required">*</span>
+                        </label>
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                          <select class="form-control" id="zone_idc_select">	
+                          </select>
+                        </div>
+                      </div>				
+					<div class="item form-group">
+						<label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">机房名称<span class="required">*</span>	
+						</label>																											
+						<div class="col-md-6 col-sm-6 col-xs-12">
+							<input class="form-control" type="text" id="idc_name" />	
+						</div>											
+					</div>	
+					<div class="item form-group">
+						<label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">运营商<span class="required">*</span>	
+						</label>																											
+						<div class="col-md-6 col-sm-6 col-xs-12">
+							<input class="form-control" type="text" id="idc_operator" />	
+						</div>											
+					</div>						
+					<div class="form-group">
+						<label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">机房带宽
+						</label>																												
+						<div class="col-md-6 col-sm-6 col-xs-12">
+							<input class="form-control" type="text" id="idc_bandwidth" />	
+						</div>											
+					</div>						
+					<div class="form-group">
+						<label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">机房网段
+						</label>																												
+						<div class="col-md-6 col-sm-6 col-xs-12">
+							<input class="form-control" type="text" id="idc_network" />	
+						</div>											
+					</div>	
+					<div class="form-group">
+						<label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">机房位置
+						</label>																												
+						<div class="col-md-6 col-sm-6 col-xs-12">
+							<input class="form-control" type="text" id="idc_address" />	
+						</div>											
+					</div>										
+					<div class="form-group">
+						<label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">机房联系人
+						</label>																										
+						<div class="col-md-6 col-sm-6 col-xs-12">
+							<input class="form-control" type="text" id="idc_linkman" />	
+						</div>											
+					</div>	
+					<div class="form-group">
+						<label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">联系人号码
+						</label>																											
+						<div class="col-md-6 col-sm-6 col-xs-12">
+							<input class="form-control" type="text" id="idc_phone" />	
+						</div>											
+					</div>	
+					<div class="form-group">
+						<label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">备注
+						</label>																											
+						<div class="col-md-6 col-sm-6 col-xs-12">
+							<input class="form-control" type="text" id="idc_desc" />	
+						</div>											
+					</div>					
+				</form>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" id="idcsubmit"  class="btn btn-primary">保存</button>
+              </div>
+
+            </div>
+          </div>
+        </div>         
+         
+
+        <div id="addIdleModal" class="modal fade bs-example-modal-zone" tabindex="-1" role="dialog" aria-hidden="true">
+          <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span>
+                </button>
+                <h4 class="modal-title">机房闲置资产信息</h4>
+              </div>
+              <div class="modal-body">
+				<form class="form-horizontal" role="form" id="idleAssetsform">
+                      <div class="form-group">
+                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="first-name">机房信息 <span class="required">*</span>
+                        </label>
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                          <select class="form-control" id="idc_idle_select">	
+                          </select>
+                        </div>
+                      </div>				
+					<div class="item form-group">
+						<label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">资产名称<span class="required">*</span>	
+						</label>																											
+						<div class="col-md-6 col-sm-6 col-xs-12">
+							<input class="form-control" type="text" id="idle_name" />	
+						</div>											
+					</div>	
+					<div class="item form-group">
+						<label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">数量<span class="required">*</span>	
+						</label>																											
+						<div class="col-md-6 col-sm-6 col-xs-12">
+							<input class="form-control" type="text" id="idle_number" />	
+						</div>											
+					</div>						
+					<div class="form-group">
+						<label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">备注
+						</label>																												
+						<div class="col-md-6 col-sm-6 col-xs-12">
+							<input class="form-control" type="text" id="idle_desc" />	
+						</div>											
+					</div>											
+				</form>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" id="idlesubmit"  class="btn btn-primary">保存</button>
+              </div>
+
+            </div>
+          </div>
+        </div> 
                
         <div id="addRaidModal" class="modal fade bs-example-modal-raid" tabindex="-1" role="dialog" aria-hidden="true">
           <div class="modal-dialog modal-lg">
@@ -788,6 +605,13 @@
                           <input type="text" id="line_name"  required="required" class="form-control col-md-7 col-xs-12">
                         </div>
                       </div>
+                      <div class="form-group">
+                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">单价<span class="required">*</span>
+                        </label>
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                          <input type="text" id="line_price"  required="required" class="form-control col-md-7 col-xs-12">
+                        </div>
+                      </div>                      
 
                     </form>
               </div>
@@ -805,13 +629,14 @@
 {% endblock %}
 {% block js-content %}
 	<script src="/static/jquery-confirm/jquery-confirm.min.js"></script>
+	<script src="/static/validator/validator.js"></script>
     <script src="/static/datatable/datatables.net/js/jquery.dataTables.min.js"></script>
 	<script src="/static/datatable/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>	
     <script src="/static/datatable/datatables.net-buttons/js/dataTables.buttons.min.js"></script>
     <script src="/static/datatable/datatables.net-buttons-bs/js/buttons.bootstrap.min.js"></script>
     <script src="/static/datatable/datatables.net-buttons/js/buttons.flash.min.js"></script>
     <script src="/static/datatable/datatables.net-buttons/js/buttons.html5.min.js"></script>
-    <script src="/static/datatable/datatables.net-buttons/js/buttons.print.min.js"></script>	
+    <script src="/static/datatable/datatables.net-buttons/js/buttons.print.min.js"></script>	  
 	<script src="/static/js/assets/config.js"></script>
 	<script src="/static/js/doublebox/doublebox-bootstrap.js"></script>
 {% endblock %}

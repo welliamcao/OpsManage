@@ -1,0 +1,524 @@
+{% extends 'base.html' %}
+{% block css-content %}
+    <link rel="stylesheet" href="/static/jquery-confirm/jquery-confirm.min.css">
+    <link rel="stylesheet" href="/static/jstree/css/style.min.css" />
+    <link href="/static/css/doublebox-bootstrap.css" rel="stylesheet"> 
+    <link rel="stylesheet" href="/static/xterm/xterm.css"/>
+    <link rel="stylesheet" href="/static/css/bootstrap-select.css">
+	<link href="/static/datatable/datatables.net-bs/css/dataTables.bootstrap.min.css" rel="stylesheet">
+	<link rel="stylesheet" href="/static/jquery-confirm/jquery-confirm.min.css">
+	<link href="/static/datatable/datatables.net-buttons-bs/css/buttons.bootstrap.min.css" rel="stylesheet">
+	<link href="/static/datatable/datatables.net-fixedheader-bs/css/fixedHeader.bootstrap.min.css" rel="stylesheet">
+	<link href="/static/datatable/datatables.net-responsive-bs/css/responsive.bootstrap.min.css" rel="stylesheet">
+	<link href="/static/datatable/datatables.net-scroller-bs/css/scroller.bootstrap.min.css" rel="stylesheet"> 
+	<link href="/static/datatable/datatables.net-select/css/select.dataTables.min.css" rel="stylesheet"> 
+	<style type="text/css"> 
+		td.details-control {
+		    background: url('/static/images/details_open.png') no-repeat center center; */
+		    cursor: pointer;
+		}
+		tr.shown td.details-control {
+		    background: url('/static/images/details_close.png') no-repeat center center;
+		} 		
+        .modal-select{
+            -moz-user-select:none;/*火狐*/
+            -webkit-user-select:none;/*webkit浏览器*/
+            -ms-user-select:none;/*IE10*/
+            -khtml-user-select:none;/*早期浏览器*/
+            user-select:none;
+            }
+          .modal-header{
+            cursor:move;
+          }	
+.my-group .form-control{
+    width:50%;
+}         		
+	</style>     
+{% endblock %}
+{% block page-content %}
+        <div class="clearfix"></div>
+
+            <div class="row">
+              <div class="col-md-12">
+                <div class="x_panel">
+                  <div class="x_title">
+                    <h2><i class="fa fa-tree"></i> 业务资产树<small>Business Tree</small></h2>
+                    <ul class="nav navbar-right panel_toolbox">
+                      <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                      </li>                   
+                    </ul>
+                    <div class="clearfix"></div>
+                  </div>
+                  <div class="x_content">                 
+                    <div class="row">
+                      <div class="col-sm-3 mail_list_column"> 
+<!--                       <select class="selectpicker form-control" data-header="选择一个环境类型查询" data-live-search="true" data-live-search-placeholder="搜索" data-none-Selected-Text="请选择" data-size="10">
+                      </select>
+                      <input id="search-input" type="text" class="form-control" placeholder="检索关键词...">   -->
+					<div class="form-group">
+					    <div class="input-group col-xs-12">
+					        <div class="input-group-btn">
+					            <select style="width: auto;" class="selectpicker form-control" data-header="选择一个环境类型查询" data-live-search="true" data-live-search-placeholder="搜索" data-none-Selected-Text="请选择" id="businessEnvSelect" data-size="10">
+                      			</select>
+					        </div>
+					        <input id="search-input" type="text" class="form-control" placeholder="检索关键词...">
+					    </div>
+					</div>            
+                      <!-- <span class="section"></span>  -->
+					  <legend></legend>                
+                      <div id="businessTree"></div>                                     
+                      </div>
+                      <!-- /MAIL LIST -->
+
+                      <!-- CONTENT MAIL -->
+                      <div class="col-sm-9 mail_view">
+						<div class="row">
+	                         <div class="col-sm-12" id="childrenNodes" style="display:none;">
+				                <div class="x_panel">
+				                  <div class="x_title">
+				                    <h2 id="nodeName">下属节点 <small>Business Children Nodes</small></h2>
+				                    <div class="clearfix"></div>
+				                  </div>
+				                  <div class="x_content">
+				                    <table class="table" id=businessChildrenNodesTableLists>
+				                      <thead>
+				                        <tr>
+				                          <th>ID</th>
+				                          <th>名称</th>
+				                          <th>业务负责人</th>
+				                          <th>使用组</th>
+				                          <th>业务路径</th>
+				                          <th>描述</th>
+				                          <!-- <th class="text-center">操作</th> -->
+				                        </tr>
+				                      </thead>
+				                      <tbody>
+				                      </tbody>
+				                    </table>
+				                  </div>
+				                </div>
+							</div>
+	                         <div class="col-sm-12" id="nodesAssets" style="display:none;">
+				                <div class="x_panel">
+				                  <div class="x_title">
+				                    <h2 id="lastNodeName">下属节点 <small>Business Nodes Assets</small></h2>
+				                    <div class="clearfix"></div>
+				                  </div>
+				                  <div class="x_content">
+				                    <table class="table table-striped table-bordered" id=businessLastNodesAssetsTableLists>
+				                      <thead>
+				                        <tr>
+				                          <th class="text-center">选择</th>                       
+				                          <th>详情</th>
+				                          <!-- <th>业务路径</th> -->
+				                          <!-- <th>资产编号</th> -->
+				                          <th>设备类型</th>
+				                          <th>IP地址</th>
+				                          <th>操作系统</th>
+				                          <th>内核版本</th>
+				                          <th>CPU</th>
+				                          <th>内存(GB)</th>
+				                          <th>硬盘(GB)</th>                   
+				                          <th>放置机房</th>
+				                          <th class="text-center">操作</th>
+				                        </tr>
+				                      </thead>
+				                      <tbody>
+				                      </tbody>
+				                    </table>
+				                  </div>
+				                </div>
+							</div>							
+	                     </div>
+                      </div>
+                      <!-- /CONTENT MAIL -->
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>  
+
+        <div class="row">
+              <div class="col-md-12 col-sm-12 col-xs-12">
+                <div class="x_panel">
+                  <div class="x_title">
+                    <h2><i class="fa fa-bars"></i> 业务配置 <small>Business Config</small></h2>
+                    <ul class="nav navbar-right panel_toolbox">
+                      <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                      </li>
+                    </ul>
+                    <div class="clearfix"></div>
+                  </div>
+                  <div class="x_content">
+					<div class="row">
+		              <div class="col-sm-4">
+			                <div class="x_panel">
+			                  <div class="x_title">
+			                    <h2>业务环境 <small>Business Environment</small></h2>
+			                    <div class="clearfix"></div>
+			                  </div>
+			                  <div class="x_content">
+			                    <table class="table" id="businessEnvTableLists">
+			                      <thead>
+			                        <tr>
+			                          <th>ID</th>
+			                          <th>环境类型</th>
+			                          <th class="text-center">操作</th>
+			                        </tr>
+			                      </thead>
+			                      <tbody>
+			                      </tbody>
+			                    </table>
+			                  </div>
+			                </div>
+			              </div>                        
+                        
+			              <div class="col-sm-8">
+			                <div class="x_panel">
+			                  <div class="x_title">
+			                    <h2>业务节点 <small>Business Roots</small></h2>
+			                    <div class="clearfix"></div>
+			                  </div>
+			                  <div class="x_content">
+			                    <table class="table" id="businessRootTableLists">
+			                      <thead>
+			                        <tr>
+			                          <th>ID</th>
+			                          <th>名称</th>
+			                          <th>环境</th>
+			                          <th>业务负责人</th>
+			                          <th>使用组</th>
+			                          <th>业务路径</th>
+			                          <th>描述</th>
+			                          <th class="text-center">操作</th>
+			                        </tr>
+			                      </thead>
+			                      <tbody>
+			                      </tbody>
+			                    </table>
+			                  </div>
+			                </div>
+			              </div>
+			         </div>
+                  </div>
+                </div>
+              </div>        
+        </div> 
+              
+               <div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static" style="width:auto; height:auto;">
+                    <div class="modal-dialog modal-lg">
+                      <div class="modal-content">
+
+                        <div class="modal-header">
+							<div class="btn-group  btn-group-sm">
+		                        <button class="btn btn-default" type="button" name="monitor_half_hour" value="">最近半小时</button>
+		                        <button class="btn btn-default" type="button" name="monitor_one_hour" value="">最近1小时</button>
+		                        <button class="btn btn-default" type="button" name="monitor_six_hour" value="">最近6小时</button>
+		                        <button class="btn btn-default" type="button" name="monitor_one_day" value="">最近1天</button>
+	                      	</div>	
+                          <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span></button>	                      	                      									                                        
+                        </div>
+                        <div class="modal-body">                       
+		                  <ul class="list-unstyled timeline">
+		                    <li>
+		                      <div class="block">
+		                        <div class="tags">
+		                          <a href="" class="tag">
+		                            <span>CPU</span>
+		                          </a>
+		                        </div>
+		                        <div class="block_content">
+		                           <div id="draw_line_cpu" style="width:100%; height:300px;"></div>
+		                        </div>
+		                      </div>
+		                    </li>
+		                    <li>
+		                      <div class="block">
+		                        <div class="tags">
+		                          <a href="" class="tag">
+		                            <span>内存</span>
+		                          </a>
+		                        </div>
+		                        <div class="block_content">
+		                          <div id="draw_line_mem" style="width:100%; height:300px;"></div>
+		                        </div>
+		                      </div>
+		                    </li>			                    
+		                    <li>
+		                      <div class="block">
+		                        <div class="tags">
+		                          <a href="" class="tag">
+		                            <span>流量</span>
+		                          </a>
+		                        </div>
+		                        <div class="block_content">
+		                          <div id="draw_line_taffic" style="width:100%; height:300px;"></div>
+		                        </div>
+		                      </div>
+		                    </li>
+		                    <li>
+		                      <div class="block">
+		                        <div class="tags">
+		                          <a href="" class="tag">
+		                            <span>磁盘I/O</span>
+		                          </a>
+		                        </div>
+		                        <div class="block_content">
+		                          <div id="draw_line_disk" style="width:100%; height:300px;"></div>
+		                        </div>
+		                      </div>
+		                    </li>				                    		                    
+		                  </ul> 
+                        </div>
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        </div>
+
+                      </div>
+                    </div>
+                  </div>
+                  
+ 	        
+		        <div class="modal fade bs-example-modal-webssh-info"  tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static" data-keyboard="false">  
+		          <div class="modal-dialog modal-lg" style="width:1290px;height: 600px">
+		            <div class="modal-content">
+		
+		              <div class="modal-header">
+		                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span>
+		                </button>
+		                <h4 class="modal-title" id="myWebsshModalLabel">WebSSH</h4>
+		              </div>
+		              <div class="modal-body">
+						<div id="webssh_tt"  style="width:800px;" >
+						    </div>	
+		              </div>
+		              <div class="modal-footer">
+		                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+		                <button type="button" id="websshConnect" value=""  class="btn btn-primary">连接</button>
+		              </div>
+		
+		            </div>
+		          </div>
+		        </div>
+		        
+        <div id="addBusinessEnvModal" class="modal fade bs-example-modal-project" tabindex="-1" role="dialog" aria-hidden="true">
+          <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span>
+                </button>
+                <h4 class="modal-title" id="myEnvModalLabel">添加环境</h4>
+              </div>
+              <div class="modal-body">
+                    <form id="addBusinessEnvForm" data-parsley-validate class="form-horizontal form-label-left">{% csrf_token %}
+                      <div class="form-group">
+                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="first-name">环境类型 <span class="required">*</span>
+                        </label>
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                          <input type="text" id="first-name" required="required" name="name" class="form-control col-md-7 col-xs-12">
+                        </div>
+                      </div>
+                    </form>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" id="addBusinessEnvSubmit"  class="btn btn-primary">保存</button>
+              </div>
+
+            </div>
+          </div>
+        </div>   
+        
+        <div id="addBusinessRootModal" class="modal fade bs-example-modal-project" tabindex="-1" role="dialog" aria-hidden="true">
+          <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span>
+                </button>
+                <h4 class="modal-title" id="myRootModalLabel">业务节点</h4>
+              </div>
+              <div class="modal-body">
+                    <form id="businessRootForm" class="main form-horizontal">{% csrf_token %}
+                      <div class="item form-group">
+                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">环境类型 <span class="required">*</span>
+                        </label>
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                          <select class="form-control" id="businessRootEnvSelect" name="env">
+                          </select>
+                        </div>
+                      </div>                    
+                      <div class="item form-group">
+                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="first-name">名称 <span class="required">*</span>
+                        </label>
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                          <input type="text" required="required" name="text" class="form-control col-md-7 col-xs-12">
+                        </div>
+                      </div>
+                      <div class="item form-group">
+                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="first-name">所属部门 <span class="required"></span>
+                        </label>
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                          <input type="text"  required="required" name="group" class="form-control col-md-7 col-xs-12">
+                        </div>
+                      </div>                      
+                      <div class="item form-group">
+                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">负责人 <span class="required"></span>
+                        </label>
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                          <select class="form-control" id="businessRootManageSelect" name="manage">
+                          </select>
+                        </div>
+                      </div>
+                      <div class="item form-group">
+                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="first-name">描述 <span class="required"></span>
+                        </label>
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                          <input type="text"  required="required" name="desc" class="form-control col-md-7 col-xs-12">
+                        </div>
+                      </div>                       
+                    </form>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" id="addBusinessRootSubmit"  class="btn btn-primary">保存</button>
+              </div>
+
+            </div>
+          </div>
+        </div> 		        	
+
+        <div id="addBusinessAssetsModal" class="modal fade bs-example-modal-business-assets" tabindex="-1" role="dialog" aria-hidden="true">
+          <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span>
+                </button>
+                <h4 class="modal-title" id="addBusinessAssetsModalLabel">分配资产</h4>
+              </div>
+              <div class="modal-body">
+                    <form id="addBusinessAssetsForm" data-parsley-validate class="form-horizontal form-label-left">{% csrf_token %}
+                      <div class="form-group">
+                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="first-name">资产分配 <span class="required">*</span>
+                        </label>
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                          <select class="selectpicker form-control" data-actions-box="true" multiple data-header="至少选择一个资产进行提交" data-live-search="true" data-live-search-placeholder="搜索" data-none-Selected-Text="请选择" data-size="10"   id="addBusinessAssetsSelect" name="assets">
+                          </select>
+                        </div>
+                      </div>
+                    </form>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" id="addBusinessAssetsSubmit" value=""  class="btn btn-primary">保存</button>
+              </div>
+
+            </div>
+          </div>
+        </div> 
+
+        <div class="modal fade bs-example-modal-info"   id="AssetsModal" tabindex="-1" role="dialog" aria-hidden="true">
+          <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span>
+                </button>
+                <h4 class="modal-title" id="myModalLabel"></h4>
+              </div>
+              <div class="modal-body">
+				  <ul class="list-unstyled timeline" id="assets_info">
+					<li>
+					  <div class="block">
+						<div class="tags">
+						  <a href="" class="tag">
+							<span>基础信息</span>
+						  </a>
+						</div>
+						<div class="block_content">
+						  <h2 class="title">
+										  <a>Who Needs Sundance When You’ve Got&nbsp;Crowdfunding?</a>
+									  </h2>
+						  <div class="byline">
+							<span>13 hours ago</span> by <a>Jane Smith</a>
+						  </div>
+						  <p class="excerpt">Film festivals used to be do-or-die moments for movie makers. They were where you met the producers that could fund your project, and if the buyers liked your flick, they’d pay to Fast-forward and… <a>Read&nbsp;More</a>
+						  </p>
+						</div>
+					  </div>
+					</li>
+					<li>
+					  <div class="block">
+						<div class="tags">
+						  <a href="" class="tag">
+							<span>硬件信息</span>
+						  </a>
+						</div>
+						<div class="block_content">
+						  <h2 class="title">
+										  <a>Who Needs Sundance When You’ve Got&nbsp;Crowdfunding?</a>
+									  </h2>
+						  <div class="byline">
+							<span>13 hours ago</span> by <a>Jane Smith</a>
+						  </div>
+						  <p class="excerpt">Film festivals used to be do-or-die moments for movie makers. They were where you met the producers that could fund your project, and if the buyers liked your flick, they’d pay to Fast-forward and… <a>Read&nbsp;More</a>
+						  </p>
+						</div>
+					  </div>
+					</li>
+					<li>
+					  <div class="block">
+						<div class="tags">
+						  <a href="" class="tag">
+							<span>网卡信息</span>
+						  </a>
+						</div>
+						<div class="block_content">
+						  <h2 class="title">
+										  <a>Who Needs Sundance When You’ve Got&nbsp;Crowdfunding?</a>
+									  </h2>
+						  <div class="byline">
+							<span>13 hours ago</span> by <a>Jane Smith</a>
+						  </div>
+						  <p class="excerpt">Film festivals used to be do-or-die moments for movie makers. They were where you met the producers that could fund your project, and if the buyers liked your flick, they’d pay to Fast-forward and… <a>Read&nbsp;More</a>
+						  </p>
+						</div>
+					  </div>
+					</li>
+				  </ul>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              </div>
+
+            </div>
+          </div>
+        </div>			        	                        
+                      
+{% endblock %}
+{% block js-content %}
+	<script type="text/javascript" src="/static/js/tagcanvas/jquery.tagcanvas.js"></script>    
+	<script src="/static/jquery-confirm/jquery-confirm.min.js"></script>
+	<script src="/static/validator/validator.js"></script>
+	<script src="/static/jstree/js/jstree.min.js"></script>
+    <script src="/static/datatable/datatables.net/js/jquery.dataTables.min.js"></script>
+	<script src="/static/datatable/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>	
+    <script src="/static/datatable/datatables.net-buttons/js/dataTables.buttons.min.js"></script>
+    <script src="/static/datatable/datatables.net-buttons-bs/js/buttons.bootstrap.min.js"></script>
+    <script src="/static/datatable/datatables.net-buttons/js/buttons.flash.min.js"></script>
+    <script src="/static/datatable/datatables.net-buttons/js/buttons.html5.min.js"></script>
+    <script src="/static/datatable/datatables.net-buttons/js/buttons.print.min.js"></script>	
+    <script src="/static/datatable/datatables.net-select/js/dataTables.select.min.js"></script>	
+    <!-- morris.js -->
+    <script src="/static/raphael/raphael.min.js"></script>
+    <script src="/static/morris.js/morris.min.js"></script>
+	<script src="/static/js/assets/business.js"></script>
+	<script src="/static/js/doublebox/doublebox-bootstrap.js"></script>
+	<script src="/static/xterm/xterm.js"></script>
+  	<script src="/static/xterm/addons/fit/fit.js"></script>
+ 	<script src="/static/xterm/addons/fullscreen/fullscreen.js"></script> 
+	<script src="/static/js/dragable/dragable.js"></script> 	
+	<script src="/static/js/select/bootstrap-select.js"></script>
+{% endblock %}

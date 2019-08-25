@@ -341,8 +341,6 @@ $(document).ready(function() {
 	                       "defaultContent": ''
 	                   	},
 	                    {"data": "id"},
-	                    {"data": "project"},
-	                    {"data": "service"},
 		                {"data": "detail.ip"},
 		                {
 		                	"data": "detail.system",
@@ -378,7 +376,7 @@ $(document).ready(function() {
 								},
 							},							
   	    		        {
-	    	    				targets: [12],
+	    	    				targets: [10],
 	    	    				render: function(data, type, row, meta) {	
 	    	                        if(row.assets_type == 'server'){
 			                            var hw = '<button type="button" name="btn-assets-hw" value="'+ row.id +'" class="btn btn-default" aria-label="Right Align"><span class="fa fa-hdd-o" aria-hidden="true"></span></button>'		    	               
@@ -855,7 +853,7 @@ $(document).ready(function() {
 	$('#assetsListTable tbody').on('click','button[name="btn-assets-webssh"]',function(){
     	var vIds = $(this).val();
     	var td = $(this).parent().parent().parent().find("td")	
-		$("#myWebsshModalLabel").html('<p class="text-blank"><code><i class="fa fa fa-terminal"></i></code>'+td.eq(3).text()+'_'+td.eq(4).text()+'  '+td.eq(5).text()+ '</p>')
+		$("#myWebsshModalLabel").html('<p class="text-blank"><code><i class="fa fa fa-terminal"></i></code>'+td.eq(3).text()+'</p>')
 		$("#websshConnect").val(vIds)	
 		$('#webssh_tt').empty()
     	$('.bs-example-modal-webssh-info').modal({backdrop:"static",show:true}); 		

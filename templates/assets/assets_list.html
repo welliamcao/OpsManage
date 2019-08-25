@@ -3,6 +3,11 @@
 <link href="/static/iCheck/skins/flat/green.css" rel="stylesheet">
 <link href="/static/datatable/datatables.net-bs/css/dataTables.bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="/static/jquery-confirm/jquery-confirm.min.css">
+<link href="/static/datatable/datatables.net-buttons-bs/css/buttons.bootstrap.min.css" rel="stylesheet">
+<link href="/static/datatable/datatables.net-fixedheader-bs/css/fixedHeader.bootstrap.min.css" rel="stylesheet">
+<link href="/static/datatable/datatables.net-responsive-bs/css/responsive.bootstrap.min.css" rel="stylesheet">
+<link href="/static/datatable/datatables.net-scroller-bs/css/scroller.bootstrap.min.css" rel="stylesheet"> 
+<link href="/static/datatable/datatables.net-select/css/select.dataTables.min.css" rel="stylesheet">
 <style type="text/css"> 	
 	td.details-control {
 	    background: url('/static/images/details_open.png') no-repeat center center; */
@@ -56,21 +61,15 @@
           <div class="row">
 
 
-            <div class="col-md-4 col-sm-4 col-xs-12">
+            <div class="col-md-3 col-sm-4 col-xs-12">
               <div class="x_panel tile fixed_height_320">
                 <div class="x_title">
-                  <h2>机房分布</h2>
+                  <h2>机房区域</h2>
                   <ul class="nav navbar-right panel_toolbox">
                     <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
                     </li>
                     <li class="dropdown">
                       <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
-                      <ul class="dropdown-menu" role="menu">
-                        <li><a href="#">Settings 1</a>
-                        </li>
-                        <li><a href="#">Settings 2</a>
-                        </li>
-                      </ul>
                     </li>
                     <li><a class="close-link"><i class="fa fa-close"></i></a>
                     </li>
@@ -165,21 +164,36 @@
               </div>
             </div>
 
-            <div class="col-md-4 col-sm-4 col-xs-12">
+              <div class="col-md-3 col-sm-4 col-xs-12">
+                <div class="x_panel">
+                  <div class="x_title">
+                    <h2>资产标签类型 <small>Assets Tags Type</small></h2>
+                    <ul class="nav navbar-right panel_toolbox">
+                      <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                      </li>
+                      <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
+                      </li>
+                      <li><a class="close-link"><i class="fa fa-close"></i></a>
+                      </li>
+                    </ul>
+                    <div class="clearfix"></div>
+                  </div>
+                  <div class="x_content">
+                    <canvas id="pieTagsChart"></canvas>
+                  </div>
+                </div>
+              </div>
+
+            <div class="col-md-3 col-sm-4 col-xs-12">
               <div class="x_panel tile fixed_height_320 overflow_hidden">
                 <div class="x_title">
-                  <h2>项目使用<small>Project Usage</small></h2>
+                  <h2>使用组<small>Groups Usage</small></h2>
                   <ul class="nav navbar-right panel_toolbox">
                     <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
                     </li>
                     <li class="dropdown">
                       <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
-                      <ul class="dropdown-menu" role="menu">
-                        <li><a href="#">Settings 1</a>
-                        </li>
-                        <li><a href="#">Settings 2</a>
-                        </li>
-                      </ul>
                     </li>
                     <li><a class="close-link"><i class="fa fa-close"></i></a>
                     </li>
@@ -203,37 +217,37 @@
                     </tr>
                     <tr>
                       <td>
-                        <canvas id="projectCountcanvasDoughnut" class="canvasDoughnut" height="140" width="140" style="margin: 15px 10px 10px 0"></canvas>
+                        <canvas id="groupCountcanvasDoughnut" class="canvasDoughnut" height="140" width="140" style="margin: 15px 10px 10px 0"></canvas>
                       </td>
                       <td>
-                        <table class="tile_info" id="project_count">
+                        <table class="tile_info" id="group_count">
                           <tr>
                             <td>
-                              <p><i class="fa fa-square blue"></i>项目一 </p>
+                              <p><i class="fa fa-square blue"></i>DBA </p>
                             </td>
                             <td>37%</td>
                           </tr>
                           <tr>
                             <td>
-                              <p><i class="fa fa-square green"></i>项目二 </p>
+                              <p><i class="fa fa-square green"></i>运维</p>
                             </td>
                             <td>5%</td>
                           </tr>
                           <tr>
                             <td>
-                              <p><i class="fa fa-square purple"></i>项目三 </p>
+                              <p><i class="fa fa-square purple"></i>开发一组</p>
                             </td>
                             <td>20%</td>
                           </tr>
                           <tr>
                             <td>
-                              <p><i class="fa fa-square aero"></i>项目四  </p>
+                              <p><i class="fa fa-square aero"></i>开发二组</p>
                             </td>
                             <td>15%</td>
                           </tr>
                           <tr>
                             <td>
-                              <p><i class="fa fa-square red"></i>项目五</p>
+                              <p><i class="fa fa-square red"></i>开发三组</p>
                             </td>
                             <td>30%</td>
                           </tr>
@@ -243,10 +257,10 @@
                   </table>
                 </div>
               </div>
-            </div>
+            </div> 
 
 
-              <div class="col-md-4 col-sm-6 col-xs-12">
+              <div class="col-md-3 col-sm-4 col-xs-12">
                 <div class="x_panel">
                   <div class="x_title">
                     <h2>服务器类型 <small>Assets Type</small></h2>
@@ -255,12 +269,6 @@
                       </li>
                       <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
-                        <ul class="dropdown-menu" role="menu">
-                          <li><a href="#">Settings 1</a>
-                          </li>
-                          <li><a href="#">Settings 2</a>
-                          </li>
-                        </ul>
                       </li>
                       <li><a class="close-link"><i class="fa fa-close"></i></a>
                       </li>
@@ -285,12 +293,6 @@
                       </li>
                       <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
-                        <ul class="dropdown-menu" role="menu">
-                          <li><a href="#">Settings 1</a>
-                          </li>
-                          <li><a href="#">Settings 2</a>
-                          </li>
-                        </ul>
                       </li>
                       <li><a class="close-link"><i class="fa fa-close"></i></a>
                       </li>
@@ -311,45 +313,43 @@
 			            </div>	
 		            </div>	                              
 	                <div class="row">
-	                  <div class="col-md-2 col-sm-12 col-xs-12 form-group">
-	                      <select class="form-control" id="selProject">
-	                      	<option selected="selected" value="">请选择一个项目类型</option>
-							{% for p in assets.projectList %}
-								<option value="{{p.id}}">{{p.project_name}}</option>
-							{% endfor %}
-	                      </select>
-	                  </div>
+				      <div class="col-md-2 col-sm-12 col-xs-12 form-group">
+						 <select class="form-control" id="selAssetsType" >
+						 		<option selected="selected" value="">请选择一个资产类型</option>
+								<option value="server" name="assets_type">服务器</option>
+								<option value="vmser" name="assets_type">虚拟机</option>	
+								<option value="switch" name="assets_type">交换机</option>	
+								<option value="route" name="assets_type">路由器</option>	
+								<option value="printer" name="assets_type">打印机</option>	
+								<option value="scanner" name="assets_type">扫描仪</option>		
+								<option value="firewall" name="assets_type">防火墙</option>	
+								<option value="storage" name="assets_type">存储设备</option>	
+								<option value="wifi" name="assets_type">无线设备</option>				
+						</select>
+				      </div>	                
+
+				      <div class="col-md-2 col-sm-12 col-xs-12 form-group">
+						 <select class="form-control" id="selTags" >
+						 	<option selected="selected" value="">请选择一个标签类型</option>
+						 	{% for t in assets.tagsList %}
+						 		<option value="{{t.id}}" name="model">{{t.tags_name}}</option>
+						 	{% endfor %}
+						</select>
+				      </div>  
 	
-	                  <div class="col-md-2 col-sm-12 col-xs-12 form-group">
-					    <select class="form-control" id="selBusiness" >
-					   		<option selected="selected" value="">请选择一个应用类型</option>	
-							{% for s in assets.serviceList %}
-								<option value="{{s.id}}">{{s.service_name}}</option>
-							{% endfor %}				   									   							
-						</select>  
-	                  </div>
-	
-	                  <div class="col-md-2 col-sm-12 col-xs-12 form-group">
-						   <select class="form-control" id="selGroup">
-						   		<option selected="selected" value="">请选择一个使用组</option>
-									{% for g in assets.groupList %}
-										<option value="{{g.id}}" name="asset_group">{{g.name}}</option>
-									{% endfor %}							   		
-							</select>  
-	                  </div>
 	
 	                  <div class="col-md-2 col-sm-12 col-xs-12 form-group">
 	                    	<select class="form-control" id="selZone" >
-								<option selected="selected" value="">请选择一个区域类型</option>
-								{% for r in assets.zoneList %}
-									<option value="{{r.id}}">{{r.zone_name}}</option>
+								<option selected="selected" value="">请选择一个区域机房</option>
+								{% for r in assets.idcList %}
+									<option value="{{r.id}}">{{r.idc_name}}</option>
 								{% endfor %}										
 							</select>  
 	                  </div>
 	
 	                  <div class="col-md-2 col-sm-12 col-xs-12 form-group">
 					   <select  class="form-control" id="selStatus">
-					   			<option selected="selected" value="">请选择一个类型</option>
+					   			<option selected="selected" value="">请选择一个状态类型</option>
 								<option value="0">已上线</option>	
 								<option value="1">已下线</option>	
 								<option value="2">维修中</option>	
@@ -357,26 +357,20 @@
 								<option value="4">未使用</option>				   		
 						</select>  				   									   							
 	                  </div>
+				      <div class="col-md-2 col-sm-12 col-xs-12 form-group">
+						 <select class="form-control" id="selModel" >
+						 	<option selected="selected" value="">请选择一个设备类型</option>
+						 	{% for m in assets.modelList %}
+						 		<option value="{{m}}" name="model">{{m}}</option>
+						 	{% endfor %}
+						</select>
+				      </div>	                  
 	                  <div class="col-md-2 col-sm-12 col-xs-12 form-group">
 	                    <input type="text" id="ip" placeholder="输入内网ip" class="form-control" value="">
 	                  </div>   	                  
 	                </div>
 	                <div id="more_search" style="display:none;">
 		                <div class="row">
-					      <div class="col-md-2 col-sm-12 col-xs-12 form-group">
-							 <select class="form-control" id="selAssetsType" >
-							 		<option selected="selected" value="">请选择一个资产类型</option>
-									<option value="server" name="assets_type">服务器</option>
-									<option value="vmser" name="assets_type">虚拟机</option>	
-									<option value="switch" name="assets_type">交换机</option>	
-									<option value="route" name="assets_type">路由器</option>	
-									<option value="printer" name="assets_type">打印机</option>	
-									<option value="scanner" name="assets_type">扫描仪</option>		
-									<option value="firewall" name="assets_type">防火墙</option>	
-									<option value="storage" name="assets_type">存储设备</option>	
-									<option value="wifi" name="assets_type">无线设备</option>				
-							</select>
-					      </div>
 		                       
 					      <div class="col-md-2 col-sm-12 col-xs-12 form-group">
 							 <select class="form-control" id="selManufacturer" >
@@ -395,15 +389,15 @@
 							 	{% endfor %}
 							</select>
 					      </div>	                        
-		                           
 					      <div class="col-md-2 col-sm-12 col-xs-12 form-group">
-							 <select class="form-control" id="selModel" >
-							 	<option selected="selected" value="">请选择一个设备类型</option>
-							 	{% for m in assets.modelList %}
-							 		<option value="{{m}}" name="model">{{m}}</option>
+							 <select class="form-control" id="selLine" >
+							 	<option selected="selected" value="">请选择一个线路类型</option>
+							 	{% for m in assets.lineList %}
+							 		<option value="{{m.id}}" name="line">{{m.line_name}}</option>
 							 	{% endfor %}
 							</select>
-					      </div>
+					      </div> 		                           
+
 					      <div class="col-md-2 col-sm-12 col-xs-12 form-group">
 							 <select class="form-control" id="selRaid" >
 							 	<option selected="selected" value="">请选择一个Raid类型</option>
@@ -412,16 +406,7 @@
 							 	{% endfor %}
 							</select>
 					      </div>
-					      <div class="col-md-2 col-sm-12 col-xs-12 form-group">
-							 <select class="form-control" id="selRaid" >
-							 	<option selected="selected" value="">请选择一个Raid类型</option>
-							 	{% for m in assets.raidList %}
-							 		<option value="{{m.raid_name}}" name="raid">{{m.raid_name}}</option>
-							 	{% endfor %}
-							</select>
-					      </div>				      				      	                           
-						</div>
-						<div class="row">	                                            
+					      
 					      <div class="col-md-2 col-sm-12 col-xs-12 form-group">
 							 <select class="form-control" id="selCpu" >
 							 	<option selected="selected" value="">请选择一个CPU类型</option>
@@ -438,17 +423,11 @@
 							 		<option value="{{m.id}}" name="buy_user">{{m.username}}</option>
 							 	{% endfor %}
 							</select>
-					      </div>                     
-	                           
-					      <div class="col-md-2 col-sm-12 col-xs-12 form-group">
-							 <select class="form-control" id="selLine" >
-							 	<option selected="selected" value="">请选择一个线路类型</option>
-							 	{% for m in assets.lineList %}
-							 		<option value="{{m.id}}" name="line">{{m.line_name}}</option>
-							 	{% endfor %}
-							</select>
-					      </div> 
-					      
+					      </div>					      
+					      				      				      	                           
+						</div>
+						<div class="row">	                                            
+
 					      <div class="col-md-2 col-sm-12 col-xs-12 form-group">
 							 <select class="form-control" id="selSystem" >
 							 	<option selected="selected" value="">请选择一个系统类型</option>
@@ -474,7 +453,14 @@
 							 	{% endfor %}
 							</select>
 					      </div>		
-                                
+		                  <div class="col-md-2 col-sm-12 col-xs-12 form-group">
+							   <select class="form-control" id="selGroup">
+							   		<option selected="selected" value="">请选择一个使用组</option>
+										{% for g in assets.groupList %}
+											<option value="{{g.id}}" name="asset_group">{{g.name}}</option>
+										{% endfor %}							   		
+								</select>  
+		                  </div>                              
 	                    </div>
 	                    <div class="row"> 
 	                    
@@ -514,7 +500,7 @@
 	                <div class="row">
 	                </div>
                     <div class="product_price" id="divSelectedType" style="display:none;"></div>    
-                    <legend></legend>    
+<!--                     <legend></legend>    
                     <div class="mail_heading row">
                         <div class="col-md-4 text-left">
                             <p class="text-muted font-13 m-b-30">
@@ -532,85 +518,27 @@
                         <div class="col-md-12">
                               <legend></legend>
                         </div>
-                    </div>                                 	                						           
+                    </div>  -->                                	                						           
                     <table id="assetsListTable" class="table table-striped table-bordered">
                       <thead>
                         <tr>
-                          <th class="text-center">详情</th>
-                          <th class="text-center"><input type="checkbox" id="checkAll"  onclick="checkAllBox()" class="flat"></th>
-                          <th class="text-center">资产ID</th>                        
-                          <th class="column-title">所属项目</th>
-                          <th>应用类型</th>
+                          <th class="text-center">选择</th>                       
+                          <th>详情</th>
+                          <!-- <th>资产ID</th> -->
+                          <!-- <th>业务路径</th> -->
+                          <th>资产编号</th>
+                          <th>设备类型</th>
                           <th>IP地址</th>
                           <th>操作系统</th>
                           <th>内核版本</th>
                           <th>CPU</th>
                           <th>内存(GB)</th>
                           <th>硬盘(GB)</th>                   
-                          <th>放置区域</th>
+                          <th>放置机房</th>
                           <th class="text-center">操作</th>
                         </tr>
                       </thead>
                       <tbody>
-                      	{% for ds in assetsList %}
-                        <tr>
-                          <td class="text-center"></td>
-                          <td class="text-center"><input type="checkbox" class="flat" value="{{ds.id}}" name="ckbox"/></td>
-                          <td class="text-center">{{ds.id}}</td>                         
-                          <td>
-				         	{% for s in assets.projectList %}
-				         		{% if s.id == ds.project %}
-				         			{{ s.project_name }}	
-				         		{% endif %}
-				         	{% endfor %}                          
-                          </td>
-                          <td>
-				         	{% for s in assets.serviceList %}
-				         		{% if s.id == ds.business %}
-				         			{{ s.service_name }}	
-				         		{% endif %}
-				         	{% endfor %}                           
-                          </td>
-                          <td id="assets_{{ds.id}}">
-                          		{% if ds.assets_type == "server" or  ds.assets_type == "vmser" %}
-                          			{{ds.server_assets.ip}}
-                          		{% else %}
-                          			{{ds.network_assets.ip}}
-                          		{% endif %}
-                          </td>
-                          <td>{{ds.server_assets.system|default:"无数据"}}</td>
-                          <td>{{ds.server_assets.kernel|default:"无数据"}}</td>
-                          <td>{{ds.server_assets.vcpu_number|default:"无数据"}}</td>
-                          <td>{{ds.server_assets.ram_total|default:"无数据" }}</td>
-                          <td>{{ds.server_assets.disk_total|default:"无数据"}}</td>
-                          <td>
-				         	{% for z in assets.zoneList %}
-				         		{% if z.id == ds.put_zone %}
-				         			{{ z.zone_name }}
-				         		{% endif %}
-				         	{% endfor %}                          
-                          </td>
-                          <td class="text-center">
-	                          <div class="btn-group btn-group-sm">
-	                            <button type="button" name="btn-assets-alter" value="{{ds.id}}" class="btn btn-default" aria-label="Center Align"><a href="/assets/manage/?id={{ds.id}}&model=edit" target="view_window"><span class="glyphicon glyphicon-check" aria-hidden="true"></span></a>
-	                            </button>
-	                            <button type="button" name="btn-assets-info" value="{{ds.id}}" class="btn btn-default" aria-label="Right Align" data-toggle="modal" data-target=".bs-example-modal-info"><span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
-	                            </button>	                            
-	                            <button type="button" name="btn-assets-update" value="{{ds.id}}" class="btn btn-default" aria-label="Right Align"><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span>
-	                            </button>
-	                            {% if ds.assets_type == 'server' %}
-	                            <button type="button" name="btn-assets-hw" value="{{ds.id}}" class="btn btn-default" aria-label="Right Align"><span class="fa fa-hdd-o" aria-hidden="true"></span>
-	                            </button>	
-	                            {% else %}
-	                            <button type="button" name="btn-assets-hw" value="{{ds.id}}" class="btn btn-default" aria-label="Right Align" disabled><span class="fa fa-hdd-o" aria-hidden="true"></span>
-	                            </button>		                            
-	                            {% endif %}                            
-	                            <button type="button" name="btn-assets-delete" value="{{ds.id}}" class="btn btn-default" aria-label="Justify"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
-	                            </button>
-	                          </div>                         
-                          </td>
-                        </tr>
-                        {% endfor %}
                       </tbody>
                     </table>
                   </div>
@@ -703,7 +631,13 @@
 	<script src="/static/Chart.js/dist/Chart.min.js"></script>
 	<script src="/static/gauge.js/dist/gauge.min.js"></script>
     <script src="/static/datatable/datatables.net/js/jquery.dataTables.min.js"></script>
-	<script src="/static/datatable/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>
+	<script src="/static/datatable/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>	
+    <script src="/static/datatable/datatables.net-buttons/js/dataTables.buttons.min.js"></script>
+    <script src="/static/datatable/datatables.net-buttons-bs/js/buttons.bootstrap.min.js"></script>
+    <script src="/static/datatable/datatables.net-buttons/js/buttons.flash.min.js"></script>
+    <script src="/static/datatable/datatables.net-buttons/js/buttons.html5.min.js"></script>
+    <script src="/static/datatable/datatables.net-buttons/js/buttons.print.min.js"></script>	
+    <script src="/static/datatable/datatables.net-select/js/dataTables.select.min.js"></script>
 	<script src="/static/js/assets/assets.js"></script>
 	<script src="/static/jquery/dist/jquery-ui.min.js"></script>
 {% endblock %}

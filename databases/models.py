@@ -1,7 +1,7 @@
 #!/usr/bin/env python  
 # _#_ coding:utf-8 _*_  
 from django.db import models
-      
+from asset.models import Business_Tree_Assets       
 
 class DataBase_Server_Config(models.Model):
     env_type = (
@@ -10,23 +10,40 @@ class DataBase_Server_Config(models.Model):
                 ('ga',u'生产环境'),
                 )
     mode = (
-            (1,u'单例'),
-            (2,u'主从'),
-            (3,u'pxc'),
-            (4,u'Tidb'),
-            (5,u'Bhproxy'),
-            (6,u'ProxySQL'),
+            ('single',u'单例'),
+            ('ms',u'主从'),
+            ('pxc',u'pxc'),
+            ('master',u'主库'),
             ) 
     rw_type = (
                 ('read',u'只读'),
                 ('r/w',u'读写'),
                 ('write',u'可写'),
-                )    
+                )  
+    dataMap = {
+               "env":{
+                    'alpha':'开发环境',
+                    'beta':'测试环境',
+                    'ga':'生产环境',                      
+                },
+               'mode':{
+                    'single':'单例',
+                    'ms':'主从',
+                    'pxc':'pxc',   
+                    'master':'主库',                    
+                },
+               "rw":{
+                    'read':'只读',
+                    'r/w':'读写',
+                    'write':'可写',                     
+                }
+               }  
     db_env = models.CharField(choices=env_type,max_length=10,verbose_name='环境类型',default=None)
     db_type = models.CharField(max_length=10,verbose_name='数据库类型',blank=True,null=True)
     db_name = models.CharField(max_length=100,verbose_name='数据库名',blank=True,null=True)
     db_assets = models.ForeignKey('asset.Assets',related_name='database_total', on_delete=models.CASCADE,verbose_name='assets_id')
-    db_mode = models.SmallIntegerField(choices=mode,verbose_name='架构类型',default=1)
+    db_business = models.IntegerField(verbose_name='业务关联')
+    db_mode = models.CharField(max_length=10,choices=mode,verbose_name='架构类型',default='single')
     db_user = models.CharField(max_length=100,verbose_name='用户',blank=True,null=True)
     db_passwd = models.CharField(max_length=100,verbose_name='密码',blank=True,null=True)
     db_port = models.IntegerField(verbose_name='端口')
@@ -49,24 +66,35 @@ class DataBase_Server_Config(models.Model):
         unique_together = (("db_port", "db_assets","db_env","db_name"))
         verbose_name = '数据库管理'  
         verbose_name_plural = '数据库信息表'
-    
-    def get_modes(self):
-        data = dict()
-        for i in self.mode:    
-            data[i[0]] = i[1]
-        return data
-    
-    def get_types(self):
-        data = dict()
-        for i in self.env_type:    
-            data[i[0]] = i[1]
-        return data        
-    
-    def get_rw(self):
-        data = dict()
-        for i in self.rw_type:    
-            data[i[0]] = i[1]
-        return data         
+
+    def business_paths(self):
+        try:
+            business = Business_Tree_Assets.objects.get(id=self.db_business)
+            return business.business_env() + '/' +business.node_path()
+        except:
+            return "未知"   
+        
+    def to_json(self):
+        try:
+            db_ip = self.db_assets.server_assets.ip
+        except:
+            db_ip = '未知'
+        json_format = {
+            "id":self.id,
+            "db_env":self.dataMap["env"].get(self.db_env),
+            "db_type":self.db_type,
+            "db_name":self.db_name,
+            "db_assets_id":self.db_assets.id,
+            "ip":db_ip,           
+            "db_business":self.db_business,
+            "db_mode":self.dataMap["mode"].get(self.db_mode),
+            "db_business_paths":self.business_paths(),
+            "db_port":self.db_port,
+            "db_user":self.db_user,
+            "db_mark":self.db_mark,
+            "db_rw":self.dataMap["rw"].get(self.db_rw),
+        }
+        return  json_format             
     
 class Database_User(models.Model):
     db = models.SmallIntegerField(verbose_name='db_id')

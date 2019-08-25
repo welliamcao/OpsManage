@@ -2,7 +2,7 @@
 # _#_ coding:utf-8 _*_ 
 #coding: utf8
 from cicd.models import Project_Config,Log_Project_Config,Log_Project_Record,Project_Roles
-from asset.models import Project_Assets,Service_Assets 
+# from asset.models import Project_Assets,Service_Assets 
 from utils.logger import logger
 from .assets import AssetsBase
 from django.http import QueryDict
@@ -170,8 +170,8 @@ class AppsManage(AssetsBase):
         project = self.get_apps(request)
         if project:
             data = self.convert_to_dict(project)
-            data['project_id'] = Project_Assets.objects.get(id=data['project_id']).project_name
-            data['service_name'] = Service_Assets.objects.get(id=data['project_service']).service_name
+#             data['project_id'] = Project_Assets.objects.get(id=data['project_id']).project_name
+#             data['service_name'] = Service_Assets.objects.get(id=data['project_service']).service_name
             data['number'] = self.get_apps_number(project)
             data['roles'] = self.get_role(project)
             data["project_servers"] = json.loads(project.project_servers)
@@ -189,15 +189,10 @@ class AppsManage(AssetsBase):
             return project
         return '项目不存在'
     
-    def create_apps(self,request):
-        try:
-            project = Project_Assets.objects.get(id=request.POST.get('project_id'))
-        except Exception as ex:
-            logger.warn(msg="查询项目失败: {ex}".format(ex=ex))            
+    def create_apps(self,request):           
         try:
             apps = Project_Config.objects.create(
-                                                project = project,
-                                                project_service = request.POST.get('project_service'),
+                                                project_business= request.POST.get('project_business'),
                                                 project_type = request.POST.get('project_type'),
                                                 project_env = request.POST.get('project_env'), 
                                                 project_name = request.POST.get('project_name'), 

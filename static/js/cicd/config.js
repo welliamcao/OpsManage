@@ -52,67 +52,51 @@ function setAceEditMode(ids,model,theme) {
 			 
 };
 
-function oBtProjectSelect(){
-	   $('#deploy_service').removeAttr("disabled");
-	   var obj = document.getElementById("deploy_project"); 
+function oBtBusinessSelect(){	   
+	   $("#server").empty();
+	   var obj = document.getElementById("project_business"); 
 	   var index = obj.selectedIndex;
-	   var projectId = obj.options[index].value; 
-	   if ( projectId > 0){	 
+	   var businessId = obj.options[index].value; 
+	   if ( businessId > 0){	 
 			$.ajax({
 				dataType: "JSON",
-				url:'/api/project/'+ projectId + '/', //请求地址
+				url:'/api/business/nodes/assets/'+ businessId + '/', //请求地址
 				type:"GET",  //提交类似
 				success:function(response){
-					var binlogHtml = '<select class="selectpicker" name="deploy_service" id="deploy_service" onchange="javascript:AssetsTypeSelect();" required><option selected="selected" name="deploy_service" value="">请选择业务类型</option>'
+					var binlogHtml = '<select class="selectpicker" name="server" id="server" required><option  name="ipvs_assets" value="">请选择服务器</option>'
 					var selectHtml = '';
-					for (var i=0; i <response["service_assets"].length; i++){
-						 selectHtml += '<option name="deploy_service" value="'+ response["service_assets"][i]["id"] +'">' + response["service_assets"][i]["service_name"] + '</option>' 
+					for (var i=0; i <response.length; i++){
+						 selectHtml += '<option name="server" value="'+ response[i]["id"] +'">' + response[i]["detail"]["ip"] + '</option>' 
 					};                        
 					binlogHtml =  binlogHtml + selectHtml + '</select>';
-					document.getElementById("deploy_service").innerHTML= binlogHtml;	
-					$('.selectpicker').selectpicker('refresh');		
+					$("#server").html(binlogHtml)
+					$('.selectpicker').selectpicker('refresh');							
 				},
 			});	
-	   }
-	   else{
-		   $('#deploy_service').attr("disabled",true);
-	   }
+	   }   
 }
-
-function AssetsTypeSelect(model,ids){
-	   var obj = document.getElementById(ids); 
-	   var index = obj.selectedIndex;
-	   var sId = obj.options[index].value; 
-	   if ( sId  > 0){	 
-			$.ajax({
-				dataType: "JSON",
-				url:'/assets/server/query/', //请求地址
-				type:"POST",  //提交类似
-				data:{
-					"query":model,
-					"id":sId
-				},
-				success:function(response){
-					var binlogHtml = '<select  class="selectpicker form-control" data-live-search="true"  data-size="10" data-width="100%" name="server" id="server" required><option  name="server" value="">请选择服务器</option>'
-						var selectHtml = '';
-						for (var i=0; i <response["data"].length; i++){
-							 selectHtml += '<option name="server" value="'+ response["data"][i]["id"] +'">' + response["data"][i]["ip"] + '</option>' 
-						};                        
-						binlogHtml =  binlogHtml + selectHtml + '</select>';
-						document.getElementById("server").innerHTML= binlogHtml;	
-						$('.selectpicker').selectpicker('refresh');	
-				
-						
-				},
-			});	
-	   }
-}
-
 
 
 
 $(document).ready(function() {
 	
+	if ($("#project_business").length){
+		$.ajax({
+			async : true,  
+			url:'/api/business/last/', //请求地址
+			type:"GET",  //提交类似
+			success:function(response){
+				var binlogHtml = '<select required="required" class="selectpicker form-control" data-live-search="true"  data-size="10" data-width="100%" name="project_business"  id="project_business" autocomplete="off" onchange="javascript:oBtBusinessSelect();"><option selected="selected" value="">请选择一个进行操作</option>'
+				var selectHtml = '';
+				for (var i=0; i <response.length; i++){
+					selectHtml += '<option value="'+ response[i]["id"] +'">'+ response[i]["paths"] +'</option>' 					 
+				};                        
+				binlogHtml =  binlogHtml + selectHtml + '</select>';
+				$("#project_business").html(binlogHtml)							
+				$("#project_business").selectpicker('refresh');							
+			}					
+		});			
+	}
 	 
 	 $("#project_repertory").change(function(){
 		   var project_model = '<select class="form-control" id="project_model" name="project_model" required>' +
@@ -157,7 +141,7 @@ $(document).ready(function() {
     $('#btn_add_project').click(function(){ 
 		var btnObj = $(this);
 		btnObj.attr('disabled',true);
-    	var required = ["deploy_project","deploy_service","project_name","project_env","project_repertory","project_address","server","project_user","dir","project_model"];
+    	var required = ["project_business","project_name","project_env","project_repertory","project_address","server","project_user","dir","project_model"];
     	btnObj.attr('disabled',true);
     		var form = document.getElementById('add_deploy_project');
     		for (var i = 0; i < form.length; ++i) {
@@ -195,8 +179,7 @@ $(document).ready(function() {
     	    formData.append('project_repo_user',$('#project_repo_user').val());	
     	    formData.append('project_repo_passwd',$('#project_repo_passwd').val());
     	    formData.append('project_is_include',$('#project_is_include  option:selected').val());	
-    	    formData.append('project_id',$('#deploy_project option:selected').val());
-    	    formData.append('project_service',$('#deploy_service option:selected').val());
+    	    formData.append('project_business',$('#project_business option:selected').val());
     	    formData.append('project_repertory',$('#project_repertory option:selected').val());
     	    formData.append('project_model',$('#project_model option:selected').val());	
     	    formData.append('project_servers',serverList);	

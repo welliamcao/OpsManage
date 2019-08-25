@@ -26,11 +26,11 @@ def ipvs_assets(request,format=None):
     if request.method == 'GET':
         return Response(ASSETSIPVS.assets())    
 
-@api_view(['GET', 'PUT' ])
+@api_view(['GET'])
 @permission_required('apply.ipvs_read_ipvs_config',raise_exception=True)
-def ipvs_tree_service(request,id,format=None):
+def ipvs_tree_business(request,id,format=None):
     if request.method == 'GET':
-        return Response(ASSETSIPVS.service(service=id)) 
+        return Response(ASSETSIPVS.tree_business(business=id)) 
 
 class IPVSLIST(APIView,IVPSManage):
      

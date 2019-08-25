@@ -4,6 +4,10 @@ from django.db import models
 import django.utils.timezone as timezone
 from django.contrib.auth.models import User
 from datetime import datetime
+from mptt.models import MPTTModel, TreeForeignKey
+
+
+
 
 class Assets(models.Model):
     assets_type_choices = (
@@ -17,6 +21,17 @@ class Assets(models.Model):
                           ('storage',u'存储设备'),
                           ('wifi',u'无线设备'),
                           )
+    assets_type_dicts = {
+        "printer": "打印机",
+        "scanner": "扫描仪",
+        "firewall": "防火墙",
+        "route": "路由器",
+        "wifi": "无线设备",
+        "storage": "存储设备",
+        "server": "服务器",
+        "switch": "交换机",
+        "vmser": "虚拟机"
+    }
     assets_type = models.CharField(choices=assets_type_choices,max_length=100,default='server',verbose_name='资产类型')
     name = models.CharField(max_length=100,verbose_name='资产编号',unique=True)
     sn =  models.CharField(max_length=100,verbose_name='设备序列号',blank=True,null=True)
@@ -27,14 +42,15 @@ class Assets(models.Model):
     manufacturer = models.CharField(max_length=100,blank=True,null=True,verbose_name='制造商')
     provider = models.CharField(max_length=100,blank=True,null=True,verbose_name='供货商')
     model = models.CharField(max_length=100,blank=True,null=True,verbose_name='资产型号')
-    status = models.SmallIntegerField(blank=True,null=True,verbose_name='状态')
+    status = models.SmallIntegerField(default=0,blank=True,null=True,verbose_name='状态')
     put_zone = models.SmallIntegerField(blank=True,null=True,verbose_name='放置区域')
     group = models.SmallIntegerField(blank=True,null=True,verbose_name='使用组')
-    business = models.SmallIntegerField(blank=True,null=True,verbose_name='业务类型')
+#     business = models.SmallIntegerField(blank=True,null=True,verbose_name='业务类型')
     project = models.SmallIntegerField(blank=True,null=True,verbose_name='项目类型')
     host_vars = models.TextField(blank=True,null=True,verbose_name='ansible主机变量')
     mark = models.TextField(blank=True,null=True,verbose_name='资产标示')
     cabinet = models.SmallIntegerField(blank=True,null=True,verbose_name='机柜位置')
+    business_tree = models.ManyToManyField('Business_Tree_Assets',blank=True)
     create_date = models.DateTimeField(auto_now_add=True)
     update_date = models.DateTimeField(auto_now_add=True)
     class Meta:
@@ -50,9 +66,10 @@ class Assets(models.Model):
         verbose_name = '资产管理'  
         verbose_name_plural = '总资产表'  
     
+ 
     def get_put_zone(self):
         try:
-            return Zone_Assets.objects.get(id=self.put_zone).zone_name
+            return Idc_Assets.objects.get(id=self.put_zone).idc_name
         except:
             return '未知'        
 
@@ -61,19 +78,7 @@ class Assets(models.Model):
             return User.objects.get(id=self.buy_user).username
         except:
             return '未知'  
-    
-    def get_project(self):
-        try:
-            return Project_Assets.objects.get(id=self.project).project_name
-        except:
-            return '未知'         
-    
-    def get_service(self):
-        try:
-            return Service_Assets.objects.get(id=self.business).service_name
-        except:
-            return '未知'         
-        
+                    
     def to_json(self):  
         if hasattr(self,'server_assets'):
             detail = self.server_assets.to_json()
@@ -82,11 +87,12 @@ class Assets(models.Model):
             
         json_format = {
            "id": self.id,
-            "assets_type": self.assets_type,
+            "assets_type": self.assets_type_dicts[self.assets_type],
             "name": self.name,
             "sn": self.sn,
             "buy_time": self.buy_time,
             "expire_date": self.expire_date,
+            "business":[ ds.id for ds in self.business_tree.all() ],
             "buy_user": self.get_buy_user(),
             "management_ip": self.management_ip,
             "manufacturer": self.manufacturer,
@@ -95,13 +101,11 @@ class Assets(models.Model):
             "status": self.status,
             "put_zone": self.get_put_zone(),
             "group": self.group,
-            "project": self.get_project(),
             "host_vars": self.host_vars,
             "mark": self.mark,
             "cabinet": self.cabinet,
             "create_date": datetime.strftime(self.create_date, '%Y-%m-%d %H:%M:%S'),
             "update_date": datetime.strftime(self.update_date, '%Y-%m-%d %H:%M:%S'),
-            "service": self.get_service(),
             "detail":detail,
         }
         return  json_format
@@ -114,6 +118,7 @@ class Server_Assets(models.Model):
     passwd = models.CharField(max_length=100,default='root',blank=True,null=True)  
     sudo_passwd = models.CharField(max_length=100,blank=True,null=True)
     keyfile =  models.SmallIntegerField(blank=True,null=True)#FileField(upload_to = './upload/key/',blank=True,null=True,verbose_name='密钥文件')
+    keyfile_path = models.CharField(max_length=100,blank=True,null=True)
     port = models.DecimalField(max_digits=6,decimal_places=0,default=22)
     line = models.SmallIntegerField(blank=True,null=True)
     cpu = models.CharField(max_length=100,blank=True,null=True)
@@ -287,74 +292,198 @@ class NetworkCard_Assets(models.Model):
         unique_together = (("assets", "macaddress"))    
                     
         
-class Project_Assets(models.Model):
-    '''产品线资产表'''
-    project_name = models.CharField(max_length=100,unique=True) 
-    project_owner = models.SmallIntegerField(blank=True,null=True,verbose_name='项目负责人')
+# class Project_Assets(models.Model):
+#     '''产品线资产表'''
+#     project_name = models.CharField(max_length=100,unique=True) 
+#     project_owner = models.SmallIntegerField(blank=True,null=True,verbose_name='项目负责人')
+#     class Meta:
+#         db_table = 'opsmanage_project_assets'
+#         default_permissions = ()
+#         permissions = (
+#             ("assets_read_project", "读取产品线权限"),
+#             ("assets_change_project", "更改产品线权限"),
+#             ("assets_add_project", "添加产品线权限"),
+#             ("assets_delete_project", "删除产品线权限"),              
+#         )  
+#         verbose_name = '资产管理'  
+#         verbose_name_plural = '项目资产表' 
+#               
+#     
+# class Service_Assets(models.Model):
+#     '''业务分组表'''
+#     project = models.ForeignKey('Project_Assets',related_name='service_assets', on_delete=models.CASCADE)
+#     service_name = models.CharField(max_length=100) 
+#     
+#     class Meta:
+#         db_table = 'opsmanage_service_assets'
+#         default_permissions = ()
+#         permissions = (
+#             ("assets_read_service", "读取业务资产权限"),
+#             ("assets_change_service", "更改业务资产权限"),
+#             ("assets_add_service", "添加业务资产权限"),
+#             ("assets_delete_service", "删除业务资产权限"),              
+#         )  
+#         unique_together = (("project", "service_name"))
+#         verbose_name = '资产管理' 
+#         verbose_name_plural = '业务分组表'  
+
+class Business_Env_Assets(models.Model):
+    '''业务环境资产表'''
+    name = models.CharField(default="测试环境",max_length=100,unique=True) 
     class Meta:
-        db_table = 'opsmanage_project_assets'
+        db_table = 'opsmanage_business_env_assets'
+        default_permissions = ()
+        verbose_name = '资产管理'  
+        verbose_name_plural = '业务环境类型表'
+
+
+class Business_Tree_Assets(MPTTModel):
+    text = models.CharField(verbose_name='节点名称', max_length=100, unique=True)
+    env = models.SmallIntegerField(blank=True,null=True,verbose_name='项目环境')
+    parent = TreeForeignKey('self', on_delete=models.CASCADE, verbose_name='上级业务', null=True, blank=True,db_index=True ,related_name='children')
+    manage = models.SmallIntegerField(blank=True,null=True,verbose_name='项目负责人')
+    group = models.CharField(blank=True,null=True,max_length=100,verbose_name='所属部门')   
+    desc = models.CharField(blank=True,null=True,max_length=200) 
+
+    class Meta:
+        db_table = 'opsmanage_business_assets'
         default_permissions = ()
         permissions = (
-            ("assets_read_project", "读取产品线权限"),
-            ("assets_change_project", "更改产品线权限"),
-            ("assets_add_project", "添加产品线权限"),
-            ("assets_delete_project", "删除产品线权限"),              
+            ("assets_read_business", "读取业务资产权限"),
+            ("assets_change_business", "编辑业务资产权限"),
+            ("assets_add_business", "添加业务资产权限"),
+            ("assets_delete_business", "删除业务资产权限"),              
         )  
         verbose_name = '资产管理'  
-        verbose_name_plural = '项目资产表' 
-              
+        verbose_name_plural = '业务节点资产表' 
+
+    def __unicode__(self):
+        return self.text
+               
+
+    def business_env(self):
+        try:
+            env = Business_Env_Assets.objects.get(id=self.get_root().env).name
+        except Exception as ex:
+            env = "未知"        
+        return env
     
-class Service_Assets(models.Model):
-    '''业务分组表'''
-    project = models.ForeignKey('Project_Assets',related_name='service_assets', on_delete=models.CASCADE)
-    service_name = models.CharField(max_length=100) 
+    def node_path(self):
+        self.paths = ''
+        if not self.parent:
+            self.paths = self.text
+        else:
+            dataList = Business_Tree_Assets.objects.raw("""SELECT id,text as path FROM opsmanage_business_assets WHERE tree_id = {tree_id} AND  lft < {lft} AND  rght > {rght} ORDER BY lft DESC;""".format(tree_id=self.tree_id,lft=self.lft,rght=self.rght))
+            for ds in dataList:
+                self.paths = ds.path + '/' + self.paths
+            self.paths = self.paths  + self.text
+        return  self.paths
     
-    class Meta:
-        db_table = 'opsmanage_service_assets'
-        default_permissions = ()
-        permissions = (
-            ("assets_read_service", "读取业务资产权限"),
-            ("assets_change_service", "更改业务资产权限"),
-            ("assets_add_service", "添加业务资产权限"),
-            ("assets_delete_service", "删除业务资产权限"),              
-        )  
-        unique_together = (("project", "service_name"))
-        verbose_name = '资产管理' 
-        verbose_name_plural = '业务分组表'  
-        
+    def last_node(self):
+        if self.is_leaf_node():
+            return 1
+        else:
+            return 0
+    
+    def icon(self):
+        icon =  "fa fa-tree"  
+        if self.parent: 
+            icon = "fa fa-plus-square" 
+        if self.is_leaf_node():
+            return 'fa fa-minus-square-o' 
+        return icon           
+
+    def to_json(self):
+        if self.parent: 
+            parentId = self.parent.id
+        else:
+            parentId = 0      
+        json_format = {
+            "id":self.id,
+            "text":self.text,
+            "icon":self.icon(),
+            "level":self.level,
+            "manage":self.manage,
+            "group":self.group,
+            "desc":self.desc,
+            "tree_id":self.tree_id,
+            "lft":self.lft,
+            "rght":self.rght,
+            "paths":self.node_path(),
+            "last_node":self.last_node(),
+            "parentId": parentId,                  
+        }
+        return json_format        
         
 class Zone_Assets(models.Model):  
     zone_name = models.CharField(max_length=100,unique=True) 
-    zone_contact = models.CharField(max_length=100,blank=True,null=True,verbose_name='机房联系人')
-    zone_number = models.CharField(max_length=100,blank=True,null=True,verbose_name='联系人号码')
-    zone_local = models.CharField(max_length=200,blank=True,null=True,verbose_name='机房地理位置')
-    zone_network = models.CharField(max_length=100,blank=True,null=True,verbose_name='机房网段')
     '''自定义权限'''
     class Meta:
         db_table = 'opsmanage_zone_assets'
         default_permissions = ()
         permissions = (
-            ("assets_read_zone", "读取机房资产权限"),
-            ("assets_change_zone", "更改机房资产权限"),
-            ("assets_add_zone", "添加机房资产权限"),
-            ("assets_delete_zone", "删除机房资产权限"),             
+            ("assets_read_zone", "读取区域机房权限"),
+            ("assets_change_zone", "更改区域机房权限"),
+            ("assets_add_zone", "添加区域机房权限"),
+            ("assets_delete_zone", "删除区域机房权限"),             
         )  
         verbose_name = '资产管理'  
-        verbose_name_plural = '机房资产表'     
+        verbose_name_plural = '区域资产表'     
+
+class Idc_Assets(models.Model):
+    zone = models.ForeignKey('Zone_Assets',related_name='idc_assets',on_delete=models.CASCADE)
+    idc_name = models.CharField(max_length=32, verbose_name=u'机房名称')
+    idc_bandwidth = models.CharField(max_length=32, blank=True, null=True, default='', verbose_name=u'机房带宽')
+    idc_linkman = models.CharField(max_length=16, blank=True, null=True, default='', verbose_name=u'联系人')
+    idc_phone = models.CharField(max_length=32, blank=True, null=True, default='', verbose_name=u'联系电话')
+    idc_address = models.CharField(max_length=128, blank=True, null=True, default='', verbose_name=u"机房地址")
+    idc_network = models.TextField(blank=True, null=True, default='', verbose_name=u"IP地址段")
+    update_time = models.DateField(auto_now=True, null=True)
+    idc_operator = models.CharField(max_length=32, blank=True, default='', null=True, verbose_name=u"运营商")
+    idc_desc = models.CharField(max_length=128, blank=True, default='', null=True, verbose_name=u"备注")
+    '''自定义权限'''
+    class Meta:
+        db_table = 'opsmanage_idc_assets'
+        default_permissions = ()
+        verbose_name = '资产管理'  
+        verbose_name_plural = '机房资产表'         
         
 class Cabinet_Assets(models.Model):  
-    zone = models.ForeignKey('Zone_Assets',related_name='cabinet_assets', on_delete=models.CASCADE)
+    idc = models.ForeignKey('Idc_Assets',related_name='cabinet_assets', on_delete=models.CASCADE)
     cabinet_name = models.CharField(max_length=100,blank=True,null=True,verbose_name='机柜名称')
     '''自定义权限'''
     class Meta:
-        unique_together = (("zone", "cabinet_name"))
+        unique_together = (("idc", "cabinet_name"))
         default_permissions = ()
         db_table = 'opsmanage_cabinet_assets'
         verbose_name = '资产管理' 
         verbose_name_plural = '机柜资产表'              
+
+class Idle_Assets(models.Model):  
+    idc = models.ForeignKey('Idc_Assets',related_name='idle_assets', on_delete=models.CASCADE)
+    idle_name = models.CharField(max_length=100,verbose_name='名称')
+    idle_number = models.SmallIntegerField(verbose_name='剩余个数')
+    idle_user = models.SmallIntegerField(verbose_name='记录人员')
+    idle_desc = models.CharField(max_length=128, blank=True, default='', null=True, verbose_name=u"备注")
+    update_time = models.DateTimeField(auto_now=True,blank=True,null=True,verbose_name='修改时间') 
+    '''自定义权限'''
+    class Meta:
+        unique_together = (("idc", "idle_name"))
+        default_permissions = ()
+        db_table = 'opsmanage_idle_assets'
+        verbose_name = '资产管理' 
+        verbose_name_plural = '闲置资产表'    
+    
+    def get_username(self):
+        try:
+            return User.objects.get(id=self.idle_user).username
+        except:
+            return "未知"
                 
 class Line_Assets(models.Model):   
-    line_name = models.CharField(max_length=100,unique=True)     
+    line_name = models.CharField(max_length=100,unique=True)  
+    line_price = models.CharField(max_length=20,blank=True, default='', null=True,verbose_name=u"价格")   
+    update_time = models.DateTimeField(auto_now=True,blank=True,null=True,verbose_name='修改时间') 
     '''自定义权限'''
     class Meta:
         db_table = 'opsmanage_line_assets'
@@ -394,7 +523,7 @@ class Tags_Assets(models.Model):
             ("assets_change_tags", "更改标签资产权限"),
             ("assets_add_tags", "添加标签资产权限"),
             ("assets_delete_tags", "删除标签资产权限"),  
-            ("assets_read_tree", "读取资产数权限"),            
+            ("assets_read_tree", "读取资产树权限"),            
         )        
         verbose_name = '资产管理' 
         verbose_name_plural = '资产标签表' 
@@ -424,4 +553,4 @@ class User_Server(models.Model):
         )         
         unique_together = (("assets", "user"))
         verbose_name = '资产管理'  
-        verbose_name_plural = '用户资产表'                           
+        verbose_name_plural = '用户资产表'                         

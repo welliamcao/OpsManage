@@ -153,19 +153,30 @@ $.fn.serializeObject = function()
     return o;
 };
 
-function ServicetSelect(projectId,serviceId){
-	   if ( projectId > 0){	 
-	   		var response = requests('get','/api/project/'+ projectId + '/',{})
-			var binlogHtml = '<select class="selectpicker" name="deploy_service" id="db_service" required><option selected="selected" name="db_service" value="">请选择业务类型</option>'
-			var selectHtml = '';
-			for (var i=0; i <response["service_assets"].length; i++){
-				 selectHtml += '<option name="db_service" value="'+ response["service_assets"][i]["id"] +'">' + response["service_assets"][i]["service_name"] + '</option>' 
-			};                        
-			binlogHtml =  binlogHtml + selectHtml + '</select>';
-			return binlogHtml			
-		} 
+function BusinessAssetsSelect(node,ids){
+	   if ( node > 0){	 
+			$.ajax({
+				dataType: "JSON",
+				url:'/api/business/nodes/assets/'+ node + '/', //请求地址
+				type:"GET",  //提交类似
+				success:function(response){
+					var binlogHtml = '<select class="selectpicker" name="db_assets_id" id="db_assets_id" required><option  name="db_assets_id" value="">请选择服务器</option>'
+					var selectHtml = '';
+					for (var i=0; i <response.length; i++){
+						if(ids==response[i]["id"]){
+							selectHtml += '<option selected=selected name="db_assets_id" value="'+ response[i]["id"] +'">' + response[i]["detail"]["ip"] + '</option>'
+						}else{
+							selectHtml += '<option name="db_assets_id" value="'+ response[i]["id"] +'">' + response[i]["detail"]["ip"] + '</option>'
+						}
+						
+					};                        
+					binlogHtml =  binlogHtml + selectHtml + '</select>';
+					$("#db_assets_id").html(binlogHtml)
+					$('.selectpicker').selectpicker('refresh');						
+				},
+			});	
+	   }	
 }
-
 
 function DynamicSelect(ids,value){
 	$("#" + ids +" option").each(function(){ 
@@ -174,60 +185,30 @@ function DynamicSelect(ids,value){
 	$("#" + ids +" option[value='" + value +"']").prop("selected",true);
 }
 
-function oBtProjectSelect(){
-	   $('#db_service').removeAttr("disabled");
+function oBtBusinessSelect(){
 	   $('#db_host').empty();
-	   var obj = document.getElementById("db_project"); 
+	   var obj = document.getElementById("db_business"); 
 	   var index = obj.selectedIndex;
-	   var projectId = obj.options[index].value; 
-	   if ( projectId > 0){	 
+	   var businessId = obj.options[index].value; 
+	   if ( businessId > 0){	 
 			$.ajax({
 				dataType: "JSON",
-				url:'/api/project/'+ projectId + '/', //请求地址
+				url:'/api/business/nodes/assets/'+ businessId + '/', //请求地址
 				type:"GET",  //提交类似
 				success:function(response){
-					var binlogHtml = '<select class="selectpicker" name="deploy_service" id="db_service" required><option selected="selected" name="db_service" value="">请选择业务类型</option>'
+					var binlogHtml = '<select class="selectpicker" name="db_assets_id" id="db_assets_id" required><option  name="db_assets_id" value="">请选择服务器</option>'
 					var selectHtml = '';
-					for (var i=0; i <response["service_assets"].length; i++){
-						 selectHtml += '<option name="db_service" value="'+ response["service_assets"][i]["id"] +'">' + response["service_assets"][i]["service_name"] + '</option>' 
+					for (var i=0; i <response.length; i++){
+						 selectHtml += '<option name="db_assets_id" value="'+ response[i]["id"] +'">' + response[i]["detail"]["ip"] + '</option>' 
 					};                        
 					binlogHtml =  binlogHtml + selectHtml + '</select>';
-					document.getElementById("db_service").innerHTML= binlogHtml;	
-					$('#db_service').selectpicker('refresh');	
-						
+					$("#db_assets_id").html(binlogHtml)
+					$('.selectpicker').selectpicker('refresh');						
 				},
 			});	
 	   }
 	   else{
 		   $('#db_service').attr("disabled",true);
-	   }
-}
-
-function AssetsTypeSelect(model,ids){
-	   var obj = document.getElementById(ids); 
-	   var index = obj.selectedIndex;
-	   var sId = obj.options[index].value; 
-	   if ( sId  > 0){	 
-			$.ajax({
-				dataType: "JSON",
-				url:'/assets/server/query/', //请求地址
-				type:"POST",  //提交类似
-				async:false,
-				data:{
-					"query":model,
-					"id":sId
-				},
-				success:function(response){
-					var binlogHtml = '<select class="selectpicker" name="db_assets_id" id="db_assets_id" required><option  name="db_assets_id" value="">请选择服务器</option>'
-					var selectHtml = '';
-					for (var i=0; i <response["data"].length; i++){
-						 selectHtml += '<option name="db_assets_id" value="'+ response["data"][i]["id"] +'">' + response["data"][i]["ip"] + '</option>' 
-					};                        
-					binlogHtml =  binlogHtml + selectHtml + '</select>';
-					document.getElementById("db_assets_id").innerHTML= binlogHtml;	
-					$('.selectpicker').selectpicker('refresh');			
-				},
-			});	
 	   }
 }
 
@@ -359,20 +340,20 @@ $(document).ready(function() {
 	})	
 
 	$(function() {
-		if($('#db_project').length){
+		if($('#db_business').length){
 			$.ajax({
 				async : true,  
-				url:'/api/project/', //请求地址
+				url:'/api/business/last/', //请求地址
 				type:"GET",  //提交类似
-				success:function(response){
-					var binlogHtml = '<select required="required" class="selectpicker form-control" data-live-search="true"  data-size="10" data-width="100%" name="db_project"  id="db_project" autocomplete="off" onchange="javascript:oBtProjectSelect();"><option selected="selected" value="">请选择一个项目</option>'
+				success:function(response){		
+					var binlogHtml = '<select required="required" class="selectpicker form-control" data-live-search="true"  data-size="10" data-width="100%" name="db_business"  id="db_business" autocomplete="off" onchange="javascript:ipvsVipBusinessSelect();"><option selected="selected" value="">请选择一个进行操作</option>'
 					var selectHtml = '';
 					for (var i=0; i <response.length; i++){
-						selectHtml += '<option value="'+ response[i]["id"] +'">'+ response[i]["project_name"] +'</option>' 					 
+						selectHtml += '<option value="'+ response[i]["id"] +'">'+ response[i]["paths"] +'</option>' 					 
 					};                        
 					binlogHtml =  binlogHtml + selectHtml + '</select>';
-					document.getElementById("db_project").innerHTML= binlogHtml;							
-					$('#db_project').selectpicker('refresh');							
+					$("#db_business").html(binlogHtml)							
+					$("#db_business").selectpicker('refresh');					
 				}					
 			});			
 		}	 		
@@ -422,8 +403,7 @@ $(document).ready(function() {
     		            { "data": "id" },
     		            { "data": "db_env" },
     		            { "data": "db_mode" },
-    		            { "data": "project" },
-    		            { "data": "service"},
+    		            { "data": "db_business_paths" },
     		            { "data": "db_type"},
     		            { "data": "db_name"},
     		            { "data": "ip"},
@@ -445,7 +425,7 @@ $(document).ready(function() {
     	   	    				"className": "text-center",
     		    		        },     		    		        
 		    		        {
-	   	    				targets: [13],
+	   	    				targets: [12],
 	   	    				render: function(data, type, row, meta) {
 	   	                        return '<div class="btn-group  btn-group-xs">' +	
 		    	                           '<button type="button" name="btn-database-link" value="'+ row.id +'" class="btn btn-default"  aria-label="Justify"><span class="glyphicon glyphicon glyphicon-zoom-in" aria-hidden="true"></span>' +	
@@ -619,6 +599,7 @@ $(document).ready(function() {
 					"db_env":$("#db_env option:selected").val(),
 					"db_type":$("#db_type").val(),
 					"db_name":$("#db_name").val(),
+					"db_business":$("#db_business option:selected").val(),
 					"db_assets_id":$("#db_assets_id option:selected").val(),
 					"db_user":$("#db_user").val(),
 					"db_passwd":$("#db_passwd").val(),
@@ -651,6 +632,7 @@ $(document).ready(function() {
 					"db_env":$("#db_env option:selected").val(),
 					"db_type":$("#db_type").val(),
 					"db_name":$("#db_name").val(),
+					"db_business":$("#db_business option:selected").val(),
 					"db_assets_id":$("#db_assets_id option:selected").val(),
 					"db_user":$("#db_user").val(),
 					"db_passwd":$("#db_passwd").val(),
@@ -709,14 +691,11 @@ $(document).ready(function() {
             async:false,
             success : function(response){
             	btnObj.removeAttr('disabled');
+            	BusinessAssetsSelect(response["db_business"],response["db_assets_id"])
             	DynamicSelect("db_env",response["db_env"])   	
-            	DynamicSelect("db_project",response["db_project"])	
+            	DynamicSelect("db_business",response["db_business"])	
             	DynamicSelect("db_mode",response["db_mode"])
-            	DynamicSelect("db_rw",response["db_rw"])	
-				$("#db_service").html(ServicetSelect(response["db_project"],response["db_service"]));
-				DynamicSelect("db_service",response["db_service"])
-				AssetsTypeSelect('service','db_service');		
-				DynamicSelect("db_assets_id",response["db_assets_id"])											
+            	DynamicSelect("db_rw",response["db_rw"])	          												
 				$("#db_name").val(response["db_name"]);	
 				$("#db_type").val(response["db_type"]);	
 				$("#db_user").val(response["db_user"]);	
@@ -944,7 +923,6 @@ $(document).ready(function() {
 			url:'/db/users/?type=get_all_user_db&uid='+ uid, //请求地址
 			type:"GET",  //提交类似
 			success:function(response){
-				console.log(response)	
 				DynamicSelect("user",uid)
 				var binlogHtml = '<select multiple required="required" class="selectpicker form-control" data-live-search="true" name="db" id="db"  data-size="10" data-selected-text-format="count > 3"  data-width="100%"  id="db"  autocomplete="off"><option  name="db" value="">请选择一个数据库</option>'
 				var selectHtml = '';

@@ -106,7 +106,7 @@ class DeployScript(DataHandle):
                                           script_file=fileName,
                                           script_user=request.user.id,
                                           script_inventory_groups=self.change(request.POST.get('inventory_groups')),
-                                          script_service=self.change(request.POST.get('service')),
+                                          script_business=self.change(request.POST.get('business')),
                                           script_type=request.POST.get('server_model')
                                           )
         except Exception as ex:
@@ -129,7 +129,7 @@ class DeployScript(DataHandle):
                                           script_args=QueryDict(request.body).get('script_args'),
                                           script_user=request.user.id,
                                           script_inventory_groups=self.change(QueryDict(request.body).get('inventory_groups')),
-                                          script_service=self.change(QueryDict(request.body).get('service')),
+                                          script_business=self.change(QueryDict(request.body).get('business')),
                                           script_type=QueryDict(request.body).get('server_model'),
                                           update_date = datetime.now()
                                           )
@@ -188,7 +188,7 @@ class DeployPlaybook(DataHandle):
                                           playbook_file=fileName,
                                           playbook_user=request.user.id,
                                           playbook_inventory_groups=self.change(request.POST.get('inventory_groups')),
-                                          playbook_service=self.change(request.POST.get('service')),
+                                          playbook_business=self.change(request.POST.get('business')),
                                           playbook_type=request.POST.get('server_model')
                                           )
         except Exception as ex:
@@ -211,7 +211,7 @@ class DeployPlaybook(DataHandle):
                                           playbook_user=request.user.id,
                                           playbook_tags=QueryDict(request.body).get('tags'),
                                           playbook_inventory_groups=self.change(QueryDict(request.body).get('inventory_groups')),
-                                          playbook_service=self.change(QueryDict(request.body).get('service')),
+                                          playbook_business=self.change(QueryDict(request.body).get('business')),
                                           playbook_type=QueryDict(request.body).get('server_model'),
                                           playbook_vars=QueryDict(request.body).get('playbook_vars'),
                                           update_date = datetime.now()

@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
-
 from django.db import models
-from orders.models import Order_System
-from enum import unique
+from asset.models import Business_Tree_Assets
 # Create your models here.
 class Project_Config(models.Model):  
     project_repertory_choices = (
@@ -13,10 +11,9 @@ class Project_Config(models.Model):
                           ('branch',u'branch'),
                           ('tag',u'tag'),
                           )  
-    project = models.ForeignKey('asset.Project_Assets',related_name='project_config', on_delete=models.CASCADE) 
     project_env = models.CharField(max_length=50,verbose_name='项目环境',default=None)
     project_name =  models.CharField(max_length=100,verbose_name='项目名称',default=None)
-    project_service = models.SmallIntegerField(verbose_name='业务类型')
+    project_business = models.SmallIntegerField(verbose_name='业务类型')
     project_type = models.CharField(max_length=10,verbose_name='编译类型')
     project_local_command = models.TextField(blank=True,null=True,verbose_name='部署服务器要执行的命令',default=None)
     project_repo_dir = models.CharField(max_length=100,verbose_name='本地仓库目录',default=None)
@@ -46,9 +43,16 @@ class Project_Config(models.Model):
             ("project_add_project_config", "添加项目部署权限"),
             ("project_delete_project_config", "删除项目部署权限"),               
         )
-        unique_together = (("project_env", "project","project_name"))
+        unique_together = (("project_env","project_name"))
         verbose_name = '项目发布管理'  
         verbose_name_plural = '项目管理表'  
+
+    def business_paths(self):
+        try:
+            business = Business_Tree_Assets.objects.get(id=self.project_business)
+            return business.business_env() + '/' +business.node_path()
+        except:
+            return "未知"   
  
 class Log_Project_Config(models.Model):
     project = models.ForeignKey('Project_Config',related_name='project_config', on_delete=models.CASCADE)

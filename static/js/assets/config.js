@@ -2,6 +2,20 @@ var userInfo = {
 		
 }
 
+var envInfo = {
+		
+}
+
+function makeSelect(ids,key,name,dataList){
+	var userHtml = '<select required="required" class="form-control" name="'+ name +'" autocomplete="off">'
+	var selectHtml = '';
+	for (var i=0; i <dataList.length; i++){
+		selectHtml += '<option name="'+ name +'"value="'+ dataList[i]["id"] +'">'+ dataList[i][key] +'</option>' 					 
+	};                        
+	userHtml =  userHtml + selectHtml + '</select>';
+	document.getElementById(ids).innerHTML= userHtml;	
+}
+
 function getTagsServerList(vIds){
 	var iList = []
 	var sList = []
@@ -41,7 +55,7 @@ function getTagsServerList(vIds){
 	return {"tags":iList,"all":sList}
 }
 
-function modfZone(vIds,zone_name,zone_network,zone_local,zone_contact,zone_number){
+function modfIdc(vIds,idc_name,idc_bandwidth,idc_linkman,idc_phone,idc_address,idc_network,idc_operator,idc_desc){
     $.confirm({
         icon: 'fa fa-edit',
         type: 'blue',
@@ -51,35 +65,56 @@ function modfZone(vIds,zone_name,zone_network,zone_local,zone_contact,zone_numbe
 		              '<label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">机房名称<span class="required">*</span>' +
 		              '</label>' +
 		              '<div class="col-md-6 col-sm-6 col-xs-12">' +
-		                '<input type="text"  name="modf_zone_name" value="'+ zone_name +'" required="required" class="form-control col-md-7 col-xs-12">' +
+		                '<input type="text"  name="modf_idc_name" value="'+ idc_name +'" required="required" class="form-control col-md-7 col-xs-12">' +
 		              '</div>' +
 		            '</div>' +
+		            '<div class="form-group">' +
+		              '<label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">运营商<span class="required">*</span>' +
+		              '</label>' +
+		              '<div class="col-md-6 col-sm-6 col-xs-12">' +
+		                '<input type="text"  name="modf_idc_operator" value="'+ idc_operator +'" required="required"  class="form-control col-md-7 col-xs-12">' +
+		              '</div>' +
+		            '</div> ' +		            
+		            '<div class="form-group">' +
+		              '<label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">机房带宽<span class="required">*</span>' +
+		              '</label>' +
+		              '<div class="col-md-6 col-sm-6 col-xs-12">' +
+		                '<input type="text" name="modf_idc_bandwidth" value="'+ idc_bandwidth +'"  required="required" placeholder="" class="form-control col-md-7 col-xs-12">' +
+		              '</div>' +
+		            '</div>' + 		            
 		            '<div class="form-group">' +
 		              '<label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">机房联系人<span class="required">*</span>' +
 		              '</label>' +
 		              '<div class="col-md-6 col-sm-6 col-xs-12">' +
-		                '<input type="text" name="modf_zone_contact" value="'+ zone_contact +'"  required="required" placeholder="" class="form-control col-md-7 col-xs-12">' +
-		              '</div>' +
-		            '</div>' + 		            
-		            '<div class="form-group">' +
-		              '<label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">机房位置<span class="required">*</span>' +
-		              '</label>' +
-		              '<div class="col-md-6 col-sm-6 col-xs-12">' +
-		                '<input type="text" name="modf_zone_local" value="'+ zone_local +'"  required="required" placeholder="" class="form-control col-md-7 col-xs-12">' +
+		                '<input type="text" name="modf_idc_linkman" value="'+ idc_linkman +'"  required="required" placeholder="" class="form-control col-md-7 col-xs-12">' +
 		              '</div>' +
 		            '</div>' +   		            
 		            '<div class="form-group">' +
 		              '<label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">联系人号码<span class="required">*</span>' +
 		              '</label>' +
 		              '<div class="col-md-6 col-sm-6 col-xs-12">' +
-		                '<input type="text" name="modf_zone_number" value="'+ zone_number +'"  required="required" placeholder="" class="form-control col-md-7 col-xs-12">' +
+		                '<input type="text" name="modf_idc_phone" value="'+ idc_phone +'"  required="required" placeholder="" class="form-control col-md-7 col-xs-12">' +
 		              '</div>' +
 		            '</div>' + 
 		            '<div class="form-group">' +
-		              '<label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">机房网段<span class="required">*</span>' +
+		              '<label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">机房地址<span class="required">*</span>' +
 		              '</label>' +
 		              '<div class="col-md-6 col-sm-6 col-xs-12">' +
-		                '<input type="text"  name="modf_zone_network" value="'+ zone_network +'" required="required"  class="form-control col-md-7 col-xs-12">' +
+		                '<input type="text"  name="modf_idc_address" value="'+ idc_address +'" required="required"  class="form-control col-md-7 col-xs-12">' +
+		              '</div>' +
+		            '</div> ' + 
+		            '<div class="form-group">' +
+		              '<label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">机房网络<span class="required">*</span>' +
+		              '</label>' +
+		              '<div class="col-md-6 col-sm-6 col-xs-12">' +
+		                '<input type="text"  name="modf_idc_network" value="'+ idc_network +'" required="required"  class="form-control col-md-7 col-xs-12">' +
+		              '</div>' +
+		            '</div> ' + 	 
+		            '<div class="form-group">' +
+		              '<label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">备注<span class="required">*</span>' +
+		              '</label>' +
+		              '<div class="col-md-6 col-sm-6 col-xs-12">' +
+		                '<input type="text"  name="modf_idc_desc" value="'+ idc_desc +'" required="required"  class="form-control col-md-7 col-xs-12">' +
 		              '</div>' +
 		            '</div> ' + 		            
 		          '</form>',
@@ -88,21 +123,27 @@ function modfZone(vIds,zone_name,zone_network,zone_local,zone_contact,zone_numbe
             '修改': {
                 btnClass: 'btn-blue',
                 action: function() {
-                    var zone_name = this.$content.find("[name='modf_zone_name']").val();
-                    var zone_network = this.$content.find("[name='modf_zone_network']").val();
-                    var zone_local = this.$content.find("[name='modf_zone_local']").val();
-                    var zone_contact = this.$content.find("[name='modf_zone_contact']").val();
-                    var zone_number = this.$content.find("[name='modf_zone_number']").val();					
+                    var idc_name = this.$content.find("[name='modf_idc_name']").val();
+                    var idc_bandwidth = this.$content.find("[name='modf_idc_bandwidth']").val();
+                    var idc_linkman = this.$content.find("[name='modf_idc_linkman']").val();
+                    var idc_phone = this.$content.find("[name='modf_idc_phone']").val();
+                    var idc_address = this.$content.find("[name='modf_idc_address']").val();	
+                    var idc_network = this.$content.find("[name='modf_idc_network']").val();	
+                    var idc_operator = this.$content.find("[name='modf_idc_operator']").val();	
+                    var idc_desc = this.$content.find("[name='modf_idc_desc']").val();	                   
 			    	$.ajax({  
 			            cache: true,  
 			            type: "PUT",  
-			            url:"/api/zone/" + vIds + '/',  
+			            url:"/api/idc/" + vIds + '/',  
 			            data:{
-			            	"zone_name":zone_name,
-			            	"zone_local":zone_local,
-			            	"zone_network":zone_network,
-							"zone_contact":zone_contact,
-							"zone_number":zone_number,
+			            	"idc_name":idc_name,
+			            	"idc_bandwidth":idc_bandwidth,
+			            	"idc_phone":idc_phone,
+							"idc_linkman":idc_linkman,
+							"idc_address":idc_address,
+							"idc_network":idc_network,
+							"idc_operator":idc_operator,
+							"idc_desc":idc_desc,
 			            	},
 			            error: function(request) {  
 			            	new PNotify({
@@ -119,7 +160,76 @@ function modfZone(vIds,zone_name,zone_network,zone_local,zone_contact,zone_numbe
 			                    type: 'success',
 			                    styling: 'bootstrap3'
 			                }); 
-			            	RefreshTable('zoneAssetsTable', '/api/zone/');
+			            	RefreshTable('idcAssetsTable', '/api/idc/');
+			            }  
+			    	});
+                }
+            }
+        }
+    });
+}
+
+function modfIdle(vIds,idle_name,idle_number,idle_desc){
+    $.confirm({
+        icon: 'fa fa-edit',
+        type: 'blue',
+        title: '修改数据',
+        content: '<form  data-parsley-validate class="form-horizontal form-label-left">' +
+		            '<div class="form-group">' +
+		              '<label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">资产名称<span class="required">*</span>' +
+		              '</label>' +
+		              '<div class="col-md-6 col-sm-6 col-xs-12">' +
+		                '<input type="text"  name="modf_idle_name" value="'+ idle_name +'" required="required" class="form-control col-md-7 col-xs-12">' +
+		              '</div>' +
+		            '</div>' +
+		            '<div class="form-group">' +
+		              '<label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">数量<span class="required">*</span>' +
+		              '</label>' +
+		              '<div class="col-md-6 col-sm-6 col-xs-12">' +
+		                '<input type="text"  name="modf_idle_number" value="'+ idle_number +'" required="required"  class="form-control col-md-7 col-xs-12">' +
+		              '</div>' +
+		            '</div> ' +		            
+		            '<div class="form-group">' +
+		              '<label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">备注<span class="required">*</span>' +
+		              '</label>' +
+		              '<div class="col-md-6 col-sm-6 col-xs-12">' +
+		                '<input type="text" name="modf_idle_desc" value="'+ idle_desc +'"  required="required" placeholder="" class="form-control col-md-7 col-xs-12">' +
+		              '</div>' +
+		            '</div>' + 		            		            
+		          '</form>',
+        buttons: {
+            '取消': function() {},
+            '修改': {
+                btnClass: 'btn-blue',
+                action: function() {
+                    var idle_name = this.$content.find("[name='modf_idle_name']").val();
+                    var idle_number = this.$content.find("[name='modf_idle_number']").val();
+                    var idle_desc = this.$content.find("[name='modf_idle_desc']").val();                   
+			    	$.ajax({  
+			            cache: true,  
+			            type: "PUT",  
+			            url:"/api/idc/idle/" + vIds + '/',  
+			            data:{
+			            	"idle_name":idle_name,
+			            	"idle_number":idle_number,
+			            	"idle_desc":idle_desc,
+			            	},
+			            error: function(request) {  
+			            	new PNotify({
+			                    title: 'Ops Failed!',
+			                    text: request.responseText,
+			                    type: 'error',
+			                    styling: 'bootstrap3'
+			                });       
+			            },  
+			            success: function(data) {  
+			            	new PNotify({
+			                    title: 'Success!',
+			                    text: '修改成功',
+			                    type: 'success',
+			                    styling: 'bootstrap3'
+			                }); 
+			            	RefreshTable('idleAssetsTable', '/api/idc/idle/');
 			            }  
 			    	});
                 }
@@ -169,8 +279,8 @@ function requests(method,url,data){
 	return 	ret
 }
 
-function InitDataTable(tableId,url,buttons,columns,columnDefs){
-	  var data = requests('get',url)
+function InitDataTable(tableId,dataList,buttons,columns,columnDefs){
+//	  var data = requests('get',url)
 	  oOverviewTable =$('#'+tableId).dataTable(
 			  {
 				    "dom": "Bfrtip",
@@ -178,7 +288,7 @@ function InitDataTable(tableId,url,buttons,columns,columnDefs){
 		    		"bScrollCollapse": false, 				
 		    	    "bRetrieve": true,			
 		    		"destroy": true, 
-		    		"data":	data,
+		    		"data":	dataList,
 		    		"columns": columns,
 		    		"columnDefs" :columnDefs,			  
 		    		"language" : language,
@@ -205,380 +315,24 @@ function RefreshTable(tableId, urlData){
 	});
 }
 
-$(function(){
+function RefreshUserInfo(){
 	var userList = requests("get","/api/user/")
 	for (var i=0; i <userList.length; i++){
 		userInfo[userList[i]["id"]] = userList[i]
 	}		
-})
+}
+
+function RefreshEnvInfo(){
+	var envList = requests("get","/api/business/env/")
+	for (var i=0; i <envList.length; i++){
+		envInfo[envList[i]["id"]] = envList[i]
+	}		
+}
 
 $(document).ready(function() {
+		    
 	
-	function makeProjectsTables(){
-	    var columns = [
-	                    {"data": "id"},
-	                    {"data": "project_name"},	
-	                    {"data": "project_owner"},
-		               ]
-	    var columnDefs = [	
-	   	    		        {
-	    	    				targets: [2],
-	    	    				render: function(data, type, row, meta) {	
-	    	                        return userInfo[row.project_owner]["username"]
-	    	    				},
-	    	    				"className": "text-center",
-   	    		        },	                      
-   	    		        {
-	    	    				targets: [3],
-	    	    				render: function(data, type, row, meta) {		    	    					
-	    	                        return '<div class="btn-group  btn-group-xs">' +	
-		    	                           '<button type="button" name="btn-project-modf" value="'+ row.id +'" class="btn btn-default"  aria-label="Justify"><span class="fa fa-edit" aria-hidden="true"></span>' +	
-		    	                           '</button>' + 	    	                           
-		    	                           '<button type="button" name="btn-project-confirm" value="'+ row.id +'" class="btn btn-default" aria-label="Justify"><span class="fa fa-trash" aria-hidden="true"></span>' +	
-		    	                           '</button>' +			                            
-		    	                           '</div>';
-	    	    				},
-	    	    				"className": "text-center",
-   	    		        },
-   	    		      ]	
-        var buttons = [{
-            text: '<span class="fa fa-plus"></span>',
-            className: "btn-xs",
-            action: function ( e, dt, node, config ) {
-            	$('#addProjectModal').modal("show");	
-            	var userList = requests("get","/api/user/")
-				var userHtml = '<select required="required" class="form-control" name="project_owner" id="project_owner"  autocomplete="off">'
-				var selectHtml = '';
-				for (var i=0; i <userList.length; i++){
-					selectHtml += '<option value="'+ userList[i]["id"] +'">'+ userList[i]["username"] +'</option>' 					 
-				};                        
-				userHtml =  userHtml + selectHtml + '</select>';
-				document.getElementById("project_owner").innerHTML= userHtml;								            	
-            }
-        }]
-		InitDataTable('projectTableLists',"/api/project/",buttons,columns,columnDefs)			
-	}  	
-    
-	makeProjectsTables()
-	
-
-  //修改项目资产
-	$('#projectTableLists tbody').on('click',"button[name='btn-project-modf']", function(){
-    	var vIds = $(this).val();
-		var project = $(this).parent().parent().parent().find("td").eq(1).text(); 
-		var username = $(this).parent().parent().parent().find("td").eq(2).text(); 
-    	var userList = requests("get","/api/user/")
-		var userHtml = '<select required="required" class="form-control"  autocomplete="off">'
-		var selectHtml = '';
-		for (var i=0; i <userList.length; i++){
-			if (userList[i]["username"]==username){
-				selectHtml += '<option selected="selected" value="'+ userList[i]["id"] +'">'+ userList[i]["username"] +'</option>' 	
-			}else{
-				selectHtml += '<option value="'+ userList[i]["id"] +'">'+ userList[i]["username"] +'</option>' 	
-			}
-							 
-		};                        
-		userHtml =  userHtml + selectHtml + '</select>';		
-	    $.confirm({
-	        icon: 'fa fa-edit',
-	        type: 'blue',
-	        title: '修改数据',
-	        content: '<form  data-parsley-validate class="form-horizontal form-label-left">' +
-			            '<div class="form-group">' +
-			            '<label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">项目名称 <span class="required">*</span>' +
-			            '</label>' +
-			            '<div class="col-md-6 col-sm-6 col-xs-12">' +
-			              '<input type="text"  name="project_name" value="'+ project +'" required="required" class="form-control col-md-7 col-xs-12">' +
-			            '</div>' +
-			          '</div>' +
-			          '<div class="form-group">' +
-			            '<label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">项目负责人<span class="required">*</span>' +
-			            '</label>' +
-			            '<div class="col-md-6 col-sm-6 col-xs-12">' +
-			              userHtml +
-			            '</div>' +
-			          '</div>' + 		                        
-			        '</form>',
-	        buttons: {
-	            '取消': function() {},
-	            '修改': {
-	                btnClass: 'btn-blue',
-	                action: function() {
-	                    var param_name = this.$content.find("[name='project_name']").val();
-	                    var project_owner = this.$content.find('select option:selected').val();
-				    	$.ajax({  
-				            cache: true,  
-				            type: "PUT",  
-				            url:"/api/project/" + vIds + '/',  
-				            data:{
-				            	"project_name":param_name,
-				            	"project_owner":project_owner
-				            	},
-				            error: function(request) {  
-				            	new PNotify({
-				                    title: 'Ops Failed!',
-				                    text: request.responseText,
-				                    type: 'error',
-				                    styling: 'bootstrap3'
-				                });       
-				            },  
-				            success: function(data) {  
-				            	new PNotify({
-				                    title: 'Success!',
-				                    text: '资产修改成功',
-				                    type: 'success',
-				                    styling: 'bootstrap3'
-				                }); 
-				            	RefreshTable('projectTableLists', '/api/project/');
-				            }  
-				    	});
-	                }
-	            }
-	        }
-	    });	
-/*    	$.ajax({  
-            cache: true,  
-            type: "PUT",  
-			contentType : "application/json", 
-			dataType : "json", 	            
-            url:"/api/project/" + vIds + '/',  
-            data:JSON.stringify({
-				"project_owner": $('#project_owner_' + vIds + ' option:selected').val(),
-				"project_name": $('#project_name_' + vIds).val(),
-			}),
-            async: false,  
-            error: function(response) {  
-            	new PNotify({
-                    title: 'Ops Failed!',
-                    text: response.responseText,
-                    type: 'error',
-                    styling: 'bootstrap3'
-                });       
-            },  
-            success: function(data) {  
-            	new PNotify({
-                    title: 'Success!',
-                    text: '资产修改成功',
-                    type: 'success',
-                    styling: 'bootstrap3'
-                }); 
-            	RefreshTable('projectTableLists', '/api/project/');
-            }  
-    	}); */ 	
-    });	
-	
-	
-	//删除项目资产
-	$('#projectTableLists tbody').on('click',"button[name='btn-project-confirm']", function(){
-    	var vIds = $(this).val();
-    	var projectName = $(this).parent().parent().parent().find("td").eq(1).text()
-	  	$.confirm({
-	  	    title: '删除确认?',
-	  	    type: 'red',
-	  	    content: "删除项目: " + projectName,
-	  	    buttons: {
-	  	        确认: function () {
-	  			$.ajax({
-	  				  type: 'DELETE',
-	  				  url:'/api/project/' + vIds + '/',
-	  			      success:function(response){	
-	  			    	$.alert('删除成功!');			            
-	  			      },
-	  	              error:function(response){
-	  	            	$.alert('删除失败!');		
-	  	              }
-	  				});	        
-	  	        },
-	  	       	 取消: function () {
-	  	            return true;
-	  	        },
-	  	    }
-	  	});   
-    });	
-    
-	//添加项目资产
-    $('#projectsubmit').on('click', function() {
-    	$.ajax({  
-            cache: true,  
-            type: "POST",  
-            url:"/api/project/",  
-            data:$('#projectAssetsform').serialize(),
-            async: false,  
-            error: function(request) {  
-            	new PNotify({
-                    title: 'Ops Failed!',
-                    text: request.responseText,
-                    type: 'error',
-                    styling: 'bootstrap3'
-                });       
-            },  
-            success: function(data) {  
-            	new PNotify({
-                    title: 'Success!',
-                    text: '资产添加成功',
-                    type: 'success',
-                    styling: 'bootstrap3'
-                }); 
-            	RefreshTable('projectTableLists', '/api/project/');
-            }  
-    	});  	
-    });		
-	
-	function makeServiceTables(){
-	    var columns = [
-	                    {"data": "id"},
-	                    {"data": "project_name"},		
-	                    {"data": "service_name"},	
-		               ]
-	    var columnDefs = [								
-   	    		        {
-	    	    				targets: [3],
-	    	    				render: function(data, type, row, meta) {		    	    					
-	    	                        return '<div class="btn-group  btn-group-xs">' +	
-		    	                           '<button type="button" name="btn-service-modf" value="'+ row.id +'" class="btn btn-default"  aria-label="Justify"><span class="fa fa-edit" aria-hidden="true"></span>' +	
-		    	                           '</button>' +                 				                            		                            			                          
-		    	                           '<button type="button" name="btn-service-confirm" value="'+ row.id +'" class="btn btn-default" aria-label="Justify"><span class="fa fa-trash" aria-hidden="true"></span>' +	
-		    	                           '</button>' +			                            
-		    	                           '</div>';
-	    	    				},
-	    	    				"className": "text-center",
-   	    		        },
-   	    		      ]	
-        var buttons = [{
-            text: '<span class="fa fa-plus"></span>',
-            className: "btn-xs",
-            action: function ( e, dt, node, config ) {
-            	$('#addServiceModal').modal("show");	
-            	var projectList = requests("get","/api/project/")
-				var userHtml = '<select required="required" class="form-control" id="project_service_select"  autocomplete="off">'
-				var selectHtml = '';
-				for (var i=0; i <projectList.length; i++){
-					selectHtml += '<option value="'+ projectList[i]["id"] +'">'+ projectList[i]["project_name"] +'</option>' 					 
-				};                        
-				userHtml =  userHtml + selectHtml + '</select>';
-				document.getElementById("project_service_select").innerHTML= userHtml;	            	
-            }
-        }]
-		InitDataTable('serviceAssetsTable',"/api/service/",buttons,columns,columnDefs)			
-	}
-	
-    $('#servicesubmit').on('click', function() {
-    	$.ajax({  
-            cache: true,  
-            type: "POST",  
-            url:"/api/service/",  
-			contentType : "application/json", 
-			dataType : "json", 
-			data:JSON.stringify({
-				"project_id": $('#project_service_select option:selected').val(),
-				"project_name": $('#project_service_select option:selected').text(),
-				"service_name": $('#service_name').val()
-			}),
-            async: false,  
-            error: function(request) {  
-            	new PNotify({
-                    title: 'Ops Failed!',
-                    text: request.responseText,
-                    type: 'error',
-                    styling: 'bootstrap3'
-                });       
-            },  
-            success: function(data) {  
-            	new PNotify({
-                    title: 'Success!',
-                    text: '资产添加成功',
-                    type: 'success',
-                    styling: 'bootstrap3'
-                }); 
-            	RefreshTable('serviceAssetsTable', '/api/service/');
-            }  
-    	});  	
-    });		
-
-	$('#serviceAssetsTable tbody').on('click',"button[name='btn-service-modf']", function(){
-    	var vIds = $(this).val();
-    	var service = $(this).parent().parent().parent().find("td").eq(2).text(); 
-	    $.confirm({
-	        icon: 'fa fa-edit',
-	        type: 'blue',
-	        title: '修改数据',
-	        content: '<div class="form-group"><input type="text" value="'+service+'" placeholder="请输入新的应用名称" class="param_name form-control" /></div>',
-	        buttons: {
-	            '取消': function() {},
-	            '修改': {
-	                btnClass: 'btn-blue',
-	                action: function() {
-	                    var param_name = this.$content.find('.param_name').val();
-				    	$.ajax({  
-				            cache: true,  
-				            type: "PUT",  
-				            url:"/api/service/" + vIds + '/',  
-				            data:{"service_name":param_name},
-				            error: function(request) {  
-				            	new PNotify({
-				                    title: 'Ops Failed!',
-				                    text: request.responseText,
-				                    type: 'error',
-				                    styling: 'bootstrap3'
-				                });       
-				            },  
-				            success: function(data) {  
-				            	new PNotify({
-				                    title: 'Success!',
-				                    text: '资产修改成功',
-				                    type: 'success',
-				                    styling: 'bootstrap3'
-				                }); 
-				            	RefreshTable('serviceAssetsTable', '/api/service/');
-				            }  
-				    	});
-	                }
-	            }
-	        }
-	    });
-    });	 
-	
-    $('#serviceAssetsTable tbody').on('click',"button[name='btn-service-confirm']", function(){
-      	var vIds = $(this).val();
-      	var service = $(this).parent().parent().parent().find("td").eq(2).text(); 
-    	$.confirm({
-    	    title: '删除确认?',
-    	    type: 'red',
-    	    content: "删除应用: <code>" + service +'</code>',
-    	    buttons: {
-    	        确认: function () {
-	    			$.ajax({
-	    				  type: 'DELETE',
-	    				  url:'/api/service/' + vIds + '/',
-	    			      success:function(response){	
-			            	new PNotify({
-			                    title: 'Success!',
-			                    text: '资产删除成功',
-			                    type: 'success',
-			                    styling: 'bootstrap3'
-			                }); 
-	    			    	RefreshTable('serviceAssetsTable', '/api/service/');
-	    			      },
-	    	              error:function(response){
-			            	new PNotify({
-			                    title: 'Ops Failed!',
-			                    text: request.responseText,
-			                    type: 'error',
-			                    styling: 'bootstrap3'
-			                }); 	
-	    	              }
-	    				});	        
-	    	        },
-    	       	 取消: function () {
-    	            return true;
-    	        },
-    	    }
-    	});   
-      });  	
-	
-	makeServiceTables()
-	
-	function makeTagsTables(){
+	function makeTagsTables(dataList){
 	    var columns = [
 	                    {"data": "id"},
 	                    {"data": "tags_name"},		
@@ -606,7 +360,7 @@ $(document).ready(function() {
             	$('#addTagsModal').modal("show");	
             }
         }]
-		InitDataTable('tagsAssetsTable',"/api/tags/",buttons,columns,columnDefs)			
+		InitDataTable('tagsAssetsTable',dataList,buttons,columns,columnDefs)			
 	}	
 	
 	$('#tagsAssetsTable tbody').on('click',"button[name='btn-tags-group']", function(){
@@ -786,13 +540,13 @@ $(document).ready(function() {
     	});  	
     });	    
     
-	makeTagsTables()
+	makeTagsTables(requests('get',"/api/tags/"))
 	
 	
-	function makeCabinetTables(){
+	function makeCabinetTables(dataList){
 	    var columns = [
 	                    {"data": "id"},
-	                    {"data": "zone_name"},	
+	                    {"data": "idc_name"},	
 	                    {"data": "cabinet_name"},	
 		               ]
 	    var columnDefs = [								
@@ -813,10 +567,11 @@ $(document).ready(function() {
             text: '<span class="fa fa-plus"></span>',
             className: "btn-xs",
             action: function ( e, dt, node, config ) {
-            	$('#addCabinetModal').modal("show");	
+            	$('#addCabinetModal').modal("show");
+            	makeSelect("idc_cabinet_select","idc_name","idc",idcList)
             }
         }]
-		InitDataTable('cabinetAssetsTable',"/api/cabinet/",buttons,columns,columnDefs)			
+		InitDataTable('cabinetAssetsTable',dataList,buttons,columns,columnDefs)			
 	}	
 	
     
@@ -828,8 +583,7 @@ $(document).ready(function() {
 			contentType : "application/json", 
 			dataType : "json", 
 			data:JSON.stringify({
-				"zone_id": $('#zone_cabinet_select option:selected').val(),
-				"zone_name": $('#zone_cabinet_select option:selected').text(),
+				"idc": $('#idc_cabinet_select option:selected').val(),
 				"cabinet_name": $('#cabinet_name').val()
 			}),
             async: false,  
@@ -935,9 +689,9 @@ $(document).ready(function() {
 	  	});   
     });	  	
 	
-	makeCabinetTables()
+	makeCabinetTables(requests('get',"/api/cabinet/"))
 	
-	function makeRaidTables(){
+	function makeRaidTables(dataList){
 	    var columns = [
 	                    {"data": "id"},
 	                    {"data": "raid_name"},		
@@ -963,7 +717,7 @@ $(document).ready(function() {
             	$('#addRaidModal').modal("show");	
             }
         }]
-		InitDataTable('raidAssetsTable',"/api/raid/",buttons,columns,columnDefs)			
+		InitDataTable('raidAssetsTable',dataList,buttons,columns,columnDefs)			
 	}	
 	
     $('#raidsubmit').on('click', function() {
@@ -1078,16 +832,18 @@ $(document).ready(function() {
 	  	});	   
     });	
 	
-	makeRaidTables()
+	makeRaidTables(requests('get',"/api/raid/"))
   
-	function makeLineTables(){
+	function makeLineTables(dataList){
 	    var columns = [
 	                    {"data": "id"},
-	                    {"data": "line_name"},		
+	                    {"data": "line_name"},	
+	                    {"data": "line_price"},
+	                    {"data": "update_time"}
 		               ]
 	    var columnDefs = [								
    	    		        {
-	    	    				targets: [2],
+	    	    				targets: [4],
 	    	    				render: function(data, type, row, meta) {		    	    					
 	    	                        return '<div class="btn-group  btn-group-xs">' +	
 		    	                           '<button type="button" name="btn-line-modf" value="'+ row.id +'" class="btn btn-default"  aria-label="Justify"><span class="fa fa-edit" aria-hidden="true"></span>' +	
@@ -1106,28 +862,48 @@ $(document).ready(function() {
             	$('#addLineModal').modal("show");	
             }
         }]
-		InitDataTable('lineAssetsTable',"/api/line/",buttons,columns,columnDefs)			
+		InitDataTable('lineAssetsTable',dataList,buttons,columns,columnDefs)			
 	}        
 	
 	$('#lineAssetsTable tbody').on('click',"button[name='btn-line-modf']", function(){
     	var vIds = $(this).val();
-    	var lineName = $(this).parent().parent().parent().find("td").eq(1).text(); 
+    	let line_name = $(this).parent().parent().parent().find("td").eq(1).text(); 
+    	let line_price =  $(this).parent().parent().parent().find("td").eq(2).text(); 
 	    $.confirm({
 	        icon: 'fa fa-edit',
 	        type: 'blue',
 	        title: '修改数据',
-	        content: '<div class="form-group"><input type="text" VALUE="'+ lineName +'" placeholder="请输入新的出口线路" class="param_name form-control" /></div>',
+	        content: '<form  data-parsley-validate class="form-horizontal form-label-left">' +
+			            '<div class="form-group">' +
+			            '<label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">线路名称<span class="required">*</span>' +
+			            '</label>' +
+			            '<div class="col-md-6 col-sm-6 col-xs-12">' +
+			              '<input type="text"  name="modf_line_name" value="'+ line_name +'" required="required" class="form-control col-md-7 col-xs-12">' +
+			            '</div>' +
+			          '</div>' +
+			          '<div class="form-group">' +
+			            '<label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">线路价格<span class="required">*</span>' +
+			            '</label>' +
+			            '<div class="col-md-6 col-sm-6 col-xs-12">' +
+			              '<input type="text"  name="modf_line_price" value="'+ line_price +'" required="required"  class="form-control col-md-7 col-xs-12">' +
+			            '</div>' +
+			          '</div> ' +		            		            
+			        '</form>',
 	        buttons: {
 	            '取消': function() {},
 	            '修改': {
 	                btnClass: 'btn-blue',
 	                action: function() {
-	                    var param_name = this.$content.find('.param_name').val();
+	                    let line_name = this.$content.find("[name='modf_line_name']").val();
+	                    let line_price = this.$content.find("[name='modf_line_price']").val();
 				    	$.ajax({  
 				            cache: true,  
 				            type: "PUT",  
 				            url:"/api/line/" + vIds + '/',  
-				            data:{"line_name":param_name},
+				            data:{
+				            	"line_name":line_name,
+				            	"line_price":line_price
+				            },
 				            error: function(response) {  
 				            	new PNotify({
 				                    title: 'Ops Failed!',
@@ -1198,7 +974,8 @@ $(document).ready(function() {
 			contentType : "application/json", 
 			dataType : "json", 
 			data:JSON.stringify({
-				"line_name": $('#line_name').val()
+				"line_name": $('#line_name').val(),
+				"line_price": $('#line_price').val()
 			}),
             async: false,  
             error: function(request) {  
@@ -1221,9 +998,9 @@ $(document).ready(function() {
     	});  	
     });		
 	
-	makeLineTables()
+	makeLineTables(requests('get',"/api/line/"))
 	
-	function makeGroupTables(){
+	function makeGroupTables(dataList){
 	    var columns = [
 	                    {"data": "id"},
 	                    {"data": "name"},		
@@ -1249,7 +1026,7 @@ $(document).ready(function() {
             	$('#addGroupModal').modal("show");	
             }
         }]
-		InitDataTable('groupAssetsTable',"/api/group/",buttons,columns,columnDefs)			
+		InitDataTable('groupAssetsTable',dataList,buttons,columns,columnDefs)			
 	}  	
 	
 	  //修改使用组资产
@@ -1366,22 +1143,277 @@ $(document).ready(function() {
     	});  	
     });		
 	
-	makeGroupTables()
+	makeGroupTables(requests('get',"/api/group/"))
 	
-  //修改应用资产
 
-	function makeZoneTables(){
+
+	function makeIdcTables(dataList){
 	    var columns = [
 	                    {"data": "id"},
-	                    {"data": "zone_name"},		
-	                    {"data": "zone_contact"},
-	                    {"data": "zone_local"},
-	                    {"data": "zone_number"},
-	                    {"data": "zone_network"},
+	                    {"data": "zone_name"},
+	                    {"data": "idc_name"},		
+	                    {"data": "idc_operator"},
+	                    {"data": "idc_bandwidth"},
+	                    {"data": "idc_linkman"},
+	                    {"data": "idc_phone"},
+	                    {"data": "idc_address"},
+	                    {"data": "idc_network"},
+	                    {"data": "idc_desc"},
 		               ]
 	    var columnDefs = [								
    	    		        {
-	    	    				targets: [6],
+	    	    				targets: [10],
+	    	    				render: function(data, type, row, meta) {		    	    					
+	    	                        return '<div class="btn-group  btn-group-xs">' +	
+		    	                           '<button type="button" name="btn-idc-modf" value="'+ row.id +'" class="btn btn-default"  aria-label="Justify"><span class="fa fa-edit" aria-hidden="true"></span>' +	
+		    	                           '</button>' + 	    	                           
+		    	                           '<button type="button" name="btn-idc-confirm" value="'+ row.id +'" class="btn btn-default" aria-label="Justify"><span class="fa fa-trash" aria-hidden="true"></span>' +	
+		    	                           '</button>' +			                            
+		    	                           '</div>';
+	    	    				},
+	    	    				"className": "text-center",
+   	    		        },
+   	    		      ]	
+        var buttons = [{
+            text: '<span class="fa fa-plus"></span>',
+            className: "btn-xs",
+            action: function ( e, dt, node, config ) {
+            	makeSelect("zone_idc_select","zone_name","zone",zoneList)
+            	$('#addIdcModal').modal("show");	
+            }
+        }]
+		InitDataTable('idcAssetsTable',dataList,buttons,columns,columnDefs)			
+	}   	
+	
+	var idcList = requests('get',"/api/idc/")
+	
+	makeIdcTables(idcList)
+	  //修改应用资产
+	$('#idcAssetsTable tbody').on('click',"button[name='btn-idc-modf']", function(){
+    	var vIds = $(this).val();
+    	var td = $(this).parent().parent().parent().find("td")
+    	var idc_name = td.eq(2).text()
+    	var idc_operator = td.eq(3).text()
+    	var idc_bandwidth = td.eq(4).text()
+    	var idc_linkman = td.eq(5).text()
+    	var idc_phone = td.eq(6).text()
+    	var idc_address = td.eq(7).text()
+    	var idc_network = td.eq(8).text()
+    	var idc_desc = td.eq(9).text()
+    	modfIdc(vIds,idc_name,idc_bandwidth,idc_linkman,idc_phone,idc_address,idc_network,idc_operator,idc_desc)
+    });	
+	
+	
+    $('#idcsubmit').on('click', function() {
+    	$.ajax({     		
+            cache: true,  
+            type: "POST",  
+            url:"/api/idc/",  
+			contentType : "application/json", 
+			dataType : "json", 
+			data:JSON.stringify({
+				"zone": $('#zone_idc_select option:selected').val(),
+				"idc_name": $('#idc_name').val(),
+				"idc_bandwidth": $('#idc_bandwidth').val(),
+				"idc_linkman": $('#idc_linkman').val(),
+				"idc_phone": $('#idc_phone').val(),
+				"idc_address": $('#idc_address').val(),
+				"idc_network": $('#idc_network').val(),
+				"idc_operator": $('#idc_operator').val(),
+				"idc_desc": $('#idc_desc').val(),
+			}),
+            error: function(request) {  
+            	new PNotify({
+                    title: 'Ops Failed!',
+                    text: request.responseText,
+                    type: 'error',
+                    styling: 'bootstrap3'
+                });       
+            },  
+            success: function(data) {  
+            	new PNotify({
+                    title: 'Success!',
+                    text: '资产添加成功',
+                    type: 'success',
+                    styling: 'bootstrap3'
+                }); 
+            	RefreshTable('idcAssetsTable', '/api/idc/');
+            }  
+    	});  	
+    });	
+	
+    
+  	//删除机房资产
+	$('#idcAssetsTable tbody').on('click',"button[name='btn-idc-confirm']", function(){
+    	var vIds = $(this).val();
+    	var idcName = $(this).parent().parent().parent().find("td").eq(1).text()
+	  	$.confirm({
+	  	    title: '删除确认?',
+	  	    type: 'red',
+	  	    content: "删除机房: " + idcName,
+	  	    buttons: {
+	  	        确认: function () {
+	  			$.ajax({
+	  				  type: 'DELETE',
+	  				  url:'/api/idc/' + vIds + '/',
+	  			      success:function(response){	
+			            	new PNotify({
+			                    title: 'Success!',
+			                    text: '资产删除成功',
+			                    type: 'success',
+			                    styling: 'bootstrap3'
+			                }); 
+			            	RefreshTable('idcAssetsTable', '/api/idc/');		            
+	  			      },
+	  	              error:function(response){
+			            	new PNotify({
+			                    title: 'Ops Failed!',
+			                    text: response.responseText,
+			                    type: 'error',
+			                    styling: 'bootstrap3'
+			                }); 	
+	  	              }
+	  				});	        
+	  	        },
+	  	       	 取消: function () {
+	  	            return true;
+	  	        },
+	  	    }
+	  	});   
+    });         
+
+	function makeIdleTables(dataList){
+	    var columns = [
+	                    {"data": "id"},
+	                    {"data": "idc_name"},		
+	                    {"data": "idle_name"},
+	                    {"data": "idle_number"},
+	                    {"data": "idle_username"},
+	                    {"data": "idle_desc"},
+	                    {"data": "update_time"},
+		               ]
+	    var columnDefs = [								
+   	    		        {
+	    	    				targets: [7],
+	    	    				render: function(data, type, row, meta) {		    	    					
+	    	                        return '<div class="btn-group  btn-group-xs">' +	
+		    	                           '<button type="button" name="btn-idle-modf" value="'+ row.id +'" class="btn btn-default"  aria-label="Justify"><span class="fa fa-edit" aria-hidden="true"></span>' +	
+		    	                           '</button>' + 	    	                           
+		    	                           '<button type="button" name="btn-idle-confirm" value="'+ row.id +'" class="btn btn-default" aria-label="Justify"><span class="fa fa-trash" aria-hidden="true"></span>' +	
+		    	                           '</button>' +			                            
+		    	                           '</div>';
+	    	    				},
+	    	    				"className": "text-center",
+   	    		        },
+   	    		      ]	
+        var buttons = [{
+            text: '<span class="fa fa-plus"></span>',
+            className: "btn-xs",
+            action: function ( e, dt, node, config ) {
+            	makeSelect("idc_idle_select","idc_name","idc",idcList)
+            	$('#addIdleModal').modal("show");	
+            }
+        }]
+		InitDataTable('idleAssetsTable',dataList,buttons,columns,columnDefs)			
+	}   	
+	
+	var idleList = requests('get',"/api/idc/idle/")
+	
+	makeIdleTables(idleList)
+	
+	  //修改应用资产
+	$('#idleAssetsTable tbody').on('click',"button[name='btn-idle-modf']", function(){
+    	var vIds = $(this).val();
+    	var td = $(this).parent().parent().parent().find("td")
+    	var idle_name = td.eq(2).text()
+    	var idle_number = td.eq(3).text()
+    	var idle_desc = td.eq(5).text()
+    	modfIdle(vIds,idle_name,idle_number,idle_desc)
+    });	
+	
+	
+    $('#idlesubmit').on('click', function() {
+    	$.ajax({     		
+            cache: true,  
+            type: "POST",  
+            url:"/api/idc/idle/",  
+			contentType : "application/json", 
+			dataType : "json", 
+			data:JSON.stringify({
+				"idc": $('#idc_idle_select option:selected').val(),
+				"idle_name": $('#idle_name').val(),
+				"idle_number": $('#idle_number').val(),
+				"idle_linkman": $('#idle_linkman').val(),
+				"idle_desc": $('#idle_desc').val(),
+			}),
+            error: function(request) {  
+            	new PNotify({
+                    title: 'Ops Failed!',
+                    text: request.responseText,
+                    type: 'error',
+                    styling: 'bootstrap3'
+                });       
+            },  
+            success: function(data) {  
+            	new PNotify({
+                    title: 'Success!',
+                    text: '资产添加成功',
+                    type: 'success',
+                    styling: 'bootstrap3'
+                }); 
+            	RefreshTable('idleAssetsTable', '/api/idc/idle/');
+            }  
+    	});  	
+    });	
+	
+    
+  	//删除机房资产
+	$('#idleAssetsTable tbody').on('click',"button[name='btn-idle-confirm']", function(){
+    	var vIds = $(this).val();
+    	var idleName = $(this).parent().parent().parent().find("td").eq(2).text()
+	  	$.confirm({
+	  	    title: '删除确认?',
+	  	    type: 'red',
+	  	    content: "删除机房闲置资产记录: 【" + idleName +"】",
+	  	    buttons: {
+	  	        确认: function () {
+	  			$.ajax({
+	  				  type: 'DELETE',
+	  				  url:'/api/idc/idle/' + vIds + '/',
+	  			      success:function(response){	
+			            	new PNotify({
+			                    title: 'Success!',
+			                    text: '资产删除成功',
+			                    type: 'success',
+			                    styling: 'bootstrap3'
+			                }); 
+			            	RefreshTable('idleAssetsTable', '/api/idc/idle/');		            
+	  			      },
+	  	              error:function(response){
+			            	new PNotify({
+			                    title: 'Ops Failed!',
+			                    text: response.responseText,
+			                    type: 'error',
+			                    styling: 'bootstrap3'
+			                }); 	
+	  	              }
+	  				});	        
+	  	        },
+	  	       	 取消: function () {
+	  	            return true;
+	  	        },
+	  	    }
+	  	});   
+    }); 
+
+	function makeZoneTables(dataList){
+	    var columns = [
+	                    {"data": "id"},
+	                    {"data": "zone_name"},		
+		               ]
+	    var columnDefs = [								
+   	    		        {
+	    	    				targets: [2],
 	    	    				render: function(data, type, row, meta) {		    	    					
 	    	                        return '<div class="btn-group  btn-group-xs">' +	
 		    	                           '<button type="button" name="btn-zone-modf" value="'+ row.id +'" class="btn btn-default"  aria-label="Justify"><span class="fa fa-edit" aria-hidden="true"></span>' +	
@@ -1400,21 +1432,66 @@ $(document).ready(function() {
             	$('#addZoneModal').modal("show");	
             }
         }]
-		InitDataTable('zoneAssetsTable',"/api/zone/",buttons,columns,columnDefs)			
+		InitDataTable('zoneAssetsTable',dataList,buttons,columns,columnDefs)			
 	}   	
 	
-	makeZoneTables()
+	var zoneList = requests('get',"/api/zone/")
+	
+	makeZoneTables(zoneList)
+	
 	  //修改应用资产
 	$('#zoneAssetsTable tbody').on('click',"button[name='btn-zone-modf']", function(){
     	var vIds = $(this).val();
     	var td = $(this).parent().parent().parent().find("td")
     	var zone_name = td.eq(1).text()
-    	var zone_contact = td.eq(2).text()
-    	var zone_local = td.eq(3).text()
-    	var zone_number = td.eq(4).text()
-    	var zone_network = td.eq(5).text()
-    	console.log(zone_name,zone_network)
-    	modfZone(vIds,zone_name,zone_network,zone_local,zone_contact,zone_number)
+        $.confirm({
+            icon: 'fa fa-edit',
+            type: 'blue',
+            title: '修改数据',
+            content: '<form  data-parsley-validate class="form-horizontal form-label-left">' +
+    		            '<div class="form-group">' +
+    		              '<label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">区域名称<span class="required">*</span>' +
+    		              '</label>' +
+    		              '<div class="col-md-6 col-sm-6 col-xs-12">' +
+    		                '<input type="text"  name="modf_zone_name" value="'+ zone_name +'" required="required" class="form-control col-md-7 col-xs-12">' +
+    		              '</div>' +
+    		            '</div>' +		            
+    		          '</form>',
+            buttons: {
+                '取消': function() {},
+                '修改': {
+                    btnClass: 'btn-blue',
+                    action: function() {
+                        var zone_name = this.$content.find("[name='modf_zone_name']").val();					
+    			    	$.ajax({  
+    			            cache: true,  
+    			            type: "PUT",  
+    			            url:"/api/zone/" + vIds + '/',  
+    			            data:{
+    			            	"zone_name":zone_name,
+    			            	},
+    			            error: function(request) {  
+    			            	new PNotify({
+    			                    title: 'Ops Failed!',
+    			                    text: request.responseText,
+    			                    type: 'error',
+    			                    styling: 'bootstrap3'
+    			                });       
+    			            },  
+    			            success: function(data) {  
+    			            	new PNotify({
+    			                    title: 'Success!',
+    			                    text: '修改成功',
+    			                    type: 'success',
+    			                    styling: 'bootstrap3'
+    			                }); 
+    			            	RefreshTable('zoneAssetsTable', '/api/zone/');
+    			            }  
+    			    	});
+                    }
+                }
+            }
+        });    	
     });	
 	
 	
@@ -1427,10 +1504,6 @@ $(document).ready(function() {
 			dataType : "json", 
 			data:JSON.stringify({
 				"zone_name": $('#zone_name').val(),
-				"zone_network": $('#zone_network').val(),
-				"zone_local": $('#zone_local').val(),
-				"zone_contact": $('#zone_contact').val(),
-				"zone_number": $('#zone_number').val(),
 			}),
             async: false,  
             error: function(request) {  
@@ -1452,7 +1525,7 @@ $(document).ready(function() {
             }  
     	});  	
     });	
-	
+
     
   	//删除机房资产
 	$('#zoneAssetsTable tbody').on('click',"button[name='btn-zone-confirm']", function(){

@@ -5,7 +5,7 @@ from django.http import QueryDict
 from django.views.generic import View
 from django.http import JsonResponse
 from django.shortcuts import render
-from asset.models import Assets,Project_Assets,Service_Assets
+from asset.models import Assets
 from deploy.models import *
 from utils.ansible.runner import ANSRunner
 from dao.dispos import DeployScript,DeployPlaybook

@@ -53,12 +53,6 @@
                       </li>
                       <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
-                        <ul class="dropdown-menu" role="menu">
-                          <li><a href="#">Settings 1</a>
-                          </li>
-                          <li><a href="#">Settings 2</a>
-                          </li>
-                        </ul>
                       </li>
                       <li><a class="close-link"><i class="fa fa-close"></i></a>
                       </li>
@@ -74,8 +68,7 @@
 					                <th>ID</th>
 					                <th>环境类型</th>
 					                <th>架构类型</th>
-					                <th>所属项目</th>
-					                <th>业务类型</th>
+					                <th>业务归属</th>
 					                <th>数据库类型</th>
 					                <th>数据库名</th>
 					                <th>数据库地址</th>
@@ -102,12 +95,6 @@
                       </li>
                       <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
-                        <ul class="dropdown-menu" role="menu">
-                          <li><a href="#">Settings 1</a>
-                          </li>
-                          <li><a href="#">Settings 2</a>
-                          </li>
-                        </ul>
                       </li>
                       <li><a class="close-link"><i class="fa fa-close"></i></a>
                       </li>
@@ -147,9 +134,10 @@
 										 <label class="col-sm-2 control-label" >架构类型<span class="required">*</span></label> 
 										 <div class="col-sm-10">
 										     <select required="required" class="selectpicker form-control" data-live-search="true"  data-size="10" data-width="100%" name="db_mode" id="db_mode" autocomplete="off">
-										   		<option value="1" name="db_mode" >单例</option>
-												<option value="2" name="db_mode" >主从</option>
-												<option value="3" name="db_mode" >PXC</option>				
+										   		<option value="single" name="db_mode" >单例</option>
+												<option value="ms" name="db_mode" >主从</option>
+												<option value="pxc" name="db_mode" >PXC</option>	
+												<option value="master" name="db_mode" >主库</option>			
 											 </select>	
 										 </div>					 	
 									</div>
@@ -157,19 +145,11 @@
 									<div class="form-group">
 										 <label class="col-sm-2 control-label" > 所属项目<span class="required">*</span></label>
 										 <div class="col-sm-10">
-											  <select required="required" class="selectpicker form-control" data-live-search="true"  data-size="10" data-width="100%"  id="db_project"  onchange="javascript:oBtProjectSelect();" autocomplete="off">
+											  <select required="required" class="selectpicker form-control" data-live-search="true"  data-size="10" data-width="100%"  id="db_business"  onchange="javascript:oBtBusinessSelect();" autocomplete="off">
 											   		<option selected="selected" value="">请选择一个项目</option>							   							
 											  </select>
 										 </div>
-									</div>	
-									<div class="form-group">
-										 <label class="col-sm-2 control-label" > 业务类型<span class="required">*</span></label>		
-										 <div class="col-sm-10">								 
-											 <select required="required" class="selectpicker form-control" data-live-search="true"  data-size="10" data-width="100%"  id="db_service" onchange="javascript:AssetsTypeSelect('service','db_service');" autocomplete="off">
-												  <option selected="selected" value="">请选择一个业务</option>								   							
-											 </select>
-										 </div>
-									</div>										
+									</div>									
 									<div class="form-group" >
 										 <label required="required" class="col-sm-2 control-label" >数据库IP<span class="required">*</span></label>
 										 <div class="col-sm-10">

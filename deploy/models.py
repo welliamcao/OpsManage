@@ -30,7 +30,7 @@ class Deploy_Playbook(models.Model):
     playbook_uuid = models.CharField(max_length=50,verbose_name='唯一id')
     playbook_type = models.CharField(verbose_name='服务器选择类型',max_length=10,blank=True,null=True)
     playbook_file = models.FileField(upload_to = './playbook/',verbose_name='剧本路径')
-    playbook_service = models.SmallIntegerField(verbose_name='授权业务',blank=True,null=True)
+    playbook_business = models.SmallIntegerField(verbose_name='授权业务',blank=True,null=True)
     playbook_user = models.SmallIntegerField(verbose_name='授权用户',blank=True,null=True,)
     playbook_server = models.TextField(verbose_name='目标机器',blank=True,null=True)
     playbook_group = models.SmallIntegerField(verbose_name='授权组',blank=True,null=True)
@@ -63,7 +63,7 @@ class Deploy_Playbook(models.Model):
             "playbook_vars":self.playbook_vars,
             "playbook_type":self.playbook_type,
             "playbook_file":self.playbook_file,
-            "playbook_service":self.playbook_service,
+            "playbook_business":self.playbook_business,
             "playbook_user":username,
             "playbook_server":self.playbook_server,
             "playbook_group":self.playbook_group,
@@ -80,7 +80,7 @@ class Deploy_Script(models.Model):
     script_server = models.TextField(verbose_name='目标机器',blank=True,null=True)
     script_file = models.FileField(upload_to = './scripts/',verbose_name='脚本路径')
     script_args = models.TextField(blank=True,null=True,verbose_name='脚本参数')
-    script_service = models.SmallIntegerField(verbose_name='授权业务',blank=True,null=True)
+    script_business = models.SmallIntegerField(verbose_name='授权业务',blank=True,null=True)
     script_user = models.SmallIntegerField(verbose_name='添加人',blank=True,null=True)
     script_group = models.SmallIntegerField(verbose_name='授权组',blank=True,null=True)
     script_tags = models.SmallIntegerField(verbose_name='资产标签',blank=True,null=True)
@@ -114,7 +114,7 @@ class Deploy_Script(models.Model):
             "id":self.id,           
             "script_name":self.script_name,
             "script_args":self.script_args,
-            "script_service":self.script_service,
+            "script_business":self.script_business,
             "script_user":username,
             "script_server":self.script_server,
             "script_group":self.script_group,

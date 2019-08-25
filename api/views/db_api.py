@@ -11,7 +11,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from django.contrib.auth.decorators import permission_required
 from dao.base import MySQLPool
-from dao.database import MySQLARCH,DBManage
+from dao.database import MySQLARCH,DBManage,DBUser
 from django.http import JsonResponse
 from utils.logger import logger
 from utils import mysql as MySQL
@@ -175,4 +175,18 @@ def db_org(request, id,format=None):
 @permission_required('databases.databases_query_database_server_config',raise_exception=True)  
 def db_tree(request,format=None):   
     if request.method == 'GET':
-        return Response(DBManage().query_db_tree(request=request))         
+        return Response(DBManage().tree(request)) 
+        
+  
+class DBUserQuery(APIView,DBUser):
+     
+    @method_decorator_adaptor(permission_required, "databases.databases_query_database_server_config","/403/")     
+    def get(self,request,*args,**kwargs):
+        query_params = {"db_rw__in":["r/w","read"]}
+        for ds in request.query_params.keys():
+            query_params[ds] = request.query_params.get(ds)
+        dbList = self.get_user_db(request=request,**query_params)    
+        page = serializers.PageConfig()  # 注册分页
+        page_user_list = page.paginate_queryset(queryset=dbList, request=request, view=self)
+        ser = serializers.DataBaseServerSerializer(instance=page_user_list, many=True)
+        return page.get_paginated_response(ser.data) 

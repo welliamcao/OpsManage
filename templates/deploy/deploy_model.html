@@ -36,12 +36,6 @@
                       </li>
                       <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
-                        <ul class="dropdown-menu" role="menu">
-                          <li><a href="#">Settings 1</a>
-                          </li>
-                          <li><a href="#">Settings 2</a>
-                          </li>
-                        </ul>
                       </li>
                       <li><a class="close-link"><i class="fa fa-close"></i></a>
                       </li>
@@ -56,7 +50,7 @@
 									<div class="col-sm-6">
 										<select class="selectpicker form-control" name="server_model" id="server_model">
 											<option value="" name="server_model" selected="selected">选择一个类型</option>
-											<option value="service" name="server_model">项目类型</option>		
+											<option value="business" name="server_model">业务类型</option>		
 											<option value="inventory_groups" name="server_model">动态主机组</option>													
 											<option value="group" name="server_model">使用部门</option>	
 											<option value="tags" name="server_model">资产标签</option>
@@ -68,19 +62,19 @@
 								<div class="form-group">
 									 <label class="col-sm-2 control-label" >所属项目</label>
 									 <div class="col-sm-6">
-                                           <select class="selectpicker form-control" name="project"  id="deploy_project" onchange="javascript:oBtProjectSelect(this);" required>
+                                           <select class="selectpicker form-control" name="business"  id="deploy_business" onchange="javascript:oBtProjectSelect(this);" required>
                                            	<option name="project" value="" selected="selected">请选择一个项目</option>
                                            </select>
 									 </div>
 								</div>										
-								<div class="form-group">
+<!-- 								<div class="form-group">
 									 <label class="col-sm-2 control-label" >业务类型</label>
 									 <div class="col-sm-6">
                                            <select class="selectpicker form-control" name="service"  onchange="javascript:AssetsTypeSelect(this,'service');" required>
 											<option name="service" value="" selected="selected">请选择一个应用类型</option>
                                            </select>
 									 </div>
-								</div>	
+								</div> -->	
 							</div>		
 							<div id='inventory_server'  style="display:none;">
                                 <div class="form-group">
@@ -169,7 +163,7 @@
 								<label class="col-sm-4 control-label"></label>
 								<button type="reset"  class="btn btn-default btn-sm" >撤销</button>
 								{% if perms.deploy.deploy_exec_deploy_script %}
-						 			<button type="button"  class="btn btn-default btn-sm" id="run_deploy_model">执行</button>
+						 			<button type="button"  class="btn btn-default btn-sm" id="run_deploy_model" disabled>执行</button>
 						 		{% else %}
 						 			<button type="button"  class="btn btn-default btn-sm"  disabled>执行</button>
 						 		{% endif %}
@@ -188,12 +182,6 @@
                       </li>
                       <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
-                        <ul class="dropdown-menu" role="menu">
-                          <li><a href="#">Settings 1</a>
-                          </li>
-                          <li><a href="#">Settings 2</a>
-                          </li>
-                        </ul>
                       </li>
                       <li><a class="close-link"><i class="fa fa-close"></i></a>
                       </li>

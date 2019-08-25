@@ -13,6 +13,9 @@ from dao.base import MySQLPool
 from utils import base
 from utils.mysql.binlog2sql import Binlog2sql
 from databases.tasks import record_exec_sql
+from django.db.models import Count
+from mptt.templatetags.mptt_tags import cache_tree_children  
+from django.db.models import Q
 
 def format_time(seconds):
     m, s = divmod(seconds, 60)
@@ -116,33 +119,8 @@ class DBConfig(AssetsBase):
     
     def get_all_db(self,request=None):
         dataList = []
-        
-        for ds in DataBase_Server_Config.objects.all():
-            data = self.convert_to_dict(ds)
-            
-            modes = ds.get_modes()
-            rw = ds.get_rw()
-            
-            data["db_mode"] = modes[data["db_mode"]]
-            data["db_rw"] =  rw[data["db_rw"]]          
-            try:
-                data["ip"] = ds.db_assets.server_assets.ip
-            except Exception as ex:
-                logger.warn(msg="查询资产失败: {ex}".format(ex=ex))
-                data["ip"] = "未知"
-            try:
-                data["project"] = Project_Assets.objects.get(id=ds.db_assets.project).project_name
-            except Exception as ex:
-                logger.warn(msg="查询项目失败: {ex}".format(ex=ex))
-                data["project"] = "未知"   
-            try:
-                data["service"] = Service_Assets.objects.get(id=ds.db_assets.business).service_name
-            except Exception as ex:
-                logger.warn(msg="查询应用失败: {ex}".format(ex=ex))  
-                data["service"] = "未知"                              
-            data.pop("db_assets_id")
-            data.pop("db_passwd")            
-            dataList.append(data)
+        for ds in DataBase_Server_Config.objects.all():            
+            dataList.append(ds.to_json())
         return dataList
     
     def create_data_base(self,request):        
@@ -201,19 +179,15 @@ class DBConfig(AssetsBase):
         user_database_list = []
         for ds in Database_User.objects.all():
             try:
-                dbConfig = DataBase_Server_Config.objects.get(id=ds.db)
-                data = self.convert_to_dict(dbConfig)
-                try:
-                    data["ip"] = dbConfig.db_assets.server_assets.ip
-                except Exception as ex:
-                    data["ip"] = "未知"
                 dbUser = User.objects.get(id=ds.user)
+            except Exception as ex:
+                logger.error(msg="查询数据库用户失败: {ex}".format(ex=str(ex)))  
+                continue              
+            try:
+                dbConfig = DataBase_Server_Config.objects.get(id=ds.db)
+                data = dbConfig.to_json()
                 data["username"] = dbUser.username
-                data["id"] = ds.id
                 data["uid"] = dbUser.id
-                data.pop("db_assets_id")
-                data.pop("db_passwd")
-                data.pop("db_user")
                 user_database_list.append(data)
             except Exception as ex:
                 logger.error(msg="查询数据库失败: {ex}".format(ex=str(ex)))  
@@ -314,15 +288,7 @@ class DBUser(object):
     def get_all_user_db(self,request):
         user_database_list = []        
         for ds in DataBase_Server_Config.objects.all():
-            data = dict()
-            env = ds.get_types()   
-            rw = ds.get_rw()        
-            data["id"] = ds.id
-            data["db_rw"] =  rw[ds.db_rw]            
-            data["db_env"] = env[ds.db_env]   
-            data["ip"] = ds.db_assets.server_assets.ip
-            data["db_name"] = ds.db_name
-            data["db_mark"] = ds.db_mark 
+            data = ds.to_json()
             data["count"] = Database_User.objects.filter(user=request.GET.get('uid',request.user.id),db=ds.id).count()
             user_database_list.append(data)
         return user_database_list
@@ -388,24 +354,13 @@ class DBUser(object):
             user_grants_list.append(data)            
         return user_grants_list
 
-    def get_user_db(self,request):
-        user_database_list = []
+    def get_user_db(self,request,**query_params):
         if request.user.is_superuser:
-            dbList = DataBase_Server_Config.objects.filter(db_env=request.GET.get("env"))   
+            dbList = DataBase_Server_Config.objects.filter(**query_params)   
         else: 
-            user_db_list = [ds.db for ds in Database_User.objects.filter(user=request.GET.get('uid',request.user.id))]     
-            dbList = DataBase_Server_Config.objects.filter(id__in=user_db_list,db_env=request.GET.get("env"))   
-        for ds in dbList:
-            data = dict()
-            data["id"] = ds.id
-            data["db_env"] = ds.db_env
-            data["ip"] = ds.db_assets.server_assets.ip
-            data["db_name"] = ds.db_name
-            data["db_mark"] = ds.db_mark 
-            data["db_rw"] = ds.db_rw 
-            data["count"] = 1
-            user_database_list.append(data)
-        return  user_database_list     
+            user_db_list = [ds.db for ds in Database_User.objects.filter(user=request.user.id)]     
+            dbList = DataBase_Server_Config.objects.filter(id__in=user_db_list,**query_params)   
+        return  dbList     
              
 
 class DBManage(AssetsBase):  
@@ -659,48 +614,45 @@ class DBManage(AssetsBase):
         else: 
             dbList = DataBase_Server_Config.objects.filter(id__in=[ ds.db for ds in Database_User.objects.filter(user=request.user.id)]) 
         for ds in dbList:
-            rw = ds.get_rw()
-            try:
-                data = self.convert_to_dict(ds)  
-                data["db_rw"] = rw[data['db_rw']]             
-                try:
-                    data["ip"] = ds.db_assets.server_assets.ip
-                except Exception as ex:
-                    data["ip"] = "未知"
-                data.pop("db_assets_id")
-                data.pop("db_passwd")
-                data.pop("db_user")
-                user_database_list.append(data)
-            except Exception as ex:
-                logger.error(msg="查询数据库失败: {ex}".format(ex=str(ex)))  
+            user_database_list.append(ds.to_json()) 
         return user_database_list  
+
+    def recursive_node_to_dict(self,node):
+        json_format = node.to_json()
+        children = [self.recursive_node_to_dict(c) for c in node.get_children()]
+        if children:
+            json_format['children'] = children
+        else:
+            json_format['icon'] = 'fa fa-minus-square-o'        
+        return json_format
     
-    def query_db_tree(self,request=None):
-               
-        user_database_list = []
+    def business_paths_id_list(self,business):
+        tree_list = []
+        dataList = Business_Tree_Assets.objects.raw("""SELECT id FROM opsmanage_business_assets WHERE tree_id = {tree_id} AND  lft < {lft} AND  rght > {rght} ORDER BY lft ASC;""".format(tree_id=business.tree_id,lft=business.lft,rght=business.rght))
+        for ds in dataList:
+            tree_list.append(ds.id)
+        tree_list.append(business.id)
+        return tree_list
+    
+    def tree(self,request):
+
         if request.user.is_superuser:
-            dbList = DataBase_Server_Config.objects.all()      
-        else: 
-            dbList = DataBase_Server_Config.objects.filter(id__in=[ ds.db for ds in Database_User.objects.filter(user=request.user.id)]) 
-        for ds in dbList:
-            if ds.db_rw not in ["read","r/w"]:continue
-            try:
-                data = self.convert_to_dict(ds)
-                try:
-                    data["ip"] = ds.db_assets.server_assets.ip
-                except Exception as ex:
-                    data["ip"] = "未知"
-                env_data = ds.get_types()
-                data["id"] = data["id"] + 100000
-                data["type"] = "database"
-                data["text"] = "{env} - {name} - {type} - {mark}".format(env=env_data[data["db_env"]],type=data["db_type"] ,name=data["db_name"],mark=data["db_mark"])
-                data["icon"] = "fa fa-database"
-                data["opened"] = "false"
-                data["children"] = []
-                data.pop("db_assets_id")
-                data.pop("db_passwd")
-                data.pop("db_user")
-                user_database_list.append(data)
-            except Exception as ex:
-                logger.error(msg="查询数据库失败: {ex}".format(ex=str(ex)))  
-        return user_database_list         
+            user_business = [ ds.get("db_business") for ds in DataBase_Server_Config.objects.values('db_business').annotate(dcount=Count('db_business')) ]            
+        else:      
+            user_business = [ ds.get("db_business") for ds in DataBase_Server_Config.objects.values('db_business').annotate(dcount=Count('db_business',filter=Q(id__in=[ ds.db for ds in Database_User.objects.filter(user=request.user.id)]))) ]
+        
+        business_list = []
+        
+        for business in Business_Tree_Assets.objects.filter(id__in=user_business):
+            business_list += self.business_paths_id_list(business)
+            
+        business_list = list(set(business_list))
+        
+        business_node = Business_Tree_Assets.objects.filter(id__in=business_list)
+        
+        root_nodes = cache_tree_children(business_node)
+        
+        dataList = []
+        for n in root_nodes:
+            dataList.append(self.recursive_node_to_dict(n))         
+        return dataList          
