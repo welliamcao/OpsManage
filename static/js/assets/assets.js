@@ -371,15 +371,30 @@
 			                   {"data": "name"},
 		                       {"data": "assets_type"},		                       
 		                       {"data": "detail.ip"},     
-		                       {"data": "detail.system"},
-		    	               {"data": "detail.kernel"},
+		                       {
+		                    	   "data": "detail.system",
+		                    	   "defaultContent": ''
+		                       },
+		    	               {
+		                    	   "data": "detail.kernel",
+		                    	   "defaultContent": ''
+		    	               },
 		    	               {
 		    	            	   "data": "detail.vcpu_number",
 		    	            	   "defaultContent": ''
 		    	               },
-		    	               {"data": "detail.ram_total"},
-		    	               {"data": "detail.disk_total"},
-		    	               {"data": "put_zone"},
+		    	               {
+		    	            	   "data": "detail.ram_total",
+		    	            	   "defaultContent": ''
+		    	               },
+		    	               {
+		    	            	   "data": "detail.disk_total",
+		    	            	   "defaultContent": ''
+		    	               },
+		    	               {
+		    	            	   "data": "put_zone",
+		    	            	   "defaultContent": ''
+		    	               },
 		    	               ]
 		       var columnDefs = [                      	    		     		    		    	    		    
 		    	    		        {

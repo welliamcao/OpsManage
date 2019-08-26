@@ -21,7 +21,7 @@ function getTagsServerList(vIds){
 	var sList = []
 	var allAssets = requests('get','/api/assets/')
 	for (var i=0; i <allAssets.length; i++){
-		sList.push({"id":allAssets[i]["id"],"name":allAssets[i]["project"]+' | '+allAssets[i]["service"]+' | '+allAssets[i]["detail"]["ip"]})
+		sList.push({"id":allAssets[i]["id"],"name":allAssets[i]["detail"]["ip"]})
 	}
 	$.ajax({  
         cache: true,  
@@ -43,7 +43,7 @@ function getTagsServerList(vIds){
         },  
         success: function(response) {  	
 			for (var i=0; i <response["data"].length; i++){
-				iList.push({"id":response["data"][i]["id"],"name":response["data"][i]["project"]+' | '+response["data"][i]["service"]+' | '+response["data"][i]["ip"]})
+				iList.push({"id":response["data"][i]["id"],"name":response["data"][i]["ip"]})
 				for (var j=0; j <sList.length; j++){
 					if(sList[j]["id"]==response["data"][i]["id"]){
 						sList.splice(j, 1);
