@@ -2255,4 +2255,46 @@ $(document).ready(function() {
     		$(this).attr('disabled',false);
     })     
 
+    $("#taggroupsubmit").on('click', function() {
+    	var vIds = $(this).val();
+    	var vServer = $('[name="doublebox"]').val()
+    	if (vServer){
+	    	$.ajax({  
+	            cache: true,  
+	            type: "POST",  
+				contentType : "application/json", 
+				dataType : "json", 	            
+	            url:"/api/assets/tags/"+vIds+'/',  
+	            data:JSON.stringify({
+					"ids": vServer
+				}),
+	            async: false,  
+	            error: function(request) {  
+	            	new PNotify({
+	                    title: 'Ops Failed!',
+	                    text: request.responseText,
+	                    type: 'error',
+	                    styling: 'bootstrap3'
+	                });       
+	            },  
+	            success: function(data) {  
+	            	new PNotify({
+	                    title: 'Success!',
+	                    text: '添加成功',
+	                    type: 'success',
+	                    styling: 'bootstrap3'
+	                }); 
+	            }  
+	    	}); 
+    	}else{
+	    	$.confirm({
+	    		title: '<strong>警告</strong>',
+	    		typeAnimated: true,
+	    	    content: "没有选择任何资产~",
+	    	    type: 'red'		    	    
+	    	});		    		
+    	}
+	
+    });	    
+    
 });
