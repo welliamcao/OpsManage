@@ -349,31 +349,31 @@ class AssetsBase(DataHandle):
                       'status':int(data[10]),
                       'put_zone':int(data[11]),
                       'group':int(data[12]),
-                      'project':int(data[13]),
-                      'business':int(data[14]),
+#                       'project':int(data[13]),
+#                       'business':int(data[14]),
                       }
             if data[3]:assets['buy_time'] = xlrd.xldate.xldate_as_datetime(data[3],0)
             if data[4]:assets['expire_date'] = xlrd.xldate.xldate_as_datetime(data[4],0)
             if assets.get('assets_type') in ['vmser','server']:
                 server_assets = {
-                          'ip':data[15],
-                          'keyfile':data[16],
-                          'username':data[17],
-                          'passwd':data[18],
-                          'hostname':data[19],
-                          'port':data[20],
-                          'raid':data[21],
-                          'line':data[22],
+                          'ip':data[13],
+                          'keyfile':data[14],
+                          'username':data[15],
+                          'passwd':data[16],
+                          'hostname':data[17],
+                          'port':data[18],
+                          'raid':data[19],
+                          'line':data[20],
                           } 
             else:
                 net_assets = {
-                            'ip':data[15],
-                            'bandwidth':data[16],
-                            'port_number': data[17],
-                            'firmware':data[18],
-                            'cpu':data[19],
-                            'stone':data[20],
-                            'configure_detail': data[21]                              
+                            'ip':data[13],
+                            'bandwidth':data[14],
+                            'port_number': data[15],
+                            'firmware':data[16],
+                            'cpu':data[17],
+                            'stone':data[18],
+                            'configure_detail': data[19]                              
                               }                                                  
             count = Assets.objects.filter(name=assets.get('name')).count()
             if count == 1:
