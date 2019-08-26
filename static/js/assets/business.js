@@ -6,6 +6,48 @@ var envInfo = {
 		
 }
 
+var webssh = false
+function make_terminal(element, size, ws_url) { 
+    var term = new Terminal({
+        cols: size.cols,
+        rows: size.rows,
+        screenKeys: true,
+        useStyle: true,
+        cursorBlink: true,  // Blink the terminal's cursor
+    });         	
+    if (webssh) {
+        return;
+    }        
+    webssh = true;        	
+    term.open(element, false);
+    term.write('正在连接...')
+/*             term.fit(); */
+    var ws = new WebSocket(ws_url);
+    ws.onopen = function (event) {
+        term.resize(term.cols, term.rows);
+/*                 ws.send(JSON.stringify(["id", id,term.cols, term.rows]));  */
+        term.on('data', function (data) {
+            <!--console.log(data);-->
+             ws.send(data); 
+        });
+
+        term.on('title', function (title) {
+            document.title = title;
+        });
+        ws.onmessage = function (event) {
+        	term.write(event.data);
+        };      
+    };
+    ws.onerror = function (e) {
+    	term.write('\r\n连接失败')
+    	ws = false
+    };
+/*    ws.onclose = function () {
+        term.destroy();
+    }; */     
+    return {socket: ws, term: term};
+}
+
 var assets_table_id = ''
 
 function format (dataList) {
@@ -522,7 +564,407 @@ function business_assets(obj,inst){
 	}
 }
 
+function getAssetsTags(vIds){
+	var dataDict = {}
+	$.ajax({  
+        cache: true, 
+        async: false,
+        type: "get",  
+        url:'/api/tags/',
+        success: function(data) {  
+        	dataDict['all'] = data
+        }
+  
+	});	
+	$.ajax({  
+        cache: true, 
+        async: false,
+        type: "POST",  
+        url:'/assets/server/query/',
+        data:{
+        	"query":'assets_tags',
+        	"id":vIds
+        },
+        async: false,        
+        success: function(data) {  
+        	dataDict["tags"] = data["data"]
+        }
+	});	
+	for (var i=0; i <dataDict["tags"].length; i++){
+		console.log(dataDict["tags"][i]["id"]) 
+		var atid = dataDict["tags"][i]["id"]
+		for (var x=0; x <dataDict['all'].length; x++){
+			var tid = dataDict['all'][x]["id"]
+			if (atid == tid){
+				dataDict['all'].splice(x,1)
+			}
+		}
+	};	
+	console.log(dataDict)
+	return dataDict
+}
 
+function viewTags(ids,text){
+	$("#myTagsModalLabel").html('<h4 class="modal-title" id="myModalLabel"><code>'+ text +'</code>标签分类</h4>')
+	$('select[name="doublebox"]').empty();
+	$('#taggroupsubmit').val(ids)
+	var data = getAssetsTags(ids)
+	$('select[name="doublebox"]').doublebox({
+        nonSelectedListLabel: '选择标签类型',
+        selectedListLabel: '已选择标签',
+        preserveSelectionOnMove: 'moved',
+        moveOnSelect: false,
+        nonSelectedList:data["all"],
+        selectedList:data["tags"],
+        optionValue:"id",
+        optionText:"tags_name",
+        doubleMove:true,
+      });			
+	$('.bs-example-modal-tags-info').modal({backdrop:"static",show:true});
+}
+
+var serverList = []
+function viewAssets(ids,text){
+	$.ajax({  
+        cache: true,  
+        type: "get",    
+        async: false,
+        url:"/assets/manage/?id=" + ids + "&model=info",  
+        error: function(response) {
+        	new PNotify({
+                title: 'Ops Failed!',
+                text: response.responseText,
+                type: 'error',
+                styling: 'bootstrap3'
+            });       
+        },  
+        success: function(response) {  	
+        	if (Object.keys(response["data"]).length > 0){            		
+        		switch (response["data"]["status"])
+        		{
+            		case 0:
+            		  status = '<span class="label label-success">已上线</span>';
+            		  break;
+            		case 1:
+            		  status = '<span class="label label-warning">已下线</span>';
+            		  break;
+            		case 2:
+            		  status = '<span class="label label-default">维修中</span>';
+            		  break;
+            		case 3:
+            		  status = '<span class="label label-info">已入库</span>';
+            		  break;
+            		case 4:
+            		  status = '<span class="label label-primary">未使用</span>';
+            		  break;
+        		}
+        		switch (response["data"]["assets_type"])
+        		{
+            		case 'server':
+            			assets_type = '<strong>物理服务器</strong>';
+            		  	break;
+            		case 'vmser':
+            			assets_type = '<strong>虚拟机</strong>';
+            			break;
+            		case 'switch':
+            			assets_type = '<strong>交换机</strong>';
+            			break;
+            		case 'route':
+            			assets_type = '<strong>路由器</strong>';
+            			break;
+            		case 'firewall':
+            			assets_type = '<strong>防火墙</strong>';
+            			break;
+            		case 'storage':
+            			assets_type = '<strong>存储设备</strong>';
+            			break;	
+            		case 'printer':
+            			assets_type = '<strong>打印机</strong>';
+		            	break;	
+            		case 'scanner':
+            			assets_type = '<strong>扫描仪</strong>';
+		            	break;	
+            		case 'wifi':
+            			assets_type = '<strong>WIFI设备</strong>';
+		            	break;				            	
+        		}            		
+        		var serverLiTags = '';
+        		var netcardLiTags = '';
+        		var tagliTags = '<li><a href="https://github.com/welliamcao/OpsManage" target="_blank">CMDB</a></li>' +
+		            			'<li><a href="https://github.com/welliamcao/OpsManage">ANSIBLE</a></li>' +
+		            			'<li><a href="https://github.com/welliamcao/OpsManage">Deploy</a></li>' +
+		            			'<li><a href="https://github.com/welliamcao/OpsManage">Django</a></li>' +
+		            			'<li><a href="https://github.com/welliamcao/OpsManage">Bootstrap</a></li>' +
+		            			'<li><a href="https://github.com/welliamcao/OpsManage">MySQL</a></li>' +
+		            			'<li><a href="https://github.com/welliamcao/OpsManage">Redis</a></li>' +
+		            			'<li><a href="https://github.com/welliamcao/OpsManage">SaltStack</a></li>' +
+		            			'<li><a href="https://github.com/welliamcao/OpsManage">Python</a></li>' +
+		            			'<li><a href="https://github.com/welliamcao/OpsManage">MongoDB</a></li>' +
+		            			'<li><a href="https://github.com/welliamcao/OpsManage">Docker</a></li>' +
+		            			'<li><a href="https://github.com/welliamcao/OpsManage">Kubernetes</a></li>';
+        		var ramLiTags = '<p>如何获取服务器<strong>内存</strong>信息:<a href="https://github.com/welliamcao/OpsManage/issues/69">了解一下</a></p>';
+        		var diskLiTags = '<p>如何获取服务器<strong>硬盘</strong>信息:<a href="https://github.com/welliamcao/OpsManage/issues/69">了解一下</a></p>';            		
+        		var baseLiTags  =  '<table class="table table-striped">' +		                
+						                      '<tbody>' +
+						                        '<tr>' +
+						                          '<td>资产类型 :</td>' +
+						                         ' <td>'+ assets_type +'</td>' +
+						                          '<td> 资产编号  :</td>' +
+						                          '<td>'+ response["data"]["name"] +'</td>' +			                         
+						                        '</tr>' +
+						                        '<tr>' +
+						                          '<td>设备序列号 :</td>' +
+						                          '<td>'+ response["data"]["sn"] +'</td>' +
+						                          '<td>购买日期 : </td>' +
+						                          '<td>'+ response["data"]["buy_time"] +'</td>' +			                          
+						                        '</tr>' +		
+						                        '<tr>' +
+						                          '<td>过保日期 :</td>' +
+						                          '<td>'+ response["data"]["expire_date"] +'</td>' +
+						                          '<td>管理IP:</td>' +
+						                          '<td>'+ response["data"]["management_ip"] +'</td>' +			                          
+						                        '</tr>' +
+						                        '<tr>' +
+						                          '<td>购买人 : </td>' +
+						                          '<td>'+ response["data"]["buy_user"] +'</td>' +
+						                          '<td>生产制造商  :</td>' +
+						                          '<td>'+ response["data"]["manufacturer"] +'</td>' +			                          
+						                        '</tr>' +		
+						                        '<tr>' +
+						                          '<td>设备型号 :</td>' +
+						                          '<td>'+ response["data"]["model"] +'</td>' +
+						                          '<td>供货商 : </td>' +
+						                          '<td>'+ response["data"]["provider"] +'</td>' +			                          
+						                        '</tr>' +	
+						                        '<tr>' +
+						                          '<td>放置区域 :</td>' +
+						                          '<td>'+ response["data"]["put_zone"] +'</td>' +
+						                          '<td>机柜信息 : </td>' +
+						                          '<td>'+ response["data"]["cabinet"] +'</td>' +			                          
+						                        '</tr>' +	
+						                        '<tr>' +
+						                          '<td>设备状态 : </td>' +
+						                          '<td>'+ status +'</td>' +
+						                          '<td>使用组 :</td>' +
+						                          '<td>'+ response["data"]["group"] +'</td>' +			                          
+						                        '</tr>' +
+						                        '<tr>' +
+						                          '<td>所属项目 : </td>' +
+						                          '<td>'+ response["data"]["project"] +'</td>' +
+						                          '<td>所属应用 : </td>' +
+						                          '<td>'+ response["data"]["service"] +'</td>' +			                          
+						                        '</tr>' +			                        
+						                      '</tbody>' +
+						                    '</table>'							
+       		
+        		if (Object.keys(response["data"]["server"]).length > 0){
+            		serverLiTags = '<table class="table table-striped">' +		                
+				                      '<tbody>' +
+				                        '<tr>' +
+				                          '<td>主机名 :</td>' +
+				                         ' <td>'+ response["data"]["server"]["hostname"] +'</td>' +
+				                          '<td>操作系统:</td>' +
+				                          '<td>'+ response["data"]["server"]["system"]+'</td>' +			                         
+				                        '</tr>' +
+				                        '<tr>' +
+				                          '<td>内核版本 :</td>' +
+				                          '<td>'+ response["data"]["server"]["kernel"] +'</td>' +
+				                          '<td>IP地址 : </td>' +
+				                          '<td>'+ response["data"]["server"]["ip"] +'</td>' +			                          
+				                        '</tr>' +		
+				                        '<tr>' +
+				                          '<td>CPU :</td>' +
+				                          '<td>'+ response["data"]["server"]["cpu"] +'</td>' +
+				                          '<td>CPU个数:</td>' +
+				                          '<td>'+ response["data"]["server"]["vcpu_number"] +'</td>' +			                          
+				                        '</tr>' +
+				                        '<tr>' +
+				                          '<td>硬盘大小(GB) : </td>' +
+				                          '<td>'+ response["data"]["server"]["disk_total"] +'</td>' +
+				                          '<td>Raid类型:</td>' +
+				                          '<td>'+ response["data"]["server"]["raid"] +'</td>' +			                          
+				                        '</tr>' +		
+				                        '<tr>' +
+				                          '<td>出口线路 :</td>' +
+				                          '<td>'+ response["data"]["server"]["line"] +'</td>' +
+				                          '<td>内存容量 (GB): </td>' +
+				                          '<td>'+ response["data"]["server"]["ram_total"] +'</td>' +			                          
+				                        '</tr>' +	
+				                        '<tr>' +
+				                          '<td>Swap容量:</td>' +
+				                          '<td>'+ response["data"]["server"]["swap"] +'</td>' +
+				                          '<td>Selinux : </td>' +
+				                          '<td>'+ response["data"]["server"]["selinux"] +'</td>' +			                          
+				                        '</tr>' +				                        
+				                      '</tbody>' +
+				                    '</table>'							          			
+        		}
+        		if (Object.keys(response["data"]["networkcard"]).length > 0){
+        			var trTags = '';
+					for (var i=0; i <response["data"]["networkcard"].length; i++){
+	                      if (response["data"]["networkcard"][i]["active"]>0){
+	                    	  status = '<td><span class="label label-success">on</span></td>' 
+	                      }else{
+	                    	  status = '<td><span class="label label-danger">off</span></td>'  
+	                      }								
+						trTags = trTags + '<tr>' +
+				                          '<td>'+ response["data"]["networkcard"][i]["device"] +'</td>' +
+				                          '<td>'+ response["data"]["networkcard"][i]["macaddress"]+'</td>' +	
+					                      '<td>'+ response["data"]["networkcard"][i]["ip"] +'</td>' +
+					                      '<td>'+ response["data"]["networkcard"][i]["module"]+'</td>' +			
+					                      '<td>'+ response["data"]["networkcard"][i]["mtu"]+'</td>' +
+					                       status +
+				                        '</tr>';
+					};              			
+        			netcardLiTags = '<table class="table table-striped">' +		                
+				                      '<tbody>' +
+				                        '<tr>' +
+				                          '<td>Name</td>' +
+				                          '<td>MAC</td>' +	
+					                      '<td>IPV4</td>' +
+					                      '<td>Speed</td>' +			
+					                      '<td>MTU</td>' +				
+					                      '<td>Status</td>' +			                        	
+				                        '</tr>' + trTags +		                        
+				                      '</tbody>' +
+				                    '</table>'							            			
+					
+        		}
+        		if (Object.keys(response["data"]["ram"]).length > 0){
+        			var trTags = '';
+					for (var i=0; i <response["data"]["ram"].length; i++){
+	                      if (response["data"]["ram"][i]["device_status"]>0){
+	                    	  status = '<td><span class="label label-success">on</span></td>' 
+	                      }else{
+	                    	  status = '<td><span class="label label-danger">off</span></td>'  
+	                      }								
+						trTags = trTags + '<tr>' +
+				                          '<td>'+ response["data"]["ram"][i]["device_model"] +'</td>' +
+				                          '<td>'+ response["data"]["ram"][i]["device_volume"]+'</td>' +	
+					                      '<td>'+ response["data"]["ram"][i]["device_brand"] +'</td>' +
+					                      '<td>'+ response["data"]["ram"][i]["device_slot"]+'</td>' +			
+					                       status +
+				                        '</tr>';
+					};              			
+        			ramLiTags = '<table class="table table-striped">' +		                
+					                      '<tbody>' +
+					                        '<tr>' +
+					                          '<td>内存型号</td>' +
+					                          '<td>内存容量(GB)</td>' +	
+						                      '<td>生产商</td>' +
+						                      '<td>Slot</td>' +					
+						                      '<td>Status</td>' +			                        	
+					                        '</tr>' + trTags +		                        
+					                      '</tbody>' +
+					                    '</table>' 							            			
+					
+        		}   
+        		if (Object.keys(response["data"]["disk"]).length > 0){
+        			var trTags = '';
+					for (var i=0; i <response["data"]["disk"].length; i++){
+	                      if (response["data"]["disk"][i]["device_status"]>0){
+	                    	  status = '<td><span class="label label-success">on</span></td>' 
+	                      }else{
+	                    	  status = '<td><span class="label label-danger">off</span></td>'  
+	                      }								
+						trTags = trTags + '<tr>' +
+				                          '<td>'+ response["data"]["disk"][i]["device_model"] +'</td>' +
+				                          '<td>'+ response["data"]["disk"][i]["device_volume"]+'</td>' +	
+				                          '<td>'+ response["data"]["disk"][i]["device_serial"] +'</td>' +
+					                      '<td>'+ response["data"]["disk"][i]["device_brand"] +'</td>' +
+					                      '<td>'+ response["data"]["disk"][i]["device_slot"]+'</td>' +			
+					                       status +
+				                        '</tr>';
+					};              			
+        			diskLiTags = '<div class="block_content">' +
+					                    '<table class="table table-striped">' +		                
+					                      '<tbody>' +
+					                        '<tr>' +
+					                          '<td>硬盘型号</td>' +
+					                          '<td>硬盘容量</td>' +	
+					                          '<td>序列号</td>' +	
+						                      '<td>生产商</td>' +
+						                      '<td>Slot</td>' +					
+						                      '<td>Status</td>' +			                        	
+					                        '</tr>' + trTags +		                        
+					                      '</tbody>' +
+					                    '</table>'							           			
+					
+        		} 
+        		if (Object.keys(response["data"]["tags"]).length > 0){  
+        			tagliTags = ''
+					for (var i=0; i <response["data"]["tags"].length; i++){
+						tagliTags = tagliTags +  '<li><a href="#">'+ response["data"]["tags"][i]["tags_name"] +'</a></li>' 
+					};              									           			
+        		}            		
+        		var divHtml = '<div class="col-md-12 col-sm-12 col-xs-12" '+ ids +'>' +
+                '<div class="x_panel">' +
+                  '<div class="x_title">' +
+                    '<h2><i class="fa fa-bars"></i>资产明细    <code>'+ text +'</code><small>Assets Info</small></h2>' +                   
+                    '<div class="clearfix"></div>' +
+                  '</div>' +
+                  '<div class="x_content">' +	
+                    '<div class="col-md-4 col-sm-4 col-xs-12">' +
+                        '<p class="text-left">资产标签</p>'+
+	                    '<canvas width="300" height="300" id="myCanvas'+ ids + '">' +
+		                    '<ul>' + tagliTags +
+		                    '</ul>' +
+	                   '</canvas>' +
+                    '</div>' + 
+                    '<div class="col-md-8 col-sm-8 col-xs-12">' + 
+	                    '<div class="" role="tabpanel" data-example-id="togglable-tabs">' +
+	                      '<ul id="myTab1" class="nav nav-tabs bar_tabs right" role="tablist">' +
+	                        '<li role="presentation" class=""><a href="#tab_content44'+ ids + '" role="tab" id="profile-tab4" data-toggle="tab" aria-controls="profile" aria-expanded="false">内存信息</a>' +
+	                        '</li>' +	
+	                        '<li role="presentation" class=""><a href="#tab_content55'+ ids + '" role="tab" id="profile-tab5" data-toggle="tab" aria-controls="profile" aria-expanded="false">硬盘信息</a>' +
+	                        '</li>' +	
+	                        '<li role="presentation" class=""><a href="#tab_content33'+ ids + '" role="tab" id="profile-tab3" data-toggle="tab" aria-controls="profile" aria-expanded="false">网卡信息</a>' +
+	                        '</li>' +		                        
+	                        '<li role="presentation" class=""><a href="#tab_content22'+ ids + '" role="tab" id="profile-tab2" data-toggle="tab" aria-controls="profile" aria-expanded="false">硬件信息</a>' +
+	                        '</li>' +	                        
+	                        '<li role="presentation" class="active"><a href="#tab_content11'+ ids + '" id="home-tabb" role="tab1" data-toggle="tab" aria-controls="home" aria-expanded="true">基础信息</a>' +
+	                        '</li>' +	
+                        
+	                      '</ul>' +
+	                      '<div id="myTabContent2" class="tab-content">' +
+	                        '<div role="tabpanel" class="tab-pane fade active in" id="tab_content11'+ ids +'" aria-labelledby="home-tab">' + baseLiTags +
+	                        '</div>' +
+	                        '<div role="tabpanel" class="tab-pane fade" id="tab_content22'+ ids + '" aria-labelledby="profile-tab">' + serverLiTags +
+	                        '</div>' +
+	                        '<div role="tabpanel" class="tab-pane fade" id="tab_content33'+ ids + '" aria-labelledby="profile-tab">' + netcardLiTags +
+	                        '</div>' +
+	                        '<div role="tabpanel" class="tab-pane fade" id="tab_content44'+ ids + '" aria-labelledby="profile-tab">' + ramLiTags +
+	                        '</div>' +
+	                        '<div role="tabpanel" class="tab-pane fade" id="tab_content55'+ ids + '" aria-labelledby="profile-tab">' + diskLiTags +
+	                        '</div>' +									
+	                      '</div>' +
+                      '</div>' +
+                    '</div>' +					
+                  '</div>' +
+                '</div>' +
+              '</div>'   
+             var vid = "#assetsInfo"+ ids   
+             var index = $.inArray(vid, serverList)
+             if (index>=0){
+            	 return false
+             }else{
+            	 $("#assets_detail").prepend(divHtml);	
+            	 serverList.push(vid)
+             } 
+        		   if( ! $('#myCanvas' + ids).tagcanvas({
+        			     textColour : 'dark',
+        			     outlineColour: '#ff00ff',
+        			     outlineThickness : 1,
+        			     maxSpeed : 0.03,
+        			     depth : 0.75
+        			   })) {
+        			     // TagCanvas failed to load
+        			     $('#myCanvasContainer').hide();
+        			   }          		
+        	}            	
+        }
+    });	
+}
 
 
 function customMenu(node) {
@@ -561,86 +1003,8 @@ function customMenu(node) {
 					obj = inst.get_node(data.reference);		
 					delete_nodes(obj,inst)
 				}
-            }, 
-//            "assets":{
-//        		"separator_before"	: false,
-//				"separator_after"	: false,
-//				"_disabled"			: false, 
-//				"label"				: "分配资产",
-//				"shortcut_label"	: 'F2',
-//				"icon"				: "fa fa fa-database",
-//				"action"			: function (data) {
-//					var inst = $.jstree.reference(data.reference),
-//					obj = inst.get_node(data.reference);		
-//					business_assets(obj,inst)
-//				}
-//            },             
-//            "view":{
-//            		"separator_before"	: false,
-//					"separator_after"	: false,
-//					"_disabled"			: false, 
-//					"label"				: "资产明细",
-//					"shortcut_label"	: 'F2',
-//					"icon"				: "fa fa-search-plus",
-//					"action"			: function (data) {
-//						var inst = $.jstree.reference(data.reference),
-//						obj = inst.get_node(data.reference);
-//						viewAssets(obj)
-//					}
-//            },
-//            "tags":{
-//          		"separator_before"	: false,
-//					"separator_after"	: false,
-//					"_disabled"			: false, 
-//					"label"				: "标签管理",
-//					"shortcut_label"	: 'F2',
-//					"icon"				: "fa fa-bookmark",
-//					"action"			: function (data) {
-//						var inst = $.jstree.reference(data.reference),
-//						obj = inst.get_node(data.reference);
-//						viewTags(obj)
-//					}
-//          },              
-//            "monitor":{
-//          		"separator_before"	: false,
-//					"separator_after"	: false,
-//					"_disabled"			: false, 
-//					"label"				: "监控信息",
-//					"shortcut_label"	: 'F2',
-//					"icon"				: "fa fa-bar-chart",
-//					"action"			: function (data) {
-//						var inst = $.jstree.reference(data.reference),
-//						obj = inst.get_node(data.reference);
-//						viewMonitor(obj)				
-//					}
-//          }, 
-//          "webssh":{
-//      		"separator_before"	: false,
-//				"separator_after"	: false,
-//				"_disabled"			: false, 
-//				"label"				: "打开终端",
-//				"shortcut_label"	: 'F2',
-//				"icon"				: "fa fa-terminal",
-//				"action"			: function (data) {
-//					var inst = $.jstree.reference(data.reference),
-//					obj = inst.get_node(data.reference);
-//					var parents = inst.get_path('#' + obj.parent ,false)
-//					var parentsName = ''
-//					for (var i=0; i <parents.length; i++){
-//						parentsName = parentsName + parents[i].split("(")[0]
-//					}
-//					openTerminal(obj,parentsName)				
-//				}
-//          }            
-	  }
-//    if(node["original"]["last_node"]==0){
-//		try {    	  
-//    	  delete items.assets
-//		}
-//		catch(err) {
-//			console.log(err)
-//		}     	  
-//  }    
+            },
+        }  
     return items
 }
 
@@ -660,13 +1024,7 @@ function drawTree(ids,dataList){
 	    	},
 	      'data' : dataList
 	    },	    
-/*	    "plugins": ["contextmenu", "dnd", "search","themes","state", "types", "wholerow","json_data","unique","checkbox"],*/
 	    "plugins": ["contextmenu", "dnd", "search","themes","state", "types", "wholerow","json_data","unique"],
-/*        "checkbox": {
-            "keep_selected_style": false,//是否默认选中
-            "three_state": false,//父子级别级联选择
-            "tie_selection": false
-        },*/
 	    'state': {
 	             "opened":true,
 	     },	    
@@ -1165,14 +1523,23 @@ $(document).ready(function() {
        var columnDefs = [                      	    		     		    		    	    		    
     	    		        {
        	    				targets: [10],
-       	    				render: function(data, type, row, meta) {  	    					
+       	    				render: function(data, type, row, meta) {  
+    	                        if(row.assets_type == '服务器'){
+		                            var hw = '<button type="button" name="btn-assets-hw" value="'+ row.id +'" class="btn btn-default" aria-label="Right Align"><span class="fa fa-hdd-o" aria-hidden="true"></span></button>'		    	               
+    	                        }else{
+    	                        	var hw = '<button type="button" name="btn-assets-hw" value="'+ row.id +'" class="btn btn-default" aria-label="Right Align" disabled><span class="fa fa-hdd-o" aria-hidden="true"></span></button>'		    	   
+    	                        }       	    					
        	                        return '<div class="btn-group  btn-group-xs">' +	
 			       	                     	'<button type="button" name="btn-assets-alter" value="'+ row.id +'" class="btn btn-default" aria-label="Center Align"><a href="/assets/manage/?id='+row.id+'&model=edit" target="view_window"><span class="glyphicon glyphicon-check" aria-hidden="true"></span></a>' +
 				                            '</button>' +
 				                            '<button type="button" name="btn-assets-info" value="'+ row.id +'" class="btn btn-default" aria-label="Right Align" data-toggle="modal" data-target=".bs-example-modal-info"><span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>' +
 				                            '</button>' +	                            
 				                            '<button type="button" name="btn-assets-update" value="'+ row.id +'" class="btn btn-default" aria-label="Right Align"><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span>' +
-				                            '</button>' +
+				                            '</button>' + hw +
+				                            '<button type="button" name="btn-assets-webssh" value="'+ row.id +'" class="btn btn-default" aria-label="Justify"><span class="fa fa-desktop" aria-hidden="true"></span>' +
+				                            '</button>'+
+				                            '<button type="button" name="btn-assets-detail" value="'+ row.id +'" class="btn btn-default" aria-label="Justify"><span class="fa fa-search" aria-hidden="true"></span>' +
+				                            '</button>'+				                            
     	    	                           '</div>';
        	    				},
        	    				"className": "text-center",
@@ -1189,7 +1556,7 @@ $(document).ready(function() {
             		makeAssetsSelectpicker("addBusinessAssetsSelect","ip","assets",dataList)
             		$('#addBusinessAssetsModal').modal("show");
             		$("#addBusinessAssetsModalLabel").html('<h4 class="modal-title" id="addBusinessAssetsModalLabel"><code>'+ select_node["paths"] +'</code> 分配资产</h4>')
-            		$("#addBusinessAssetsSubmit").val(select_node["id"])
+            		$("#addBusinessAssetsSubmit").val(select_node["id"])         		
             	}else{
             		$.alert({
             		    title: '操作失败',
@@ -1244,7 +1611,25 @@ $(document).ready(function() {
                 action: function (e, dt, button, config) {
                 	//dt.rows().select();          	
                 }
-            },       
+            },  
+            {
+                text: '标签',
+                className: "btn-sm",
+                action: function (e, dt, button, config) {
+                	let dataList = dt.rows('.selected').data()
+                	var vips = ''
+                	if (dataList.length==1){
+                		console.log(dataList)
+                		viewTags(dataList[0]["detail"]["assets_id"],dataList[0]["detail"]["ip"])
+                	}else{ 
+                		$.alert({
+                		    title: '操作失败',
+                		    content: '资产标签操作失败，请先选择一个资产',
+                		    type: 'red',		    
+                		});	                		
+                	}         	
+                }
+            },             
             {
                 text: '全选',
                 className: "btn-sm",
@@ -1419,6 +1804,7 @@ $(document).ready(function() {
 		$.confirm({
 		    title: '更新确认',
 		    content: ip,
+		    type: 'blue',
 		    buttons: {
 		              更新: function () {
 			    	$.ajax({  
@@ -1471,6 +1857,7 @@ $(document).ready(function() {
 		$.confirm({
 		    title: '更新内存硬盘信息',
 		    content: ip,
+		    type: 'blue',
 		    buttons: {
 		              更新: function () {
 			    	$.ajax({  
@@ -1514,7 +1901,46 @@ $(document).ready(function() {
 		});			
 		$(this).attr('disabled',false);
 	});		
-	  
+	
+	$('#businessLastNodesAssetsTableLists tbody').on('click','button[name="btn-assets-webssh"]',function(){
+    	var vIds = $(this).val();
+    	var td = $(this).parent().parent().parent().find("td")	
+		$("#myWebsshModalLabel").html('<p class="text-blank"><code><i class="fa fa fa-terminal"></i></code>'+td.eq(3).text()+'</p>')
+		$("#websshConnect").val(vIds)	
+		$('#webssh_tt').empty()
+    	$('.bs-example-modal-webssh-info').modal({backdrop:"static",show:true}); 		
+	})	
+	
+    $("#websshConnect").on("click", function(){
+    	var vIds = $(this).val();
+    	var randromChat = makeRandomId()
+        var ws_scheme = window.location.protocol == "https:" ? "wss" : "ws";
+        var ws_path = ws_scheme + '://' + window.location.host + '/ssh/' + vIds + '/' + randromChat + '/';
+//        console.log(randromChat)
+        websocket = make_terminal(document.getElementById('webssh_tt'), {rows: 30, cols: 140}, ws_path);  
+        $(this).attr("disabled",true);
+/*             $(".xterm-screen").css("width", "800px").css("height", "510px"); */
+      });  	
+
+    $('.bs-example-modal-webssh-info').on('hidden.bs.modal', function () {
+		try {
+			websocket["socket"].close()
+		}
+		catch(err) {
+			console.log(err)
+		} 
+		finally {
+			webssh = false
+		}    	
+    	$("#websshConnect").attr("disabled",false);
+    }); 	
+	
+	$('#businessLastNodesAssetsTableLists tbody').on('click','button[name="btn-assets-detail"]',function(){
+    	var vIds = $(this).val();
+    	var td = $(this).parent().parent().parent().find("td")		
+    	viewAssets(vIds,td.eq(3).text())
+	})    
+    
     $('#businessLastNodesAssetsTableLists tbody').on('click','button[name="btn-assets-info"]',function(){
     		$(this).attr('disabled',true);
     		var vIds = $(this).val();

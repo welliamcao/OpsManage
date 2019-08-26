@@ -67,14 +67,6 @@
                                            </select>
 									 </div>
 								</div>										
-<!-- 								<div class="form-group">
-									 <label class="col-sm-2 control-label" >业务类型</label>
-									 <div class="col-sm-6">
-                                           <select class="selectpicker form-control" name="service"  onchange="javascript:AssetsTypeSelect(this,'service');" required>
-											<option name="service" value="" selected="selected">请选择一个应用类型</option>
-                                           </select>
-									 </div>
-								</div> -->	
 							</div>		
 							<div id='inventory_server'  style="display:none;">
                                 <div class="form-group">
@@ -163,7 +155,7 @@
 								<label class="col-sm-4 control-label"></label>
 								<button type="reset"  class="btn btn-default btn-sm" >撤销</button>
 								{% if perms.deploy.deploy_exec_deploy_script %}
-						 			<button type="button"  class="btn btn-default btn-sm" id="run_deploy_model" disabled>执行</button>
+						 			<button type="button"  class="btn btn-default btn-sm" id="run_deploy_model">执行</button>
 						 		{% else %}
 						 			<button type="button"  class="btn btn-default btn-sm"  disabled>执行</button>
 						 		{% endif %}

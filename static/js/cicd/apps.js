@@ -244,17 +244,6 @@ $(document).ready(function() {
 	  setTimeout(function(){AutoReload(url);}, 30000);
 	}	
 	
-/*	 $("#project_env").change(function(){
-		   var obj = document.getElementById("project_env"); 
-		   var index = obj.selectedIndex;
-		   var value = obj.options[index].value; 
-		   if (value=="uat"){
-			   $("#extConfig").show();  	   
-		   }
-		   else {
-			   $("#extConfig").hide();  
-		   }		 
-	 });*/
 	 
 	 $("#project_repertory").change(function(){
 		   var project_model = '<select class="form-control" id="project_model" name="project_model" required>' +
