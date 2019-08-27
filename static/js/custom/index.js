@@ -260,7 +260,7 @@ $(document).ready(function() {
 	        },  
 	        success: function(response) {  
 					drawProjectChartSummary("projectCanvasDoughnut","project_env",response["data"]["appsCount"])
-					drawProjectChartSummary("tagCanvasDoughnut","tags_name",response["data"]["tagCount"])
+					drawProjectChartSummary("tagCanvasDoughnut","tags_name",response["data"]["tagsCount"])
 					drawProjectChartSummary("databaseCanvasDoughnut","db_env",response["data"]["dbCount"])				
 					var dataList = response["data"]["allCount"]
 					drawAllAssets(dataList)

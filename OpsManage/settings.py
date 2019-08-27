@@ -12,10 +12,10 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.11/ref/settings/
 """
 
-import os
+import sys, os
 import ldap
 from django_auth_ldap.config import LDAPSearch, GroupOfNamesType, PosixGroupType
-import os
+
 try:
     import ConfigParser as conf
 except ImportError as e:
@@ -23,6 +23,9 @@ except ImportError as e:
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) 
+
+sys.path.insert(0, os.path.join(BASE_DIR, 'apps'))
+
 config = conf.ConfigParser()
 config.read(os.path.join(BASE_DIR, 'conf/opsmanage.ini'))   
 
