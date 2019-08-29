@@ -268,8 +268,9 @@
                 <div class="modal-content">
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                        <h4 class="modal-title" id="myModalLabel">Excel文件批量导入资产</h4>
-                    </div>
+                        <h4 class="modal-title" id="myModalLabel">Excel文件批量导入资产</h4><small>模板文件(<u class="red">设备资产批量导入模板文件.xls</u>)</small>
+                        
+                    </div>                  
                     <form role="form" method="post" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"  enctype="multipart/form-data" action='/assets/import/' class="main form-horizontal">{% csrf_token %}
                      <div class="modal-body">
                          	<div class="form-group">
@@ -279,7 +280,7 @@
 								 </div>
 							</div>
                          
-                     <div class="modal-footer">
+                     <div class="modal-footer">                     
                          <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
                          <button type="submit" class="btn btn-primary">导入</button>
                      </div>

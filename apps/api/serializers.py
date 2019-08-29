@@ -41,9 +41,23 @@ class BusinessTreeSerializer(serializers.ModelSerializer):
     paths = serializers.SerializerMethodField(read_only=True,required=False)
     icon = serializers.SerializerMethodField(read_only=True,required=False)
     last_node = serializers.SerializerMethodField(read_only=True,required=False)
+    manage_name = serializers.SerializerMethodField(read_only=True,required=False)
+    env_name = serializers.SerializerMethodField(read_only=True,required=False)
     class Meta:
         model = Business_Tree_Assets
-        fields = ('id','text','env','manage','parent','group','desc','icon','paths','last_node','tree_id')          
+        fields = ('id','text','env','env_name','manage','manage_name','parent','group','desc','icon','paths','last_node','tree_id')          
+    
+    def get_env_name(self,obj):
+        try:
+            return Business_Env_Assets.objects.get(id=obj.env).name
+        except:
+            return "未知"        
+    
+    def get_manage_name(self,obj):
+        try:
+            return User.objects.get(id=obj.manage).username
+        except:
+            return "未知"
         
     def get_paths(self,obj):
         return obj.node_path()
