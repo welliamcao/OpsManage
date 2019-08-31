@@ -114,8 +114,87 @@ pip3 install --upgrade python-ldap
 ```
 九、启动部署平台
 ```
-# cd /mnt/OpsManage/
-# /usr/local/python3/bin/python3 manage.py runserver 0.0.0.0:8000
+# echo_supervisord_conf > /etc/supervisord.conf
+# export PYTHONOPTIMIZE=1
+# vim /etc/supervisord.conf
+最后添加，/var/log/celery-*.log这些是日志文件，如果有错误请注意查看，directory的值是代码路径
+[program:celery-worker-default]
+command=/usr/local/python3/bin/celery -A OpsManage worker --loglevel=info -E -Q default -n worker-default@%%h
+directory=/mnt/OpsManage
+stdout_logfile=/var/log/celery-worker-default.log
+autostart=true
+autorestart=true
+redirect_stderr=true
+stopsignal=QUIT
+numprocs=1
+
+[program:celery-worker-ansible]
+command=/usr/local/python3/bin/celery -A OpsManage worker --loglevel=info -E -Q ansible -n worker-ansible@%%h
+directory=/mnt/OpsManage
+stdout_logfile=/var/log/celery-worker-ansible.log
+autostart=true
+autorestart=true
+redirect_stderr=true
+stopsignal=QUIT
+numprocs=1
+
+[program:celery-beat]
+command=/usr/local/python3/bin/celery -A OpsManage  beat --loglevel=info --scheduler django_celery_beat.schedulers:DatabaseScheduler
+directory=/mnt/OpsManage
+stdout_logfile=/var/log/celery-beat.log
+autostart=true
+autorestart=true
+redirect_stderr=true
+stopsignal=QUIT
+numprocs=1
+
+
+[program:opsmanage-web]
+command=/usr/local/python3/bin/python3 manage.py runserver 0.0.0.0:8000 --http_timeout 1200
+directory=/mnt/OpsManage
+stdout_logfile=/var/log/opsmanage-web.log   
+stderr_logfile=/var/log/opsmanage-web-error.log
+autostart=true
+autorestart=true
+redirect_stderr=true
+stopsignal=QUIT
+
+
+
+启动celery
+# supervisord -c /etc/supervisord.conf
+# supervisorctl status #要检查是否都是running状态，uptime是不是递增
+
+
+配置nginx（请注意服务器上面是否安装了Nginx）：
+# vim /etc/nginx/conf.d/opsmanage.conf 
+server {
+    listen 80 ;
+    server_name 192.168.1.233;
+
+    access_log /var/log/nginx/opsmanage_access.log;
+    error_log /var/log/nginx/opsmanage_error.log;
+
+    location / {
+        proxy_next_upstream off;
+        proxy_set_header    X-Real-IP           $remote_addr;
+        proxy_set_header    X-Forwarded-For     $proxy_add_x_forwarded_for;
+        proxy_set_header    Host                $host;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_pass http://192.168.1.233:8000$request_uri;
+    }
+    location /static {
+        expires 30d;
+        autoindex on;
+        add_header Cache-Control private;
+        alias /mnt/OpsManage/static/;
+     }
+}
+# nginx -t  #检查配置文件
+# service start nginx			 #CentOS 6
+# systemctl start nginx.service  #CentOS 7
 ```
 
 

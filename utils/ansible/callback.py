@@ -306,17 +306,17 @@ class PlayBookResultsCollectorWebSocket(CallbackBase):
         self.save_msg(msg)
 
 
-class ModelResultsCollectorToMySQL(CallbackBase):  
+class ModelResultsCollectorBackground(CallbackBase):  
   
-    def __init__(self, mysql,*args, **kwargs):
-        super(ModelResultsCollectorToMySQL, self).__init__(*args, **kwargs)  
+    def __init__(self, background,*args, **kwargs):
+        super(ModelResultsCollectorBackground, self).__init__(*args, **kwargs)  
         self.host_ok = {}  
         self.host_unreachable = {}  
         self.host_failed = {}  
-        self.mysql = mysql
+        self.background = background
     
     def save_msg(self,data):
-        DeploySaveResult.Model.insert(self.mysql, data)          
+        DeploySaveResult.Model.insert(self.background, data)          
        
     def v2_runner_on_unreachable(self, result):  
         for remove_key in ('changed', 'invocation'):
@@ -346,22 +346,22 @@ class ModelResultsCollectorToMySQL(CallbackBase):
             data = "<font color='#DC143C'>{host} | FAILED! => {stderr}</font>".format(host=result._host.get_name(),stderr=json.dumps(result._result,indent=4))
         self.save_msg(data)        
 
-class PlayBookResultsCollectorToMySQL(CallbackBase):  
+class PlayBookResultsCollectorBackground(CallbackBase):  
     CALLBACK_VERSION = 2.0   
      
-    def __init__(self,mysql,*args, **kwargs):  
-        super(PlayBookResultsCollectorToMySQL, self).__init__(*args, **kwargs)  
+    def __init__(self,background,*args, **kwargs):  
+        super(PlayBookResultsCollectorBackground, self).__init__(*args, **kwargs)  
         self.task_ok = {}  
         self.task_skipped = {}  
         self.task_failed = {}  
         self.task_status = {} 
         self.task_unreachable = {}
         self.task_changed = {}
-        self.mysql = mysql
+        self.background = background
         self.taks_check = {}
      
     def save_msg(self,msg):
-        DeploySaveResult.PlayBook.insert(self.mysql, msg)
+        DeploySaveResult.PlayBook.insert(self.background, msg)
         
     def v2_runner_on_ok(self, result, *args, **kwargs):  
         self._clean_results(result._result, result._task.action)    
@@ -470,7 +470,7 @@ class PlayBookResultsCollectorToMySQL(CallbackBase):
     def v2_playbook_on_stats(self, stats):
         msg = "<font color='#FFFFFF'>\nPLAY RECAP *********************************************************************</font>"
         self.save_msg(msg)
-        if self.mysql:DeploySaveResult.PlayBook.insert(self.mysql, msg)
+        if self.background:DeploySaveResult.PlayBook.insert(self.background, msg)
         hosts = sorted(stats.processed.keys())
         for h in hosts:
             t = stats.summarize(h)
@@ -545,22 +545,22 @@ class PlayBookResultsCollectorToMySQL(CallbackBase):
             msg += "Result was: %s</font>" % json.dumps(result._result,indent=4)
         self.save_msg(msg)
 
-def AdHoccallback(websocket,mysql=None):
+def AdHoccallback(websocket,background=None):
     if websocket:
         return ModelResultsCollectorToWebSocket(websocket) 
     
-    elif mysql:
-        return ModelResultsCollectorToMySQL(mysql)
+    elif background:
+        return ModelResultsCollectorBackground(background)
     
     else:
         return ModelResultsCollector()
     
-def Playbookcallback(websocket,mysql=None):
+def Playbookcallback(websocket,background=None):
     if websocket:
         return PlayBookResultsCollectorWebSocket(websocket) 
     
-    elif mysql:
-        return ModelResultsCollectorToMySQL(mysql)    
+    elif background:
+        return PlayBookResultsCollectorBackground(background)    
     
     else:
         return PlayBookResultsCollector()    

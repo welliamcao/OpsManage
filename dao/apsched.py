@@ -8,7 +8,6 @@ from django.http import QueryDict
 from .assets import AssetsBase
 from utils.sched.rpc import sched_rpc
 from django.db.models import Q
-from tasks.celery_apsched import apsched_notice
 
 class ApschedBase(object):
     def __init__(self):

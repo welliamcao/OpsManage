@@ -24,7 +24,7 @@ class CeleryTaskManage(object):
     def regTaskList(self):
         regTaskList = []
         for task in list(keys(cTasks)):
-            if task.startswith('tasks.celery_deploy') or task.startswith('tasks.celery_sched'):
+            if task.startswith('apps.tasks.celery_deploy') or task.startswith('apps.tasks.celery_sched'):
                 regTaskList.append(task)
         return regTaskList
     

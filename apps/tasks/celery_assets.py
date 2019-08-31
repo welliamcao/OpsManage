@@ -4,11 +4,4 @@ import time
 from celery import task
 from utils import base
 from asset.models import Assets
-from django.contrib.auth.models import User
-
-    
-
-@task
-def debug_task():
-    print(time.time())
-    return time.time()    
+from django.contrib.auth.models import User 

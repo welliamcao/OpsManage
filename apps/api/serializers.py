@@ -13,6 +13,7 @@ from orders.models import *
 from apply.models import *
 from django.contrib.auth.models import Group,User
 from django_celery_beat.models  import CrontabSchedule,IntervalSchedule,PeriodicTask
+from django_celery_results.models import TaskResult 
 from rest_framework.pagination import CursorPagination
 
 class PageConfig(CursorPagination):
@@ -312,6 +313,14 @@ class PeriodicTaskSerializer(serializers.ModelSerializer):
         model = PeriodicTask
         fields = ('id','name', 'task', 'kwargs','last_run_at','total_run_count',
                   'enabled','queue','crontab','interval','args','expires')  
+
+
+class TaskResultSerializer(serializers.ModelSerializer):
+    date_done = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S")
+    class  Meta:
+        model = TaskResult
+        fields = ('id','task_id', 'status', 'task_name','task_kwargs','date_done',
+                  'result','date_done') 
         
 class CronSerializer(serializers.ModelSerializer):
     crontab_server = serializers.CharField(source='cron_server.server_assets.ip', read_only=True)

@@ -1,24 +1,23 @@
 #!/usr/bin/env python  
 # _#_ coding:utf-8 _*_ 
-import json
 from celery import task
-from utils import base
-from databases.models import (SQL_Execute_Histroy)
-from orders.models import Order_System
-from django.contrib.auth.models import User
+from databases.models import (SQL_Execute_Histroy,DataBase_Server_Config)
 
-
-@task  
-def recordSQL(exe_user,exe_db,exe_sql,exec_status,exe_result=None):
+@task
+def record_exec_sql(exe_user,exe_db,exe_sql,exe_time,exec_status=None,exe_result=None):
+    try:
+        exe_db = DataBase_Server_Config.objects.get(id=exe_db)
+    except Exception as ex:
+        return {"status":"failed","msg":str(ex)} 
     try:
         SQL_Execute_Histroy.objects.create(
                                   exe_user = exe_user,
                                   exe_db = exe_db,
                                   exe_sql = exe_sql,
                                   exec_status = exec_status,
-                                  exe_result = exe_result
+                                  exe_result = exe_result,
+                                  exe_time = exe_time
                                   )
-        return True
+        return {"status":"success","msg":None}
     except Exception as ex:
-        print (ex)
-        return False 
+        return {"status":"failed","msg":str(ex)} 

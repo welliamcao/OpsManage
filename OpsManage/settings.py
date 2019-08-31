@@ -37,7 +37,7 @@ config.read(os.path.join(BASE_DIR, 'conf/opsmanage.ini'))
 SECRET_KEY = 'i)&2z^y%0w1o-%h3da1*$!9@5hx^dzp-_w&rx&4k6ml)l24&ev'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 ALLOWED_HOSTS = ['*']
 
 REDSI_KWARGS_LPUSH = {"host":config.get('redis', 'host'),'port':config.get('redis', 'port'),'db':config.get('redis', 'ansible_db')}

@@ -50,7 +50,7 @@ class ANSRunner(object):
         verbosity=None,
         syntax=False,        
         websocket=None,
-        mysql=None
+        background=None
     ):
         self.Options = namedtuple("Options", [
                                                 'listtags', 'listtasks', 'listhosts', 'syntax', 'connection',
@@ -89,7 +89,7 @@ class ANSRunner(object):
             diff=False
         )
         self.websocket = websocket      
-        self.mysql = mysql 
+        self.background = background 
         self.loader = DataLoader()
         self.inventory = get_inventory(hosts)
         self.variable_manager = VariableManager(self.loader, self.inventory)
@@ -99,7 +99,7 @@ class ANSRunner(object):
         
   
     def run_model(self,host_list, module_name, module_args):
-        self.callback = AdHoccallback(self.websocket,self.mysql)  
+        self.callback = AdHoccallback(self.websocket,self.background)  
         play_source = dict(
             name="Ansible Ad-hoc",
             hosts=host_list,
@@ -135,7 +135,7 @@ class ANSRunner(object):
         run ansible palybook 
         """   
         try: 
-            self.callback = Playbookcallback(self.websocket,self.mysql) 
+            self.callback = Playbookcallback(self.websocket,self.background) 
             extra_vars['host'] = ','.join(host_list)
             self.variable_manager.extra_vars = extra_vars            
             executor = PlaybookExecutor(  

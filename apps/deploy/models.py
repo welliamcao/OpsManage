@@ -1,5 +1,6 @@
 #!/usr/bin/env python  
-# _#_ coding:utf-8 _*_  
+# _#_ coding:utf-8 _*_
+import json  
 from django.db import models
 import django.utils.timezone as timezone
 from django.contrib.auth.models import User
@@ -73,6 +74,18 @@ class Deploy_Playbook(models.Model):
             "update_date":self.update_date,
         }
         return  json_format             
+
+    def to_celery(self):
+        json_format = {
+            "id":self.id,     
+            "is_superuser":self.playbook_user,      
+            "business":self.playbook_business,
+            "custom":json.loads(self.playbook_server),
+            "group":self.playbook_group,
+            "tags":self.playbook_tags,
+            "inventory_groups":self.playbook_inventory_groups,
+        }
+        return  json_format 
         
 class Deploy_Script(models.Model): 
     script_name = models.CharField(max_length=50,verbose_name='脚本名称',unique=True)
@@ -124,6 +137,19 @@ class Deploy_Script(models.Model):
             "update_date":self.update_date,
         }
         return  json_format 
+    
+    def to_celery(self):
+        json_format = {
+            "id":self.id,     
+            "is_superuser":self.script_user,      
+            "script_args":self.script_args,
+            "business":self.script_business,
+            "custom":json.loads(self.script_server),
+            "group":self.script_group,
+            "tags":self.script_tags,
+            "inventory_groups":self.script_inventory_groups,
+        }
+        return  json_format         
         
 
 class Log_Deploy_Playbook(models.Model): 

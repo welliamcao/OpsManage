@@ -3,7 +3,6 @@ from __future__ import absolute_import, unicode_literals
 import os,django
 from celery import Celery,platforms
 from django.conf import settings
-from kombu import Queue,Exchange
 from OpsManage.settings import config
 
 platforms.C_FORCE_ROOT = True
@@ -16,10 +15,10 @@ app = Celery('OpsManage')
 ''' celery config '''
 app.conf.update( 
                 CELERY_BROKER_URL = 'amqp://'+ config.get('amqp', 'user') +':'+ config.get('amqp', 'password') +'@' + config.get('amqp', 'host') + ":" + config.get('amqp', 'port') + '//', 
-#                 CELERY_RESULT_BACKEND ='django-db',              
+                CELERY_RESULT_BACKEND ='django-db',              
                 CELERY_TIMEZONE= 'Asia/Shanghai',
                 CELERY_ENABLE_UTC= True,
-#                 CELERYBEAT_SCHEDULER='django_celery_beat.schedulers:DatabaseScheduler',
+                CELERYBEAT_SCHEDULER='django_celery_beat.schedulers:DatabaseScheduler',
                 CELERY_TASK_RESULT_EXPIRES=60 * 60 * 24,
                 CELERYD_MAX_TASKS_PER_CHILD=40,
                 CELERY_TRACK_STARTED=True,

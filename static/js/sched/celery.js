@@ -146,6 +146,91 @@ function AutoReload(tableId,url)
   setTimeout(function(){AutoReload(url);}, 30000);
 }
 
+function RefreshTaskResultTable(tableId, urlData){
+	$.getJSON(urlData, null, function( dataList ){
+    table = $('#'+tableId).dataTable();
+    oSettings = table.fnSettings();
+    
+    table.fnClearTable(this);
+
+    for (var i=0; i<dataList['results'].length; i++)
+    {
+      table.oApi._fnAddData(oSettings, dataList['results'][i]);
+    }
+
+    oSettings.aiDisplay = oSettings.aiDisplayMaster.slice();
+    table.fnDraw();
+    
+    if (dataList['next']){
+  	  $("button[name='page_next']").attr("disabled", false).val(dataList['next']);	
+    }else{
+  	  $("button[name='page_next']").attr("disabled", true).val();
+    }
+    if (dataList['previous']){
+  	  $("button[name='page_previous']").attr("disabled", false).val(dataList['previous']);	
+    }else{
+  	  $("button[name='page_previous']").attr("disabled", true).val();
+    } 
+  });	
+}
+
+function InitTaskResultDataTable(tableId,url,buttons,columns,columnDefs){
+	  var data = requests('get',url)
+	  oOverviewTable =$('#'+tableId).dataTable(
+			  {
+				  	"dom": "Bfrtip",
+				  	"buttons":buttons,
+		    		"bScrollCollapse": false, 				
+		    	    "bRetrieve": true,	
+		    		"destroy": true, 
+		    		"data":	data['results'],
+		    		"columns": columns,
+		    		"columnDefs" :columnDefs,			  
+		    		"language" : language,
+		    		"iDisplayLength": 20,
+		    		"order": [[ 0, "ase" ]],
+		    		"autoWidth": false	    			
+		    	});
+	  if (data['next']){
+		  $("button[name='page_next']").attr("disabled", false).val(data['next']);	
+	  }else{
+		  $("button[name='page_next']").attr("disabled", true).val();
+	  }
+	  if (data['previous']){
+		  $("button[name='page_previous']").attr("disabled", false).val(data['next']);	
+	  }else{
+		  $("button[name='page_previous']").attr("disabled", true).val();
+	  }	  
+}
+
+function makeCeleryTaksResultsListTableList(){
+    var columns = [                
+                   {"data": "id"},
+                   {"data": "task_id"},
+                   {"data": "status"},
+                   {"data": "task_name"},
+                   {"data": "task_kwargs"},
+                   {"data": "date_done"},
+                   {"data": "result"},
+	               ]
+   var columnDefs = [                       
+	    		        {
+   	    				targets: [7],
+   	    				render: function(data, type, row, meta) {  	    					
+   	                        return '<div class="btn-group  btn-group-xs">' +		    	                           
+//	    	                           '<button type="button" name="btn-task-logs" value="'+ row.id +'" class="btn btn-default" data-toggle="modal"><span class="fa fa-search-plus" aria-hidden="true"></span>' +	
+//	    	                           '</button>' + 	    	                           
+	    	                           '<button type="button" name="btn-task-delete" value="'+ row.id +'" class="btn btn-default" aria-label="Justify"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span>' +	
+	    	                           '</button>' +			                            
+	    	                           '</div>';
+   	    				},
+   	    				"className": "text-center",
+	    		        },
+	    		      ]	
+    var buttons = []    
+    InitTaskResultDataTable('celeryTaksResultsListTable','/api/sched/celery/result/',buttons,columns,columnDefs);	
+}
+
 $(document).ready(function() {	
 	
     $("#add_interval_button").click(function(){
@@ -208,9 +293,9 @@ $(document).ready(function() {
 	    	    		        },
 	    	    		      ]
 		    
-		    InitDataTable('taskTableList','/api/sched/tasks/',buttons,columns,columnDefs);
+		    InitDataTable('taskTableList','/api/sched/celery/',buttons,columns,columnDefs);
 		    //每隔30秒刷新table
-		    setTimeout(function(){AutoReload('taskTableList','/api/sched/tasks/');}, 30000);    		
+		    setTimeout(function(){AutoReload('taskTableList','/api/sched/celery/');}, 30000);    		
     	}
     	makeTaskList()
 	    
@@ -598,14 +683,14 @@ $(document).ready(function() {
 		formData.append('expires',$('#expires').val());
 		formData.append('enabled',$('#enabled option:selected').val());
 		$.ajax({
-			url: '/api/sched/tasks/', //请求地址
+			url: '/api/sched/celery/', //请求地址
 			type:"POST",  //提交类似
 		    processData: false,
 		    contentType: false,			
 			data:formData,  //提交参数
 			success:function(response){
 				btnObj.removeAttr('disabled');				
-				RefreshTable('#taskTableList', '/api/sched/tasks/');		
+				RefreshTable('#taskTableList', '/api/sched/celery/');		
             	new PNotify({
                     title: '<strong>操作成功:</strong>',
                     text: "添加成功",
@@ -630,7 +715,7 @@ $(document).ready(function() {
 		btnObj.attr('disabled',true);		  
 		var vIds = $(this).val();
 	    $.ajax({  
-	        url : '/api/sched/tasks/'+ vIds + '/',  
+	        url : '/api/sched/celery/'+ vIds + '/',  
 	        type : 'get', 
 	        success : function(response){
 	            	btnObj.removeAttr('disabled');
@@ -693,14 +778,14 @@ $(document).ready(function() {
 		formData.append('expires',$('#expires').val());
 		formData.append('enabled',$('#enabled option:selected').val());		
 		$.ajax({
-			url: '/api/sched/tasks/'+ vIds + '/', //请求地址
+			url: '/api/sched/celery/'+ vIds + '/', //请求地址
 			type:"PUT",  //提交类似
 		    processData: false,
 		    contentType: false,			
 			data:formData,  //提交参数
 			success:function(response){
 				btnObj.removeAttr('disabled');
-				RefreshTable('#taskTableList', '/api/sched/tasks/');		
+				RefreshTable('#taskTableList', '/api/sched/celery/');		
             	new PNotify({
                     title: '<strong>操作成功:</strong>',
                     text: "修改成功",
@@ -738,7 +823,7 @@ $(document).ready(function() {
 					data:{
 						"id":vIds,
 					}, 		            
-		            url:'/api/sched/tasks/'+ vIds + '/',   
+		            url:'/api/sched/celery/'+ vIds + '/',   
 		            error: function(request) {  
 		            	new PNotify({
 		                    title: 'Ops Failed!',
@@ -754,7 +839,7 @@ $(document).ready(function() {
 		                    type: 'success',
 		                    styling: 'bootstrap3'
 		                }); 
-		            	RefreshTable('#taskTableList', '/api/sched/tasks/');
+		            	RefreshTable('#taskTableList', '/api/sched/celery/');
 		            }  
 		    	});
 		        },
@@ -764,6 +849,67 @@ $(document).ready(function() {
 		        },			        
 		    }
 		});		
-	});	    
+	});	 
+	
+	if($("#regTaskList").length){
+		$("#regTaskList").change(function(){
+			   var obj = document.getElementById("regTaskList"); 
+			   var index = obj.selectedIndex;
+			   var value = obj.options[index].value; 
+			   RefreshTaskResultTable('celeryTaksResultsListTable', '/api/sched/celery/result/?task_name='+value)
+		});			
+	}	
+	
+	if($("#celeryTaksResultsListTable").length){
+	    $("button[name^='page_']").on("click", function(){
+	      	var url = $(this).val();
+	      	$(this).attr("disabled",true);
+	      	if (url.length){
+	      		RefreshTaskResultTable('celeryTaksResultsListTable', url);
+	      	}      	
+	    	$(this).attr('disabled',false);
+	      }); 			
+	    makeCeleryTaksResultsListTableList()  
+	 
+		$('#celeryTaksResultsListTable tbody').on('click',"button[name='btn-task-delete']",function(){
+			var vIds = $(this).val();  
+	    	var td = $(this).parent().parent().parent().find("td")
+	    	var node =  td.eq(1).text()
+			$.confirm({
+			    title: '删除确认日志',
+			    content: '<strong>任务ID</strong> <code>' + node + '</code>?',
+			    type: 'red',
+			    buttons: {
+			             删除: function () {		       
+					$.ajax({
+						url:"/api/sched/celery/result/" + vIds + '/', 
+						type:"DELETE",  		
+						success:function(response){
+			            	new PNotify({
+			                    title: 'Success!',
+			                    text: '修改成功',
+			                    type: 'success',
+			                    styling: 'bootstrap3'
+			                }); 
+			            	RefreshTaskResultTable('celeryTaksResultsListTable', '/api/sched/celery/result/')
+						},
+				    	error:function(response){
+				           	new PNotify({
+				                   title: 'Ops Failed!',
+				                   text: response.responseText,
+				                   type: 'error',
+				                   styling: 'bootstrap3'
+				               }); 
+				    	}
+					});	
+			        },
+			        取消: function () {
+			            return true;			            
+			        },			        
+			    }
+			});			  		 	
+	    });		    
+	    
+	}	
     
 })

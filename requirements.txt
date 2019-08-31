@@ -1,8 +1,7 @@
 aioredis==1.2.0
-amqp==2.3.2
+amqp==2.5.1
 ansible==2.6.6
 anyjson==0.3.3
-asgi-redis==1.4.3
 asgiref==2.3.2
 asn1crypto==0.24.0
 async-timeout==3.0.1
@@ -10,9 +9,8 @@ attrs==18.2.0
 autobahn==18.10.1
 Automat==0.7.0
 bcrypt==3.1.4
-billiard==3.5.0.4
-celery==4.2.1
-celery-with-redis==3.0
+billiard==3.6.1.0
+celery==4.3.0
 certifi==2018.10.15
 cffi==1.11.5
 channels==2.1.6
@@ -26,7 +24,7 @@ DBUtils==1.3
 Django==2.1.4
 django-auth-ldap==1.5.0
 django-celery-beat==1.1.1
-django-celery-results==1.0.1
+django-celery-results==1.1.2
 django-db==0.0.7
 django-timezone-field==3.0
 djangorestframework==3.9.0
@@ -43,7 +41,7 @@ idna==2.7
 incremental==17.5.0
 jdcal==1.4
 Jinja2==2.10
-kombu==4.2.1
+kombu==4.6.4
 ldap3==2.5.1
 MarkupSafe==1.1.0
 msgpack==0.5.6
