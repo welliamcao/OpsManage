@@ -22,6 +22,58 @@ var language =  {
 			"sSortDescending" : ": 以降序排列此列"
 		}
 	}
+
+function make_database_binlog(vIds,select_name){
+	switch(select_name) {
+	    case "binlog_db_file":
+	       var model = "binlog_sql"
+	       break;
+	    case "table_name":
+	    	var model = "table_list"
+	       break;
+	    case "optimize_db":
+	    	var model = "optimize_sql"
+	       break;
+	}	
+	$.ajax({
+		url:'/db/manage/', //请求地址
+		type:"POST",  //提交类似			
+		data:{
+			"db":vIds,
+			"model":model,
+		},  //提交参数
+		success:function(response){
+            if (response["code"] == 200){
+	            if (response["data"].length) {
+	    			var selectHtml = '<select required="required" class="selectpicker form-control" data-live-search="true" name="'+select_name+'" id="'+select_name+'"  data-size="10" data-selected-text-format="count > 3"  data-width="100%"  autocomplete="off">' 
+	    			var option = '';
+	    			for (var i=0; i <response["data"].length; i++){
+	    				option = option + '<option value="'+ response["data"][i] +'">'+ response["data"][i] +'</option>'
+	    			}													
+	    			var selectHtml = selectHtml + option + '</select>';
+	    			$("#"+select_name).html(selectHtml);
+	    			$('.selectpicker').selectpicker('refresh');	
+				}		            
+            }else{
+	           	new PNotify({
+	                   title: 'Ops Failed!',
+	                   text: response["msg"],
+	                   type: 'error',
+	                   styling: 'bootstrap3'
+	            }); 	            	
+            }                            								
+		},
+    	error:function(response){
+           	new PNotify({
+                   title: 'Ops Failed!',
+                   text: response.responseText,
+                   type: 'error',
+                   styling: 'bootstrap3'
+            }); 
+    	}
+	});                           								
+}
+
 function requests(method,url,data){
 	var ret = '';
 	$.ajax({
@@ -102,7 +154,7 @@ function RefreshTable(tableId, urlData){
 }
 
 
-function makeDbQueryTableList(dataList){
+function makeDbManageTableList(dataList){
     var columns = [
                    {"data": "db_mark"},
 	               {
@@ -119,9 +171,7 @@ function makeDbQueryTableList(dataList){
    	    				render: function(data, type, row, meta) {
    	                        return '<div class="btn-group  btn-group-xs">' +	
 	    	                           '<button type="button" name="btn-database-query" value="'+ row.id +'" class="btn btn-default"  aria-label="Justify"><span class="glyphicon glyphicon glyphicon-zoom-in" aria-hidden="true"></span>' +	
-	    	                           '</button>' +	
-	    	                           '<button type="button" name="btn-database-table" value="'+ row.id +'" class="btn btn-default"  aria-label="Justify"><span class="fa fa-bar-chart" aria-hidden="true"></span>' +	
-	    	                           '</button>' +    		    	                           			                            
+	    	                           '</button>' +			    	                           			                            
 	    	                           '</div>';
    	    				},
    	    				"className": "text-center",
@@ -196,8 +246,38 @@ function drawTableTree(ids,jsonData){
 	});		
 }
 
+function getFormatDate(time){  
+    var nowDate = new Date(new Date()-1000*time);   
+    var year = nowDate.getFullYear();  
+    var month = nowDate.getMonth() + 1 < 10 ? "0" + (nowDate.getMonth() + 1) : nowDate.getMonth() + 1;  
+    var date = nowDate.getDate() < 10 ? "0" + nowDate.getDate() : nowDate.getDate();  
+    var hour = nowDate.getHours()< 10 ? "0" + nowDate.getHours() : nowDate.getHours();  
+    var minute = nowDate.getMinutes()< 10 ? "0" + nowDate.getMinutes() : nowDate.getMinutes();  
+    var second = nowDate.getSeconds()< 10 ? "0" + nowDate.getSeconds() : nowDate.getSeconds();  
+    return year + "-" + month + "-" + date+" "+ hour + ":" + minute + ":" + second;  
+}
+
 $(document).ready(function () {
 
+	if ($("#binlog_time").length){
+		var cdate = new Date();
+		var startTime =  getFormatDate(0)
+		var endTime = getFormatDate(3600)
+		$("#binlog_time").val(endTime+' - '+startTime)
+	 	$("#binlog_time").daterangepicker({
+            "timePicker": true,
+            "timePicker24Hour": true,
+            "linkedCalendars": false,
+            "autoUpdateInput": false,
+            "locale": {
+                format: "YYYY-MM-DD hh:mm:ss",
+                applyLabel: "应用",
+                cancelLabel: "取消",
+                resetLabel: "重置",
+            }
+	    });	
+	}	
+	
 	try{
 		var aceEditAdd = setAceEditMode("compile-editor-add","ace/mode/mysql","ace/theme/sqlserver");								 		  
 	}
@@ -205,15 +285,215 @@ $(document).ready(function () {
 		console.log(err)
 	}		
 	
-	
-    if ($("#UserDatabaseListTable").length) {   
 
+    $("#db_binlog_btn").on('click', function() {
+		var btnObj = $(this);
+		btnObj.attr('disabled',true);    
+		let vIds = $(this).val();
+		$.ajax({
+			url:'/db/manage/',
+			type:"POST",			
+			data:{
+				"db":vIds,
+				"model":"parse_sql",
+				"binlog_time":$("#binlog_time").val(),
+				"binlog_table":$("#binlog_table").val(),
+				"binlog_db_file":$("#binlog_db_file option:selected").val(),
+			},  //提交参数
+			success:function(response){
+				btnObj.removeAttr('disabled');    
+				var binlogHtml = '<div id="binlog_result"><pre><code class="sql hljs">';
+				for (var i=0; i <response["data"].length; i++){
+					binlogHtml +=  response["data"][i]+'<br>';
+				}; 		
+				binlogHtml = binlogHtml + '</code></pre></div>';
+				$("#binlog_result").html(binlogHtml);  
+			    $('pre code').each(function(i, block) {
+			    	hljs.highlightBlock(block);
+			  	});				
+			},
+	    	error:function(response){
+	    		btnObj.removeAttr('disabled');
+	           	new PNotify({
+	                   title: 'Ops Failed!',
+	                   text: response["msg"],
+	                   type: 'error',
+	                   styling: 'bootstrap3'
+	           	}); 
+	    	}
+		});	    
+    });		
+	
+	
+    $("#db_schema_btn").on('click', function() {
+		var btnObj = $(this);
+		btnObj.attr('disabled',true);  
+		let vIds = $(this).val();
+		$.ajax({
+			url:'/db/manage/',
+			type:"POST",			
+			data:{
+				"db":vIds,
+				"model":"table_schema",
+				"table_name":$("#table_name option:selected").val(),
+			},  //提交参数
+			success:function(response){
+				btnObj.removeAttr('disabled');
+				var schemaTableHtml = '<table class="table table-striped">' +		                
+							              '<tbody>' +
+							                '<tr>' +
+							                  '<td>数据库: </td>' + '<td>'+ response["data"]["schema"][1][0][0] +'</td>' +
+							                  '<td>表名: </td>' +	'<td>'+ response["data"]["schema"][1][0][1] +'</td>' +
+							                  '<td>表类型: </td>' + '<td>'+ response["data"]["schema"][1][0][2] +'</td>' +	
+							                '</tr>' +
+							                '<tr>' +  
+							                  '<td>存储引擎: </td>' + '<td>'+ response["data"]["schema"][1][0][3] +'</td>' +	
+							                  '<td>版本: </td>' + '<td>'+ response["data"]["schema"][1][0][4] +'</td>' +						
+							                  '<td>行格式: </td>' + '<td>'+ response["data"]["schema"][1][0][5] +'</td>' +		
+							                '</tr>' +  
+							                '<tr>' +  
+							                  '<td>行记录数: </td>' + '<td>'+ response["data"]["schema"][1][0][6] +'</td>' +	
+							                  '<td>数据长度: </td>' + '<td>'+ response["data"]["schema"][1][0][7] +'</td>' +		
+							                  '<td>最大数据长度: </td>' + '<td>'+ response["data"]["schema"][1][0][8] +'</td>' +	
+								            '</tr>' +	
+								            '<tr>' + 
+							                  '<td>索引长度: </td>' + '<td>'+ response["data"]["schema"][1][0][9] +'</td>' +	
+							                  '<td>数据空闲: </td>' + '<td>'+ response["data"]["schema"][1][0][10] +'</td>' +	
+							                  '<td>自动递增值: </td>' + '<td>'+ response["data"]["schema"][1][0][11] +'</td>' +	
+									        '</tr>' +	
+									        '<tr>' + 							                  
+							                  '<td>创建日期: </td>' + '<td>'+ response["data"]["schema"][1][0][12] +'</td>' +	
+							                  '<td>字符集类型: </td>' + '<td>'+ response["data"]["schema"][1][0][13] +'</td>' +	
+							                  '<td>注释</td>' + '<td>'+ response["data"]["schema"][1][0][14] +'</td>' +	
+							                '</tr>'	 +                       
+							              '</tbody>' +
+							           '</table>'                    					
+				var indexTableHtml = '<table class="table table-striped"><thead><tr>'     	
+				    var indexTrHtml = '';
+					for (var i=0; i <response["data"]["index"][2].length; i++){
+						indexTrHtml = indexTrHtml + '<th>' + response["data"]["index"][2][i] +'</th>';
+					}; 
+					indexTableHtml = indexTableHtml + indexTrHtml + '</tr></thead><tbody>';
+					var indexHtml = '';
+					for (var i=0; i <response["data"]["index"][1].length; i++){
+						var indexTdHtml = '<tr>';
+						for (var x=0; x < response["data"]["index"][1][i].length; x++){
+							indexTdHtml = indexTdHtml + '<td>' + response["data"]["index"][1][i][x] +'</td>';
+						} 	
+						indexHtml = indexHtml + indexTdHtml + '</tr>';
+					}                    	
+				indexTableHtml = indexTableHtml + indexHtml +  '</tbody></table>';						
+				var descHtml = '<pre><code class="sql hljs">' + response["data"]["desc"] + '<br></code></pre>';	
+                var schemaHtml = '<div id="schema_result"><ul class="list-unstyled timeline widget">' +
+					               '<li>' +
+					                '<div class="block">' +
+					                  '<div class="block_content">' +
+					                    '<h2 class="title">' +
+					                       '<a>表结构信息</a>' +
+					                    '</h2><br>' +
+					                    schemaTableHtml +
+					                  '</div>' +
+					                '</div>' +
+					              '</li>' +
+					              '<li>' +
+					               '<li>' +
+					                '<div class="block">' +
+					                  '<div class="block_content">' +
+					                    '<h2 class="title">' +
+					                       '<a>表索引信息</a>' +
+					                    '</h2><br>' +
+					                    indexTableHtml +
+					                  '</div>' +					                  
+					                '</div>' +
+					              '</li>' +
+					               '<li>' +
+					                '<div class="block">' +
+					                  '<div class="block_content">' +
+					                    '<h2 class="title">' +
+					                       '<a>DDL信息</a>' +
+					                    '</h2><br>' +					                    
+					                    descHtml +
+					                  '</div>' +
+					                '</div>' +
+					              '</li>' +					              
+					            '</ul>'				
+				$("#schema_result").html(schemaHtml);   
+			    $('pre code').each(function(i, block) {
+			    	hljs.highlightBlock(block);
+			  	});				
+				           								
+			},
+	    	error:function(response){
+	    		btnObj.removeAttr('disabled');
+	           	new PNotify({
+	                   title: 'Ops Failed!',
+	                   text: response.responseText,
+	                   type: 'error',
+	                   styling: 'bootstrap3'
+	           	}); 
+	    	}
+		});	    
+    });    
+    
+    $("#db_optimize_btn").on('click', function() {
+		var btnObj = $(this);
+		btnObj.attr('disabled',true);    
+		let vIds = $(this).val();
+		$.ajax({
+			url:'/db/manage/',
+			type:"POST",			
+			data:{
+				"db":vIds,
+				"model":"optimize_sql",
+				"table_name":$("#db_optimize_sql").val(),
+			}, 
+			success:function(response){
+				btnObj.removeAttr('disabled');    
+	            if (response["code"] == 200){
+		            if (response["data"].length) {
+						$("#optimize_result").html("<pre>"+ response['data'][0] +"</pre>"); 
+					}		            
+	            }else{
+		           	new PNotify({
+		                   title: 'Ops Failed!',
+		                   text: response["msg"],
+		                   type: 'error',
+		                   styling: 'bootstrap3'
+		            }); 	            	
+	            }  				
+			},
+	    	error:function(response){
+	    		btnObj.removeAttr('disabled');
+	           	new PNotify({
+	                   title: 'Ops Failed!',
+	                   text: response.responseText,
+	                   type: 'error',
+	                   styling: 'bootstrap3'
+	           	}); 
+	    	}
+		});	    
+    });      
+    
+    if ($("#UserDatabaseListTable").length) {   
+    	
     	$('#UserDatabaseListTable tbody').on('click',"button[name='btn-database-query']",function(){   
         	let vIds = $(this).val();
         	let td = $(this).parent().parent().parent().find("td")
-        	$("#dbChoice").html('<i  class="fa  fa-paper-plane" >数据库  <u class="red">'+ td.eq(1).text() +'</u> 查询入口</i>')
-			$("#db_query_btn").removeClass("disabled").text("查询").val(vIds)
-        });	    	
+        	$("#dbChoice").html('<i  class="fa  fa-paper-plane" >数据库  <u class="red">'+ td.eq(1).text() +'</u> 操作入口</i>')
+			$("#db_exec_btn").removeClass("disabled").text("执行").val(vIds)
+			///binlog日志
+        	$("#dbDmlBinlog").html('<i  class="fa  fa-paper-plane" >数据库  <u class="red">'+ td.eq(1).text() +'</u> DML语句回滚</i>')
+			$("#db_binlog_btn").removeClass("disabled").text("解析").val(vIds)
+			make_database_binlog(vIds,"binlog_db_file")
+			//表结构信息
+        	$("#dbTable").html('<i  class="fa  fa-paper-plane" >数据库  <u class="red">'+ td.eq(1).text() +'</u> 表结构查询</i>')
+			$("#db_schema_btn").removeClass("disabled").text("查看").val(vIds)	
+			make_database_binlog(vIds,"table_name")
+			//优化建议
+        	$("#dbOptimize").html('<i  class="fa  fa-paper-plane" >数据库  <u class="red">'+ td.eq(1).text() +'</u> SQL优化建议</i>')
+			$("#db_optimize_btn").removeClass("disabled").text("执行").val(vIds)		
+			//make_database_binlog(vIds,"optimize_db")
+        });	     	
     	
     	$('#UserDatabaseListTable tbody').on('click',"button[name='btn-database-table']",function(){   
         	let vIds = $(this).val();
@@ -273,7 +553,7 @@ $(document).ready(function () {
     	
     }	
 	
-	drawTree('#dbTree',"/api/db/tree/?db_rw=r/w&db_rw=read")
+	drawTree('#dbTree',"/api/db/tree/?db_rw=r/w&db_rw=read&db_rw=write")
 	
     $("#search-input").keyup(function () {
         var searchString = $(this).val();
@@ -293,7 +573,7 @@ $(document).ready(function () {
 				            dttable.fnClearTable();
 				            dttable.fnDestroy(); 
 				    	  }			    	  
-				    	  makeDbQueryTableList(response)
+				    	  makeDbManageTableList(response)
 				      },
 		              error:function(response){
 		            	new PNotify({
@@ -307,7 +587,7 @@ $(document).ready(function () {
 	     }
     });	
     
-	$("#db_query_btn").on('click', function() {
+	$("#db_exec_btn").on('click', function() {
 		var btnObj = $(this);
 		btnObj.attr('disabled',true); 
 		var db = $(this).val()
@@ -326,11 +606,10 @@ $(document).ready(function () {
 		    };			
 			$.ajax({
 				url:'/db/manage/', 
-				type:"POST",  
-				"dateType":"json",			
+				type:"POST",  			
 				data:{
 					"db":db,
-					"model":'query_sql',
+					"model":'exec_sql',
 					"sql":sql
 				},  //提交参数
 				success:function(response){
@@ -339,7 +618,7 @@ $(document).ready(function () {
 					var tableHtml = ''
 					var liTags = '';
 					var tablesList = [];
-					if (response['code'] == "200" && response["data"].length > 0 ){
+					if (response['code'] == "200" && response["data"].length > 0 && response["data"][0]["dataList"][2].length > 0){
 						for (var i=0; i <response["data"].length; i++){
 							var tableId = "query_result_list_"+ i
 							tablesList.push(tableId)
@@ -354,7 +633,7 @@ $(document).ready(function () {
 								for (var y=0; y <response["data"][i]["dataList"][1].length; y++){
 									var tdHtml = '<tr>';
 									for (var z=0; z < response["data"][i]["dataList"][1][y].length; z++){
-										tdHtml = tdHtml + '<td>' + response["data"][i]["dataList"][1][y][z]  +'</td>';
+										tdHtml = tdHtml + '<td>' + response["data"][i]["dataList"][1][y][z] +'</td>';
 									} 	
 									trsHtml = trsHtml + tdHtml + '</tr>';
 								}                    	
@@ -363,14 +642,22 @@ $(document).ready(function () {
 								tableHtml = response["data"][i]["dataList"]
 
 							}
-			
-						}
-						$("#result").html(tableHtml);
+							liTags = liTags + '<li>' +
+								                '<div class="block">' +
+								                  '<div class="block_content">' +
+								                    '<h2 class="title">' +
+								                       '<span >耗时：'+ response["data"][i]["time"] +'</span>' +
+								                    '</h2><br>' + tableHtml +
+								                  '<br><br></div>' +
+								                '</div>' +
+								              '</li>'				
+							}
+						$("#result").html(ulTags + liTags + '</ul>');
 					    if (tablesList.length) {
 					    	for (var i=0; i <tablesList.length; i++){
 							   var table = $("#"+tablesList[i]).DataTable( {
 							        dom: 'Bfrtip',
-							        "lengthMenu": [ [50, 150, 450, -1], [50, 150, 450, "All"] ],
+							        "pageLength": 100,
 							        buttons: [{
 						                    extend: "copy",
 						                    className: "btn-sm"
@@ -398,7 +685,7 @@ $(document).ready(function () {
 										"sInfo" : "显示第 _START_ 至 _END_ 项结果，共 _TOTAL_ 项",
 										"sInfoEmpty" : "显示第 0 至 0 项结果，共 0 项",
 										"sInfoFiltered" : "(由 _MAX_ 项结果过滤)",
-										"sInfoPostFix" : "",										
+										"sInfoPostFix" : "",
 										"sSearch" : "搜索:",
 										"sUrl" : "",
 										"sEmptyTable" : "表中数据为空",
@@ -418,11 +705,15 @@ $(document).ready(function () {
 							   });	
 							}				    		
 					    }						
-						}
-					else{
-						var selectHtml = '<div id="result">' + response["msg"] + '</div>';
+					}
+					else if (response['code'] == "200" && response["data"].length > 0 && response["data"][0]["dataList"][2].length == 0){
+						var selectHtml = '<div id="result"><pre>执行成功，耗时：'+ response["data"][0]["time"] +'，影响行数：' + response["data"][0]["dataList"][0] + '</pre></div>';
 						$("#result").html(selectHtml);						
-					}		                								
+					}	
+					else {
+						var selectHtml = '<div id="result"><pre>执行失败，' + response["msg"] + '</pre></div>';
+						$("#result").html(selectHtml);						
+					}	                								
 				},
 		    	error:function(response){
 		    		btnObj.removeAttr('disabled');
@@ -433,7 +724,7 @@ $(document).ready(function () {
 		                   styling: 'bootstrap3'
 		            }); 
 		    	}
-			});			
+			});		
 		}
 	});    
 })    

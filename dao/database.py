@@ -128,14 +128,12 @@ class DBConfig(AssetsBase):
             DataBase_Server_Config.objects.create(
                                           db_env=request.POST.get('db_env'),
                                           db_type=request.POST.get('db_type'),
-                                          db_name=request.POST.get('db_name'),
                                           db_host=request.POST.get('db_host'),
                                           db_mode=request.POST.get('db_mode'),
                                           db_user=request.POST.get('db_user'),
                                           db_port=request.POST.get('db_port'),
-                                          db_service=request.POST.get('db_service'),
-                                          db_project=request.POST.get('db_project'),
-                                          db_mark=request.POST.get('db_mark')
+                                          db_mark=request.POST.get('db_mark'),
+                                          db_business=request.POST.get('db_business')
                                           )
         except Exception as ex:
             logger.warn(msg="添加数据库失败: {ex}".format(ex=ex))  
@@ -151,13 +149,11 @@ class DBConfig(AssetsBase):
             DataBase_Server_Config.objects.filter(id=database.id).update(
                                           db_env=QueryDict(request.body).get('db_env'),
                                           db_type=QueryDict(request.body).get('db_type'),
-                                          db_name=QueryDict(request.body).get('db_name'),
                                           db_host=QueryDict(request.body).get('db_host'),
                                           db_mode=QueryDict(request.body).get('db_mode'),
                                           db_user=QueryDict(request.body).get('db_user'),
                                           db_port=QueryDict(request.body).get('db_port'),
-                                          db_service=QueryDict(request.body).get('db_service'),
-                                          db_project=QueryDict(request.body).get('db_project'),
+                                          db_business=QueryDict(request.body).get('db_business'),
                                           db_mark=QueryDict(request.body).get('db_mark'),                                          
                                           update_date = datetime.now()
                                           )
@@ -389,7 +385,7 @@ class DBManage(AssetsBase):
         
         if  dbServer and request.user.has_perm(perms): 
             try:     
-                if Database_User.objects.get(user=request.user.id,db=dbServer.id):return dbServer
+                if Database_User.objects.get(user=request.user.id,db=dbServer.get("id")):return dbServer
             except Exception as ex:
                 logger.warn(msg="查询用户数据库信息失败: {ex}".format(ex=str(ex)))  
                 return False    
@@ -449,7 +445,10 @@ class DBManage(AssetsBase):
     
     def __get_db(self,request):
         try:
-            return  DataBase_Server_Config.objects.get(id=self.change(request.POST.get('db')))
+            db_info = Database_Detail.objects.get(id=self.change(request.POST.get('db')))
+            dbServer = db_info.db_server.to_connect()      
+            dbServer["db_name"] = db_info.db_name
+            return  dbServer
         except Exception as ex:
             logger.error(msg="获取DB实例失败: {ex}".format(ex=ex))       
             return False   
@@ -461,44 +460,14 @@ class DBManage(AssetsBase):
             return MySQLPool(dbServer=dbServer)
         except Exception as ex:
             logger.error(msg="数据库不存在: {ex}".format(ex=ex)) 
-            return ex      
-
-    def __get_db_servers(self,request,queues,model='queryMany'):
-        dataList = []
-        if request.POST.getlist('db[]'):
-            dbList = request.POST.getlist('db[]')
-        else:
-            dbList = request.POST.get('db')
-                    
-        if dbList:
-            for db in dbList:
-                try:
-                    dbServer = DataBase_Server_Config.objects.get(id=self.change(db))
-                    dbRbt = MySQLPool(dbServer=dbServer,model=model,
-                                      sql=request.POST.get('sql'),
-                                      queues=queues)
-                    dbRbt.start()              
-                except Exception as ex:
-                    logger.error(msg="数据库不存在: {ex}".format(ex=ex)) 
-                    return "数据库不存在"  
-            while True:
-                while not queues.empty():
-                    result = queues.get()                                      
-                    self.__record_operation(request, result.get('dbId'), result)
-                    dataList.append(result)
-                if  0 < len(dataList) >= len(dbList):break   
-            return dataList 
-        
-        else:     
-            return "请选择先数据库"
-    
+            return ex          
     
     def exec_sql(self, request):
         
         dbServer = self.__check_user_perms(request,'databases.databases_dml_database_server_config')
         if not dbServer:return "您没有权限操作此项"        
                
-        sql_parse = self.__check_sql_parse(request, allow_sql=self.dml_sql + self.ddl_sql + self.dql_sql,dbname=dbServer.db_name)
+        sql_parse = self.__check_sql_parse(request, allow_sql=self.dml_sql + self.ddl_sql + self.dql_sql,dbname=dbServer.get('db_name'))
 
         if not isinstance(sql_parse, str):              
             result = self.__get_db_server(request).execute(request.POST.get('sql'),1000)
@@ -510,11 +479,12 @@ class DBManage(AssetsBase):
         
     def query_sql(self, request):
         dbServer = self.__check_user_perms(request,'databases.databases_query_database_server_config')
+
         if not dbServer:return "您没有权限操作此项"
         
-        if dbServer.db_rw not in ["read","r/w"]:return "请勿在主库上面执行查询操作"
+        if dbServer.get('db_rw') not in ["read","r/w"]:return "请勿在主库上面执行查询操作"
         
-        sql_parse = self.__check_sql_parse(request, allow_sql=["select","show","desc","explain"],dbname=dbServer.db_name)
+        sql_parse = self.__check_sql_parse(request, allow_sql=["select","show","desc","explain"],dbname=dbServer.get('db_name'))
 
         if not isinstance(sql_parse, str):    
             result = self.__get_db_server(request).queryMany(request.POST.get('sql'),1000)
@@ -559,9 +529,9 @@ class DBManage(AssetsBase):
                                                     TABLE_ROWS,concat(round(sum(DATA_LENGTH/1024/1024),2),'MB') AS DATA_LENGTH,
                                                     MAX_DATA_LENGTH,concat(round(sum(INDEX_LENGTH/1024/1024),2),'MB') AS INDEX_LENGTH,
                                                     DATA_FREE,AUTO_INCREMENT,CREATE_TIME,TABLE_COLLATION,TABLE_COMMENT FROM information_schema.TABLES 
-                                                    WHERE  TABLE_SCHEMA='{db}' AND TABLE_NAME='{table}';""".format(db=dbInfo.db_name,table=request.POST.get('table_name')),num=1000)
-        table_data["index"] = dbRbt.queryMany(sql="""SHOW index FROM `{table}`;""".format(db=dbInfo.db_name,table=request.POST.get('table_name')),num=1000)
-        table_data["desc"] = dbRbt.queryOne(sql="""show create table `{table}`;""".format(db=dbInfo.db_name,table=request.POST.get('table_name')),num=1)[1][1]
+                                                    WHERE  TABLE_SCHEMA='{db}' AND TABLE_NAME='{table}';""".format(db=dbInfo.get("db_name"),table=request.POST.get('table_name')),num=1000)
+        table_data["index"] = dbRbt.queryMany(sql="""SHOW index FROM `{table}`;""".format(db=dbInfo.get("db_name"),table=request.POST.get('table_name')),num=1000)
+        table_data["desc"] = dbRbt.queryOne(sql="""show create table `{table}`;""".format(db=dbInfo.get("db_name"),table=request.POST.get('table_name')),num=1)[1][1]
         return table_data
             
     def parse_sql(self,request):
@@ -570,17 +540,19 @@ class DBManage(AssetsBase):
         try:
             dbServer = self.__get_db(request)
             timeRange =  request.POST.get('binlog_time').split(' - ') 
-            conn_setting = {'host': dbServer.db_assets.server_assets.ip, 'port': dbServer.db_port, 'user': dbServer.db_user, 'passwd': dbServer.db_passwd, 'charset': 'utf8'}
+            conn_setting = {'host': dbServer.get("ip"), 'port': dbServer.get("db_port"), 
+                            'user': dbServer.get("db_user"), 'passwd': dbServer.get("db_passwd"),
+                            'charset': 'utf8'}
             binlog2sql = Binlog2sql(connection_settings=conn_setting,             
-                                    back_interval=1.0, only_schemas=dbServer.db_name,
+                                    back_interval=1.0, only_schemas=dbServer.get("db_name"),
                                     end_file='', end_pos=0, start_pos=4,
-                                    flashback=True,only_tables='', 
+                                    flashback=True,only_tables=request.POST.get('binlog_table',''), 
                                     no_pk=False, only_dml=True,stop_never=False, 
                                     sql_type=['INSERT', 'UPDATE', 'DELETE'], 
                                     start_file=request.POST.get('binlog_db_file'), 
                                     start_time=timeRange[0], 
                                     stop_time=timeRange[1],)
-            sqlList = binlog2sql.process_binlog()    
+            sqlList = binlog2sql.process_binlog()   
         except Exception as ex:
             logger.error(msg="binglog解析失败: {ex}".format(ex=ex)) 
         return sqlList
@@ -588,42 +560,57 @@ class DBManage(AssetsBase):
     def optimize_sql(self,request):
         if not self.__check_user_perms(request,'databases.databases_optimize_database_server_config'):return "您没有权限操作此项"
         dbServer = self.__get_db(request)
-        status,result = base.getSQLAdvisor(host=dbServer.db_assets.server_assets.ip, user=dbServer.db_user,
-                                           passwd=dbServer.db_passwd, dbname=dbServer.db_name, 
-                                           sql=request.POST.get('sql'),port=dbServer.db_port)
+        status,result = base.getSQLAdvisor(host=dbServer.get("ip"), user=dbServer.get("db_user"),
+                                           passwd=dbServer.get("db_passwd"), dbname=dbServer.get("db_name"), 
+                                           sql=request.POST.get('sql'),port=dbServer.get("db_port"))
         return [result]        
     
     def __record_operation(self,request,dbServer,time_consume,result):
         
-        if isinstance(dbServer, int):
-            try:
-                dbServer = DataBase_Server_Config.objects.get(id=dbServer)
-            except Exception as ex:
-                logger.error(msg="查询数据库失败: {ex}".format(ex=ex)) 
-                return False
-       
         if isinstance(result, str):
-            record_exec_sql.apply_async((request.user.username,dbServer.id,request.POST.get('sql'),time_consume,1,result),queue='default')
+            record_exec_sql.apply_async((request.user.username,dbServer.get('id'),request.POST.get('sql'),time_consume,1,result),queue='default')
         else:
-            record_exec_sql.apply_async((request.user.username,dbServer.id,request.POST.get('sql'),time_consume,0),queue='default')        
+            record_exec_sql.apply_async((request.user.username,dbServer.get('id'),request.POST.get('sql'),time_consume,0),queue='default')        
         
     def query_user_db(self,request=None):
         user_database_list = []
+                    
         if request.user.is_superuser:
-            dbList = DataBase_Server_Config.objects.all()      
+            dbList = Database_User.objects.all()      
         else: 
-            dbList = DataBase_Server_Config.objects.filter(id__in=[ ds.db for ds in Database_User.objects.filter(user=request.user.id)]) 
+            dbList = Database_User.objects.filter(user=request.user.id)
+
+
         for ds in dbList:
-            user_database_list.append(ds.to_json()) 
+            try:
+                data = Database_Detail.objects.get(id=ds.db).to_json()
+                data["count"] = 1
+                user_database_list.append(data)
+            except Exception as ex:
+                logger.warn(msg="查询用户数据库失败: {ex}".format(ex=ex)) 
+                continue
+
         return user_database_list  
 
-    def recursive_node_to_dict(self,node):
+    def recursive_node_to_dict(self,node,request):
         json_format = node.to_json()
-        children = [self.recursive_node_to_dict(c) for c in node.get_children()]
+        children = [self.recursive_node_to_dict(c,request) for c in node.get_children()]
         if children:
             json_format['children'] = children
         else:
-            json_format['icon'] = 'fa fa-minus-square-o'        
+            json_format['icon'] = 'fa fa-minus-square-o'
+        
+        #获取业务树下面的数据库服务器    
+        if json_format["last_node"] == 1: 
+            db_children = []    
+            for ds in DataBase_Server_Config.objects.filter(db_business=json_format["id"],db_rw__in=request.query_params.getlist('db_rw')):  
+                data = ds.to_tree()
+                data["user_id"] = request.user.id
+                db_children.append(data)
+            json_format['children'] = db_children
+            json_format["icon"] = "fa fa-plus-square"
+            json_format["last_node"] = 0
+            
         return json_format
     
     def business_paths_id_list(self,business):
@@ -654,5 +641,5 @@ class DBManage(AssetsBase):
         
         dataList = []
         for n in root_nodes:
-            dataList.append(self.recursive_node_to_dict(n))         
+            dataList.append(self.recursive_node_to_dict(n,request))         
         return dataList          

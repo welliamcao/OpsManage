@@ -40,13 +40,14 @@ class DataBase_Server_Config(models.Model):
                }  
     db_env = models.CharField(choices=env_type,max_length=10,verbose_name='环境类型',default=None)
     db_type = models.CharField(max_length=10,verbose_name='数据库类型',blank=True,null=True)
-    db_name = models.CharField(max_length=100,verbose_name='数据库名',blank=True,null=True)
+#     db_name = models.CharField(max_length=100,verbose_name='数据库名',blank=True,null=True)
     db_assets = models.ForeignKey('asset.Assets',related_name='database_total', on_delete=models.CASCADE,verbose_name='assets_id')
     db_business = models.IntegerField(verbose_name='业务关联')
     db_mode = models.CharField(max_length=10,choices=mode,verbose_name='架构类型',default='single')
     db_user = models.CharField(max_length=100,verbose_name='用户',blank=True,null=True)
     db_passwd = models.CharField(max_length=100,verbose_name='密码',blank=True,null=True)
     db_port = models.IntegerField(verbose_name='端口')
+    db_version =  models.CharField(max_length=100,verbose_name='数据库版本',blank=True,null=True)
     db_mark =  models.CharField(max_length=100,verbose_name='标识',blank=True,null=True)
     db_rw =  models.CharField(choices=rw_type,max_length=20,verbose_name='读写类型',blank=True,null=True)
     class Meta:
@@ -63,7 +64,7 @@ class DataBase_Server_Config(models.Model):
             ("database_schema_database_server_config", "数据库表结构查询权限"),
             ("database_optimize_database_server_config", "数据库SQL优化建议权限"),
         )
-        unique_together = (("db_port", "db_assets","db_env","db_name"))
+        unique_together = (("db_port", "db_assets","db_env"))
         verbose_name = '数据库管理'  
         verbose_name_plural = '数据库信息表'
 
@@ -73,6 +74,22 @@ class DataBase_Server_Config(models.Model):
             return business.business_env() + '/' +business.node_path()
         except:
             return "未知"   
+    
+    def to_tree(self):
+        try:
+            db_ip = self.db_assets.server_assets.ip
+        except:
+            db_ip = '未知'
+        json_format = {
+            "id":"db_server_"+ str(self.id),
+            "db_server": self.id,
+            "text": "{mark}({ip}:{port})".format(mark=self.db_mark,ip=db_ip,port=str(self.db_port)),
+            "ip":db_ip, 
+            "user_id":0,
+            "last_node": 1,
+            "icon":"fa fa-minus-square-o",          
+        }
+        return  json_format         
         
     def to_json(self):
         try:
@@ -83,7 +100,7 @@ class DataBase_Server_Config(models.Model):
             "id":self.id,
             "db_env":self.dataMap["env"].get(self.db_env),
             "db_type":self.db_type,
-            "db_name":self.db_name,
+            "db_version":self.db_version,
             "db_assets_id":self.db_assets.id,
             "ip":db_ip,           
             "db_business":self.db_business,
@@ -95,6 +112,67 @@ class DataBase_Server_Config(models.Model):
             "db_rw":self.dataMap["rw"].get(self.db_rw),
         }
         return  json_format             
+
+    def to_connect(self):
+        json_format = {
+            "id":self.id,          
+            "db_name":'',
+            "ip":self.db_assets.server_assets.ip ,
+            "db_port":self.db_port,
+            "db_user":self.db_user,
+            "db_passwd":self.db_passwd,  
+            "db_rw":self.db_rw,          
+        }
+        return  json_format
+
+class Database_Detail(models.Model):
+    db_server = models.ForeignKey('DataBase_Server_Config',related_name='databases', on_delete=models.CASCADE,verbose_name='db_server_id')
+    db_name = models.CharField(max_length=50,verbose_name='数据库名字')    
+    db_size = models.IntegerField(verbose_name='数据库大小',blank=True,null=True)
+    class Meta:
+        db_table = 'opsmanage_database_detail'
+        default_permissions = ()
+        unique_together = (("db_server", "db_name"))
+        verbose_name = '数据库管理'   
+        verbose_name_plural = '服务器数据库信息'
+        
+    def to_json(self):      
+        json_format = {
+            "id":self.id,
+            "db_name":self.db_name,
+            "db_size":self.db_size,
+            "ip":self.db_server.db_assets.server_assets.ip ,
+            "db_port":self.db_server.db_port,
+            "db_mark":self.db_server.db_mark,
+            "db_size":self.db_size,
+            "db_env":self.db_server.dataMap["env"][self.db_server.db_env],  
+            "db_rw":self.db_server.dataMap["rw"][self.db_server.db_rw],            
+            "count": 0
+        }
+        return  json_format 
+
+    def to_connect(self):
+        json_format = {
+            "db_name":self.db_name,
+            "ip":self.db_server.db_assets.server_assets.ip ,
+            "db_port":self.db_server.db_port,
+            "db_user":self.db_server.db_user,
+            "db_passwd":self.db_server.db_passwd,  
+        }
+        return  json_format 
+             
+class Database_Table_Detail_Record(models.Model):
+    db = models.SmallIntegerField(verbose_name='db_id')
+    table_name = models.CharField(max_length=100,verbose_name='数据库表名',blank=True,null=True)    
+    table_size = models.IntegerField(verbose_name='表大小',blank=True,null=True)
+    table_row = models.IntegerField(verbose_name='行数大小',blank=True,null=True)
+    last_time = models.IntegerField(verbose_name='记录时间',blank=True,null=True)
+    class Meta:
+        db_table = 'opsmanage_database_table_detail'
+        default_permissions = ()
+        index_together = ("db", "table_name")
+        verbose_name = '数据库管理'   
+        verbose_name_plural = '服务器数据库表记录信息'
     
 class Database_User(models.Model):
     db = models.SmallIntegerField(verbose_name='db_id')
@@ -106,7 +184,29 @@ class Database_User(models.Model):
         default_permissions = ()
         unique_together = (("db", "user"))
         verbose_name = '数据库管理'   
-        verbose_name_plural = '用户数据库分配表'
+        verbose_name_plural = '用户数据库分配表'        
+
+    def to_json(self):
+        try:
+            dbInfo = Database_Detail.objects.get(id=self.db)
+        except:
+            return  {
+                        "id":self.id,
+                        "db_name":"未知",
+                        "db_size":"未知",
+                        "count": 0
+                    }
+                    
+        json_format = {
+            "id":self.id,
+            "dbIds":self.db,
+            "db_name":dbInfo.db_name,
+            "db_size":dbInfo.db_size,
+            "tables":self.tables,
+            "privs":self.privs,
+            "count": 0
+        }
+        return  json_format 
     
 class Database_Group(models.Model):
     db = models.SmallIntegerField(verbose_name='db_id')
@@ -121,7 +221,7 @@ class Database_Group(models.Model):
 
 class SQL_Execute_Histroy(models.Model):
     exe_user = models.CharField(max_length= 100,verbose_name='执行人')
-    exe_db = models.ForeignKey('DataBase_Server_Config',verbose_name='数据库id', on_delete=models.CASCADE)
+    exe_db = models.ForeignKey('Database_Detail',verbose_name='数据库id', on_delete=models.CASCADE)
     exe_sql =  models.TextField(verbose_name='执行的SQL内容') 
     exec_status = models.SmallIntegerField(blank=True,null=True,verbose_name='执行状态')
     exe_result = models.TextField(blank=True,null=True,verbose_name='执行结果') 

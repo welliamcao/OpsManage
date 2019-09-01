@@ -281,6 +281,7 @@ class Binlog2sql(object):
         self.start_pos = start_pos if start_pos else 4    # use binlog v4
         self.end_file = end_file if end_file else start_file
         self.end_pos = end_pos
+        
         if start_time:
             self.start_time = datetime.datetime.strptime(start_time, "%Y-%m-%d %H:%M:%S")
         else:

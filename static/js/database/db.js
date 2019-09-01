@@ -27,18 +27,51 @@ function GetTableListOfDatabase(url,){
 	var aList = []
 	var sList = []
 	response = requests('get',url)
-	if(response["code"]=="200"){
-		for (var i=0; i <response["data"].length; i++){
-			if(response["data"][i]["count"]==1){
-				sList.push({"id":response["data"][i]["name"],"name":response["data"][i]["name"]})
-			}
-			else{
-				aList.push({"id":response["data"][i]["name"],"name":response["data"][i]["name"]})
-			}
-		}			
-		
-	}
+	for (var i=0; i <response.length; i++){
+		if(response[i]["count"]==1){
+			sList.push({"id":response[i]["name"],"name":response[i]["name"]})
+		}
+		else{
+			aList.push({"id":response[i]["name"],"name":response[i]["name"]})
+		}
+	}					
 	return {"group":sList,"all":aList}
+}
+
+function InitServerDatabaseDataTable(tableId,url,buttons,columns,columnDefs){
+	  var data = requests('get',url)
+	  oOverviewTable =$('#'+tableId).dataTable(
+			  {
+				    "dom": "Bfrtip",
+				    "buttons":buttons,				  
+		    		"bScrollCollapse": false, 				
+		    	    "bRetrieve": true,			
+		    		"destroy": true, 
+		    		"data":	data,
+		    		"columns": columns,
+		    		"columnDefs" :columnDefs,			  
+		    		"language" : language,
+		    		"order": [[ 0, "ase" ]],
+		    		"autoWidth": true	    			
+		    	});
+}
+
+function RefreshServerDatabaseTable(tableId, urlData){
+	$.getJSON(urlData, null, function( dataList ){
+	  table = $(tableId).dataTable();
+	  oSettings = table.fnSettings();
+	  
+	  table.fnClearTable(this);
+	
+	  for (var i=0; i<dataList.length; i++)
+	  {
+	    table.oApi._fnAddData(oSettings, dataList[i]);
+	  }
+	
+	  oSettings.aiDisplay = oSettings.aiDisplayMaster.slice();
+	  table.fnDraw();
+	    
+	});
 }
 
 function InitDataTable(tableId,url,buttons,columns,columnDefs){
@@ -76,6 +109,42 @@ function RefreshTable(tableId, urlData){
     table.fnDraw();
       
   });
+}
+
+function InitUserDatabaseDataTable(tableId,dataList,buttons,columns,columnDefs){
+	  oOverviewTable =$('#'+tableId).dataTable(
+			  {
+				    "dom": "Bfrtip",
+				    "buttons":buttons,				  
+		    		"bScrollCollapse": false, 				
+		    	    "bRetrieve": true,			
+		    		"destroy": true, 
+		    		"data":	dataList,
+		    		"columns": columns,
+		    		"columnDefs" :columnDefs,			  
+		    		"language" : language,
+		    		"order": [[ 0, "ase" ]],
+		    		"autoWidth": true	    			
+		    	});
+}
+
+function RefreshUserDatabaseTable(tableId, urlData){
+$.getJSON(urlData, null, function( dataList )
+{
+  table = $(tableId).dataTable();
+  oSettings = table.fnSettings();
+  
+  table.fnClearTable(this);
+
+  for (var i=0; i<dataList.length; i++)
+  {
+    table.oApi._fnAddData(oSettings, dataList[i]);
+  }
+
+  oSettings.aiDisplay = oSettings.aiDisplayMaster.slice();
+  table.fnDraw();
+    
+});
 }
 
 function AutoReload(tableId,url){
@@ -301,21 +370,45 @@ function format ( data ) {
 }
 
 function makeDatabaseSelect(ids,response){
-	var binlogHtml = '<select required="required" class="selectpicker form-control" data-live-search="true" name="db" id="db"  data-size="10" data-selected-text-format="count > 3"  data-width="100%"  id="db"  autocomplete="off"><option  name="db" value="">请选择一个数据库</option>'
+	var binlogHtml = '<select required="required" class="selectpicker form-control" data-live-search="true" name="db_server" id="db_server"  data-size="10" data-selected-text-format="count > 3"  data-width="100%"   autocomplete="off"><option  name="db_server" value="">请选择一个数据库</option>'
 	var selectHtml = '';
 	for (var i=0; i <response["data"].length; i++){
-		if(response["data"][i]["db_env"]=="beta"){
-			var db_env = "测试环境"
-		}else{
-			var db_env = "生产环境"
-		}
-		selectHtml += '<option name="db" value="'+ response["data"][i]["id"] +'">' + db_env + ' | ' + response["data"][i]["ip"] +  ' | ' + response["data"][i]["db_name"] + ' | ' + response["data"][i]["db_rw"]  +  ' | ' + response["data"][i]["db_mark"] + '</option>' 					 
+		selectHtml += '<option name="db_server" value="'+ response["data"][i]["id"] +'">' + response["data"][i]["db_env"] + ' | '  + response["data"][i]["db_mark"] + ' | ' + response["data"][i]["db_name"] + ' | ' + response["data"][i]["ip"] +  ' | ' + response["data"][i]["db_port"] + ' | ' + response["data"][i]["db_rw"]  +  '</option>' 					 
 	};                        
 	binlogHtml =  binlogHtml + selectHtml + '</select>';
 	document.getElementById(ids).innerHTML= binlogHtml;							
 	$('#'+ids).selectpicker('refresh');			
 }	
-	
+
+function makeServerDatabaseTableList(vIds){
+    var columns = [
+                   {"data": "db_name"},
+                   {
+                	   "data": "db_size",
+                	   "defaultContent": ""
+                   },                  
+	               ]
+   var columnDefs = [     		        
+	    		        {
+   	    				targets: [2],
+   	    				render: function(data, type, row, meta) {  	    					
+   	                        return '<div class="btn-group  btn-group-xs">' +	    	                               	                           
+	    	                           '<button type="button" name="btn-server-database-delete" value="'+ row.id +'" class="btn btn-default" aria-label="Justify"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span>' +	
+	    	                           '</button>' +			                            
+	    	                           '</div>';
+   	    				},
+   	    				"className": "text-center",
+	    		        },
+	    		      ]	
+    var buttons = [{
+        text: '<span class="fa fa-plus"></span>',
+        className: "btn-xs",
+        action: function ( e, dt, node, config ) {  
+
+        }
+    }]    
+    InitServerDatabaseDataTable('server_database_list',"/api/db/server/"+vIds+"/list/",buttons,columns,columnDefs);	
+}	
 
 $(document).ready(function() {	
 	
@@ -326,7 +419,7 @@ $(document).ready(function() {
 				url:'/api/user/', //请求地址
 				type:"GET",  //提交类似
 				success:function(response){
-					var binlogHtml = '<select required="required" class="selectpicker form-control" data-live-search="true"  data-size="10" data-width="100%" name="user" id="user"  autocomplete="off"><option selected="selected" value="">请选择一个用户</option>'
+					var binlogHtml = '<select required="required" class="selectpicker form-control" data-live-search="true"  data-size="10" data-width="100%" name="user" id="user"  autocomplete="off"><option selected="selected" value="">请选择一个用户</option>	'
 					var selectHtml = '';
 					for (var i=0; i <response.length; i++){
 						selectHtml += '<option value="'+ response[i]["id"] +'">'+ response[i]["username"] +'</option>' 					 
@@ -359,7 +452,7 @@ $(document).ready(function() {
 		}	 		
 	})		
 	
-	$(function() {
+/*	$(function() {
 		if($('#query_db').length ){
 			$.ajax({
 				async : true,  
@@ -373,7 +466,7 @@ $(document).ready(function() {
 				}					
 			});				
 		}
-	})	
+	})*/	
 	
 	
 	try
@@ -392,7 +485,7 @@ $(document).ready(function() {
 	
     if ($("#DatabaseListTable").length) {
     	var response = requests('get','/db/config/?type=get_all_db',{})
-    	makeDatabaseSelect("db",response)
+    	makeDatabaseSelect("db_server",response)
 	    var columns = [
     	   	            {
     		                "className":      'details-control',
@@ -405,25 +498,14 @@ $(document).ready(function() {
     		            { "data": "db_mode" },
     		            { "data": "db_business_paths" },
     		            { "data": "db_type"},
-    		            { "data": "db_name"},
+    		            { "data": "db_version"},
     		            { "data": "ip"},
     		            { "data": "db_user"},
     		            { "data": "db_port"},
     		            { "data": "db_mark"},
     		            { "data": "db_rw"},     
 		        ]
-	   var columnDefs = [  
-	    		        	{
-    	   	    				targets: [2],
-    	   	    				render: function(data, type, row, meta) {
-    	   	                        if(row.db_env=="beta"){
-    	   	                        	return '<span class="label label-success">测试</span>'
-    	   	                        }else{
-    	   	                        	return '<span class="label label-danger">生产</span>'
-    	   	                        }
-    	   	    				},
-    	   	    				"className": "text-center",
-    		    		        },     		    		        
+	   var columnDefs = [     		    		        
 		    		        {
 	   	    				targets: [12],
 	   	    				render: function(data, type, row, meta) {
@@ -431,7 +513,9 @@ $(document).ready(function() {
 		    	                           '<button type="button" name="btn-database-link" value="'+ row.id +'" class="btn btn-default"  aria-label="Justify"><span class="glyphicon glyphicon glyphicon-zoom-in" aria-hidden="true"></span>' +	
 		    	                           '</button>' +	
 		    	                           '<button type="button" name="btn-database-edit" value="'+ row.id +'" class="btn btn-default"  aria-label="Justify"><span class="fa fa-edit" aria-hidden="true"></span>' +	
-		    	                           '</button>' +    		    	                           
+		    	                           '</button>' +  
+		    	                           '<button type="button" name="btn-database-import" value="'+ row.id +'" class="btn btn-default"  aria-label="Justify"  data-toggle="modal" data-target=".bs-example-modal-database-import"><span class="fa fa-database" aria-hidden="true"></span>' +	
+		    	                           '</button>' + 		    	                           
 		    	                           '<button type="button" name="btn-database-delete" value="'+ row.id +'" class="btn btn-default" aria-label="Justify"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span>' +	
 		    	                           '</button>' +			                            
 		    	                           '</div>';
@@ -516,55 +600,34 @@ $(document).ready(function() {
     }      
     
     if ($("#user_database_list").length) {
-    	function makeUserDatabaseTableList(){
+    	function makeUserDatabaseTableList(dataList){
     	    var columns = [
-    	                   {"data": "id"},
     		               {"data": "username"},
-    		               {"data": "db_env"},
-    		               {"data": "db_name"},
+    		               {
+    		            	   "data": "db_name",
+    		            	   "defaultContent": ""
+    		               },
     		               {"data": "ip"},
     		               {"data": "db_port"},
     		               {"data": "db_mark"},
     		               {"data": "db_rw"},
     		               ]
-    	   var columnDefs = [
- 		    		        	{
-    	   	    				targets: [1],
-    	   	    				render: function(data, type, row, meta) {
-    	   	                        return '<span title="'+row.uid+'">'+ row.username +'</span>';
-    	   	    				},
-    	   	    				"className": "text-center",
-    		    		        },   
- 		    		        	{
-        	   	    				targets: [2],
-        	   	    				render: function(data, type, row, meta) {
-        	   	                        if(row.db_env=="beta"){
-        	   	                        	return '<span class="label label-success">测试</span>'
-        	   	                        }else{
-        	   	                        	return '<span class="label label-danger">生产</span>'
-        	   	                        }
-        	   	    				},
-        	   	    				"className": "text-center",
-        		    		        },     		    		        
+    	   var columnDefs = [     		    		        
     		    		        {
-    	   	    				targets: [8],
+    	   	    				targets: [6],
     	   	    				render: function(data, type, row, meta) {
     	   	                        return '<div class="btn-group  btn-group-xs">' +	
-    		    	                           '<button type="button" name="btn-userdb-edit" value="'+ row.id +'" class="btn btn-default"  aria-label="Justify" data-toggle="modal" data-target=".bs-example-modal-info"><span class="fa fa-edit" aria-hidden="true"></span>' +	
-    		    	                           '</button>' +	
     		    	                           '<button type="button" name="btn-userdb-table" value="'+ row.id +'" class="btn btn-default"  aria-label="Justify" data-toggle="modal" data-target=".bs-example-modal-user-table"><span class="fa fa-ban" aria-hidden="true"></span>' +	
-    		    	                           '</button>' +    		    	                           	                				                            		                            			                          
-    		    	                           '<button type="button" name="btn-userdb-delete" value="'+ row.id +'" class="btn btn-default" aria-label="Justify"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span>' +	
-    		    	                           '</button>' +			                            
+    		    	                           '</button>' +    		    	                           	                				                            		                            			                          			                            
     		    	                           '</div>';
     	   	    				},
     	   	    				"className": "text-center",
     		    		        },
     		    		      ]	
     	    var buttons = []
-    		InitDataTable('user_database_list','/db/config/?type=get_user_db',buttons,columns,columnDefs);	
+    	    InitUserDatabaseDataTable('user_database_list',dataList,buttons,columns,columnDefs);	
     	}	
-     makeUserDatabaseTableList()
+     //makeUserDatabaseTableList('/db/config/?type=get_user_db')
     }  
 
 	$('#save_database_config').on('click', function() {
@@ -598,7 +661,7 @@ $(document).ready(function() {
 				data:JSON.stringify({
 					"db_env":$("#db_env option:selected").val(),
 					"db_type":$("#db_type").val(),
-					"db_name":$("#db_name").val(),
+					"db_version":$("#db_version").val(),
 					"db_business":$("#db_business option:selected").val(),
 					"db_assets_id":$("#db_assets_id option:selected").val(),
 					"db_user":$("#db_user").val(),
@@ -631,7 +694,7 @@ $(document).ready(function() {
 				data:JSON.stringify({
 					"db_env":$("#db_env option:selected").val(),
 					"db_type":$("#db_type").val(),
-					"db_name":$("#db_name").val(),
+					"db_version":$("#db_version").val(),
 					"db_business":$("#db_business option:selected").val(),
 					"db_assets_id":$("#db_assets_id option:selected").val(),
 					"db_user":$("#db_user").val(),
@@ -696,7 +759,7 @@ $(document).ready(function() {
             	DynamicSelect("db_business",response["db_business"])	
             	DynamicSelect("db_mode",response["db_mode"])
             	DynamicSelect("db_rw",response["db_rw"])	          												
-				$("#db_name").val(response["db_name"]);	
+				$("#db_version").val(response["db_version"]);	
 				$("#db_type").val(response["db_type"]);	
 				$("#db_user").val(response["db_user"]);	
 				$("#db_port").val(response["db_port"]);	
@@ -711,11 +774,11 @@ $(document).ready(function() {
     $('#DatabaseListTable tbody').on('click',"button[name='btn-database-delete']",function(){   
 	  	var vIds = $(this).val(); 
 	  	var td = $(this).parent().parent().parent().find("td")
-    	var text = td.eq(6).text()
+    	var port = td.eq(9).text()
     	var server = td.eq(7).text()
 		$.confirm({
 		    title: '删除确认',
-		    content:  '<strong>服务器</strong><code>' + server + '</code>数据库【<strong>' + text +'</strong>】配置',
+		    content:  '<strong>服务器</strong><code>' + server + ':' + port + '</code>数据库配置',
 		    type: 'red',
 		    buttons: {
 		             删除: function () {
@@ -748,31 +811,69 @@ $(document).ready(function() {
 		    }
 		});			
 	  });
-	  
-    $("#add_inception_btn").on('click', function() {
-		var btnObj = $(this);
-		btnObj.attr('disabled',true);    
-		$.ajax({
-/* 				dataType: "JSON", */
-			url:'/api/inc/config/', //请求地址
-			type:"POST",  //提交类似			
-			data:$("#add_inception").serializeObject(),  //提交参数
-			success:function(response){
-				btnObj.removeAttr('disabled');
-	            window.location.reload();	                								
-			},
-	    	error:function(response){
-	    		btnObj.removeAttr('disabled');
-	           	new PNotify({
-	                   title: 'Ops Failed!',
-	                   text: response.responseText,
-	                   type: 'error',
-	                   styling: 'bootstrap3'
-	               }); 
-	    	}
-		});			 	
-    });		
-	//new
+
+    $('#DatabaseListTable tbody').on('click',"button[name='btn-database-import']",function(){   
+	  	var vIds = $(this).val(); 
+	  	var td = $(this).parent().parent().parent().find("td")
+    	let server = td.eq(7).text()
+    	let port = td.eq(9).text()
+    	$("#databaseImportModalLabel").html('<h4 class="modal-title" id="databaseImportModalLabel"><u class="red">'+ server + ':' + port +'</u> 导入数据库</h4>')
+    	$("#server_database_submit").val(vIds)
+		if ($('#server_database_list').hasClass('dataTable')) {
+	        dttable = $('#server_database_list').dataTable();
+	        dttable.fnClearTable();
+	        dttable.fnDestroy();         
+		}	    	
+	  	makeServerDatabaseTableList(vIds)
+	  });    
+    	
+
+    $('#server_database_list tbody').on('click',"button[name='btn-server-database-delete']",function(){   
+	  	var vIds = $(this).val(); 
+	  	var td = $(this).parent().parent().parent().find("td")
+	  	let db_server = $("#server_database_submit").val()
+		$.confirm({
+		    title: '删除确认',
+		    content:  '<strong>数据库</strong><code>' + td.eq(0).text() + '</code>',
+		    type: 'red',
+		    buttons: {
+		             删除: function () {
+		    	$.ajax({  
+		            cache: true,  
+		            type: "DELETE",  
+		            url:'/api/db/server/'+ db_server +'/db/'+ vIds +'/' ,    
+		            error: function(response) {  
+		            	new PNotify({
+		                    title: 'Ops Failed!',
+		                    text: "删除失败",
+		                    type: 'error',
+		                    styling: 'bootstrap3'
+		                });     
+		            },  
+		            success: function(response) {  
+		            	new PNotify({
+		                    title: 'Success!',
+		                    text: "删除成功",
+		                    type: 'success',
+		                    styling: 'bootstrap3'
+		                });	
+		        		if ($('#server_database_list').hasClass('dataTable')) {
+		        	        dttable = $('#server_database_list').dataTable();
+		        	        dttable.fnClearTable();
+		        	        dttable.fnDestroy();         
+		        		}	    	
+		        	  	makeServerDatabaseTableList(db_server)  
+		            }  
+		    	});
+		        },
+		        取消: function () {
+		            return true;			            
+		        },			        
+		    }
+		});		  	
+	  });
+    
+    
     $("#save_custom_btn").on('click', function() {
 		var btnObj = $(this);
 		var vIds = $(this).val();
@@ -870,87 +971,17 @@ $(document).ready(function() {
 		    }
 		});			
 	  });  
-	 //new
-    $("#add_user_db_btn").on('click', function() {
-		var btnObj = $(this);
-		btnObj.attr('disabled',true);    
-		$.ajax({
-/* 				dataType: "JSON", */
-			url:'/db/users/', //请求地址
-			type:"POST",  //提交类似			
-			data:$("#add_user_db").serialize(),  //提交参数
-			success:function(response){
-				btnObj.removeAttr('disabled');
-				if(response["code"]==500){
-		           	new PNotify({
-		                   title: 'Ops Failed!',
-		                   text: response["msg"],
-		                   type: 'error',
-		                   styling: 'bootstrap3'
-		            }); 					
-				}else{
-	            	new PNotify({
-	                    title: 'Success!',
-	                    text: "添加成功",
-	                    type: 'success',
-	                    styling: 'bootstrap3'
-	                });		
-	            	RefreshTable('#user_database_list', '/db/config/?type=get_user_db')  
-				}
-                								
-			},
-	    	error:function(response){
-	    		btnObj.removeAttr('disabled');
-	           	new PNotify({
-	                   title: 'Ops Failed!',
-	                   text: response.responseText,
-	                   type: 'error',
-	                   styling: 'bootstrap3'
-	            }); 
-	    	}
-		});			 	
-    });	
-    
-    //new
-    $('#user_database_list tbody').on('click',"button[name='btn-userdb-edit']",function(){  
-	  	var vIds = $(this).val(); 	
-	  	var uid = $(this).parent().parent().parent().find("td").eq(1).find("span").attr("title") 	
-	  	$("#add_user_db_btn").hide();
-   		$("#modf_user_db_btn").show();	
-   		$("#modf_user_db_btn").val(vIds);    	
-		$.ajax({
-			dataType: "JSON",
-			url:'/db/users/?type=get_all_user_db&uid='+ uid, //请求地址
-			type:"GET",  //提交类似
-			success:function(response){
-				DynamicSelect("user",uid)
-				var binlogHtml = '<select multiple required="required" class="selectpicker form-control" data-live-search="true" name="db" id="db"  data-size="10" data-selected-text-format="count > 3"  data-width="100%"  id="db"  autocomplete="off"><option  name="db" value="">请选择一个数据库</option>'
-				var selectHtml = '';
-				for (var i=0; i <response["data"].length; i++){
-					if (response["data"][i]["count"] > 0){
-						selectHtml += '<option selected="selected" name="db" value="'+ response["data"][i]["id"] +'">' + response["data"][i]["db_env"] + ' | ' + response["data"][i]["ip"] +  ' | ' + response["data"][i]["db_name"]+ ' | ' + response["data"][i]["db_rw"]  +  ' | ' + response["data"][i]["db_mark"] + '</option>' 
-					}else{
-						selectHtml += '<option name="db" value="'+ response["data"][i]["id"] +'">' + response["data"][i]["db_env"] + ' | ' + response["data"][i]["ip"] +  ' | ' + response["data"][i]["db_name"] + ' | ' + response["data"][i]["db_rw"]  +  ' | ' + response["data"][i]["db_mark"] + '</option>' 
-					}
-					 
-				};                        
-				binlogHtml =  binlogHtml + selectHtml + '</select>';
-				document.getElementById("db").innerHTML= binlogHtml;							
-				$('.selectpicker').selectpicker('refresh');							
-			}					
-		});			
-	  });  
-	  
+	 //new 
 	$('#user_database_list tbody').on('click',"button[name='btn-userdb-table']",function(){
 	  	var vIds = $(this).val(); 
-	  	let colname = 	 $(this).parent().parent().parent().find("td")
-	  	var uid = colname.eq(1).find("span").attr("title") 
-	  	var dbname = colname.eq(3).text()
-	  	var username =  colname.eq(1).text()
+	  	let uid = $('#user :selected').val() 
+	  	let colname = $(this).parent().parent().parent().find("td") 
+	  	let dbname = colname.eq(1).text()
+	  	let username =  colname.eq(0).text()
     	$("#userTableListSubmit").val(vIds)
     	$("#myUserTablesModalLabel").html('<h4 class="modal-title">用户<code>'+ username +'</code>分配<code>'+ dbname +'</code>数据库表</h4>')
     	$('select[name="user-table-list"]').empty();
-    	var data = GetTableListOfDatabase('/db/users/?type=get_user_db_tables&&id=' + vIds)
+    	var data = GetTableListOfDatabase('/api/db/user/'+ uid  +'/db/'+vIds+'/table/')
 		$('select[name="user-table-list"]').doublebox({
 	        nonSelectedListLabel: '选择表',
 	        selectedListLabel: '已分配表',
@@ -964,76 +995,61 @@ $(document).ready(function() {
 	      });	
     });		  
 	
-	$('#user_database_list tbody').on('click',"button[name='btn-userdb-grants']",function(){
-	  	var vIds = $(this).val(); 
-	  	let colname = 	 $(this).parent().parent().parent().find("td")
-	  	var uid = colname.eq(1).find("span").attr("title") 
-	  	var dbname = colname.eq(3).text()
-	  	var username =  colname.eq(1).text()
-    	$("#userGrantsListSubmit").val(vIds)
-    	$("#myUserGrantsModalLabel").html('<h4 class="modal-title">用户<code>'+ username +'</code>分配<code>'+ dbname +'</code>数据库权限</h4>')
-    	$('select[name="user-grants-list"]').empty();
-    	var data = GetTableListOfDatabase('/db/users/?type=get_user_db_grants&&id=' + vIds)
-		$('select[name="user-grants-list"]').doublebox({
-	        nonSelectedListLabel: '选择权限',
-	        selectedListLabel: '已分配权限',
-	        preserveSelectionOnMove: 'moved',
-	        moveOnSelect: false,
-	        nonSelectedList:data["all"],
-	        selectedList:data["group"],
-	        optionValue:"id",
-	        optionText:"name",
-	        doubleMove:true,
-	      });	
-    });		
+//	$('#user_database_list tbody').on('click',"button[name='btn-userdb-grants']",function(){
+//	  	var vIds = $(this).val(); 
+//	  	let colname = 	 $(this).parent().parent().parent().find("td")
+//	  	var uid = colname.eq(1).find("span").attr("title") 
+//	  	var dbname = colname.eq(3).text()
+//	  	var username =  colname.eq(1).text()
+//    	$("#userGrantsListSubmit").val(vIds)
+//    	$("#myUserGrantsModalLabel").html('<h4 class="modal-title">用户<code>'+ username +'</code>分配<code>'+ dbname +'</code>数据库权限</h4>')
+//    	$('select[name="user-grants-list"]').empty();
+//    	var data = GetTableListOfDatabase('/db/users/?type=get_user_db_grants&&id=' + vIds)
+//		$('select[name="user-grants-list"]').doublebox({
+//	        nonSelectedListLabel: '选择权限',
+//	        selectedListLabel: '已分配权限',
+//	        preserveSelectionOnMove: 'moved',
+//	        moveOnSelect: false,
+//	        nonSelectedList:data["all"],
+//	        selectedList:data["group"],
+//	        optionValue:"id",
+//	        optionText:"name",
+//	        doubleMove:true,
+//	      });	
+//    });		
 	
     $("#userTableListSubmit").on('click', function() {
     	var vIds = $(this).val();
-    	var vServer = $('[name="user-table-list"]').val()
-    	if (vServer){
-	    	$.ajax({  
-	            type: "POST",             
-	            url:"/db/users/",  
-	            data:{
-	            	"type":"modf_user_tables",
-					"id": vIds,
-					"table_name":vServer
-				},
-	            error: function(response) {  
-	            	new PNotify({
-	                    title: 'Ops Failed!',
-	                    text: response.responseText,
-	                    type: 'error',
-	                    styling: 'bootstrap3'
-	                });       
-	            },  
-	            success: function(response) {  
-	            	if (response["code"] == 200){
-		            	new PNotify({
-		                    title: 'Success!',
-		                    text: '修改成功',
-		                    type: 'success',
-		                    styling: 'bootstrap3'
-		                }); 				            		
-	            	}else{
-		            	new PNotify({
-		                    title: 'Ops Failed!',
-		                    text: response["msg"],
-		                    type: 'error',
-		                    styling: 'bootstrap3'
-		                });  				            		
-	            	}
-	            }  
-	    	}); 
-    	}else{
-	    	$.confirm({
-	    		title: '<strong>警告</strong>',
-	    		typeAnimated: true,
-	    	    content: "没有选择任何用户组~",
-	    	    type: 'red'		    	    
-	    	});		    		
-    	}
-	
+    	let uid = $('#user :selected').val()
+    	var formData = new FormData();
+    	let tbList = new Array;
+		$('select[name="user-table-list"] option:selected').each(function(){
+			tbList.push($(this).val())
+			formData.append("table_name",$(this).val())
+        });	    	    	
+    	$.ajax({  
+            type: "POST",             
+            url:"/api/db/user/"+ uid +"/db/"+ vIds +"/table/",
+			processData: false,
+			contentType: false,		            
+            data:formData,
+            error: function(response) {  
+            	new PNotify({
+                    title: 'Ops Failed!',
+                    text: response.responseText,
+                    type: 'error',
+                    styling: 'bootstrap3'
+                });       
+            },  
+            success: function(response) {  
+            	new PNotify({
+                    title: 'Success!',
+                    text: '修改成功',
+                    type: 'success',
+                    styling: 'bootstrap3'
+                }); 				            		
+            }  
+    	}); 
     });	
 
     $("#userGrantsListSubmit").on('click', function() {
@@ -1085,509 +1101,148 @@ $(document).ready(function() {
 	
     });	
 	  
-    $("#modf_user_db_btn").on('click', function() {
-		var btnObj = $(this);
-		btnObj.attr('disabled',true);  
-		var dbList = [];
-        $("#db option:selected").each(function () {
-            dbList.push($(this).val())
-        });			
-		$.ajax({
-/* 				dataType: "JSON", */
-			url:'/db/users/', //请求地址
-			type:"PUT",  //提交类似			
-			data:{
-				"user":$("#user option:selected").val(),
-				"db":dbList
-			},  //提交参数
-			success:function(response){
-				btnObj.removeAttr('disabled');
-				if(response["code"]==500){
-		           	new PNotify({
-		                   title: 'Ops Failed!',
-		                   text: response["msg"],
-		                   type: 'error',
-		                   styling: 'bootstrap3'
-		            }); 					
-				}else{
+    $("#server_database_submit").on('click', function() {
+    	var vIds = $(this).val();
+		let dbname = $("#server_database_input").val()
+		let url = "/api/db/server/"+vIds+"/list/"
+    	if (vIds.length && dbname.length){
+	    	$.ajax({  
+	            type: "POST",             
+	            url:url,  
+	            data:{
+	            	"db_name":dbname,
+				},
+	            error: function(response) {  
+	            	new PNotify({
+	                    title: 'Ops Failed!',
+	                    text: response.responseText,
+	                    type: 'error',
+	                    styling: 'bootstrap3'
+	                });       
+	            },  
+	            success: function(response) {  
 	            	new PNotify({
 	                    title: 'Success!',
-	                    text: "修改成功",
+	                    text: '添加成功',
 	                    type: 'success',
 	                    styling: 'bootstrap3'
-	                });		
-	            	RefreshTable('#user_database_list', '/db/config/?type=get_user_db')  
-				}                  								
-			},
-	    	error:function(response){
-	    		btnObj.removeAttr('disabled');
-	           	new PNotify({
-	                   title: 'Ops Failed!',
-	                   text: response["msg"],
-	                   type: 'error',
-	                   styling: 'bootstrap3'
-	            }); 
-	    	}
-		});			 	
+	                }); 
+	            	RefreshServerDatabaseTable('#server_database_list', url) 
+	            }  
+	    	}); 
+    	}else{
+	    	$.confirm({
+	    		title: '<strong>警告</strong>',
+	    		typeAnimated: true,
+	    	    content: "没有选择数据库服务器，或者没有输入数据库名称~",
+	    	    type: 'red'		    	    
+	    	});		    		
+    	}
+	
     });	
     
-    $('#user_database_list tbody').on('click',"button[name='btn-userdb-delete']",function(){ 
-		var vIds = $(this).val();  
-		var userInfo = $(this).parent().parent().parent().find("td")	
-		var user = userInfo.eq(1).text();
-		var uid = userInfo.find("span").attr("title");
-		var db_name = $(this).parent().parent().parent().find("td").eq(3).text(); 
-		$.confirm({
-		    title: '删除确认',
-		    content:   '<strong>'+user+'</strong>' + "对<code>" + db_name +"</code>的操作权限",
-		    type: 'red',
-		    buttons: {
-		             删除: function () {		       
-				$.ajax({
-					url:'/db/users/', 
-					type:"DELETE",  		
-					data:{
-						"id":vIds,
-						"uid":uid
-					}, 
-					success:function(response){
-						if(response["code"]==500){
-				           	new PNotify({
-				                   title: 'Ops Failed!',
-				                   text: response["msg"],
-				                   type: 'error',
-				                   styling: 'bootstrap3'
-				            }); 					
-						}else{
-			            	new PNotify({
-			                    title: 'Success!',
-			                    text: "删除成功",
-			                    type: 'success',
-			                    styling: 'bootstrap3'
-			                });		
-			            	RefreshTable('#user_database_list', '/db/config/?type=get_user_db')  
-						}              								
-					},
-			    	error:function(response){
-			           	new PNotify({
-			                   title: 'Ops Failed!',
-			                   text: response["msg"],
-			                   type: 'error',
-			                   styling: 'bootstrap3'
-			               }); 
-			    	}
-				});	
-		        },
-		        取消: function () {
-		            return true;			            
-		        },			        
-		    }
-		});			  		 	
-    });	    
-    	     	   
-    $("#db_query_btn").on('click', function() {
-		var btnObj = $(this);
-		btnObj.attr('disabled',true); 
-		$('#show_sql_result').show();	
-		var db = $('#query_db option:selected').val() 	
-		var sql = aceEditAdd.getSession().getValue();
-	    if ( sql.length == 0 || db == 0){
-        	new PNotify({
-                title: 'Warning!',
-                text: 'SQL内容与数据库不能为空',
-                type: 'warning',
-                styling: 'bootstrap3'
-            }); 
-	    	btnObj.removeAttr('disabled');
-	    	return false;
-	    };		   
-		$.ajax({
-			url:'/db/manage/', 
-			type:"POST",  			
-			data:{
-				"db":db,
-				"model":'exec_sql',
-				"sql":sql
-			},  //提交参数
-			success:function(response){
-				btnObj.removeAttr('disabled');
-				var ulTags = '<ul class="list-unstyled timeline widget">'	
-				var tableHtml = ''
-				var liTags = '';
-				var tablesList = [];
-				if (response['code'] == "200" && response["data"].length > 0 && response["data"][0]["dataList"][2].length > 0){
-					for (var i=0; i <response["data"].length; i++){
-						var tableId = "query_result_list_"+ i
-						tablesList.push(tableId)
-						if (response["data"][i]["dataList"][0] >= 0){
-							var tableHtml = '<table class="table" id="'+ tableId +'"><thead><tr>'
-							var trHtml = '';
-							for (var x=0; x <response["data"][i]["dataList"][2].length; x++){
-								trHtml = trHtml + '<th>' + response["data"][i]["dataList"][2][x] +'</th>';
-							}; 	
-							tableHtml = tableHtml + trHtml + '</tr></thead><tbody>';
-							var trsHtml = '';
-							for (var y=0; y <response["data"][i]["dataList"][1].length; y++){
-								var tdHtml = '<tr>';
-								for (var z=0; z < response["data"][i]["dataList"][1][y].length; z++){
-									tdHtml = tdHtml + '<td>' + response["data"][i]["dataList"][1][y][z] +'</td>';
-								} 	
-								trsHtml = trsHtml + tdHtml + '</tr>';
-							}                    	
-							tableHtml = tableHtml + trsHtml +  '</tbody></table>';														
-						}else{
-							tableHtml = response["data"][i]["dataList"]
-
-						}
-						liTags = liTags + '<li>' +
-							                '<div class="block">' +
-							                  '<div class="block_content">' +
-							                    '<h2 class="title">' +
-							                       '<span >耗时：'+ response["data"][i]["time"] +'</span>' +
-							                    '</h2><br>' + tableHtml +
-							                  '<br><br></div>' +
-							                '</div>' +
-							              '</li>'				
-						}
-					$("#result").html(ulTags + liTags + '</ul>');
-				    if (tablesList.length) {
-				    	for (var i=0; i <tablesList.length; i++){
-						   var table = $("#"+tablesList[i]).DataTable( {
-						        dom: 'Bfrtip',
-						        buttons: [{
-					                    extend: "copy",
-					                    className: "btn-sm"
-					                },
-					                {
-					                    extend: "csv",
-					                    className: "btn-sm"
-					                },
-					                {
-					                    extend: "excel",
-					                    className: "btn-sm"
-					                },
-					                {
-					                    extend: "pdfHtml5",
-					                    className: "btn-sm"
-					                },
-					                {
-				                    extend: "print",
-					                    className: "btn-sm"
-					            }],
-								language : {
-									"sProcessing" : "处理中...",
-									"sLengthMenu" : "显示 _MENU_ 项结果",
-									"sZeroRecords" : "没有匹配结果",
-									"sInfo" : "显示第 _START_ 至 _END_ 项结果，共 _TOTAL_ 项",
-									"sInfoEmpty" : "显示第 0 至 0 项结果，共 0 项",
-									"sInfoFiltered" : "(由 _MAX_ 项结果过滤)",
-									"sInfoPostFix" : "",
-									"sSearch" : "搜索:",
-									"sUrl" : "",
-									"sEmptyTable" : "表中数据为空",
-									"sLoadingRecords" : "载入中...",
-									"sInfoThousands" : ",",
-									"oPaginate" : {
-										"sFirst" : "首页",
-										"sPrevious" : "上页",
-										"sNext" : "下页",
-										"sLast" : "末页"
-									},
-									"oAria" : {
-										"sSortAscending" : ": 以升序排列此列",
-										"sSortDescending" : ": 以降序排列此列"
-									}
-							},					            
-						   });	
-						}				    		
-				    }						
+    $("#user").change(function(){ 
+		let uid = $('#user :selected').val()   
+		if(uid.length){
+			$("#db_server_db").empty();
+			let dataList = requests('get',"/api/db/user/"+uid+"/list/")
+			if ($('#user_database_list').hasClass('dataTable')) {
+		        dttable = $('#user_database_list').dataTable();
+		        dttable.fnClearTable();
+		        dttable.fnDestroy();         
+			}	 	
+			let user_db_list = new Array();
+			$(dataList).each(function(i){
+				if(dataList[i]["count"] > 0){
+					user_db_list.push(dataList[i])
 				}
-				else if (response['code'] == "200" && response["data"].length > 0 && response["data"][0]["dataList"][2].length == 0){
-					var selectHtml = '<div id="result"><pre>执行成功，耗时：'+ response["data"][0]["time"] +'，影响行数：' + response["data"][0]["dataList"][0] + '</pre></div>';
-					$("#result").html(selectHtml);						
-				}	
-				else {
-					var selectHtml = '<div id="result"><pre>执行失败，' + response["msg"] + '</pre></div>';
-					$("#result").html(selectHtml);						
-				}	                								
-			},
-	    	error:function(response){
-	    		btnObj.removeAttr('disabled');
-	           	new PNotify({
-	                   title: 'Ops Failed!',
-	                   text: response.responseText,
-	                   type: 'error',
-	                   styling: 'bootstrap3'
-	            }); 
-	    	}
-		});			 	
-    });    	     	    
-	if ($("#binlog_time").length){
-		var cdate = new Date();
-		var startTime =  getFormatDate(0)
-		var endTime = getFormatDate(3600)
-		$("#binlog_time").val(endTime+' - '+startTime)
-	 	$("#binlog_time").daterangepicker({
-            "timePicker": true,
-            "timePicker24Hour": true,
-            "linkedCalendars": false,
-            "autoUpdateInput": false,
-            "locale": {
-                format: "YYYY-MM-DD hh:mm:ss",
-                applyLabel: "应用",
-                cancelLabel: "取消",
-                resetLabel: "重置",
-            }
-	    });	
-	}
-
+				   
+			});			
+			makeUserDatabaseTableList(user_db_list)
+		}
+    })    
     
-	$("#binlog_db").change(function(){
-		var obj = document.getElementById("binlog_db"); 
-	    var index = obj.selectedIndex;
-		var value = obj.options[index].value; 
-		$.ajax({
-			url:'/db/manage/', //请求地址
-			type:"POST",  //提交类似			
-			data:{
-				"db":value,
-				"model":"binlog_sql",
-			},  //提交参数
-			success:function(response){
-	            //window.location.reload();	
-	            if (response["code"] == 200){
-		            if (response["data"].length) {
-						var selectHtml = '<select required="required" class="selectpicker form-control" data-live-search="true" name="binlog_db_file" id="binlog_db_file"  data-size="10" data-selected-text-format="count > 3"  data-width="100%"  autocomplete="off"><option>请选择一个binlog文件</option>' 
-						var option = '';
-						for (var i=0; i <response["data"].length; i++){
-							option = option + '<option value="'+ response["data"][i] +'">'+ response["data"][i] +'</option>'
-						}													
-						var selectHtml = selectHtml + option + '</select>';
-						$("#binlog_db_file").html(selectHtml);
-						$('.selectpicker').selectpicker('refresh');	
-					}		            
-	            }else{
+    $("#db_server").change(function(){ 
+		let sid = $('#db_server :selected').val()
+		let uid = $('#user :selected').val()   
+		if(sid.length && uid.length){
+			$("#db_server_db").empty();
+			let dataList = requests('get',"/api/db/user/"+uid+"/server/"+sid+"/list/")
+			if ($('#user_database_list').hasClass('dataTable')) {
+		        dttable = $('#user_database_list').dataTable();
+		        dttable.fnClearTable();
+		        dttable.fnDestroy();         
+			}	 	
+			let user_db_list = new Array();
+			$(dataList).each(function(i){
+				if(dataList[i]["count"] > 0){
+					user_db_list.push(dataList[i])
+				}
+				   
+			});			
+			makeUserDatabaseTableList(user_db_list)
+			var binlogHtml = '<select multiple required="required" class="selectpicker form-control" data-live-search="true" name="db_server_db" id="db_server_db"  data-size="10" data-selected-text-format="count > 4"  data-width="100%"   autocomplete="off">'
+			var selectHtml = '';
+			for (var i=0; i <dataList.length; i++){
+				if(dataList[i]["count"] > 0){
+					selectHtml += '<option name="db_server_db" value="'+ dataList[i]["id"] +'" selected="selected">' + dataList[i]["db_name"] + '</option>'
+				}else{
+					selectHtml += '<option name="db_server_db" value="'+ dataList[i]["id"] +'">' + dataList[i]["db_name"] + '</option>' 	 
+				}
+				
+			};                        
+			binlogHtml =  binlogHtml + selectHtml + '</select>';
+			document.getElementById("db_server_db").innerHTML= binlogHtml;							
+			$('.selectpicker').selectpicker('refresh');
+			$("#add_user_db_btn").attr("disabled",false)
+		}
+    })
+    
+    $("#add_user_db_btn").on('click', function() {
+    	var formData = new FormData();
+		let sid = $('#db_server :selected').val()
+		let uid = $('#user :selected').val() 
+		let dbList = new Array();
+		$("#db_server_db option:selected").each(function(){
+			formData.append("dbIds",$(this).val())
+        });	
+		if(sid.length && uid.length){
+			$.ajax({
+				url:"/api/db/user/"+uid+"/server/"+sid+"/list/", //请求地址
+				processData: false,
+				contentType: false,				
+				type:"POST",  //提交类似			
+				data:formData,  //提交参数
+				success:function(response){
+	            	new PNotify({
+	                    title: 'Success!',
+	                    text: "保存成功",
+	                    type: 'success',
+	                    styling: 'bootstrap3'
+	                });	
+	    			if ($('#user_database_list').hasClass('dataTable')) {
+	    		        dttable = $('#user_database_list').dataTable();
+	    		        dttable.fnClearTable();
+	    		        dttable.fnDestroy();         
+	    			}	 	
+	    			let user_db_list = new Array();
+	    			$(response).each(function(i){
+	    				if(response[i]["count"] > 0){
+	    					user_db_list.push(response[i])
+	    				}
+	    				   
+	    			});	
+	    			makeUserDatabaseTableList(user_db_list)
+				},
+		    	error:function(response){
 		           	new PNotify({
 		                   title: 'Ops Failed!',
-		                   text: response["msg"],
+		                   text: response.responseText,
 		                   type: 'error',
 		                   styling: 'bootstrap3'
-		            }); 	            	
-	            }                            								
-			},
-	    	error:function(response){
-	           	new PNotify({
-	                   title: 'Ops Failed!',
-	                   text: response.responseText,
-	                   type: 'error',
-	                   styling: 'bootstrap3'
-	            }); 
-	    	}
-		});		   			  
-	});    
-    
-    $("#db_binlog_btn").on('click', function() {
-		var btnObj = $(this);
-		btnObj.attr('disabled',true);    
-		$.ajax({
-			url:'/db/manage/',
-			type:"POST",			
-			data:$("#parse_binlog_file").serialize(),  //提交参数
-			success:function(response){
-				btnObj.removeAttr('disabled');    
-				var binlogHtml = '<div id="binlog_result"><pre><code class="sql hljs">';
-				for (var i=0; i <response["data"].length; i++){
-					binlogHtml +=  response["data"][i]+'<br>';
-				}; 		
-				binlogHtml = binlogHtml + '</code></pre></div>';
-				$("#binlog_result").html(binlogHtml);  
-			    $('pre code').each(function(i, block) {
-			    	hljs.highlightBlock(block);
-			  	});				
-			},
-	    	error:function(response){
-	    		btnObj.removeAttr('disabled');
-	           	new PNotify({
-	                   title: 'Ops Failed!',
-	                   text: response["msg"],
-	                   type: 'error',
-	                   styling: 'bootstrap3'
-	           	}); 
-	    	}
-		});	    
-    });	   
-    
-	$("#table_schema").change(function(){
-		var obj = document.getElementById("table_schema"); 
-	    var index = obj.selectedIndex;
-		var value = obj.options[index].value; 
-		$.ajax({
-			url:'/db/manage/', //请求地址
-			type:"POST",  //提交类似			
-			data:{
-				"db":value,
-				"model":"table_list",
-			},  //提交参数
-			success:function(response){ 
-	            if (response["data"].length) {
-					var selectHtml = '<select required="required" class="selectpicker form-control" data-live-search="true" name="table_name" id="table_name"  data-size="10" data-selected-text-format="count > 3"  data-width="100%"  autocomplete="off">' 
-					var option = '';
-					for (var i=0; i <response["data"].length; i++){
-						option = option + '<option value="'+ response["data"][i] +'">'+ response["data"][i] +'</option>'
-					}													
-					var selectHtml = selectHtml + option + '</select>';
-					$("#table_name").html(selectHtml);
-					$('.selectpicker').selectpicker('refresh');	
-				}	                           								
-			},
-	    	error:function(response){
-	           	new PNotify({
-	                   title: 'Ops Failed!',
-	                   text: response.responseText,
-	                   type: 'error',
-	                   styling: 'bootstrap3'
-	            }); 
-	    	}
-		});		   			  
-	});     
-    
-    $("#db_schema_btn").on('click', function() {
-		var btnObj = $(this);
-		btnObj.attr('disabled',true);    
-		$.ajax({
-			url:'/db/manage/',
-			type:"POST",			
-			data:$("#table_schema_form").serialize(),  //提交参数
-			success:function(response){
-				btnObj.removeAttr('disabled');
-				var schemaTableHtml = '<table class="table table-striped">' +		                
-							              '<tbody>' +
-							                '<tr>' +
-							                  '<td>数据库: </td>' + '<td>'+ response["data"]["schema"][1][0][0] +'</td>' +
-							                  '<td>表名: </td>' +	'<td>'+ response["data"]["schema"][1][0][1] +'</td>' +
-							                  '<td>表类型: </td>' + '<td>'+ response["data"]["schema"][1][0][2] +'</td>' +	
-							                '</tr>' +
-							                '<tr>' +  
-							                  '<td>存储引擎: </td>' + '<td>'+ response["data"]["schema"][1][0][3] +'</td>' +	
-							                  '<td>版本: </td>' + '<td>'+ response["data"]["schema"][1][0][4] +'</td>' +						
-							                  '<td>行格式: </td>' + '<td>'+ response["data"]["schema"][1][0][5] +'</td>' +		
-							                '</tr>' +  
-							                '<tr>' +  
-							                  '<td>行记录数: </td>' + '<td>'+ response["data"]["schema"][1][0][6] +'</td>' +	
-							                  '<td>数据长度: </td>' + '<td>'+ response["data"]["schema"][1][0][7] +'</td>' +		
-							                  '<td>最大数据长度: </td>' + '<td>'+ response["data"]["schema"][1][0][8] +'</td>' +	
-								            '</tr>' +	
-								            '<tr>' + 
-							                  '<td>索引长度: </td>' + '<td>'+ response["data"]["schema"][1][0][9] +'</td>' +	
-							                  '<td>数据空闲: </td>' + '<td>'+ response["data"]["schema"][1][0][10] +'</td>' +	
-							                  '<td>自动递增值: </td>' + '<td>'+ response["data"]["schema"][1][0][11] +'</td>' +	
-									        '</tr>' +	
-									        '<tr>' + 							                  
-							                  '<td>创建日期: </td>' + '<td>'+ response["data"]["schema"][1][0][12] +'</td>' +	
-							                  '<td>字符集类型: </td>' + '<td>'+ response["data"]["schema"][1][0][13] +'</td>' +	
-							                  '<td>注释</td>' + '<td>'+ response["data"]["schema"][1][0][14] +'</td>' +	
-							                '</tr>'	 +                       
-							              '</tbody>' +
-							           '</table>'                    					
-				var indexTableHtml = '<table class="table table-striped"><thead><tr>'     	
-				    var indexTrHtml = '';
-					for (var i=0; i <response["data"]["index"][2].length; i++){
-						indexTrHtml = indexTrHtml + '<th>' + response["data"]["index"][2][i] +'</th>';
-					}; 
-					indexTableHtml = indexTableHtml + indexTrHtml + '</tr></thead><tbody>';
-					var indexHtml = '';
-					for (var i=0; i <response["data"]["index"][1].length; i++){
-						var indexTdHtml = '<tr>';
-						for (var x=0; x < response["data"]["index"][1][i].length; x++){
-							indexTdHtml = indexTdHtml + '<td>' + response["data"]["index"][1][i][x] +'</td>';
-						} 	
-						indexHtml = indexHtml + indexTdHtml + '</tr>';
-					}                    	
-				indexTableHtml = indexTableHtml + indexHtml +  '</tbody></table>';						
-				var descHtml = '<pre><code class="sql hljs">' + response["data"]["desc"] + '<br></code></pre>';	
-                var schemaHtml = '<div id="schema_result"><ul class="list-unstyled timeline widget">' +
-					               '<li>' +
-					                '<div class="block">' +
-					                  '<div class="block_content">' +
-					                    '<h2 class="title">' +
-					                       '<a>表结构信息</a>' +
-					                    '</h2><br>' +
-					                    schemaTableHtml +
-					                  '</div>' +
-					                '</div>' +
-					              '</li>' +
-					              '<li>' +
-					               '<li>' +
-					                '<div class="block">' +
-					                  '<div class="block_content">' +
-					                    '<h2 class="title">' +
-					                       '<a>表索引信息</a>' +
-					                    '</h2><br>' +
-					                    indexTableHtml +
-					                  '</div>' +					                  
-					                '</div>' +
-					              '</li>' +
-					               '<li>' +
-					                '<div class="block">' +
-					                  '<div class="block_content">' +
-					                    '<h2 class="title">' +
-					                       '<a>DDL信息</a>' +
-					                    '</h2><br>' +					                    
-					                    descHtml +
-					                  '</div>' +
-					                '</div>' +
-					              '</li>' +					              
-					            '</ul>'				
-				$("#schema_result").html(schemaHtml);   
-			    $('pre code').each(function(i, block) {
-			    	hljs.highlightBlock(block);
-			  	});				
-				           								
-			},
-	    	error:function(response){
-	    		btnObj.removeAttr('disabled');
-	           	new PNotify({
-	                   title: 'Ops Failed!',
-	                   text: response.responseText,
-	                   type: 'error',
-	                   styling: 'bootstrap3'
-	           	}); 
-	    	}
-		});	    
-    });    
-    
-    $("#db_optimize_btn").on('click', function() {
-		var btnObj = $(this);
-		btnObj.attr('disabled',true);    
-		$.ajax({
-			url:'/db/manage/',
-			type:"POST",			
-			data:$("#optimize_sql").serialize(),  //提交参数
-			success:function(response){
-				btnObj.removeAttr('disabled');    
-	            if (response["code"] == 200){
-		            if (response["data"].length) {
-						$("#optimize_result").html("<pre>"+ response['data'][0] +"</pre>"); 
-					}		            
-	            }else{
-		           	new PNotify({
-		                   title: 'Ops Failed!',
-		                   text: response["msg"],
-		                   type: 'error',
-		                   styling: 'bootstrap3'
-		            }); 	            	
-	            }  				
-			},
-	    	error:function(response){
-	    		btnObj.removeAttr('disabled');
-	           	new PNotify({
-	                   title: 'Ops Failed!',
-	                   text: response.responseText,
-	                   type: 'error',
-	                   styling: 'bootstrap3'
-	           	}); 
-	    	}
-		});	    
-    });    
-      	             	      
+		            }); 
+		    	}
+			});				
+		}		 	
+    });	    
 })

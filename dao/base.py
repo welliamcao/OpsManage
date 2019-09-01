@@ -137,124 +137,117 @@ class APBase(object):
         return connection
 
    
-class MySQLPool(threading.Thread,APBase): 
+class MySQLPool(APBase): 
     def __init__(self,dbServer,sql=None,num=1000,model=None,queues=None):
         threading.Thread.__init__(self)     
-        self.queues = queues
         self.sql = sql
         self.num = num 
-        self.model = model 
-        self.dbServer = dbServer      
-        self.host = dbServer.db_assets.server_assets.ip
-        self.port = dbServer.db_port
-        self.user = dbServer.db_user
-        self.passwd = dbServer.db_passwd
-        self.dbName = dbServer.db_name
-        self.poolKeys = self.host + self.dbName + str(self.port)#host+dbName+str(port)
-        
-        
-        if self.poolKeys not in MySQLPool.MYSQL_POOLS.keys():  
-            self._conn = self._getTupleConn(self.host, self.port, self.user, self.passwd, self.dbName)  
-            MySQLPool.MYSQL_POOLS[self.poolKeys] = self._conn
-            
-        self._conn = MySQLPool.MYSQL_POOLS.get(self.poolKeys)
-        
-        if not isinstance(self._conn,str):self._cursor = self._conn.cursor() 
-                 
+        self.model = model   
+        self.dbServer = dbServer
     
-    def run(self):
-        if hasattr(self,self.model):
-            func= getattr(self,self.model)
-            self.queues.put({"db":str(self.host)+":"+str(self.port),"dataList":func(self.sql, self.num),"dbId":self.dbServer.id})         
-     
-    def _getDictConn(self,host,port,user,passwd,dbName):
-        '''返回字典类型结果集'''   
-        if APBase.MYSQL_POOLS.get(self.poolKeys) is None:
-            try:
-                pool = PooledDB(creator=pymysql, mincached=1 , maxcached=20 ,  
-                                      host=host , port=port , user=user , passwd=passwd ,  
-                                      db=dbName,use_unicode=True,charset='utf8',
-                                      cursorclass=DictCursor)  
-                APBase.MYSQL_POOLS[self.poolKeys] = pool   
-                return APBase.MYSQL_POOLS.get(self.poolKeys).connection()  
-            except Exception as ex:
-                logger.error(msg="创建字典类型连接池失败: {ex}".format(ex=ex))
-                return str(ex)
-            
-    def _getTupleConn(self,host,port,user,passwd,dbName):
-        '''返回列表类型结果集'''   
-        if APBase.MYSQL_POOLS.get(self.poolKeys) is None:
-            try:
-                pool = PooledDB(creator=pymysql, mincached=1 , maxcached=20 ,  
-                                      host=host , port=port , user=user , passwd=passwd ,  
-                                      db=dbName,use_unicode=True,charset='utf8')  
-                APBase.MYSQL_POOLS[self.poolKeys] = pool   
-                return APBase.MYSQL_POOLS.get(self.poolKeys).connection()  
-            except Exception as ex:
-                logger.error(msg="创建列表类型连接池失败: {ex}".format(ex=ex))
-                return str(ex)
-   
-    def queryAll(self,sql,num=1000):
-        if isinstance(self._conn,str):return self._conn   
-        try: 
-            count = self._cursor.execute(sql)   
-            result = self._cursor.fetchall()   
-            return (count,result)  
+    def __connect_remote(self):
+        return pymysql.connect(
+                               host=self.dbServer["ip"],
+                               user=self.dbServer["db_user"],
+                               password=self.dbServer["db_passwd"],
+                               port=self.dbServer["db_port"],
+                               db=self.dbServer["db_name"],
+                               max_allowed_packet=1024 * 1024 * 1024,
+                               charset='utf8')        
+    
+    def queryAll(self,sql,num=1000):  
+        
+        cnx = self.__connect_remote()
+        
+        try:
+            with cnx.cursor() as cursor:
+                count = cursor.execute(sql)   
+                result = cursor.fetchall()   
+                return (count,result) 
         except Exception as ex:
-            logger.error(msg="MySQL查询失败: {ex} sql:{sql}".format(ex=ex,sql=sql))
-            return str(ex)
-
+            logger.error("连接数据库失败: {ex}".format(ex=str(ex))) 
+                          
+        finally:
+            cnx.close()  
    
     def queryOne(self,sql,num=1000):  
-        if isinstance(self._conn,str):return self._conn 
-        try: 
-            count = self._cursor.execute(sql)   
-            result = self._cursor.fetchone()   
-            return (count,result)  
+        cnx = self.__connect_remote()
+        
+        try:
+            with cnx.cursor() as cursor:
+                count = cursor.execute(sql)   
+                result = cursor.fetchone()   
+                return (count,result) 
         except Exception as ex:
-            logger.error(msg="MySQL查询失败: {ex} sql:{sql}".format(ex=ex,sql=sql))
-            return str(ex)
-
+            logger.error("连接数据库失败: {ex}".format(ex=str(ex)))
+                          
+        finally:
+            cnx.close()  
   
    
     def queryMany(self,sql,num,param=None):
-        if isinstance(self._conn,str):return self._conn   
-        """ 
-        @summary: 执行查询，并取出num条结果 
-        @param sql:查询ＳＱＬ，如果有查询条件，请只指定条件列表，并将条件值使用参数[param]传递进来 
-        @param num:取得的结果条数 
-        @return: result list/boolean 查询到的结果集 
-        """  
+        
+        cnx = self.__connect_remote()
+        
         try:
-            count = self._cursor.execute(sql,param)  
-            index = self._cursor.description
-            colName = []
-            for i in index:
-                colName.append(i[0])            
-            result = self._cursor.fetchmany(size=num) 
-            return (count,result,colName) 
-        except Exception as ex:
-#             logger.error(msg="MySQL查询失败: {ex} sql:{sql}".format(ex=ex,sql=sql))
-            return str(ex)   
-    
-    def execute(self,sql,num=1000):
-        if isinstance(self._conn,str):return self._conn 
-        try:
-            count = self._cursor.execute(sql)
-            index = self._cursor.description
-            colName = []
-            if index:
+            with cnx.cursor() as cursor:
+                count = cursor.execute(sql)
+                index = cursor.description
+                colName = []
                 for i in index:
-                    colName.append(i[0]) 
-            result = self._cursor.fetchmany(size=num)           
-            self._conn.commit()
-            return (count,result,colName) 
+                    colName.append(i[0])            
+                result = cursor.fetchmany(size=num) 
+                return (count,result,colName)
         except Exception as ex:
-#             logger.error(msg="MySQL执行sql失败: {ex} sql:{sql}".format(ex=ex,sql=sql))
-            return str(ex)
+            logger.error("连接数据库失败: {ex}".format(ex=str(ex)))  
+                       
+        finally:
+            cnx.close()        
     
+    def execute_for_query(self,sql,num=1000):
+        
+        cnx = self.__connect_remote()
+        
+        try:
+            with cnx.cursor() as cursor:
+                count = cursor.execute(sql)
+                index = cursor.description
+                colName = []
+                if index:
+                    for i in index:
+                        colName.append(i[0]) 
+                result = cursor.fetchmany(size=num)           
+                return (count,result,colName) 
+        except Exception as ex:
+            logger.error("连接数据库失败: {ex}".format(ex=str(ex))) 
+            
+        finally:
+            cnx.close()
+       
+         
+    def execute(self,sql,num=1000):
+               
+        cnx = self.__connect_remote()
+        
+        try:
+            with cnx.cursor() as cursor:
+                count = cursor.execute(sql)
+                index = cursor.description
+                colName = []
+                if index:
+                    for i in index:
+                        colName.append(i[0]) 
+                result = cursor.fetchmany(size=num)           
+                cnx.commit()
+                return (count,result,colName) 
+        except Exception as ex:
+            logger.error("连接数据库失败: {ex}".format(ex=str(ex))) 
+                        
+        finally:
+            cnx.close()
+        
     def get_status(self):
-        status = self.execute(sql='show status;')
+        status = self.execute_for_query(sql='show status;')
         baseList = []
         pxcList = []
         if isinstance(status, tuple):
@@ -268,7 +261,7 @@ class MySQLPool(threading.Thread,APBase):
 
     def get_global_status(self):
         baseList = []
-        logs = self.execute(sql='show global variables;')
+        logs = self.execute_for_query(sql='show global variables;')
         if isinstance(logs, tuple):
             for ds in logs[1]:
                 data = {}
@@ -280,8 +273,8 @@ class MySQLPool(threading.Thread,APBase):
     
     def get_master_status(self):
         masterList = []
-        master_status = self.execute(sql='show master status;')
-        slave_host = self.execute(sql="SELECT host FROM INFORMATION_SCHEMA.PROCESSLIST WHERE COMMAND='Binlog Dump';")
+        master_status = self.execute_for_query(sql='show master status;')
+        slave_host = self.execute_for_query(sql="SELECT host FROM INFORMATION_SCHEMA.PROCESSLIST WHERE COMMAND='Binlog Dump';")
         if isinstance(master_status, tuple):
             if master_status[1]:
                 count = 0
@@ -301,7 +294,7 @@ class MySQLPool(threading.Thread,APBase):
     
     def get_slave_status(self):
         slaveList = []
-        slave_status = self.execute(sql="show slave status;") 
+        slave_status = self.execute_for_query(sql="show slave status;") 
         if isinstance(slave_status, tuple):   
             if slave_status[1]:
                 count = 0
@@ -313,125 +306,7 @@ class MySQLPool(threading.Thread,APBase):
                         slaveList.append(data)
                     count = count + 1 
         return  slaveList                     
-    
-    def close(self,isEnd=1):  
-        """ 
-        @summary: 释放连接池资源 
-        """  
-        try:
-            self._cursor.close()  
-            self._conn.close() 
-        except:
-            pass
-        
-class MySQLThread(threading.Thread):
-    def __init__(self,host,port,dbname,user,passwd,sql=None,num=1000,queue=None):
-        threading.Thread.__init__(self)
-        self._conn = self.connect(host, port, dbname, user, passwd)
-        self._cursor = self._conn.cursor()
-        self.queue = queue
-        self.sql = sql
-        self.num = num
-    
-    def run(self):
-        self.queue.put(self.execute(self.sql, self.num))    
-        
-    def connect(self,host,port,dbname,user,passwd):
-        try:
-            conn = pymysql.connect(host,user,passwd,dbname,port)          
-            return conn
-        except pymysql.Error as ex:  
-            print(ex)
-            return False
-                 
-    def execute(self,sql,num=1000): 
-        try:           
-            count = self._cursor.execute(sql)
-            index = self._cursor.description
-            colName = []
-            if index:
-                for i in index:
-                    colName.append(i[0]) 
-            result = self._cursor.fetchmany(size=num)           
-            self._conn.commit()
-            return (count,result,colName) 
-        except Exception as ex:
-            logger.error(msg="MySQL执行失败: {ex} sql:{sql}".format(ex=ex,sql=sql))
-            self.conn.rollback()
-            count = 0 
-            result = None
-        finally:
-            return count,result
-                
-    
-    def queryAll(self,sql):  
-        try: 
-            count = self._cursor.execute(sql)   
-            result = self._cursor.fetchall()   
-            return count,result
-        except Exception as ex:
-            logger.error(msg="MySQL查询失败: {ex} sql:{sql}".format(ex=ex,sql=sql))
-            count = 0
-            result = None
-        finally:
-            return count, result
-    
-    def queryOne(self,sql):
-        try: 
-            count = self._cursor.execute(sql)   
-            result = self._cursor.fetchone()   
-            return count,result 
-        except Exception as ex:
-            logger.error(msg="MySQL查询失败: {ex} sql:{sql}".format(ex=ex,sql=sql))
-            result = None
-        finally:
-            return result
-    
-    def get_variables(self):
-        rc, rs =  self.queryAll(sql='show global variables;')
-        dataList = []
-        if rc != 0 and rs != None:
-            for rcd in rs:
-                dataList.append(rcd)        
-        data_dict={}
-        for item in dataList:
-            data_dict[item[0]] = item[1]
-        return data_dict            
-    
-    def get_status(self):
-        rc, rs = self.queryAll(sql='show global status;')    
-        dataList = []
-        if rc != 0 and rs != None:
-            for rcd in rs:
-                dataList.append(rcd)
-        data_dict={}
-        for item in dataList:
-            data_dict[item[0]] = item[1]
-        return data_dict           
-
-    def get_wait_threads(self):
-        rs = self.queryOne(sql="select count(1) as count from information_schema.processlist where state <> '' and user <> 'repl' and time > 2;")        
-        if rs != None:return rs
-        else:return {} 
-
-    def get_master_satus(self):
-        rs = self.queryOne(sql="show master status;")          
-        if rs != None:return rs
-        else:return {}
-    
-    def get_repl_status(self):
-        rs = self.queryOne(sql='show slave status;')             
-        if rs != None:return rs
-        else:return {}    
-    
-    def close(self):
-        try:
-            self._cursor.close()
-            self._conn.close()
-        except Exception as ex:
-            print(ex)
-
-              
+           
             
 if __name__=='__main__':   
     import Queue

@@ -1344,8 +1344,8 @@ $(document).ready(function() {
     	let scheduler =  td.eq(4).text()    	
     	let protocol =  td.eq(3).text() 
     	let persistence =  td.eq(6).text()
-    	let line =  td.eq(7).text()
-    	let desc =  td.eq(8).text()  
+    	let line =  td.eq(8).text()
+    	let desc =  td.eq(9).text()  
     	let businessList = requests('get','/api/business/last/')
 		switch(protocol)
 		{
