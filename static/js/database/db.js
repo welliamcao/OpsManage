@@ -373,7 +373,7 @@ function makeDatabaseSelect(ids,response){
 	var binlogHtml = '<select required="required" class="selectpicker form-control" data-live-search="true" name="db_server" id="db_server"  data-size="10" data-selected-text-format="count > 3"  data-width="100%"   autocomplete="off"><option  name="db_server" value="">请选择一个数据库</option>'
 	var selectHtml = '';
 	for (var i=0; i <response["data"].length; i++){
-		selectHtml += '<option name="db_server" value="'+ response["data"][i]["id"] +'">' + response["data"][i]["db_env"] + ' | '  + response["data"][i]["db_mark"] + ' | ' + response["data"][i]["db_name"] + ' | ' + response["data"][i]["ip"] +  ' | ' + response["data"][i]["db_port"] + ' | ' + response["data"][i]["db_rw"]  +  '</option>' 					 
+		selectHtml += '<option name="db_server" value="'+ response["data"][i]["id"] +'">' + response["data"][i]["db_env"] + ' | '  + response["data"][i]["db_mark"] + ' | ' + response["data"][i]["ip"] +  ' | ' + response["data"][i]["db_port"] + ' | ' + response["data"][i]["db_rw"]  +  '</option>' 					 
 	};                        
 	binlogHtml =  binlogHtml + selectHtml + '</select>';
 	document.getElementById(ids).innerHTML= binlogHtml;							

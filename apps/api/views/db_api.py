@@ -245,21 +245,38 @@ def db_user_dblist(request, uid, format=None):
         user = User.objects.get(id=uid)
     except User.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND) 
-
+    
+    if user.id != request.user.id and request.user.is_superuser is False:
+        return Response(status=status.HTTP_404_NOT_FOUND) 
+    
     if request.method == 'GET':
         dataList = []
-        for ds in Database_User.objects.filter(user=uid):
-            try:
-                data = Database_Detail.objects.get(id=ds.db).to_json()
+        if user.is_superuser:
+            if request.query_params.get('db'):
+                user_data_list = Database_Detail.objects.filter(db_server=request.query_params.get('db',0))
+            else:
+                user_data_list = Database_Detail.objects.all()
+            for ds in user_data_list:
+                data = ds.to_json()
                 data["username"] = user.username
                 data["count"] = 1
-                dataList.append(data)
-            except Exception as ex:
-                logger.warn(msg="查询用户数据库失败: {ex}".format(ex=ex)) 
-                continue
+                dataList.append(data)                            
+        else:    
+            for ds in Database_User.objects.filter(user=uid):
+                try:
+                    if request.query_params.get('db'):
+                        data = Database_Detail.objects.get(id=ds.db,db_server=request.query_params.get('db',0)).to_json()
+                    else:
+                        data = Database_Detail.objects.get(id=ds.db).to_json()
+                    data["username"] = user.username
+                    data["count"] = 1
+                    dataList.append(data)
+                except Exception as ex: 
+                    continue         
         return Response(dataList)
 
 @api_view(['GET','POST'])
+@permission_required('Databases.databases_can_read_database_server_config',raise_exception=True) 
 def db_user_server_dblist(request, uid, sid, format=None):
     try:
         db_server = DataBase_Server_Config.objects.get(id=sid)

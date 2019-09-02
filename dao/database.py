@@ -572,29 +572,17 @@ class DBManage(AssetsBase):
         else:
             record_exec_sql.apply_async((request.user.username,dbServer.get('id'),request.POST.get('sql'),time_consume,0),queue='default')        
         
-    def query_user_db(self,request=None):
-        user_database_list = []
-                    
+    def __query_user_db_server(self,request=None):
         if request.user.is_superuser:
-            dbList = Database_User.objects.all()      
+            dbList = DataBase_Server_Config.objects.all()      
         else: 
-            dbList = Database_User.objects.filter(user=request.user.id)
+            user_db_list = [ ud.db for ud in Database_User.objects.filter(user=request.user.id) ]
+            dbList = [ ds.db_server for ds in Database_Detail.objects.filter(id__in=user_db_list)]
+        return dbList
 
-
-        for ds in dbList:
-            try:
-                data = Database_Detail.objects.get(id=ds.db).to_json()
-                data["count"] = 1
-                user_database_list.append(data)
-            except Exception as ex:
-                logger.warn(msg="查询用户数据库失败: {ex}".format(ex=ex)) 
-                continue
-
-        return user_database_list  
-
-    def recursive_node_to_dict(self,node,request):
+    def recursive_node_to_dict(self,node,request,user_db_server_list):
         json_format = node.to_json()
-        children = [self.recursive_node_to_dict(c,request) for c in node.get_children()]
+        children = [self.recursive_node_to_dict(c,request,user_db_server_list) for c in node.get_children()]
         if children:
             json_format['children'] = children
         else:
@@ -603,7 +591,7 @@ class DBManage(AssetsBase):
         #获取业务树下面的数据库服务器    
         if json_format["last_node"] == 1: 
             db_children = []    
-            for ds in DataBase_Server_Config.objects.filter(db_business=json_format["id"],db_rw__in=request.query_params.getlist('db_rw')):  
+            for ds in DataBase_Server_Config.objects.filter(id__in=user_db_server_list,db_business=json_format["id"],db_rw__in=request.query_params.getlist('db_rw')):  
                 data = ds.to_tree()
                 data["user_id"] = request.user.id
                 db_children.append(data)
@@ -615,21 +603,28 @@ class DBManage(AssetsBase):
     
     def business_paths_id_list(self,business):
         tree_list = []
+        
         dataList = Business_Tree_Assets.objects.raw("""SELECT id FROM opsmanage_business_assets WHERE tree_id = {tree_id} AND  lft < {lft} AND  rght > {rght} ORDER BY lft ASC;""".format(tree_id=business.tree_id,lft=business.lft,rght=business.rght))
+        
         for ds in dataList:
             tree_list.append(ds.id)
+            
         tree_list.append(business.id)
+        
         return tree_list
-    
+       
     def tree(self,request):
-
+        
+        user_db_server_list =  [ ds.id for ds in self.__query_user_db_server(request) ] 
+        
         if request.user.is_superuser:
-            user_business = [ ds.get("db_business") for ds in DataBase_Server_Config.objects.values('db_business').annotate(dcount=Count('db_business')) ]            
-        else:      
-            user_business = [ ds.get("db_business") for ds in DataBase_Server_Config.objects.values('db_business').annotate(dcount=Count('db_business',filter=Q(id__in=[ ds.db for ds in Database_User.objects.filter(user=request.user.id)]))) ]
-        
+            user_business = [ ds.get("db_business") for ds in DataBase_Server_Config.objects.values('db_business').annotate(dcount=Count('db_business')) ] 
+                     
+        else:    
+            user_business = [ ds.get("db_business") for ds in DataBase_Server_Config.objects.filter(id__in=user_db_server_list).values('db_business').annotate(dcount=Count('db_business')) ]
+   
         business_list = []
-        
+
         for business in Business_Tree_Assets.objects.filter(id__in=user_business):
             business_list += self.business_paths_id_list(business)
             
@@ -641,5 +636,5 @@ class DBManage(AssetsBase):
         
         dataList = []
         for n in root_nodes:
-            dataList.append(self.recursive_node_to_dict(n,request))         
+            dataList.append(self.recursive_node_to_dict(n,request,user_db_server_list))         
         return dataList          
