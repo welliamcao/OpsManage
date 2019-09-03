@@ -231,9 +231,8 @@ class DeployRunner(AssetsSource):
 #         print(list(set(hostList).difference(set(self.flist))))
         ansRbt.run_model(host_list=self.judge_servers(hostList),module_name='unarchive',module_args=args)
         #精简返回的结果
-        print(ansRbt.get_model_result())
         dataList = ansRbt.handle_model_data(ansRbt.get_model_result() , 'unarchive', module_args=args) 
-        print(dataList)       
+   
         self.handle_result("release",dataList)
 
 
