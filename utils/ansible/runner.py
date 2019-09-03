@@ -321,7 +321,7 @@ class ANSRunner(object):
             if failed:
                 for x,y in failed.items():                      
                     data = {}   
-                    data['msg'] = "failed"               
+                    data['msg'] = y.get("msg")               
                     data['ip'] = x
                     if y.get('stderr'):
                         data['msg'] = y.get('stderr') + y.get('msg')

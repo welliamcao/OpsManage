@@ -65,7 +65,7 @@ class AnsibleModel(WebsocketConsumer,AssetsAnsible):
     def run_model(self,request):
         
         sList,resource = self.allowcator(request.get('server_model'), request)
-        
+
         if request.get('deploy_model') == 'custom':
             model_name = request.get('custom_model')
         else:

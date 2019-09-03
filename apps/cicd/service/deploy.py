@@ -16,11 +16,12 @@ class DeployRunner(AssetsSource):
     dir_release, dir_webroot,exclude = None, None, None
     version_package, release_version = None, None
     deploy_status,failed_count = True, 0
-    flist = []
     
+
     def __init__(self,apps_id=None,task=None,ws=None):
         super(DeployRunner, self).__init__()  
         self.ws = ws
+        self.flist = []
         if task:
             self.task = task
             try: 
@@ -208,25 +209,31 @@ class DeployRunner(AssetsSource):
     def pre_release(self):
         #目标服务器执行后续命令
         if self.apps.project_pre_remote_command:
+
             hostList, resource = self.idSourceList(ids=self.task.servers)  
             ansRbt = ANSRunner(resource) 
 #             print(list(set(hostList).difference(set(self.flist))))
-            ansRbt.run_model(host_list=self.judge_servers(hostList),module_name='raw',module_args=self.apps.project_pre_remote_command)
+
+            ansRbt.run_model(host_list=self.judge_servers(hostList),module_name='shell',module_args=self.apps.project_pre_remote_command)
+
             #精简返回的结果
-            dataList = ansRbt.handle_model_data(ansRbt.get_model_result() , 'raw', module_args=self.apps.project_remote_command) 
+            dataList = ansRbt.handle_model_data(ansRbt.get_model_result() , 'shell', module_args=self.apps.project_remote_command) 
+
             self.handle_result("pre_release",dataList)       
         
     def release(self,package=None):
         if package:
-            args = "src={srcDir} dest={desDir} mode=755 owner={owner}".format(srcDir=package, desDir=self.apps.project_target_root,owner=self.apps.project_user)
+            args = "src={srcDir} dest={desDir} mode=755 owner={owner} group={owner}".format(srcDir=package, desDir=self.apps.project_target_root,owner=self.apps.project_user)
         else:
-            args = "src={srcDir} dest={desDir} mode=755 owner={owner}".format(srcDir=self.apps.project_dir+self.version_package, desDir=self.apps.project_target_root,owner=self.apps.project_user)
+            args = "src={srcDir} dest={desDir} mode=755 owner={owner} group={owner}".format(srcDir=self.apps.project_dir+self.version_package, desDir=self.apps.project_target_root,owner=self.apps.project_user)
         hostList, resource = self.idSourceList(ids=self.task.servers)
         ansRbt = ANSRunner(resource)
 #         print(list(set(hostList).difference(set(self.flist))))
         ansRbt.run_model(host_list=self.judge_servers(hostList),module_name='unarchive',module_args=args)
         #精简返回的结果
-        dataList = ansRbt.handle_model_data(ansRbt.get_model_result() , 'unarchive', module_args=args)        
+        print(ansRbt.get_model_result())
+        dataList = ansRbt.handle_model_data(ansRbt.get_model_result() , 'unarchive', module_args=args) 
+        print(dataList)       
         self.handle_result("release",dataList)
 
 
