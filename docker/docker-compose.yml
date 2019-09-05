@@ -1,0 +1,75 @@
+version: "3"
+services:
+  db:
+    image: mysql:5.6  
+    environment:
+      - MYSQL_HOST=localhost
+      - MYSQL_DATABASE=opsmanage
+      - MYSQL_USER="数据库用户名"
+      - MYSQL_PASSWORD="数据库用户密码"
+      - MYSQL_ROOT_PASSWORD="数据库root密码"
+    volumes:
+      - /data/apps/mysql:/var/lib/mysql  
+    restart: always  
+    networks:
+      - default
+  redis:
+     container_name: redis
+     image: redis:3.2.8
+     command: redis-server 
+     ports:
+       - "6379:6379"
+     volumes:
+       - /data/apps/redis:/data/redis
+     networks:
+       - default  
+  rabbitmq:
+     container_name: rabbitmq
+     image: rabbitmq:management
+     ports:
+       - "5672:5672"
+       - "15672:15672"
+     networks:
+       - default  
+
+  ops_web:
+     image: opsmanage-base:latest
+     container_name: ops_web
+     environment:
+       MYSQL_DATABASE: opsmanage
+       MYSQL_USER: "数据库用户名"
+       MYSQL_PASSWORD: "数据库用户密码"
+     ports:
+       - "8000:8000" #vim /mnt/OpsManage/OpsManage/settings.py文件里面的DEBUG设置为DEBUG = False 
+     volumes:
+       - /mnt/OpsManage:/data/apps/opsmanage
+       - /mnt/OpsManage/upload:/data/apps/opsmanage/upload
+       - /mnt/OpsManage/logs:/data/apps/opsmanage/logs
+     command: bash /data/apps/opsmanage/docker/opsmanage/start.sh  
+     links:
+       - db
+       - redis
+       - rabbitmq
+     depends_on:
+       - db
+       - redis
+       - rabbitmq
+     restart: always
+     networks:
+       - default  
+
+#  nginx:
+#     image: opsmanage-nginx
+#     container_name: nginx
+#     ports:
+#       - "80:80"   
+#     volumes:
+#       - /mnt/OpsManage/static:/usr/share/nginx/html/static
+#     depends_on:
+#       - ops_web
+#     links:
+#       - ops_web:ops_web
+#     networks:
+#       - default
+networks:
+  default:
