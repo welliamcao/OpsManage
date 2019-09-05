@@ -45,7 +45,7 @@ services:
        - /mnt/OpsManage:/data/apps/opsmanage
        - /mnt/OpsManage/upload:/data/apps/opsmanage/upload
        - /mnt/OpsManage/logs:/data/apps/opsmanage/logs
-     command: bash /data/apps/opsmanage/docker/opsmanage/start.sh  
+     command: bash /data/apps/opsmanage/docker/start.sh  
      links:
        - db
        - redis
