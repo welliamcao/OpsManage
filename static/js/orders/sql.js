@@ -139,7 +139,7 @@ function makeDatabaseSelect(ids,data){
 		var beta = "生产环境"
 	}
 	var dbHtml = '<select class="selectpicker form-control"  name="order_db" id="order_db">' +
-				    '<option name="order_db" value="'+data["id"]+'" selected="selected">'+ beta +' | '+data["host"]+' | '+data["db_name"]+' | '+data["db_mark"]+'</option>' +
+				    '<option name="order_db" value="'+data["id"]+'" selected="selected">'+ data["db_env"] +' | '+data["ip"]+' | '+data["db_name"]+' | '+data["db_mark"]+'</option>' +
 				 '</select>'
 	$('#'+ids).html(dbHtml)		
 	$("#"+ids).attr("disabled","")
@@ -181,10 +181,9 @@ $(document).ready(function() {
 			$("#order_desc").val(data["data"]["order_subject"]).attr("disabled","")
 			$("#compile-editor-add").text(data["data"]["detail"]["sql"]["order_sql"])
 			setAceEditMode("mysql",true);
-			DynamicSelect("db_env",data["data"]["detail"]["db"]["db_env"])
 			makeDatabaseSelect("order_db",data["data"]["detail"]["db"])	
 			DynamicSelect("sql_backup",data["data"]["detail"]["sql"]["sql_backup"])
-			makeUserSelect('order_executor',requests('get','/api/user/',true))
+			makeUserSelect('order_executor',requests('get','/api/user/',false))
 			DynamicSelect('order_executor',data["data"]["order_executor"])
 			if (data["data"]["detail"]["sql"]["order_type"] == "online"){
 				switch(data["data"]["order_status"])
@@ -200,7 +199,9 @@ $(document).ready(function() {
 					if (data["data"]["detail"]["sql"]["sql_backup"]==1){
 						var rollbackSql = requests('get','/order/info/?type=get_rollback_sql&&id='+get_url_param("id"))
 						makeSQLrollback("auditRollback",rollbackSql["data"]["sql"])
-						$("#audit_sql_btn").val(get_url_param("id")).text("回滚").attr({"name":"rollback_sql_btn","disabled":false})
+						$("#audit_sql_btn").hide();
+						$("#rollback_sql_btn").val(get_url_param("id")).text("回滚").attr({"disabled":false});
+						$("#rollback_sql_btn").show();
 					}				
 				  break;
 				case 6:
@@ -220,6 +221,7 @@ $(document).ready(function() {
     $("button[name='audit_sql_btn']").on('click', function() {
     	var value = $(this).val();
     	var btnObj = $(this)
+    	console.log(value)
     	btnObj.attr('disabled',true);
 		if (value>=1){
 	    	$.ajax({  

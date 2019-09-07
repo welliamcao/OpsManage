@@ -566,7 +566,7 @@ $(document).ready(function () {
 	     if(select_node["last_node"] == 1){
 				$.ajax({
 					  type: 'GET',
-					  url: '/api/db/user/'+select_node["user_id"]+'/list/?db='+select_node["db_server"],
+					  url: '/api/db/user/list/?db_server='+select_node["db_server"],
 				      success:function(response){	
 				    	  if ($('#UserDatabaseListTable').hasClass('dataTable')) {
 				            dttable = $('#UserDatabaseListTable').dataTable();

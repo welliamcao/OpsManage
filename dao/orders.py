@@ -6,7 +6,7 @@ from dao.assets import AssetsSource,AssetsBase
 from django.contrib.auth.models import User
 from filemanage.models import *
 from orders.models import *
-from databases.models import DataBase_Server_Config
+from databases.models import Database_Detail
 from dao.redisdb import DsRedis
 from utils.ansible.runner import ANSRunner
 from utils import base,mysql
@@ -74,17 +74,21 @@ class OrderBase(AssetsBase):
         
     def get_db(self,order):
         try:
-            dbConfig = order.sql_audit_order.order_db
-            return dbConfig
+            db = order.sql_audit_order.order_db
+            config = db.db_server.to_connect()
+            config["db_name"] = db.db_name            
+            return  db,config     
+#             config = order.sql_audit_order.order_db
+#             return config
         except Exception as ex:
             logger.warn(msg="获取数据库信息失败: {ex}".format(ex=ex))
             return False      
     
-    def inception(self,dbConfig):
+    def inception(self,config):
         return Inception(
-                        host=dbConfig.db_assets.server_assets.ip,name=dbConfig.db_name,
-                        user=dbConfig.db_user,passwd=dbConfig.db_passwd,
-                        port=dbConfig.db_port
+                        host=config.get("ip"),name=config.get('db_name'),
+                        user=config.get("db_user"),passwd=config.get("db_passwd"),
+                        port=config.get("db_port")
                         )      
 
     def get_order(self,request):
@@ -120,10 +124,7 @@ class OrderBase(AssetsBase):
                 order.sql_audit_order.order_sql = f.read() 
         data["detail"] = {}
         data["detail"]["sql"] = self.convert_to_dict(order.sql_audit_order) 
-        data["detail"]["db"] = self.convert_to_dict(order.sql_audit_order.order_db)
-        data["detail"]["db"]["host"] = order.sql_audit_order.order_db.db_assets.server_assets.ip
-        data["detail"]["db"].pop("db_passwd")
-        data["detail"]["db"].pop("db_user")
+        data["detail"]["db"] = order.sql_audit_order.order_db.to_json()
         data["detail"]["sql"].pop("order_file")
         if order.order_status in [5,9] and order.sql_audit_order.order_type == 'online':
             data["detail"]["sql"]["result"] = []
@@ -156,13 +157,13 @@ class OrderBase(AssetsBase):
         data["detail"]["download"].pop("order_id")
         return data    
     
-    def get_rollback_sqls(self,order,dbConfig):
+    def get_rollback_sqls(self,order,config):
         rollBackSql = {}
         rollBackSql["sql"] = []
         rollBackSql["osc"] = False
-        if dbConfig:
+        if config:
             if order.order_status in [5,6] and order.sql_audit_order.order_type == 'online' and order.sql_audit_order.sql_backup == 1:
-                incept = self.inception(dbConfig)
+                incept = self.inception(config)
                 for ds in self.get_incept_sql_result(order):                
                     if ds.backup_db.find('None') == -1:
                         result = incept.getRollBackTable(
@@ -202,21 +203,23 @@ class ApplyManage(DataHandle):
         elif request.method == 'POST':cid = request.POST.get('order_db')
         elif request.method in ['PUT','DELETE']:cid = QueryDict(request.body).get('order_db')
         try:
-            dbConfig = DataBase_Server_Config.objects.get(id=cid)
-            return dbConfig
+            db = Database_Detail.objects.get(id=cid)
+            config = db.db_server.to_connect()
+            config["db_name"] = db.db_name
+            return db, config
         except Exception as ex:
             logger.warn(msg="获取数据库信息失败: {ex}".format(ex=ex))
             return False  
     
-    def __inception(self,dbConfig):
+    def __inception(self,config):
         return Inception(
-                        host=dbConfig.db_assets.server_assets.ip,name=dbConfig.db_name,
-                        user=dbConfig.db_user,passwd=dbConfig.db_passwd,
-                        port=dbConfig.db_port
+                        host=config.get("ip"),name=config.get('db_name'),
+                        user=config.get("db_user"),passwd=config.get("db_passwd"),
+                        port=config.get("db_port")
                         )
     
-    def __audit_by_incept(self,dbConfig,sql):
-        incept = self.__inception(dbConfig)
+    def __audit_by_incept(self,config,sql):
+        incept = self.__inception(config)
         return  incept.checkSql(sql=sql)
     
     def __create_orders_system(self,request,order_type=0):
@@ -236,13 +239,13 @@ class ApplyManage(DataHandle):
             logger.error(msg="SQL审核失败: {ex}".format(ex=str(ex)))
             return str(ex)
     
-    def __create_orders_sql_online(self,dbConfig,request):
+    def __create_orders_sql_online(self,db,request):
         order = self.__create_orders_system(request)
         if isinstance(order,Order_System):         
             try:
                 order_sql = SQL_Audit_Order.objects.create(
                                                order = order,
-                                               order_db = dbConfig,   
+                                               order_db = db,   
                                                order_type = 'online',                                                            
                                                order_sql = request.POST.get('order_sql'),
                                                sql_backup = request.POST.get('sql_backup'),
@@ -255,13 +258,13 @@ class ApplyManage(DataHandle):
                 return str(ex)
         else:return order
         
-    def __create_orders_sql_human(self,dbConfig,request):
+    def __create_orders_sql_human(self,db,request):
         order = self.__create_orders_system(request)
         if isinstance(order,Order_System):         
             try:
                 order_sql = SQL_Audit_Order.objects.create(
                                                order = order,
-                                               order_db = dbConfig,   
+                                               order_db = db,   
                                                order_type = 'human',                                                            
                                                order_sql = request.POST.get('order_sql'),
                                                sql_backup = 0,
@@ -273,13 +276,13 @@ class ApplyManage(DataHandle):
                 return str(ex)        
         else:return order
         
-    def __create_orders_sql_file(self,dbConfig,request):
+    def __create_orders_sql_file(self,db,request):
         order = self.__create_orders_system(request)
         if isinstance(order,Order_System):        
             try:                                  
                 order_sql = SQL_Audit_Order.objects.create(
                                                 order = order,
-                                                order_db = dbConfig,
+                                                order_db = db,
                                                 order_type = 'file',  
                                                 order_sql = request.POST.get('order_sql'),
                                                 order_file = request.FILES.get('order_file'),
@@ -343,26 +346,27 @@ class ApplyManage(DataHandle):
         return Order_System.objects.filter(order_subject=request.POST.get('order_desc'),order_type=order_type).count()
     
     def sql_audit(self,request):    
-        dbConfig = self.get_db(request)
+        db,config = self.get_db(request)
         count = self.__check_orders(request,0)
         if count >=1:return "请勿重复提交"
-        if dbConfig:
+        if db:
             if INCEPTION_CONFIG and request.POST.get("sql_type") == "online": #如果开启inception审核就走下面的流程
-                result = self.__audit_by_incept(dbConfig, request.POST.get("order_sql"))
+                result = self.__audit_by_incept(config, request.POST.get("order_sql"))
+
                 if result.get('status') == 'success':
-                    order_sql = self.__create_orders_sql_online( dbConfig, request)
+                    order_sql = self.__create_orders_sql_online( db, request)
                     if isinstance(order_sql,SQL_Audit_Order):return result.get('data')
                     else:return order_sql
                 else:
                     return result.get('data')
                 
             elif request.POST.get("sql_type") == "file":
-                order_sql = self.__create_orders_sql_file( dbConfig, request)
+                order_sql = self.__create_orders_sql_file( config, request)
                 if isinstance(order_sql,SQL_Audit_Order):return 
                 else:return order_sql 
                  
             elif request.POST.get("sql_type") == "human":
-                order_sql = self.__create_orders_sql_human(dbConfig, request)
+                order_sql = self.__create_orders_sql_human(config, request)
                 if isinstance(order_sql,SQL_Audit_Order):return  
                 else:return order_sql  
             else:              
@@ -395,10 +399,10 @@ class OrderStatus(OrderBase):
     
     def get_osc(self,request):
         order = self.check_perms(request)
-        dbConfig = self.get_db(order)   
-        if dbConfig:
+        db,config = self.get_db(order)   
+        if db:
             if INCEPTION_CONFIG and order.sql_audit_order.order_type == "online":        
-                incept = self.inception(dbConfig)
+                incept = self.inception(config)
                 for ds in self.get_incept_sql_result(order): 
                     if ds.backup_db.find('None') == -1:
                         if ds.sqlsha:return incept.getOscStatus(sqlSHA1=ds.sqlsha) 
@@ -406,8 +410,9 @@ class OrderStatus(OrderBase):
         return {"status":'error', "data":{"percent":100, "timeRemained":"00:00"}}
     
     def get_rollback_sql(self,request):
-        order = self.check_perms(request)     
-        return self.get_rollback_sqls(order,self.get_db(order))
+        order = self.check_perms(request)  
+        db, config = self.get_db(order)   
+        return self.get_rollback_sqls(order,config)
     
     def sql(self,request):
         order = self.check_perms(request)
@@ -443,8 +448,8 @@ class OrderSQLManage(OrderBase):
             logger.error(msg="OrderManage没有{sub}方法".format(sub=sub))       
             return "参数错误"             
     
-    def __exec_by_incept(self,dbConfig,sql,action):
-        incept = self.inception(dbConfig)
+    def __exec_by_incept(self,config,sql,action):
+        incept = self.inception(config)
         return incept.execSql(sql,action)
 
     
@@ -466,10 +471,10 @@ class OrderSQLManage(OrderBase):
         except Exception as ex:
             logger.error(msg="记录SQL错误: {ex}".format(ex=str(ex)))               
     
-    def __incept_sql(self,dbConfig,order):
+    def __incept_sql(self,config,order):
         if order.sql_audit_order.sql_backup == 1:action = None
         else:action='--disable-remote-backup;'
-        result = self.__exec_by_incept(dbConfig, order.sql_audit_order.order_sql,action)
+        result = self.__exec_by_incept(config, order.sql_audit_order.order_sql,action)
         if result.get('status') == 'success':
             count = 0
             sList = []
@@ -488,8 +493,8 @@ class OrderSQLManage(OrderBase):
         else:
             return {"status":9,"result":result.get('msg'),"type":"incept"}             
     
-    def __human_sql(self,dbConfig,order):
-        incept = self.inception(dbConfig)
+    def __human_sql(self,config,order):
+        incept = self.inception(config)
         result = incept.exec_custom_sql(order.sql_audit_order.order_sql)
         if result.get('status') == 'error':#
             order.order_status = 9
@@ -502,14 +507,14 @@ class OrderSQLManage(OrderBase):
             order.save()    
             return {"status":5,"result":"","type":"human"}              
     
-    def __file_sql(self,dbConfig,order):
+    def __file_sql(self,config,order):
         filePath = os.getcwd() + '/upload/' + str(order.sql_audit_order.order_file)
         rc,rs = cmds.loads(    
-                            host=dbConfig.db_assets.server_assets.ip,
-                            dbname=dbConfig.db_name,
-                            user=dbConfig.db_user,
-                            passwd=dbConfig.db_passwd,
-                            port=dbConfig.db_port,
+                            host=config.db_assets.server_assets.ip,
+                            dbname=config.db_name,
+                            user=config.db_user,
+                            passwd=config.db_passwd,
+                            port=config.db_port,
                             sql=filePath
                             )
         if rc == 0:
@@ -528,16 +533,16 @@ class OrderSQLManage(OrderBase):
                
     def exec_sql(self,request):
         order = self.check_perms(request)
-        dbConfig = self.get_db(order)
-        if dbConfig and request.method == 'POST':
+        db,config = self.get_db(order)
+        if config and request.method == 'POST':
             if INCEPTION_CONFIG and order.sql_audit_order.order_type == "online" and order.order_status == 8: #如果开启inception审核就走下面的流程
-                return self.__incept_sql(dbConfig, order)      
+                return self.__incept_sql(config, order)      
                       
             elif order.sql_audit_order.order_type == "file":
-                return self.__file_sql(dbConfig, order)  
+                return self.__file_sql(config, order)  
             
             elif order.sql_audit_order.order_type == "human":        
-                return self.__human_sql(dbConfig,order)
+                return self.__human_sql(config,order)
             else:
                 return "工单SQL类型不正确"
         else:
@@ -552,10 +557,10 @@ class OrderSQLManage(OrderBase):
     
     def stop_osc(self,request):
         order = self.check_perms(request)
-        dbConfig = self.get_db(order)   
-        if dbConfig:
+        db,config = self.get_db(order)   
+        if db:
             if INCEPTION_CONFIG and order.sql_audit_order.order_type == "online":        
-                incept = self.inception(dbConfig)
+                incept = self.inception(config)
                 for ds in self.get_incept_sql_result(order): 
                     if ds.backup_db.find('None') == -1:
                         if ds.sqlsha :return incept.stopOsc(sqlSHA1=ds.sqlsha) 
@@ -567,10 +572,10 @@ class OrderSQLManage(OrderBase):
     
     def rollback_sql(self,request):    
         order = self.check_perms(request)    
-        dbConfig = self.get_db(order)     
-        if order and dbConfig:
-            incept = self.inception(dbConfig)
-            sqlList= self.get_rollback_sqls(order,dbConfig)
+        db,config = self.get_db(order)     
+        if order and db:
+            incept = self.inception(config)
+            sqlList= self.get_rollback_sqls(order,config)
             if isinstance(sqlList, dict):
                 for sql in sqlList["sql"]:
                     result = incept.exec_custom_sql(sql)

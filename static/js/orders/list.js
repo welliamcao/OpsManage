@@ -98,9 +98,9 @@ function orderInfoFormat(dataList) {
 			    					'<th>端口</th>' +
 		    					'</tr>'	+    				
 			    				'</tr>' + 
-									 '<td class="col-md-1 col-sm-12 col-xs-12">'+ dbEnvHtml[dataList["detail"]["db"]["db_env"]] +'</td>'+ 
+									 '<td class="col-md-1 col-sm-12 col-xs-12">'+ dataList["detail"]["db"]["db_env"] +'</td>'+ 
 								  	 '<td class="col-md-1 col-sm-12 col-xs-12">'+ dataList["detail"]["db"]["db_name"] +'</td>' +
-								  	 '<td class="col-md-1 col-sm-12 col-xs-12">'+ dataList["detail"]["db"]["host"] +'</td>' +
+								  	 '<td class="col-md-1 col-sm-12 col-xs-12">'+ dataList["detail"]["db"]["ip"] +'</td>' +
 								  	 '<td class="col-md-1 col-sm-12 col-xs-12">'+ dataList["detail"]["db"]["db_port"] +'</td>' +
 							  	 '</tr>' +
 		    				'</table>' +

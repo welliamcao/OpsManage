@@ -34,6 +34,7 @@ class Inception():
             ret = cur.execute(sql)
             result = cur.fetchall()
             dataList = []
+            check =True
             for row in result:
                 data = dict()
                 data['stage'] = row[1]
@@ -47,12 +48,14 @@ class Inception():
                 data['execute_time'] = row[9]
                 data['sqlsha1'] = row[10]
                 dataList.append(data)
+                if data['errlevel'] > 0:check = False
             cur.close()
             conn.close()
-            return {"status":'success','data':dataList}
+            if check:return {"status":'success','data':dataList}
+            else:return {"status":'error','data':dataList}
         except pymysql.Error as e:
             logger.error(msg="Mysql Error %d: %s" % (e.args[0], e.args[1]))
-            return {"status":'error',"errinfo":"Mysql Error %d: %s" % (e.args[0], e.args[1])}        
+            return {"status":'error',"data":"Mysql Error %d: %s" % (e.args[0], e.args[1])}        
         
     def checkSql(self,sql):
         #检查alert语句是否符合规则
@@ -61,7 +64,7 @@ class Inception():
         #检查自定义规则的语句是否符合规则
         result = self.customSql(sql)
         if isinstance(result, dict):return result
-        return self.run(action='--enable-check;', auditSql=sql)
+        return  self.run(action='--enable-check;', auditSql=sql)             
     
     def customSql(self,sql):
         sqlList = Custom_High_Risk_SQL.objects.all()

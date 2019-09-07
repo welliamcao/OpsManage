@@ -240,40 +240,30 @@ def db_server_db_detail(request, sid, id,format=None):
 
 
 @api_view(['GET'])
-def db_user_dblist(request, uid, format=None):
-    try:
-        user = User.objects.get(id=uid)
-    except User.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND) 
-    
-    if user.id != request.user.id and request.user.is_superuser is False:
-        return Response(status=status.HTTP_404_NOT_FOUND) 
-    
+def db_user_db_list(request, format=None):    
     if request.method == 'GET':
+        query_params = dict()
+        for ds in request.query_params.keys():
+            query_params[ds] = request.query_params.get(ds)        
         dataList = []
-        if user.is_superuser:
-            if request.query_params.get('db'):
-                user_data_list = Database_Detail.objects.filter(db_server=request.query_params.get('db',0))
-            else:
-                user_data_list = Database_Detail.objects.all()
+        if request.user.is_superuser:
+            user_data_list = Database_Detail.objects.filter(**query_params)
             for ds in user_data_list:
                 data = ds.to_json()
-                data["username"] = user.username
+                data["username"] = request.user.username
                 data["count"] = 1
                 dataList.append(data)                            
         else:    
-            for ds in Database_User.objects.filter(user=uid):
+            for ds in Database_User.objects.filter(user=request.user.id):
                 try:
-                    if request.query_params.get('db'):
-                        data = Database_Detail.objects.get(id=ds.db,db_server=request.query_params.get('db',0)).to_json()
-                    else:
-                        data = Database_Detail.objects.get(id=ds.db).to_json()
-                    data["username"] = user.username
+                    data = Database_Detail.objects.get(id=ds.db,**query_params).to_json()
+                    data["username"] = request.user.username
                     data["count"] = 1
                     dataList.append(data)
                 except Exception as ex: 
                     continue         
         return Response(dataList)
+
 
 @api_view(['GET','POST'])
 @permission_required('Databases.databases_can_read_database_server_config',raise_exception=True) 

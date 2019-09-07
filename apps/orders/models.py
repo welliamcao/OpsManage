@@ -58,7 +58,7 @@ class Order_System(models.Model):
 class SQL_Audit_Order(models.Model):
     order = models.OneToOneField('Order_System', on_delete=models.CASCADE) 
     order_type = models.CharField(max_length=10,verbose_name='sql类型')
-    order_db = models.ForeignKey('databases.DataBase_Server_Config',related_name ='order_db',verbose_name='数据库id', on_delete=models.CASCADE)
+    order_db = models.ForeignKey('databases.Database_Detail',related_name ='order_db',verbose_name='数据库id', on_delete=models.CASCADE)
     order_sql =  models.TextField(verbose_name='待审核SQL内容',blank=True,null=True) 
     order_file = models.FileField(upload_to = './sql/',verbose_name='sql脚本路径')
     order_err = models.TextField(blank=True,null=True,verbose_name='失败原因') 
@@ -74,6 +74,19 @@ class SQL_Audit_Order(models.Model):
         )
         verbose_name = '工单管理'  
         verbose_name_plural = 'SQL审核工单表'              
+
+    def to_json(self):
+        json_format = {
+            "id":self.id,
+            "order_type":self.order_type,
+            "order_sql":self.order_sql,
+            "order_file":self.order_file,
+            "order_err":self.order_err,
+            "sql_backup":self.sql_backup,           
+            "db":{}
+        }
+        json_format["db"] = self.order_db.to_json()
+        return  json_format  
 
 class SQL_Order_Execute_Result(models.Model):
     '''

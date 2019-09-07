@@ -68,7 +68,7 @@ urlpatterns = [
             url(r'^db/org/(?P<id>[0-9]+)/$', db_api.db_org),
             url(r'^db/server/(?P<id>[0-9]+)/list/$', db_api.db_server_dblist),
             url(r'^db/server/(?P<sid>[0-9]+)/db/(?P<id>[0-9]+)/$', db_api.db_server_db_detail),
-            url(r'^db/user/(?P<uid>[0-9]+)/list/$', db_api.db_user_dblist),
+            url(r'^db/user/list/$', db_api.db_user_db_list),
             url(r'^db/user/(?P<uid>[0-9]+)/server/(?P<sid>[0-9]+)/list/$', db_api.db_user_server_dblist),
             url(r'^db/user/(?P<uid>[0-9]+)/db/(?P<did>[0-9]+)/table/$', db_api.db_user_db_table_list),
             url(r'^orders/list/$', orders_api.OrdersPaginator.as_view()),

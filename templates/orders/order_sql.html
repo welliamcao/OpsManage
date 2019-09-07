@@ -37,12 +37,6 @@
                       </li>
                       <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
-                        <ul class="dropdown-menu" role="menu">
-                          <li><a href="#">Settings 1</a>
-                          </li>
-                          <li><a href="#">Settings 2</a>
-                          </li>
-                        </ul>
                       </li>
                       <li><a class="close-link"><i class="fa fa-close"></i></a>
                       </li>
@@ -71,7 +65,10 @@
 		 									<label>工单状态<i class="fa fa-info-circle" data-toggle="tooltip" title="工单状态"></i></label>
 											<span id="order_status"></span>
 										</div>																								
-										<lable id="auditContol"><button type="button" class="btn btn-default" id="audit_sql_btn" name="audit_sql_btn" disabled>执行</button></lable>
+										<lable id="auditContol">
+											<button type="button" class="btn btn-default" id="audit_sql_btn" name="audit_sql_btn" disabled>执行</button>
+											<button type="button" class="btn btn-default" id="rollback_sql_btn" style="display:none" name="rollback_sql_btn" disabled>回滚</button>
+										</lable>
 										
 							</div>
 							<div class="hr hr32 hr-dotted"></div>
@@ -79,15 +76,7 @@
 								<legend>
 									<i class="fa  fa-paper-plane"></i> 数据库选择
 								</legend>							
-								<div class="item form-group" >			 		             
-									<label >环境类型</label>	
-									<select class="selectpicker form-control"  name="db_env" id="db_env">
-										<option name="db_env" value="" selected="selected">选择一个类型进行操作</option>
-										<option name="db_env" value="beta" >测试</option>
-										<option name="db_env" value="ga" >生产</option>
-									</select>		
-								</div>    
-							 							                                 	 	                               
+    							 							                                 	 	                               
 								<div class="item form-group" >			 		             
 									<label >数据库</label>	
 									<select class="selectpicker form-control"  name="order_db" id="order_db">

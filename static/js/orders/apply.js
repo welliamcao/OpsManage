@@ -114,8 +114,8 @@ function makeUserSelect(ids,dataList){
 function makeDatabaseSelect(ids,response){	
 	var binlogHtml = '<select required="required" class="selectpicker form-control" data-live-search="true" name="db" id="db"  data-size="10" data-selected-text-format="count > 3"  data-width="100%"  id="db"  autocomplete="off"><option  name="db" value="">请选择一个数据库</option>'
 	var selectHtml = '';
-	for (var i=0; i <response["results"].length; i++){
-		selectHtml += '<option name="db" value="'+ response["results"][i]["id"] +'">' + response["results"][i]["detail"]["db_env"] + ' | ' + response["results"][i]["detail"]["ip"] +  ' | ' + response["results"][i]["detail"]["db_name"] +  ' | ' + response["results"][i]["detail"]["db_mark"] + '</option>' 					 
+	for (var i=0; i <response.length; i++){
+		selectHtml += '<option name="db" value="'+ response[i]["id"] +'">' + response[i]["detail"]["db_env"] + ' | ' + response[i]["detail"]["ip"] +  ' | ' + response[i]["detail"]["db_name"] +  ' | ' + response[i]["detail"]["db_mark"] + '</option>' 					 
 	};                        
 	binlogHtml =  binlogHtml + selectHtml + '</select>';
 	document.getElementById(ids).innerHTML= binlogHtml;							
@@ -185,29 +185,22 @@ $(document).ready(function() {
 	        return filename.replace('(', '_').replace(']', '_');
 	    }
 	});    
-    	
-	
-	
-	$("#db_env").change(function(){
-		$('#order_db option:selected').empty();
-		$("#ops_service").val("");
-		$.ajax({
-			url:"/api/db/query/?db_env="+$(this).val(),  
-			type:"get",  		
-			success:function(response){
-				makeDatabaseSelect("order_db",response)
-			},
-	    	error:function(response){
-	           	new PNotify({
-	                   title: 'Ops Failed!',
-	                   text: response.responseText,
-	                   type: 'error',
-	                   styling: 'bootstrap3'
-	               }); 
-	    	}
-		});		
-	});    
+    	    
 
+	$(function() {
+		if($('#order_db').length){		
+			let response = requests('get','/api/db/user/list/')
+			var binlogHtml = '<select required="required" class="selectpicker form-control" data-live-search="true" name="order_db" id="order_db"  data-size="10" data-selected-text-format="count > 10"  data-width="100%"  autocomplete="off"><option  name="order_db" value="">请选择一个数据库</option>'
+			var selectHtml = '';
+			for (var i=0; i <response.length; i++){
+				selectHtml += '<option name="order_db" value="'+ response[i]["id"] +'">' + response[i]["db_env"] + ' | ' + response[i]["db_mark"] + ' | ' + response[i]["ip"] +  ' | ' + response[i]["db_name"] + '</option>' 					 
+			};                        
+			binlogHtml =  binlogHtml + selectHtml + '</select>';
+			document.getElementById("order_db").innerHTML= binlogHtml;							
+			$('#order_db').selectpicker('refresh');	
+		}
+	})		
+	
 	$(function() {
 		if($('#order_executor').length){		
 			try {
@@ -265,7 +258,6 @@ $(document).ready(function() {
 				return false;
 			}else if (value.length > 0){
 				$("[name='"+ name +"']").parent().removeClass("has-error");
-				$("[name='"+ name +"']").parent().addClass("has-success");
 			}			
 		};				
 		var editor = ace.edit("compile-editor-add");
@@ -300,12 +292,7 @@ $(document).ready(function() {
 			success:function(response){		
 				btnObj.attr('disabled',false);
 				if (response["code"] == 200){
-	            	new PNotify({
-	                    title: 'Success!',
-	                    text: '工单申请成功',
-	                    type: 'success',
-	                    styling: 'bootstrap3'
-	                }); 
+					var success = true;
 					if (sql_type=='online' && $.isArray(response["data"])){
 						document.getElementById("auditResultDiv").style.display = ""; 
 						var resultHTML =  '<table class="table table-hover" id="auditResult">' +
@@ -320,6 +307,10 @@ $(document).ready(function() {
 	                	'<tbody>'
 					     var trHtml = ''
 					     for (var i=0;i< response['data'].length;i++){
+					    	 if(response['data'][i]["errlevel"]>0){
+					    		 success = false
+					    		 console.log(success)
+					    	 }
 					    	 trHtml +=   '<tr>' + 
 					                         '<td>'+ i +'</td>' + 
 					                         '<td>'+ response['data'][i]['sqltext'] +'</td>' + 
@@ -330,6 +321,23 @@ $(document).ready(function() {
 						resultHTML = resultHTML + trHtml + '</tbody></table>'
 						$('#auditResult').html(resultHTML);		
 					}
+					console.log(success)
+					if(success){
+		            	new PNotify({
+		                    title: 'Success!',
+		                    text: '工单申请成功',
+		                    type: 'success',
+		                    styling: 'bootstrap3'
+		                }); 						
+					}else{
+		            	new PNotify({
+			                title: 'Warning!',
+			                text: '工单申请失败',
+			                type: 'error',
+			                styling: 'bootstrap3'
+		                }); 						
+					}
+					
 				}
 				else {
 		    		$.alert({

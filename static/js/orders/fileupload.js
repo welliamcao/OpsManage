@@ -92,7 +92,7 @@ function AssetsSelect(name,dataList,selectIds){
 			switch(name)
 			{
 			case "custom":
-				var text = dataList[i]["detail"]["ip"]+ ' | ' + dataList[i]["project"]+' | '+dataList[i]["service"]	
+				var text = dataList[i]["detail"]["ip"]
 				var count = 0
 				for (var j=0; j <selectIds.length; j++){
 					if(selectIds[j]==dataList[i]["id"]){
