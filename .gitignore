@@ -12,4 +12,4 @@ media*
 ./logs/opsmanage.log
 .quarantine
 .msyh.ttf
-
+celerybeat.pid
