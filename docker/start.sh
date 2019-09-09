@@ -5,8 +5,8 @@ PASSWORD=${MYSQL_PASSWORD}
 
 count=$(mysql -h db -D ${DATABASE} -e "show tables;" -u${USER} -p${PASSWORD}|wc -l)
 if [ ${count} -lt 10  ];then
-     mysql -h db -D ${DATABASE} -u${USER} -p${PASSWORD} < /data/apps/opsmanage/docker/opsmanage/init.sql
-     cd /data/apps/opsmanage/ && python manage.py loaddata docker/opsmanage/superuser.json
+     mysql -h db -D ${DATABASE} -u${USER} -p${PASSWORD} < /data/apps/opsmanage/docker/init.sql
+     cd /data/apps/opsmanage/ && python manage.py loaddata docker/superuser.json
 fi
 echo_supervisord_conf > /etc/supervisord.conf
 export PYTHONOPTIMIZE=1

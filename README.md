@@ -15,13 +15,16 @@
  * 操作系统：CentOS 6+
  * Ansible版本：2.6 + 
  * 部署平台及节点服务器：Rsync 3+
- * MySQL版本：5.1-5.6
+ * MySQL版本：5.1-5.6  #如果用5.7[请查看](https://github.com/welliamcao/OpsManage/issues/18#issuecomment-360701544)
 
 ## OpsManage功能说明
 ![image](https://github.com/welliamcao/OpsManage/blob/master/demo_imgs/opsmanage.png)
 
 ## QQ交流群
 ![image](https://github.com/welliamcao/OpsManage/blob/master/demo_imgs/qq_group.png)
+
+## Docker构建OpsManage
+[传送门](https://github.com/welliamcao/OpsManage/wiki/Docker%E6%9E%84%E5%BB%BAOpsManage)
 
 ## 安装环境配置
 一、安装Python

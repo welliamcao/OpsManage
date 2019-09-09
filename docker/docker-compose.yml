@@ -40,7 +40,7 @@ services:
        MYSQL_USER: "数据库用户名"
        MYSQL_PASSWORD: "数据库用户密码"
      ports:
-       - "8000:8000" #vim /mnt/OpsManage/OpsManage/settings.py文件里面的DEBUG设置为DEBUG = False 
+       - "8000:8000" #vim /mnt/OpsManage/OpsManage/settings.py文件里面的DEBUG设置为DEBUG = True 
      volumes:
        - /mnt/OpsManage:/data/apps/opsmanage
        - /mnt/OpsManage/upload:/data/apps/opsmanage/upload
