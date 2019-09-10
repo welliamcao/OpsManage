@@ -29,7 +29,7 @@ class MySQLARCH(object):
         self.mysql_status = self.mysql.get_status()
         self.db_server = db_server
         self.arch_info = {
-                    'title': self.db_server.db_mark,
+                    'title': self.db_server.get("db_mark"),
                     'className': 'product-dept',
                     'children': []                   
                 }
@@ -37,7 +37,7 @@ class MySQLARCH(object):
     def slave(self):
         slave_data = {}
         for ds in self.mysql.get_master_status():
-            if ds.get('name') == 'Slave':slave_data[self.db_server.db_assets.server_assets.ip+':'+str(self.db_server.db_port)] = ds.get('value')  
+            if ds.get('name') == 'Slave':slave_data[self.db_server.self.db_server.get("ip")+':'+str(self.db_server.get("db_port"))] = ds.get('value')  
         return slave_data
         
     def pxc(self):

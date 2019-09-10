@@ -163,8 +163,8 @@ def db_org(request, id,format=None):
     except DataBase_Server_Config.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)    
     if request.method == 'POST':
-        MYSQL = MySQLPool(dbServer)
-        ARCH_INFO = MySQLARCH(MYSQL,dbServer)
+        MYSQL = MySQLPool(dbServer.to_connect())
+        ARCH_INFO = MySQLARCH(MYSQL,dbServer.to_connect())
         if dbServer.db_mode == 'pxc':data = ARCH_INFO.pxc()
         elif dbServer.db_mode == 'slave':data = ARCH_INFO.master_slave()
         else:
