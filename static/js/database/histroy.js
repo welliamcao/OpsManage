@@ -121,16 +121,16 @@ $(document).ready(function() {
 	$(function(){
 		$.ajax({
 			dataType: "JSON",
-			url:'/db/manage/?type=query_user_db', //请求地址
+			url:'/api/db/user/list/', //请求地址
 			type:"GET",  //提交类似
 			success:function(response){
 				var binlogHtml = '<select required="required" class="selectpicker form-control" data-live-search="true" name="db" id="db"  data-size="10" data-selected-text-format="count > 3"  data-width="100%"  id="db"  autocomplete="off"><option  name="db" value="">请选择一个数据库</option>'
 				var selectHtml = '';
-				for (var i=0; i <response["data"].length; i++){
-					if (response["data"][i]["count"] > 0){
-						selectHtml += '<option selected="selected" name="db" value="'+ response["data"][i]["id"] +'">' + response["data"][i]["db_env"] + ' | ' + response["data"][i]["ip"] +  ' | ' + response["data"][i]["db_name"] +  ' | ' + response["data"][i]["db_mark"] + '</option>' 
+				for (var i=0; i <response.length; i++){
+					if (response[i]["count"] > 0){
+						selectHtml += '<option selected="selected" name="db" value="'+ response[i]["id"] +'">' + response[i]["db_env"] + ' | ' + response[i]["ip"] +  ' | ' + response[i]["db_name"] +  ' | ' + response[i]["db_mark"] + '</option>' 
 					}else{
-						selectHtml += '<option name="db" value="'+ response["data"][i]["id"] +'">' + response["data"][i]["db_env"] + ' | ' + response["data"][i]["ip"] +  ' | ' + response["data"][i]["db_name"] +  ' | ' + response["data"][i]["db_mark"] + '</option>' 
+						selectHtml += '<option name="db" value="'+ response[i]["id"] +'">' + response[i]["db_env"] + ' | ' + response[i]["ip"] +  ' | ' + response[i]["db_name"] +  ' | ' + response[i]["db_mark"] + '</option>' 
 					}
 					 
 				};                        
