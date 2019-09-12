@@ -4,7 +4,7 @@ import json
 from django.db import models
 import django.utils.timezone as timezone
 from django.contrib.auth.models import User
-
+from datetime import datetime
 # Create your models here.
 class Log_Deploy_Model(models.Model): 
     ans_user = models.CharField(max_length=50,verbose_name='使用用户',default=None)
@@ -63,15 +63,15 @@ class Deploy_Playbook(models.Model):
             "playbook_desc":self.playbook_desc,
             "playbook_vars":self.playbook_vars,
             "playbook_type":self.playbook_type,
-            "playbook_file":self.playbook_file,
+            "playbook_file":str(self.playbook_file),
             "playbook_business":self.playbook_business,
             "playbook_user":username,
             "playbook_server":self.playbook_server,
             "playbook_group":self.playbook_group,
             "playbook_tags":self.playbook_tags,
             "playbook_inventory_groups":self.playbook_inventory_groups,
-            "create_time":self.create_time,
-            "update_date":self.update_date,
+            "create_time":datetime.strftime(self.create_time, '%Y-%m-%d %H:%M:%S'),
+            "update_date":datetime.strftime(self.update_date, '%Y-%m-%d %H:%M:%S'),
         }
         return  json_format             
 
@@ -133,8 +133,8 @@ class Deploy_Script(models.Model):
             "script_group":self.script_group,
             "script_tags":self.script_tags,
             "script_inventory_groups":self.script_inventory_groups,
-            "create_time":self.create_time,
-            "update_date":self.update_date,
+            "create_time":datetime.strftime(self.create_time, '%Y-%m-%d %H:%M:%S'),
+            "update_date":datetime.strftime(self.update_date, '%Y-%m-%d %H:%M:%S'),
         }
         return  json_format 
     

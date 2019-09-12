@@ -167,12 +167,23 @@ class ServerSerializer(serializers.ModelSerializer):
         server = Server_Assets.objects.create(**data)  
         return server 
 
+
+class DeployScriptSerializer(serializers.ModelSerializer): 
+    detail = serializers.SerializerMethodField(read_only=True,required=False)
+    class Meta:
+        model =  Deploy_Script
+        fields = ('id','detail') 
+        
+    def get_detail(self,obj):
+        return obj.to_json()  
+
 class DeployPlaybookSerializer(serializers.ModelSerializer): 
+    detail = serializers.SerializerMethodField(read_only=True,required=False)
     class Meta:
         model =  Deploy_Playbook
-        fields = ('id','playbook_name','playbook_desc','playbook_vars',
-                  'playbook_uuid','playbook_file','playbook_auth_group',
-                  'playbook_auth_user')   
+        fields = ('id','detail')   
+    def get_detail(self,obj):
+        return obj.to_json()         
         
 class DeployModelLogsSerializer(serializers.ModelSerializer):
     create_time = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S")

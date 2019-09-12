@@ -6,7 +6,6 @@ from api import serializers
 from deploy.models import *
 from asset.models import *
 from rest_framework import status
-from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from django.contrib.auth.decorators import permission_required
 from django.http import JsonResponse
@@ -209,4 +208,23 @@ def deploy_host_vars(request, id,format=None):
                 return JsonResponse({'msg':"更新主机变量失败: {ex}".format(ex=ex),"code":500,'data':{}}) 
         assets.host_vars = host_vars
         assets.save()
-        return JsonResponse({'msg':"更新成功","code":200,'data':host_vars})          
+        return JsonResponse({'msg':"更新成功","code":200,'data':host_vars}) 
+
+
+class DeployScriptList(APIView):  
+    @method_decorator_adaptor(permission_required, "deploy.deploy_read_deploy_script","/403/")  
+    def get(self,request,*args,**kwargs):
+        logs_list = Deploy_Script.objects.all()
+        page = serializers.PageConfig()  # 注册分页
+        page_user_list = page.paginate_queryset(queryset=logs_list, request=request, view=self)
+        ser = serializers.DeployScriptSerializer(instance=page_user_list, many=True)
+        return page.get_paginated_response(ser.data)     
+    
+class DeployPlayBookList(APIView):  
+    @method_decorator_adaptor(permission_required, "deploy.deploy_read_deploy_playbook","/403/")  
+    def get(self,request,*args,**kwargs):
+        logs_list = Deploy_Playbook.objects.all()
+        page = serializers.PageConfig()  # 注册分页
+        page_user_list = page.paginate_queryset(queryset=logs_list, request=request, view=self)
+        ser = serializers.DeployScriptSerializer(instance=page_user_list, many=True)
+        return page.get_paginated_response(ser.data)          

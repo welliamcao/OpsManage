@@ -134,7 +134,7 @@ class DeployScripts(LoginRequiredMixin,DeployScript,View):
     def get(self, request, *args, **kwagrs):
         if request.GET.get('sid'):
             return JsonResponse({'msg':"数据获取成功","code":200,'data':self.script(request.GET.get('sid'))})
-        return render(request, 'deploy/deploy_scripts.html',{"user":request.user,"scriptList":self.scriptList()}) 
+        return render(request, 'deploy/deploy_scripts.html',{"user":request.user}) 
     
     @method_decorator_adaptor(permission_required, "deploy.deploy_add_deploy_script","/403/")   
     def post(self, request, *args, **kwagrs):
@@ -163,7 +163,7 @@ class DeployPlaybooks(LoginRequiredMixin,DeployPlaybook,View):
     def get(self, request, *args, **kwagrs):
         if request.GET.get('pid'):
             return JsonResponse({'msg':"数据获取成功","code":200,'data':self.playbook(request.GET.get('pid'))})
-        return render(request, 'deploy/deploy_playbook.html',{"user":request.user,"playbookList":self.playbookList()}) 
+        return render(request, 'deploy/deploy_playbook.html',{"user":request.user}) 
     
     @method_decorator_adaptor(permission_required, "deploy.deploy_add_deploy_playbook","/403/")  
     def post(self, request, *args, **kwagrs):
