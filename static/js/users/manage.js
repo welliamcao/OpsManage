@@ -52,7 +52,7 @@ function GetUsersOfAssets(url,uid){
 					count += 1
  				} 
 			}
-			var name = allAssetsList[i]["detail"]["ip"]+ ' | ' + allAssetsList[i]["project"]+' | '+allAssetsList[i]["service"]			
+			var name = allAssetsList[i]["detail"]["ip"]		
 			if(count > 0 ){
 				sList.push({"id":allAssetsList[i]["id"],"name":name})
 			}
