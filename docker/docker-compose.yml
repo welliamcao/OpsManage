@@ -5,9 +5,9 @@ services:
     environment:
       - MYSQL_HOST=localhost
       - MYSQL_DATABASE=opsmanage
-      - MYSQL_USER="数据库用户名"
-      - MYSQL_PASSWORD="数据库用户密码"
-      - MYSQL_ROOT_PASSWORD="数据库root密码"
+      - MYSQL_USER=数据库用户名
+      - MYSQL_PASSWORD=数据库用户密码
+      - MYSQL_ROOT_PASSWORD=数据库root密码
     volumes:
       - /data/apps/mysql:/var/lib/mysql  
     restart: always  
