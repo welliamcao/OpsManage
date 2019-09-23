@@ -1,3 +1,25 @@
+
+function InitDataTableAssets(tableId,dataList,buttons,columns,columnDefs){
+	oOverviewTable =$('#'+tableId).dataTable({
+				    "dom": "Bfrtip",
+				    "buttons":buttons,				  
+		    		"bScrollCollapse": false, 				
+		    	    "bRetrieve": true,			
+		    		"destroy": true, 
+		    		"data":	dataList,
+		    		"columns": columns,
+		    		"columnDefs" :columnDefs,			  
+		    		"language" : language,
+		    		"iDisplayLength": 20,
+		            "select": {
+		                "style":    'multi',
+		                "selector": 'td:first-child'
+		            },		    		
+		    		"order": [[ 0, "ase" ]],
+		    		"autoWidth": false	    			
+	});		  
+}	
+
 function makeRandomId() {
   var text = "";
   var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -294,130 +316,132 @@ function DeleteChoiceAssets(){
 $(document).ready(function() {
 	
 	if($("#assetsListTable").length){
-	    var buttons = [
-		                {
-		                	text: '<span class="fa fa fa-download"></span>',
-		                    extend: "csv",
-		                    className: "btn-sm"
-		                },	
-		                {
-		                	text: '<span class="fa fa fa-print"></span>',
-		                    extend: "print",
-			                className: "btn-sm"
-			            },	
-					    {
-					        text: '<span class="fa fa-cloud-upload"></span>',
-					        className: "btn-sm",
-					        action: function ( e, dt, node, config ) {        	
-					        	$("#AssetsImportModal").modal('show');
-					        }
-					    },	
-					    {
-					        text: '<span class="fa fa-refresh"></span>',
-					        className: "btn-sm",
-					        action: function ( e, dt, node, config ) {        	
-					        	RefreshChoiceAssets()
-					        }
-					    },		
-					    {
-					        text: '<span class="fa fa-trash-o"></span>',
-					        className: "btn-sm",
-					        action: function ( e, dt, node, config ) {        	
-					        	DeleteChoiceAssets()
-					        }
-					    },						    
-	    ] 		
-		
-	    var columns = [
-	                   	{
-	                       "className":      'details-control',
-	                       "orderable":      false,
-	                       "data":           null,
-	                       "defaultContent": ''
-	                   	},
-	                   	{
-	                       "orderable":      false,
-	                       "data":           null,
-	                       "defaultContent": ''
-	                   	},
-	                    {"data": "id"},
-		                {"data": "detail.ip"},
-		                {
-		                	"data": "detail.system",
-		                	"defaultContent": "无数据"
-		                },	
-		                {
-		                	"data": "detail.kernel",
-		                	"defaultContent": "无数据"
-		                },	
-		                {
-		                	"data": "detail.cpu_number",
-		                	"defaultContent": "无数据"
-		                },
-		                {
-		                	"data": "detail.ram_total",
-		                	"defaultContent": "无数据"
-		                },
-		                {
-		                	"data": "detail.disk_total",
-		                	"defaultContent": "无数据"
-		                },	
-		                {
-		                	"data": "put_zone",
-		                	"defaultContent": "无数据"
-		                },
-		               ]	    
-	    
-	    var columnDefs = [	
-							{
-								targets: [1],
-								render: function(data, type, row, meta) {
-									return '<input type="checkbox" class="flat" value="'+row.id+'" name="ckbox"/></td>'
-								},
-							},							
-  	    		        {
-	    	    				targets: [10],
-	    	    				render: function(data, type, row, meta) {	
-	    	                        if(row.assets_type == 'server'){
-			                            var hw = '<button type="button" name="btn-assets-hw" value="'+ row.id +'" class="btn btn-default" aria-label="Right Align"><span class="fa fa-hdd-o" aria-hidden="true"></span></button>'		    	               
-	    	                        }else{
-	    	                        	var hw = '<button type="button" name="btn-assets-hw" value="'+ row.id +'" class="btn btn-default" aria-label="Right Align" disabled><span class="fa fa-hdd-o" aria-hidden="true"></span></button>'		    	   
-	    	                        }
-	    	                        return '<div class="btn-group btn-group-sm">' +
-				                            '<button type="button" name="btn-assets-alter" value="'+ row.id +'" class="btn btn-default" aria-label="Center Align"><a href="/assets/manage/?id='+ row.id +'&model=edit" target="view_window"><span class="glyphicon glyphicon-check" aria-hidden="true"></span></a>' +
-				                            '</button>'+ 
-				                            '<button type="button" name="btn-assets-info" value="'+ row.id +'" class="btn btn-default" aria-label="Right Align" data-toggle="modal" data-target=".bs-example-modal-info"><span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>' +
-				                            '</button>'+ 	                            
-				                            '<button type="button" name="btn-assets-update" value="'+ row.id +'" class="btn btn-default" aria-label="Right Align"><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span>' +
-				                            '</button>'+ hw +      
-				                            '<button type="button" name="btn-assets-webssh" value="'+ row.id +'" class="btn btn-default" aria-label="Justify"><span class="fa fa-desktop" aria-hidden="true"></span>' +
-				                            '</button>'+ 				                            
-				                            '<button type="button" name="btn-assets-delete" value="'+ row.id +'" class="btn btn-default" aria-label="Justify"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span>' +
-				                            '</button>'+ 
-				                          '</div>'; 	    	                        
-	    	    				},
-	    	    				"className": "text-center",
-  	    		        },
-  	    		      ]	    
-	    
-		var assetsTable = $('#assetsListTable').DataTable({
-		    "dom": "Bfrtip",
-		    "buttons":buttons,
-    		"bScrollCollapse": false, 				
-    	    "bRetrieve": true,			
-    		"destroy": true, 
-    		"data":	requests("get","/api/assets/"),
-    		"columns": columns,
-    		"columnDefs" :columnDefs,			  
-    		"language" : language,
-    		"order": [[ 0, "ase" ]],
-    		"autoWidth": false	    			
-		});		
-		
+	    function makeAssetsTableList(dataList){
+	        var columns = [		                       
+	    		           {
+	   		                "orderable": false,
+	   		                "data":      null,
+	   		                "className": 'select-checkbox', 
+	   		                "defaultContent": ''
+	    		           },  
+	                       {
+							"className": 'details-control',
+							"orderable": false,
+							"data":      null,
+							"defaultContent": ''
+	                       },	
+//		                   {"data": "status"},
+		                   {"data": "name"},
+	                       {"data": "assets_type"},		                       
+	                       {"data": "detail.ip"},     
+	                       {
+	                    	   "data": "detail.system",
+	                    	   "defaultContent": ''
+	                       },
+	    	               {
+	                    	   "data": "detail.kernel",
+	                    	   "defaultContent": ''
+	    	               },
+	    	               {
+	    	            	   "data": "detail.vcpu_number",
+	    	            	   "defaultContent": ''
+	    	               },
+	    	               {
+	    	            	   "data": "detail.ram_total",
+	    	            	   "defaultContent": ''
+	    	               },
+	    	               {
+	    	            	   "data": "detail.disk_total",
+	    	            	   "defaultContent": ''
+	    	               },
+	    	               {
+	    	            	   "data": "put_zone",
+	    	            	   "defaultContent": ''
+	    	               },
+	    	               ]
+	       var columnDefs = [                      	    		     		    		    	    		    
+	    	    		        {
+	       	    				targets: [11],
+	       	    				render: function(data, type, row, meta) {  	    					
+	       	                        return '<div class="btn-group  btn-group-sm">' +	
+				       	                     	'<button type="button" name="btn-assets-alter" value="'+ row.id +'" class="btn btn-default" aria-label="Center Align"><a href="/assets/manage/?id='+row.id+'&model=edit" target="view_window"><span class="glyphicon glyphicon-check" aria-hidden="true"></span></a>' +
+					                            '</button>' +
+					                            '<button type="button" name="btn-assets-info" value="'+ row.id +'" class="btn btn-default" aria-label="Right Align" data-toggle="modal" data-target=".bs-example-modal-info"><span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>' +
+					                            '</button>' +	                            
+					                            '<button type="button" name="btn-assets-update" value="'+ row.id +'" class="btn btn-default" aria-label="Right Align"><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span>' +
+					                            '</button>' +
+					                            '<button type="button" name="btn-assets-delete" value="'+ row.id +'" class="btn btn-default" aria-label="Justify"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span>' +
+					                            '</button>' +
+	    	    	                           '</div>';
+	       	    				},
+	       	    				"className": "text-center",
+	    	    		        },
+	    	    		      ]	
+		    var buttons = [                 
+			                {
+			                	text: '<span class="fa fa fa-download"></span>',
+			                    extend: "csv",
+			                    className: "btn-sm"
+			                },	
+			                {
+			                	text: '<span class="fa fa fa-print"></span>',
+			                    extend: "print",
+				                className: "btn-sm"
+				            },	
+						    {
+						        text: '<span class="fa fa-cloud-upload"></span>',
+						        className: "btn-sm",
+						        action: function ( e, dt, node, config ) {        	
+						        	$("#AssetsImportModal").modal('show');
+						        }
+						    },		
+						    {
+						        text: '<span class="fa fa-trash-o"></span>',
+						        className: "btn-sm",
+						        action: function ( e, dt, node, config ) {        	
+						        	DeleteChoiceAssets()
+						        }
+						    },	
+						    {
+						        text: '更新',
+						        className: "btn-sm",
+						        action: function ( e, dt, node, config ) {        	
+						            	let dataList = dt.rows('.selected').data()
+						            	var vips = ''
+						            	if (dataList.length==0){
+						            		$.alert({
+						            		    title: '操作失败',
+						            		    content: '批量更新资产失败，请先选择资产',
+						            		    type: 'red',		    
+						            		});	            		
+						            	}else{ 
+						            		updateAssetsByAnsible(dataList)
+						            	} 
+						        	} 
+						    	},      
+						        {
+						            text: '全选',
+						            className: "btn-sm",
+						            action: function (e, dt, button, config) {
+						            	dt.rows().select();
+						            }
+						        },        
+						        {
+						            text: '反选',
+						            className: "btn-sm",
+						            action: function (e, dt, button, config) {
+						            	dt.rows().deselect();
+						            }
+						        } ,	  					    
+		    ]   
+	    	InitDataTableAssets('assetsListTable',dataList,buttons,columns,columnDefs);	
+	    }		    
+	    makeAssetsTableList(requests("get","/api/assets/"))		
 	    $('#assetsListTable tbody').on('click', 'td.details-control', function () {
+	    	var table = $('#assetsListTable').DataTable();
 	    	var dataList = [];
 	        var tr = $(this).closest('tr');
-	        var row = assetsTable.row( tr );	        
+	        var row = table.row( tr );
 	        aId = row.data()["id"];
 	        $.ajax({
 	            url : "/api/assets/info/"+aId+"/",
@@ -444,7 +468,7 @@ $(document).ready(function() {
     $('#assetsListTable tbody').on('click','button[name="btn-assets-delete"]',function(){
     	var vIds = $(this).val();
     	var td = $(this).parent().parent().parent().find("td")
-    	var ip = td.eq(5).text();  
+    	var ip = td.eq(4).text();  
 		$.confirm({
 		    title: '删除确认',
 		    content: "确认删除【<strong>"+ip+"</strong>】?",
@@ -453,7 +477,7 @@ $(document).ready(function() {
 		        删除: function () {
 				    	$.ajax({  
 				            cache: true,  
-				            type: "PUT",  
+				            type: "DELETE",  
 				            url:"/api/assets/" + vIds + '/',  
 				            error: function(request) {  
 				            	new PNotify({
@@ -486,7 +510,7 @@ $(document).ready(function() {
 		$(this).attr('disabled',true);
     	var vIds = $(this).val();
     	var td = $(this).parent().parent().parent().find("td")
-    	var ip = td.eq(5).text(); 
+    	var ip = td.eq(4).text();  
 		$.confirm({
 		    title: '更新确认',
 		    content: ip,
@@ -539,7 +563,7 @@ $(document).ready(function() {
 		$(this).attr('disabled',true);
     	var vIds = $(this).val();
     	var td = $(this).parent().parent().parent().find("td")
-    	var ip = td.eq(5).text();     	
+    	var ip = td.eq(4).text();     	
     	$.ajax({  
             cache: true,  
             type: "GET",  
@@ -853,7 +877,7 @@ $(document).ready(function() {
 	$('#assetsListTable tbody').on('click','button[name="btn-assets-webssh"]',function(){
     	var vIds = $(this).val();
     	var td = $(this).parent().parent().parent().find("td")	
-		$("#myWebsshModalLabel").html('<p class="text-blank"><code><i class="fa fa fa-terminal"></i></code>'+td.eq(3).text()+'</p>')
+		$("#myWebsshModalLabel").html('<p class="text-blank"><code><i class="fa fa fa-terminal"></i></code>'+td.eq(2).text()+'</p>')
 		$("#websshConnect").val(vIds)	
 		$('#webssh_tt').empty()
     	$('.bs-example-modal-webssh-info').modal({backdrop:"static",show:true}); 		
