@@ -188,7 +188,7 @@
 									<label><font color='red'>* </font>添加主机</label>	
 	                                 <select multiple class="selectpicker" data-live-search="true"  data-size="10" data-width="auto" data-selected-text-format="count > 5"   name="deploy_server"  id="server_list" required>
 	                                 	{% for ds in assets.serverList %}
-	                                 		<option name="server" value="{{ds.id}}">{{ds.ip}} | {{ds.project}} | {{ds.service}}</option>
+	                                 		<option name="server" value="{{ds.id}}">{{ds.ip}}</option>
 	                                 	{% endfor %}
 	                                 </select>		
 								</div>																																															
@@ -214,7 +214,7 @@
 		                                 <select class="selectpicker" data-live-search="true"  data-size="10" name="deploy_server"  data-width="100%" id="hostLists" required>
 		                                 		<option name="server" value="" selected="selected">选择一个主机进行配置</option>
 		                                 	{% for ds in assets.serverList %}
-		                                 		<option name="server" value="{{ds.id}}">{{ds.ip}} | {{ds.project}} | {{ds.service}}</option>
+		                                 		<option name="server" value="{{ds.id}}">{{ds.ip}}</option>
 		                                 	{% endfor %}
 		                                 </select>	
 									</div>	

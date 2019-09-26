@@ -211,6 +211,46 @@ function format ( data ) {
     return serHtml;
 }	
 
+function AssetsTypeSelect(obj,model){ 
+	   var index = obj.selectedIndex;
+	   var sId = obj.options[index].value; 
+	   if ( sId  > 0){	 
+			$.ajax({
+				dataType: "JSON",
+				url:'/assets/server/query/', //请求地址
+				type:"POST",  //提交类似
+				data:{
+					"query":model,
+					"id":sId
+				},
+				success:function(response){
+					var sHtml = '';
+					for (var i=0; i <response["data"].length; i++){
+						sHtml += '<br>' + response["data"][i]["ip"] 
+					};  
+					if ( sHtml.length > 0){
+		            	new PNotify({
+		                    title: "<strong>发现主机:</strong>",
+		                    text: sHtml,
+		                    type: 'success',
+		                    styling: 'bootstrap3'
+		                }); 	
+					}
+					else {
+		            	new PNotify({
+		                    title: "<strong>Ops：</strong>",
+		                    text: "该条件下未发现主机资源~",
+		                    type: 'error',
+		                    styling: 'bootstrap3'
+		                }); 	
+					}
+				
+						
+				},
+			});	
+	   }
+}
+
 function oBtInventorySelect(obj){
 	   var index = obj.selectedIndex;
 	   var projectId = obj.options[index].value; 
