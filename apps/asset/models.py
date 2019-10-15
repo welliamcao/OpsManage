@@ -291,42 +291,6 @@ class NetworkCard_Assets(models.Model):
         verbose_name_plural = '服务器网卡资产表'  
         unique_together = (("assets", "macaddress"))    
                     
-        
-# class Project_Assets(models.Model):
-#     '''产品线资产表'''
-#     project_name = models.CharField(max_length=100,unique=True) 
-#     project_owner = models.SmallIntegerField(blank=True,null=True,verbose_name='项目负责人')
-#     class Meta:
-#         db_table = 'opsmanage_project_assets'
-#         default_permissions = ()
-#         permissions = (
-#             ("assets_read_project", "读取产品线权限"),
-#             ("assets_change_project", "更改产品线权限"),
-#             ("assets_add_project", "添加产品线权限"),
-#             ("assets_delete_project", "删除产品线权限"),              
-#         )  
-#         verbose_name = '资产管理'  
-#         verbose_name_plural = '项目资产表' 
-#               
-#     
-# class Service_Assets(models.Model):
-#     '''业务分组表'''
-#     project = models.ForeignKey('Project_Assets',related_name='service_assets', on_delete=models.CASCADE)
-#     service_name = models.CharField(max_length=100) 
-#     
-#     class Meta:
-#         db_table = 'opsmanage_service_assets'
-#         default_permissions = ()
-#         permissions = (
-#             ("assets_read_service", "读取业务资产权限"),
-#             ("assets_change_service", "更改业务资产权限"),
-#             ("assets_add_service", "添加业务资产权限"),
-#             ("assets_delete_service", "删除业务资产权限"),              
-#         )  
-#         unique_together = (("project", "service_name"))
-#         verbose_name = '资产管理' 
-#         verbose_name_plural = '业务分组表'  
-
 class Business_Env_Assets(models.Model):
     '''业务环境资产表'''
     name = models.CharField(default="测试环境",max_length=100,unique=True) 
@@ -338,7 +302,7 @@ class Business_Env_Assets(models.Model):
 
 
 class Business_Tree_Assets(MPTTModel):
-    text = models.CharField(verbose_name='节点名称', max_length=100, unique=True)
+    text = models.CharField(verbose_name='节点名称', max_length=100)
     env = models.SmallIntegerField(blank=True,null=True,verbose_name='项目环境')
     parent = TreeForeignKey('self', on_delete=models.CASCADE, verbose_name='上级业务', null=True, blank=True,db_index=True ,related_name='children')
     manage = models.SmallIntegerField(blank=True,null=True,verbose_name='项目负责人')
@@ -544,13 +508,7 @@ class User_Server(models.Model):
     user = models.ForeignKey(User,verbose_name='用户', on_delete=models.CASCADE)
     class Meta:
         db_table = 'opsmanage_user_assets'
-        default_permissions = ()
-        permissions = (
-            ("assets_add_user", "添加用户权限"),
-            ("assets_change_user", "修改用户权限"),
-            ("assets_delete_user", "删除用户权限"),  
-            ("assets_read_user", "读取用户权限"),            
-        )         
+        default_permissions = ()   
         unique_together = (("assets", "user"))
         verbose_name = '资产管理'  
         verbose_name_plural = '用户资产表'                         
