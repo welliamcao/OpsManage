@@ -29,7 +29,7 @@ class Deploy_Playbook(models.Model):
     playbook_desc = models.CharField(max_length=200,verbose_name='功能描述',blank=True,null=True)
     playbook_vars = models.TextField(verbose_name='模块参数',blank=True,null=True)
     playbook_uuid = models.CharField(max_length=50,verbose_name='唯一id')
-    playbook_type = models.CharField(verbose_name='服务器选择类型',max_length=10,blank=True,null=True)
+    playbook_type = models.CharField(verbose_name='服务器选择类型',max_length=50,blank=True,null=True)
     playbook_file = models.FileField(upload_to = './playbook/',verbose_name='剧本路径')
     playbook_business = models.SmallIntegerField(verbose_name='授权业务',blank=True,null=True)
     playbook_user = models.SmallIntegerField(verbose_name='授权用户',blank=True,null=True,)
