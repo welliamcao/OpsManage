@@ -73,7 +73,10 @@ function makeFileUploadResultTable(dataList){
 }
 
 function AssetsSelect(name,dataList,selectIds){
-	if(!selectIds){selectIds=[]}
+    var selectIdsList = [];
+	if(selectIds) {
+	    selectIdsList = JSON.parse(selectIds);
+	}
 	switch(name)
 	   {
 		   case "project":
@@ -94,10 +97,10 @@ function AssetsSelect(name,dataList,selectIds){
 			case "custom":
 				var text = dataList[i]["detail"]["ip"]
 				var count = 0
-				for (var j=0; j <selectIds.length; j++){
-					if(selectIds[j]==dataList[i]["id"]){
+                for (var j=0; j <selectIdsList.length; j++){
+					if(selectIdsList[j]==dataList[i]["id"]){
 						count = count + 1				
-					}			
+					}
 				}
 				if (count > 0){
 					selectHtml += '<option selected="selected" value="'+ dataList[i]["id"] +'">'+text +'</option>' 	

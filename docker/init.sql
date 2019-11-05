@@ -130,6 +130,22 @@ CREATE TABLE `auth_user_user_permissions` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `authtoken_token`
+--
+
+DROP TABLE IF EXISTS `authtoken_token`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `authtoken_token` (
+  `key` varchar(40) NOT NULL,
+  `created` datetime NOT NULL,
+  `user_id` int(11) NOT NULL,
+  PRIMARY KEY (`key`),
+  UNIQUE KEY `user_id` (`user_id`),
+  CONSTRAINT `authtoken_token_user_id_35299eff_fk_auth_user_id` FOREIGN KEY (`user_id`) REFERENCES `auth_user` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
 -- Table structure for table `django_admin_log`
 --
 

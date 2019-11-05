@@ -21,7 +21,7 @@ class GitTools(object):
         return False  
 
     def clone(self, url):
-        return Repo.clone_from(url, self.path)
+        return Repo.clone_from(url, self.path, depth=1)
 
     def pull(self):       
         repo = Repo(self.path)
