@@ -1,5 +1,6 @@
 *.pyc
 *.pyo
+venv
 migrations*
 upload*
 media*
