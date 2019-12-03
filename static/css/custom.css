@@ -308,7 +308,7 @@ html , body{
 }
 .active a span.fa {
     text-align: right !important;
-    margin-right: 4px
+    margin: 4px
 }
 .nav-sm .menu_section {
     margin: 0
