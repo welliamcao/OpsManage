@@ -33,9 +33,23 @@
    -v /data/docker-vol/opsmanage/upload:/data/apps/opsmanage/upload \
    172.31.0.6:5000/opsmanage-app
 
-7. 访问页面
-    http://<ip>:8000
+7. 初始化数据库
+    $ docker run -it --rm opsmanage-app bash
+    python manage.py makemigrations wiki
+    python manage.py makemigrations orders
+    python manage.py makemigrations filemanage
+    python manage.py makemigrations navbar
+    python manage.py makemigrations databases
+    python manage.py makemigrations asset
+    python manage.py makemigrations deploy
+    python manage.py makemigrations cicd
+    python manage.py makemigrations sched
+    python manage.py makemigrations apply
+    python manage.py migrate
+    python manage.py createsuperuser
+    (按Ctrl+P Ctrl+Q退出)
 
-    
+8. 访问页面
+    http://<ip>:8000
 
 
