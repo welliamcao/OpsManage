@@ -536,6 +536,7 @@ $(document).ready(function() {
                     styling: 'bootstrap3'
                 }); 
             	RefreshTable('tagsAssetsTable', '/api/tags/');
+            	$('#addTagsModal').modal("hide");	
             }  
     	});  	
     });	    
@@ -603,6 +604,7 @@ $(document).ready(function() {
                     styling: 'bootstrap3'
                 }); 
             	RefreshTable('cabinetAssetsTable', '/api/cabinet/');
+            	$('#addCabinetModal').modal("hide");
             }  
     	});  	
     });	    
@@ -747,6 +749,7 @@ $(document).ready(function() {
                     styling: 'bootstrap3'
                 }); 
             	RefreshTable('raidAssetsTable', '/api/raid/');
+            	$('#addRaidModal').modal("hide");	
             }  
     	});  	
     });		
@@ -1139,6 +1142,7 @@ $(document).ready(function() {
                     styling: 'bootstrap3'
                 }); 
             	RefreshTable('groupAssetsTable', '/api/group/');	
+            	$('#addGroupModal').modal("hide");
             }  
     	});  	
     });		
@@ -1238,6 +1242,7 @@ $(document).ready(function() {
                     styling: 'bootstrap3'
                 }); 
             	RefreshTable('idcAssetsTable', '/api/idc/');
+				$('#addIdcModal').modal("hide");
             }  
     	});  	
     });	
