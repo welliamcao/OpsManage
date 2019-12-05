@@ -16,6 +16,9 @@
 		   border: 1px solid #ddd;
 		   background: #fff;
 	   }
+		#zoneAssetsTable_filter input {
+			width: 80px;
+	   	}
 	</style>     
 {% endblock %}
 {% block page-content %}
@@ -71,7 +74,7 @@
 			              <div class="col-md-9 col-sm-9 col-xs-9">
 			                <div class="x_panel">
 			                  <div class="x_title">
-			                    <h2>机房信息 <small>Idc</small></h2>
+			                    <h2>机房信息 <small>IDC</small></h2>
 			                    <div class="clearfix"></div>
 			                  </div>
 			                  <div class="x_content">
@@ -210,7 +213,7 @@
 				              <div class="col-md-6 col-sm-6 col-xs-12">
 				                <div class="x_panel">
 				                  <div class="x_title">
-				                    <h2>标签类型 <small>Tags</small></h2>
+				                    <h2>资产标签<small>Tag</small></h2>
 				                    <div class="clearfix"></div>
 				                  </div>
 				                  <div class="x_content">
@@ -233,7 +236,7 @@
 				              <div class="col-md-6 col-sm-6 col-xs-12">
 				                <div class="x_panel">
 				                  <div class="x_title">
-				                    <h2>使用分组 <small>Groups</small></h2>
+				                    <h2>使用组<small>Group</small></h2>
 				                    <div class="clearfix"></div>
 				                  </div>
 				                  <div class="x_content">
@@ -300,7 +303,7 @@
                     <form id="cabinetAssetsform" data-parsley-validate class="form-horizontal form-label-left">
 
                       <div class="form-group">
-                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="first-name">机房信息 <span class="required">*</span>
+                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="first-name">所属机房<span class="required">*</span>
                         </label>
                         <div class="col-md-6 col-sm-6 col-xs-12">
                           <select class="form-control" id="idc_cabinet_select">	
@@ -364,7 +367,7 @@
               <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span>
                 </button>
-                <h4 class="modal-title">添加资产标签类型</h4>
+                <h4 class="modal-title">添加资产标签</h4>
               </div>
               <div class="modal-body">
                     <form id="tagsAssetsform" data-parsley-validate class="form-horizontal form-label-left">
