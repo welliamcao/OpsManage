@@ -169,11 +169,11 @@
 							<div class="hr hr32 hr-dotted"></div>
 							<div class="col-md-6 col-xs-12">
 								<legend>
-									<i class="fa  fa-paper-plane-o"></i> 组成员
+									<i class="fa  fa-paper-plane-o"></i>主机组
 								</legend>  
 								<form role="form" method="post" id="inventory_group" enctype="multipart/form-data">
 								<div class="form-group" >			 		             
-									<label><font color='red'>* </font>选择资产组</label>	
+									<label><font color='red'>* </font>资产组</label>
 									<select class="selectpicker" data-live-search="true"  data-size="10" data-selected-text-format="count > 3" name="inventory" id="inventoryIds"  data-width="100%"  >
 										{% for ds in assets.inventoryList %}
 											<option name="inventory" value="{{ds.id}}">{{ds.name}}</option>
@@ -181,7 +181,7 @@
 									</select>		
 								</div>									
 								<div class="form-group">
-										<label><font color='red'>* </font>组名称<i class="fa fa-info-circle" data-toggle="tooltip" title="资产组名称(请使用字母表示)"></i></label>
+										<label><font color='red'>* </font>主机组名称<i class="fa fa-info-circle" data-toggle="tooltip" title="资产组名称(请使用字母表示)"></i></label>
 									<input class="form-control" id="group_name" name="group_name" value=""></input>
 								</div>								
 								<div class="form-group" >			 		             
@@ -230,14 +230,14 @@
                         <div role="tabpanel" class="tab-pane fade" id="tab_content3" aria-labelledby="#inventoryroup">
 							<div class="col-lg-6">
 								<legend>
-									<i class="fa  fa-paper-plane"></i> 选择动态资产组
+									<i class="fa  fa-paper-plane"></i>动态资产组
 								</legend>
 								<form role="form" method="post" id="modf_inventory">
 									{% csrf_token %}
 									<div class="form-group">
-										<label><font color='red'>* </font>选择资产</label>	
+										<label><font color='red'>* </font>资产组</label>
 		                                 <select class="selectpicker" data-live-search="true"  data-size="10" data-selected-text-format="count > 3" name="deploy_inventory" id="deploy_inventory"  data-width="100%" id="hostLists" required>
-		                                 		<option name="inventory" value="" >选择一个资产进行配置</option>
+		                                 		<option name="inventory" value="" >选择一个资产组</option>
 		                                 	{% for ds in assets.inventoryList %}
 		                                 		<option name="inventory" value="{{ds.id}}">{{ds.name}}</option>
 		                                 	{% endfor %}
@@ -245,11 +245,11 @@
 									</div>
 									
 									<div class="form-group">
-										<label><font color='red'>* </font>资产组</label>	
+										<label><font color='red'>* </font>主机组</label>
 									    <div class="input-group col-md-12">									    	
 									        <div class="input-group-btn">
 			                                 <select class="selectpicker"   data-live-search="true"  data-size="10"  data-width="100%"  name="deploy_inventory_groups"  id="deploy_inventory_groups"  required>
-												<option name="deploy_inventory_groups" value="">请选择一个资产组</option>
+												<option name="deploy_inventory_groups" value="">请选择一个主机组</option>
                                          	 </select>
 									        </div>
 									        <span class="input-group-btn">

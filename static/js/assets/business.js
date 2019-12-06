@@ -1189,11 +1189,12 @@ $(document).ready(function() {
             success: function(data) {  
             	new PNotify({
                     title: 'Success!',
-                    text: '资产添加成功',
+                    text: '业务环境添加成功',
                     type: 'success',
                     styling: 'bootstrap3'
                 }); 
             	RefreshTable('businessEnvTableLists', '/api/business/env/');
+            	$('#addBusinessEnvModal').modal("hide");
             }  
     	});  	
     });		
@@ -1422,11 +1423,12 @@ $(document).ready(function() {
             success: function(data) {  
             	new PNotify({
                     title: 'Success!',
-                    text: '资产添加成功',
+                    text: '业务节点添加成功',
                     type: 'success',
                     styling: 'bootstrap3'
                 }); 
             	RefreshTable('businessRootTableLists', '/api/business/nodes/');
+            	$('#addBusinessRootModal').modal("hide");
             }  
     	});  	
     });	

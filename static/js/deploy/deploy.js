@@ -260,7 +260,7 @@ function oBtInventorySelect(obj){
 				url:'/api/inventory/groups/'+ projectId + '/', //请求地址
 				type:"GET",  //提交类似
 				success:function(response){
-					var binlogHtml = '<select class="selectpicker" name="inventory_groups"  onchange="javascript:AssetsTypeSelect(this,"inventory_groups");" required><option selected="selected"  value="">请选择资产组</option>'
+					var binlogHtml = '<select class="selectpicker" name="inventory_groups"  onchange="javascript:AssetsTypeSelect(this,"inventory_groups");" required><option selected="selected"  value="">请选择主机组</option>'
 					var selectHtml = '';
 					for (var i=0; i <response["data"].length; i++){
 						 selectHtml += '<option value="'+ response["data"][i]["id"] +'">' + response["data"][i]["name"] + '</option>' 
@@ -930,7 +930,7 @@ $(document).ready(function() {
 	 					$("#deploy_inventory_groups").empty();
 	 					if (response["data"].length){
 		 					var selectHtml = '';
-		 					var binlogHtml = '<select class="form-control" name="deploy_inventory_groups" id="deploy_inventory_groups"   required><option selected="selected" name="deploy_inventory_groups" value="">请选择一个资产组</option>'
+		 					var binlogHtml = '<select class="form-control" name="deploy_inventory_groups" id="deploy_inventory_groups"   required><option selected="selected" name="deploy_inventory_groups" value="">请选择一个主机组</option>'
 		 					for (var i = 0; i < response["data"].length; ++i) {
 								selectHtml += '<option name="deploy_inventory_groups" value="'+ response["data"][i]["id"] +'">' + response["data"][i]["name"] + '</option>' 	                
 														
