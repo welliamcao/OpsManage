@@ -162,6 +162,7 @@ function controlServerSelectHide(value,selectIds){
 			   $("#inventory_server").show();
 			   $("#tags_server").hide();
 			   AssetsSelect("inventory",requests('get','/api/inventory/'),selectIds)
+			   $("[name='inventory']").trigger("change");
 		       break;	
 		   case "tags":
 			   $("#group_server").hide();
@@ -511,7 +512,9 @@ $(document).ready(function() {
 			console.log(err)
 		}
 	
-	
+
+	$("#server_model").val("");
+
 	$("#server_model").change(function(){
 		   var obj = document.getElementById("server_model"); 
 		   var index = obj.selectedIndex;
