@@ -842,11 +842,10 @@ $(document).ready(function() {
 	                    {"data": "id"},
 	                    {"data": "line_name"},	
 	                    {"data": "line_price"},
-	                    {"data": "update_time"}
 		               ]
 	    var columnDefs = [								
    	    		        {
-	    	    				targets: [4],
+	    	    				targets: [3],
 	    	    				render: function(data, type, row, meta) {		    	    					
 	    	                        return '<div class="btn-group  btn-group-xs">' +	
 		    	                           '<button type="button" name="btn-line-modf" value="'+ row.id +'" class="btn btn-default"  aria-label="Justify"><span class="fa fa-edit" aria-hidden="true"></span>' +	
