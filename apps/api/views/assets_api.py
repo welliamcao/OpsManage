@@ -504,20 +504,20 @@ def asset_info(request, id,format=None):
         dataList = []
         try:
             if assets.assets_type in ['server','vmser']:
-                dataList.append({"name":'CPU型号',"value":assets.server_assets.cpu})
-                dataList.append({"name":'CPU个数',"value":assets.server_assets.vcpu_number})
-                dataList.append({"name":'硬盘容量',"value":str(int(assets.server_assets.disk_total))+'GB'})
-                dataList.append({"name":'内存容量',"value":str(assets.server_assets.ram_total)+'GB'})
-                dataList.append({"name":'操作系统',"value":assets.server_assets.system})
-                dataList.append({"name":'内核版本',"value":assets.server_assets.kernel})
-                dataList.append({"name":'主机名',"value":assets.server_assets.hostname})
-                dataList.append({"name":'资产备注',"value":assets.mark})
+                dataList.append({"name":'CPU型号',"value":assets.server_assets.cpu if assets.server_assets.cpu else ''})
+                dataList.append({"name":'CPU个数',"value":assets.server_assets.vcpu_number if assets.server_assets.vcpu_number else '' })
+                dataList.append({"name":'硬盘容量',"value":str(assets.server_assets.disk_total)+'GB' if assets.server_assets.disk_total else ''})
+                dataList.append({"name":'内存容量',"value":str(assets.server_assets.ram_total)+'GB' if assets.server_assets.ram_total else ''})
+                dataList.append({"name":'操作系统',"value":assets.server_assets.system if assets.server_assets.system else ''})
+                dataList.append({"name":'内核版本',"value":assets.server_assets.kernel if assets.server_assets.kernel else ''})
+                dataList.append({"name":'主机名',"value":assets.server_assets.hostname if assets.server_assets.hostname else ''})
+                dataList.append({"name":'资产备注',"value":assets.mark if assets.mark else ''})
             else:
-                dataList.append({"name":'CPU型号',"value":assets.network_assets.cpu})
-                dataList.append({"name":'内存容量',"value":assets.network_assets.stone})
-                dataList.append({"name":'背板带宽',"value":assets.network_assets.bandwidth})
-                dataList.append({"name":'端口总数',"value":assets.network_assets.port_number})
-                dataList.append({"name":'资产备注',"value":assets.mark})
+                dataList.append({"name":'CPU型号',"value":assets.network_assets.cpu if assets.network_assets.cpu else ''})
+                dataList.append({"name":'内存容量',"value":assets.network_assets.stone if assets.network_assets.stone else ''})
+                dataList.append({"name":'背板带宽',"value":assets.network_assets.bandwidth if assets.network_assets.bandwidth else ''})
+                dataList.append({"name":'端口总数',"value":assets.network_assets.port_number if assets.network_assets.port_number else ''})
+                dataList.append({"name":'资产备注',"value":assets.mark if assets.mark else ''})
         except Exception as ex:
             logger.warn(msg="获取资产信息失败: {ex}".format(ex=ex))
         ntkList = []
