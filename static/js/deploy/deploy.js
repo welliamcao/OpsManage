@@ -1091,28 +1091,32 @@ $(document).ready(function() {
 		            }  
 		    	}); 	    		
 	    	} 	
-	    });	
-	    //new
+	    });
+
 	    if($("#deployScriptType").length){
+	        //脚本语言类型按钮
 		    $("button[name='btn-deploy-scripts']").on('click', function() {
 		    	var model = $(this).val();
+                var aceEditAdd = ace.edit("compile-editor-add");
+                aceEditAdd.gotoLine(1);
+                aceEditAdd.removeLines();
 		    	switch(model)
 		    		{
 		    			case "sh":
-		    				var aceEditAdd = setAceEditMode("compile-editor-add","ace/mode/" + model,"ace/theme/terminal");	 
-		    				aceEditAdd.insert("#!/bin/bash");
+		    				//var aceEditAdd = setAceEditMode("compile-editor-add","ace/mode/" + model,"ace/theme/terminal");
+		    				aceEditAdd.insert("#!/bin/bash\n");
 		    				break;
 		    			case "python":
-		    				var aceEditAdd = setAceEditMode("compile-editor-add","ace/mode/" + model,"ace/theme/terminal");
-		    				aceEditAdd.insert("#!/usr/bin/python");
+//		    				var aceEditAdd = setAceEditMode("compile-editor-add","ace/mode/" + model,"ace/theme/terminal");
+		    				aceEditAdd.insert("#!/usr/bin/python\n");
 		    				break;
 		    			case "perl":
-		    				var aceEditAdd = setAceEditMode("compile-editor-add","ace/mode/" + model,"ace/theme/terminal");
-		    				aceEditAdd.insert("#!/usr/bin/perl");
+//		    				var aceEditAdd = setAceEditMode("compile-editor-add","ace/mode/" + model,"ace/theme/terminal");
+		    				aceEditAdd.insert("#!/usr/bin/perl\n");
 		    				break;		   		       
 		    			default:
-		    				var aceEditAdd = setAceEditMode("compile-editor-add","ace/mode/sh","ace/theme/terminal");
-		    				aceEditAdd.insert("#!/bin/bash");	       
+//		    				var aceEditAdd = setAceEditMode("compile-editor-add","ace/mode/sh","ace/theme/terminal");
+		    				aceEditAdd.insert("#!/bin/bash\n");
 		    		}		    	
 		    });	    	
 	    }
