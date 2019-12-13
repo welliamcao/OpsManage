@@ -1116,7 +1116,8 @@ $(document).ready(function() {
 		    		}		    	
 		    });	    	
 	    }
-	  //new
+
+	    //保存脚本修改
 	    $('#save_deploy_script').on('click', function() {
 			var btnObj = $(this);
 			btnObj.attr('disabled',true);
@@ -1165,6 +1166,12 @@ $(document).ready(function() {
 		                }); 
 					}
 					else{
+                        new PNotify({
+                            title: 'Success!',
+                            text: response["msg"],
+                            type: 'success',
+                            styling: 'bootstrap3'
+                        });
 						RefreshScriptTable('deployScriptsList', '/api/deploy/scripts/');	                				
 					}
 					
@@ -1567,6 +1574,12 @@ $(document).ready(function() {
 		                }); 
 					}
 					else{
+                        new PNotify({
+                            title: 'Success!',
+                            text: response["msg"],
+                            type: 'success',
+                            styling: 'bootstrap3'
+                        });
 						RefreshPlaybookTable('deployPlaybookList', '/api/deploy/playbook/');	                				
 					}
 					
