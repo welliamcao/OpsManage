@@ -1143,6 +1143,7 @@ $(document).ready(function() {
 				type:"POST",  //提交类似
 				data:{
 					'script_name':$("#script_name").val(),
+					'script_desc':$("#script_desc").val(),
 					'server_model':$('#server_model option:selected').val(),
 					'business':$('select[name="business"] option:selected').val(),
 					'group':$('select[name="group"] option:selected').val(),
@@ -1397,6 +1398,7 @@ $(document).ready(function() {
 					type:"PUT",  //提交类似
 					data:{
 						'script_id':vIds,
+						'script_desc':$("#script_desc").val(),
 						'server_model':$('#server_model option:selected').val(),
 						'business':$('select[name="business"] option:selected').val(),
 						'group':$('select[name="group"] option:selected').val(),
