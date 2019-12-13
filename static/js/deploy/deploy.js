@@ -574,10 +574,10 @@ $(document).ready(function() {
 			       break;			       
 			   default:
 				   $("#deploy_args").val("");			   			       
-		   }		   
-		   			  
+		   }
 	});	
-	
+
+	//添加资产组按钮
     $('#add_inventory_button').click(function(){//点击a标签  
         if($('#add_inventory').is(':hidden')){
         	$('#add_inventory').show();
@@ -587,15 +587,32 @@ $(document).ready(function() {
         }  
     });	
 
+	//添加脚本/剧本按钮
     $('#deploy_list').click(function(){//点击a标签  
         if($('#add_deploy_tools').is(':hidden')){
         	$('#add_deploy_tools').show();
         	$('#add_deploy_result').show();
         }
-        else{
-        	$('#add_deploy_tools').hide();
-        	$('#add_deploy_result').hide();
-        }  
+//        else{
+//        	$('#add_deploy_tools').hide();
+//        	$('#add_deploy_result').hide();
+//        }
+
+        if($("#save_deploy_script").length > 0) {
+            $("#script_name").attr('disabled',false);
+            $("#modf_deploy_script").val("");
+            $("#modf_deploy_script").hide();
+            $("#save_deploy_script").show();
+        }
+
+        if($("#save_deploy_playbook").length > 0) {
+            $("#playbook_name").attr('disabled',false);
+            $("#modf_deploy_playbook").val("");
+            $("#modf_deploy_playbook").hide();
+            $("#save_deploy_playbook").show();
+        }
+
+        $("#result").empty();
     });    
     
     $('#addInventory').on('click', function () {
@@ -1294,9 +1311,10 @@ $(document).ready(function() {
 	    	$(this).attr('disabled',false);
 	      }); 	    	  
     	  makeDeployScripts()   	  
-	  }  
-	  //new
-	   $('#deployScriptsList tbody').on('click',"button[name='btn-script-edit']",function(){
+	  }
+
+	  //编辑脚本
+	  $('#deployScriptsList tbody').on('click',"button[name='btn-script-edit']",function(){
 	    $('#add_deploy_tools').show();
 	    $('#add_deploy_result').show();	
 	    $("#modf_deploy_script").show().val($(this).val())
@@ -1351,7 +1369,8 @@ $(document).ready(function() {
 	    	}	            
         });		
 	  });
-	  //new
+
+	  //保存脚本
 	  $("#modf_deploy_script").on("click", function(){	  
     	  if($("#modf_deploy_script").val().length){
     			var btnObj = $(this);
@@ -1487,6 +1506,7 @@ $(document).ready(function() {
     	      });     	  
     	    makeDeployPlaybook()
   	  };
+
 	  $('#save_deploy_playbook').on('click', function() {
 			var btnObj = $(this);
 			btnObj.attr('disabled',true);
