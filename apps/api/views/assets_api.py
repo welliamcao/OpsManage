@@ -759,7 +759,7 @@ def assets_tags(request, id,format=None):
     
 
 
-
+#业务线
 @api_view(['GET', 'POST' ])
 def business_list(request,format=None):
     """
@@ -769,18 +769,18 @@ def business_list(request,format=None):
         dataList = []
         for ds in Business_Tree_Assets.objects.all():
             if ds.is_leaf_node():
-                try:
-                    topParent = Business_Tree_Assets.objects.get(tree_id=ds.tree_id,parent__isnull=True)
-                except Exception as ex:
-                    logger.error(msg="查询根节点业务失败: {ex}".format(ex=str(ex)))
-                    continue
+                # try:
+                #     topParent = Business_Tree_Assets.objects.get(tree_id=ds.tree_id,parent__isnull=True)
+                # except Exception as ex:
+                #     logger.error(msg="查询根节点业务失败: {ex}".format(ex=str(ex)))
+                #     continue
                 data = ds.to_json()
                 data["paths"] = ds.business_env() + '/' + data["paths"]
                 dataList.append(data)               
         return Response(dataList)     
        
  
-
+#业务环境
 @api_view(['GET', 'POST' ])
 def env_list(request,format=None):
     """
@@ -872,6 +872,7 @@ class BUSINESS_TREE_LIST(APIView):
 #         print(json.dumps(dicts, indent=4))          
         return Response(dicts)                
 
+#业务节点列表
 class NODE_LIST(APIView,AssetsBusiness):
     
     def get(self,request,*args,**kwargs): 
@@ -981,7 +982,7 @@ class NODE_DETAIL(APIView,AssetsBusiness):
         snippet.delete()       
         return Response(status=status.HTTP_204_NO_CONTENT)          
                           
-            
+#业务节点
 class NODES_ASSERS_DETAIL(APIView,AssetsBusiness):
     
     def get_object(self, pk):

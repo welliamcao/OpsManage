@@ -149,7 +149,8 @@ class AppsManage(AssetsBase):
             elif project.project_repertory == 'svn':
                 return  SvnTools(),project
         return (None,None)
-    
+
+    #查询项目部署成员
     def get_apps_number(self,project):
         numbers = []
         try:
@@ -165,20 +166,21 @@ class AppsManage(AssetsBase):
             logger.warn(msg="查询项目部署成员失败: {ex}".format(ex=ex)) 
             return False
         return numbers
-    
+
+    #项目信息
     def info_apps(self,request):
         project = self.get_apps(request)
         if project:
             data = self.convert_to_dict(project)
 #             data['project_id'] = Project_Assets.objects.get(id=data['project_id']).project_name
 #             data['service_name'] = Service_Assets.objects.get(id=data['project_service']).service_name
-            data['number'] = self.get_apps_number(project)
+            data['number'] = self.get_apps_number(project)   #member
             data['roles'] = self.get_role(project)
             data["project_servers"] = json.loads(project.project_servers)
             return data
         return '项目不存在'        
     
-         
+    #初始化项目
     def init_apps(self,request):
         project = self.get_apps(request)
         if project:
@@ -188,7 +190,8 @@ class AppsManage(AssetsBase):
             project.save()
             return project
         return '项目不存在'
-    
+
+    #添加项目
     def create_apps(self,request):           
         try:
             apps = Project_Config.objects.create(
@@ -318,7 +321,8 @@ class AppsManage(AssetsBase):
                 logger.warn(msg="获取项目角色管理成员失败: {ex}".format(ex=ex))
             role_list.append(role)   
         return  role_list    
-    
+
+    #获取项目成员主机
     def get_number(self,project): 
         number_list = [] 
         for num in project.project_number.all():
