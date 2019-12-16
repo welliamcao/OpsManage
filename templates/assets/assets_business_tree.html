@@ -165,7 +165,7 @@
 			                      <thead>
 			                        <tr>
 			                          <th>ID</th>
-			                          <th>环境类型</th>
+			                          <th>业务环境</th>
 			                          <th class="text-center">操作</th>
 			                        </tr>
 			                      </thead>
@@ -188,9 +188,9 @@
 			                        <tr>
 			                          <th>ID</th>
 			                          <th>名称</th>
-			                          <th>环境</th>
+			                          <th>业务环境</th>
 			                          <th>业务负责人</th>
-			                          <th>使用组</th>
+			                          <th>所属部门</th>
 			                          <th>业务路径</th>
 			                          <th>描述</th>
 			                          <th class="text-center">操作</th>
@@ -311,15 +311,15 @@
               <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span>
                 </button>
-                <h4 class="modal-title" id="myEnvModalLabel">添加环境</h4>
+                <h4 class="modal-title" id="myEnvModalLabel">添加业务环境(业务板块)</h4>
               </div>
               <div class="modal-body">
                     <form id="addBusinessEnvForm" data-parsley-validate class="form-horizontal form-label-left">{% csrf_token %}
                       <div class="form-group">
-                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="first-name">环境类型 <span class="required">*</span>
+                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="env-name">业务环境名称<span class="required">*</span>
                         </label>
                         <div class="col-md-6 col-sm-6 col-xs-12">
-                          <input type="text" id="first-name" required="required" name="name" class="form-control col-md-7 col-xs-12">
+                          <input type="text" id="env-name" required="required" name="name" class="form-control col-md-7 col-xs-12">
                         </div>
                       </div>
                     </form>
@@ -345,7 +345,7 @@
               <div class="modal-body">
                     <form id="businessRootForm" class="main form-horizontal">{% csrf_token %}
                       <div class="item form-group">
-                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">环境类型 <span class="required">*</span>
+                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="businessRootEnvSelect">业务环境<span class="required">*</span>
                         </label>
                         <div class="col-md-6 col-sm-6 col-xs-12">
                           <select class="form-control" id="businessRootEnvSelect" name="env">
@@ -353,21 +353,21 @@
                         </div>
                       </div>                    
                       <div class="item form-group">
-                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="first-name">名称 <span class="required">*</span>
+                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="business-node-name">名称 <span class="required">*</span>
                         </label>
                         <div class="col-md-6 col-sm-6 col-xs-12">
-                          <input type="text" required="required" name="text" class="form-control col-md-7 col-xs-12">
+                          <input type="text" required="required" id="business-node-name" name="text" class="form-control col-md-7 col-xs-12">
                         </div>
                       </div>
                       <div class="item form-group">
-                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="first-name">所属部门 <span class="required"></span>
+                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="group-name">所属部门 <span class="required"></span>
                         </label>
                         <div class="col-md-6 col-sm-6 col-xs-12">
-                          <input type="text"  required="required" name="group" class="form-control col-md-7 col-xs-12">
+                          <input type="text"  required="required" id="group-name" name="group" class="form-control col-md-7 col-xs-12">
                         </div>
                       </div>                      
                       <div class="item form-group">
-                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">负责人 <span class="required"></span>
+                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="businessRootManageSelect">负责人 <span class="required"></span>
                         </label>
                         <div class="col-md-6 col-sm-6 col-xs-12">
                           <select class="form-control" id="businessRootManageSelect" name="manage">
@@ -375,10 +375,10 @@
                         </div>
                       </div>
                       <div class="item form-group">
-                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="first-name">描述 <span class="required"></span>
+                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="business-node-desc">描述 <span class="required"></span>
                         </label>
                         <div class="col-md-6 col-sm-6 col-xs-12">
-                          <input type="text"  required="required" name="desc" class="form-control col-md-7 col-xs-12">
+                          <input type="text"  required="required" id="business-node-desc" name="desc" class="form-control col-md-7 col-xs-12">
                         </div>
                       </div>                       
                     </form>
@@ -404,7 +404,7 @@
               <div class="modal-body">
                     <form id="addBusinessAssetsForm" data-parsley-validate class="form-horizontal form-label-left">{% csrf_token %}
                       <div class="form-group">
-                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="first-name">资产分配 <span class="required">*</span>
+                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="addBusinessAssetsSelect">资产分配 <span class="required">*</span>
                         </label>
                         <div class="col-md-6 col-sm-6 col-xs-12">
                           <select class="selectpicker form-control" data-actions-box="true" multiple data-header="至少选择一个资产进行提交" data-live-search="true" data-live-search-placeholder="搜索" data-none-Selected-Text="请选择" data-size="10"   id="addBusinessAssetsSelect" name="assets">
