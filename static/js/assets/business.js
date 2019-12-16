@@ -1491,10 +1491,6 @@ $(document).ready(function() {
                     	   "data": "detail.system",
                     	   "defaultContent": ''
                        },
-                       {
-                    	   "data": "detail.kernel",
-                    	   "defaultContent": ''
-    	               },
     	               {
     	            	   "data": "detail.vcpu_number",
     	            	   "defaultContent": ''
@@ -1514,7 +1510,7 @@ $(document).ready(function() {
     	               ]
        var columnDefs = [                      	    		     		    		    	    		    
     	    		        {
-       	    				targets: [10],
+       	    				targets: [9],
        	    				render: function(data, type, row, meta) {  
     	                        if(row.assets_type == '服务器'){
 		                            var hw = '<button type="button" name="btn-assets-hw" value="'+ row.id +'" class="btn btn-default" aria-label="Right Align"><span class="fa fa-hdd-o" aria-hidden="true"></span></button>'		    	               
