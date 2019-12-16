@@ -11,6 +11,7 @@ from utils import base
 from dao.assets import AssetsSource
 from utils.ansible.runner import ANSRunner
 from utils.base import method_decorator_adaptor
+from utils.logger import logger
 from django.contrib.auth.decorators import permission_required      
 from .service.deploy import DeployRunner
         
@@ -114,6 +115,10 @@ class Manage(LoginRequiredMixin,AppsManage,AssetsSource,View):
     def status(self,request, *args, **kwagrs):
         project = self.get_apps(request)
         if project:
+            if project.project_status == 0:
+                logger.error(msg="项目未初始化:{id}".format(id=project.id))
+                return HttpResponseRedirect('/apps/list/')
+
             #获取最新版本      
             apps = DeployRunner(apps_id=project.id)                  
             return render(request, 'cicd/cicd_status.html',{"user":request.user,'project':project,
@@ -124,7 +129,7 @@ class Manage(LoginRequiredMixin,AppsManage,AssetsSource,View):
                                                                             'number':self.get_apps_number(project),                                                                
                                                                 }})
         else:
-            return HttpResponseRedirect('/404/') 
+            return HttpResponseRedirect('/404/')
 
     def query_repo(self,request):   
         project = self.get_apps(request) 
