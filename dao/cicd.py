@@ -155,6 +155,8 @@ class AppsManage(AssetsBase):
         numbers = []
         try:
             for ds in json.loads(project.project_servers):
+                if not ds:
+                    continue
                 data = {}
                 data["id"] = ds
                 try:                    
@@ -242,7 +244,7 @@ class AppsManage(AssetsBase):
                 project.project_exclude = request.POST.get('project_exclude')
                 project.project_repo_user = request.POST.get('project_repo_user')
                 project.project_repo_passwd = request.POST.get('project_repo_passwd')
-                project.project_servers = json.dumps(request.POST.get('project_servers').split(','))
+                project.project_servers = json.dumps(list(filter(None, request.POST.get('project_servers').split(','))))
                 project.project_target_root = request.POST.get('project_target_root')
                 project.project_logpath = request.POST.get('project_logpath')               
                 project.save()
