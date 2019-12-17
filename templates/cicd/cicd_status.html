@@ -60,19 +60,20 @@
               	<!--<div class="" role="tabpanel" data-example-id="togglable-tabs"  id="add_inventory" style="display:none;">-->
                 <div class="" role="tabpanel" data-example-id="togglable-tabs"  id="add_inventory">
                   <ul id="myTab" class="nav nav-tabs bar_tabs" role="tablist">
-<!--                     <li role="presentation" class="active"><a href="#tab_content1" id="#query" role="tab" data-toggle="tab" aria-expanded="true"><i class="fa fa-tachometer"></i> 应用评分</a>
-                    </li> -->
-                    <li role="presentation" class="active"><a href="#tab_content2" role="tab" id="appsperformance" data-toggle="tab" aria-expanded="false"><i class="fa fa-bar-chart"></i> 应用性能</a>
-                    </li> 
-                    <li role="presentation" class=""><a href="#tab_content3" role="tab" id="#tableDDL" data-toggle="tab" aria-expanded="false"><i class="fa fa-paper-plane"></i> 代码发布</a>
+                    <li role="presentation" class="active"><a href="#tab_content3" role="tab" id="tableDDL" data-toggle="tab" aria-expanded="false"><i class="fa fa-paper-plane"></i> 代码发布</a>
                     </li>    
                     <li role="presentation" class=""><a href="#tab_content4" role="tab" id="deploylog" data-toggle="tab" aria-expanded="false"><i class="fa fa-paper-plane-o"></i> 发布日志</a>
                     </li>                                      
                     <li role="presentation" class=""><a href="#tab_content5" role="tab" id="optimize" data-toggle="tab" aria-expanded="false"><i class="fa fa-language"></i> 应用日志</a>
                     </li>    
                     <li role="presentation" class=""><a href="#tab_content6" role="tab" id="member" data-toggle="tab" aria-expanded="false"><i class="fa fa-users"></i> 成员管理</a>
-                    </li>                                                                   
+                    </li>
+<!--                     <li role="presentation" class="active"><a href="#tab_content1" id="#query" role="tab" data-toggle="tab" aria-expanded="true"><i class="fa fa-tachometer"></i> 应用评分</a>
+                    </li> -->
+                    <li role="presentation" class=""><a href="#tab_content2" role="tab" id="appsperformance" data-toggle="tab" aria-expanded="false"><i class="fa fa-bar-chart"></i> 应用性能</a>
+                    </li>
                   </ul>
+
                   <div id="myTabContent" class="tab-content">
                     <div role="tabpanel" class="tab-pane fade" id="tab_content2" aria-labelledby="appsperformance">
 		              <div class="col-md-6 col-sm-6 col-xs-12">
@@ -208,10 +209,10 @@
 		                    <div id="draw_line_50x" style="width:100%; height:300px;"></div>
 		                  </div>
 		                </div>
-		              </div>		              		              
-		              		              		              				 
-                    </div> 
-                    <div role="tabpanel" class="tab-pane fade" id="tab_content3" aria-labelledby="#tableDDL">
+		              </div>
+                    </div>
+
+                    <div role="tabpanel" class="tab-pane fade active in" id="tab_content3" aria-labelledby="tableDDL">
 		              <!-- graph area -->
 		              <div class="col-md-4 col-sm-5 col-xs-12">
 		                <div class="x_panel">
@@ -755,8 +756,7 @@
 
             </div>
           </div>
-        </div>	
-
+        </div>
 
         <div class="modal fade bs-example-modal-rollback"   tabindex="-1" role="dialog" aria-hidden="true">
           <div class="modal-dialog modal-lg">

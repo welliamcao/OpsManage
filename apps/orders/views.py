@@ -99,7 +99,3 @@ class OrderFileDwonloadHandle(LoginRequiredMixin,OrderFileDownloadManage,View):
             response['Content-Disposition'] = 'attachment; filename="{file_name}'.format(file_name=os.path.basename(filePath))
             return response   
         return JsonResponse({'msg':"文件不存在","code":500,'data':[]})                  
-        
-        
-        
-        

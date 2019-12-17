@@ -504,20 +504,20 @@ def asset_info(request, id,format=None):
         dataList = []
         try:
             if assets.assets_type in ['server','vmser']:
-                dataList.append({"name":'CPU型号',"value":assets.server_assets.cpu})
-                dataList.append({"name":'CPU个数',"value":assets.server_assets.vcpu_number})
-                dataList.append({"name":'硬盘容量',"value":str(int(assets.server_assets.disk_total))+'GB'})
-                dataList.append({"name":'内存容量',"value":str(assets.server_assets.ram_total)+'GB'})
-                dataList.append({"name":'操作系统',"value":assets.server_assets.system})
-                dataList.append({"name":'内核版本',"value":assets.server_assets.kernel})
-                dataList.append({"name":'主机名',"value":assets.server_assets.hostname})
-                dataList.append({"name":'资产备注',"value":assets.mark})
+                dataList.append({"name":'CPU型号',"value":assets.server_assets.cpu if assets.server_assets.cpu else ''})
+                dataList.append({"name":'CPU个数',"value":assets.server_assets.vcpu_number if assets.server_assets.vcpu_number else '' })
+                dataList.append({"name":'硬盘容量',"value":str(assets.server_assets.disk_total)+'GB' if assets.server_assets.disk_total else ''})
+                dataList.append({"name":'内存容量',"value":str(assets.server_assets.ram_total)+'GB' if assets.server_assets.ram_total else ''})
+                dataList.append({"name":'操作系统',"value":assets.server_assets.system if assets.server_assets.system else ''})
+                dataList.append({"name":'内核版本',"value":assets.server_assets.kernel if assets.server_assets.kernel else ''})
+                dataList.append({"name":'主机名',"value":assets.server_assets.hostname if assets.server_assets.hostname else ''})
+                dataList.append({"name":'资产备注',"value":assets.mark if assets.mark else ''})
             else:
-                dataList.append({"name":'CPU型号',"value":assets.network_assets.cpu})
-                dataList.append({"name":'内存容量',"value":assets.network_assets.stone})
-                dataList.append({"name":'背板带宽',"value":assets.network_assets.bandwidth})
-                dataList.append({"name":'端口总数',"value":assets.network_assets.port_number})
-                dataList.append({"name":'资产备注',"value":assets.mark})
+                dataList.append({"name":'CPU型号',"value":assets.network_assets.cpu if assets.network_assets.cpu else ''})
+                dataList.append({"name":'内存容量',"value":assets.network_assets.stone if assets.network_assets.stone else ''})
+                dataList.append({"name":'背板带宽',"value":assets.network_assets.bandwidth if assets.network_assets.bandwidth else ''})
+                dataList.append({"name":'端口总数',"value":assets.network_assets.port_number if assets.network_assets.port_number else ''})
+                dataList.append({"name":'资产备注',"value":assets.mark if assets.mark else ''})
         except Exception as ex:
             logger.warn(msg="获取资产信息失败: {ex}".format(ex=ex))
         ntkList = []
@@ -759,7 +759,7 @@ def assets_tags(request, id,format=None):
     
 
 
-
+#业务线
 @api_view(['GET', 'POST' ])
 def business_list(request,format=None):
     """
@@ -769,18 +769,18 @@ def business_list(request,format=None):
         dataList = []
         for ds in Business_Tree_Assets.objects.all():
             if ds.is_leaf_node():
-                try:
-                    topParent = Business_Tree_Assets.objects.get(tree_id=ds.tree_id,parent__isnull=True)
-                except Exception as ex:
-                    logger.error(msg="查询根节点业务失败: {ex}".format(ex=str(ex)))
-                    continue
+                # try:
+                #     topParent = Business_Tree_Assets.objects.get(tree_id=ds.tree_id,parent__isnull=True)
+                # except Exception as ex:
+                #     logger.error(msg="查询根节点业务失败: {ex}".format(ex=str(ex)))
+                #     continue
                 data = ds.to_json()
                 data["paths"] = ds.business_env() + '/' + data["paths"]
                 dataList.append(data)               
         return Response(dataList)     
        
  
-
+#业务环境
 @api_view(['GET', 'POST' ])
 def env_list(request,format=None):
     """
@@ -872,6 +872,7 @@ class BUSINESS_TREE_LIST(APIView):
 #         print(json.dumps(dicts, indent=4))          
         return Response(dicts)                
 
+#业务节点列表
 class NODE_LIST(APIView,AssetsBusiness):
     
     def get(self,request,*args,**kwargs): 
@@ -981,7 +982,7 @@ class NODE_DETAIL(APIView,AssetsBusiness):
         snippet.delete()       
         return Response(status=status.HTTP_204_NO_CONTENT)          
                           
-            
+#业务节点
 class NODES_ASSERS_DETAIL(APIView,AssetsBusiness):
     
     def get_object(self, pk):

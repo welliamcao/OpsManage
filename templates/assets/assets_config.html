@@ -19,6 +19,9 @@
 		#zoneAssetsTable_filter input {
 			width: 80px;
 	   	}
+		#lineAssetsTable_filter input, #cabinetAssetsTable_filter input, #raidAssetsTable_filter  input{
+			width: 120px;
+	   	}
 	</style>     
 {% endblock %}
 {% block page-content %}
@@ -146,7 +149,6 @@
 			                          <th>ID</th>
 			                          <th>出口线路</th>
 			                          <th>单价</th>
-			                          <th>更新日期</th>
 			                          <th class="text-center">操作</th>
 			                        </tr>
 			                      </thead>
@@ -398,7 +400,7 @@
               <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span>
                 </button>
-                <h4 class="modal-title">添加机房信息</h4>
+                <h4 class="modal-title">添加区域信息</h4>
               </div>
               <div class="modal-body">
 				<form class="form-horizontal" role="form" id="zoneAssetsform">
@@ -427,12 +429,12 @@
               <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span>
                 </button>
-                <h4 class="modal-title">添加机房区域信息</h4>
+                <h4 class="modal-title">添加机房信息</h4>
               </div>
               <div class="modal-body">
 				<form class="form-horizontal" role="form" id="idcAssetsform">
                       <div class="form-group">
-                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="first-name">机房信息 <span class="required">*</span>
+                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="first-name">区域<span class="required">*</span>
                         </label>
                         <div class="col-md-6 col-sm-6 col-xs-12">
                           <select class="form-control" id="zone_idc_select">	
@@ -565,7 +567,7 @@
               <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span>
                 </button>
-                <h4 class="modal-title" id="myModalLabel">添加Raid</h4>
+                <h4 class="modal-title" id="myModalLabel">添加Raid类型</h4>
               </div>
               <div class="modal-body">
                     <form id="groupAssetsform" data-parsley-validate class="form-horizontal form-label-left">

@@ -1086,7 +1086,7 @@ $(document).ready(function() {
 	        title: '修改数据',
 	        content: '<form  data-parsley-validate class="form-horizontal form-label-left">' +
 			            '<div class="form-group">' +
-			            '<label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">环境类型 <span class="required">*</span>' +
+			            '<label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">业务环境<span class="required">*</span>' +
 			            '</label>' +
 			            '<div class="col-md-6 col-sm-6 col-xs-12">' +
 			              '<input type="text"  name="name" value="'+ business +'" required="required" class="form-control col-md-7 col-xs-12">' +
@@ -1189,11 +1189,12 @@ $(document).ready(function() {
             success: function(data) {  
             	new PNotify({
                     title: 'Success!',
-                    text: '资产添加成功',
+                    text: '业务环境添加成功',
                     type: 'success',
                     styling: 'bootstrap3'
                 }); 
             	RefreshTable('businessEnvTableLists', '/api/business/env/');
+            	$('#addBusinessEnvModal').modal("hide");
             }  
     	});  	
     });		
@@ -1422,11 +1423,12 @@ $(document).ready(function() {
             success: function(data) {  
             	new PNotify({
                     title: 'Success!',
-                    text: '资产添加成功',
+                    text: '业务节点添加成功',
                     type: 'success',
                     styling: 'bootstrap3'
                 }); 
             	RefreshTable('businessRootTableLists', '/api/business/nodes/');
+            	$('#addBusinessRootModal').modal("hide");
             }  
     	});  	
     });	
@@ -1489,10 +1491,6 @@ $(document).ready(function() {
                     	   "data": "detail.system",
                     	   "defaultContent": ''
                        },
-                       {
-                    	   "data": "detail.kernel",
-                    	   "defaultContent": ''
-    	               },
     	               {
     	            	   "data": "detail.vcpu_number",
     	            	   "defaultContent": ''
@@ -1512,7 +1510,7 @@ $(document).ready(function() {
     	               ]
        var columnDefs = [                      	    		     		    		    	    		    
     	    		        {
-       	    				targets: [10],
+       	    				targets: [9],
        	    				render: function(data, type, row, meta) {  
     	                        if(row.assets_type == '服务器'){
 		                            var hw = '<button type="button" name="btn-assets-hw" value="'+ row.id +'" class="btn btn-default" aria-label="Right Align"><span class="fa fa-hdd-o" aria-hidden="true"></span></button>'		    	               

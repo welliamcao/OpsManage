@@ -54,11 +54,11 @@
               </div>
 			<div class="x_content">
 				<div class="row">
+					<form role="form" method="post" id="add_deploy_project">
 					<div class="col-lg-6">
 						<legend>
 							<i class="fa  fa-paper-plane"></i> 部署服务器
 						</legend>
-						<form role="form" method="post" id="add_deploy_project">
 							{% csrf_token %}
 							<div class="item form-group">
 								<label><font color='red'>* </font>业务线</label> 
@@ -145,9 +145,10 @@
 								<textarea class="form-control" rows="3" id="project_exclude" name="project_exclude"></textarea>
 								<p class="help-block">例如：.git,data/upload</p>
 							</div>						
-							<button type="reset" class="btn btn-default">撤销</button>
-							<button type="button" class="btn btn-default" id="btn_add_project">添加</button>
+							<button type="reset" class="btn btn-default">重置</button>
+							<button type="button" class="btn btn-default" id="btn_add_project">保存</button>
 					</div>
+
 					<!-- /.col-lg-6 (nested) -->
 					<div class="hr hr32 hr-dotted"></div>
 					<div class="col-lg-6">

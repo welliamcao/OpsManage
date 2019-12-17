@@ -941,18 +941,38 @@ class AssetsAnsible(DataHandle):
         return assets_list        
             
     def custom(self,request):
+        custom = request.get('custom')
+        if not custom:
+            logger.warn(msg="主机不能为空");
+            return [],[]
+
         assetsList = Assets.objects.select_related().filter(id__in=request.get('custom'))
         return self.source(self.query_user_assets(request, assetsList))    
     
     def tags(self,request):
+        tags = request.get('tags')
+        if not tags:
+            logger.warn(msg="资产标签不能为空");
+            return [],[]
+
         assetsList = [ ds.aid for ds in Tags_Server_Assets.objects.filter(tid=request.get('tags'))]
         return self.source(self.query_user_assets(request, assetsList))      
     
     def group(self,request):
+        group = request.get('group')
+        if not group:
+            logger.warn(msg="使用组不能为空");
+            return [],[]
+
         assetsList = Assets.objects.select_related().filter(group=request.get('group'),assets_type__in=["server","vmser","switch","route"])
         return self.source(self.query_user_assets(request, assetsList))
                 
     def business(self,request):
+        business = request.get('business')
+        if not business:
+            logger.warn(msg="业务不能为空");
+            return [],[]
+
         try:
             business = Business_Tree_Assets.objects.get(id=request.get('business'))
             assetsList = business.assets_set.all()
@@ -964,8 +984,14 @@ class AssetsAnsible(DataHandle):
         sList = []
         resource = {} 
         group_name = ''
+
+        inventory_group = request.get('inventory_groups')
+        if not inventory_group:
+            logger.warn(msg="主机组不能为空");
+            return sList, resource
+
         try:
-            inventoryGroup = Deploy_Inventory_Groups.objects.get(id=request.get('inventory_groups'))
+            inventoryGroup = Deploy_Inventory_Groups.objects.get(id=inventory_group)
             group_name = inventoryGroup.group_name
         except Exception as ex: 
             logger.warn(msg="资产组查询失败：{id}".format(id=request.get('inventory_groups'),ex=ex))

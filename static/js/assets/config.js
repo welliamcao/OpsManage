@@ -531,7 +531,7 @@ $(document).ready(function() {
             success: function(data) {  
             	new PNotify({
                     title: 'Success!',
-                    text: '资产添加成功',
+                    text: '资产标签添加成功',
                     type: 'success',
                     styling: 'bootstrap3'
                 }); 
@@ -599,7 +599,7 @@ $(document).ready(function() {
             success: function(data) {  
             	new PNotify({
                     title: 'Success!',
-                    text: '资产添加成功',
+                    text: '机柜添加成功',
                     type: 'success',
                     styling: 'bootstrap3'
                 }); 
@@ -744,7 +744,7 @@ $(document).ready(function() {
             success: function(data) {  
             	new PNotify({
                     title: 'Success!',
-                    text: '资产添加成功',
+                    text: 'RAID类型添加成功',
                     type: 'success',
                     styling: 'bootstrap3'
                 }); 
@@ -842,11 +842,10 @@ $(document).ready(function() {
 	                    {"data": "id"},
 	                    {"data": "line_name"},	
 	                    {"data": "line_price"},
-	                    {"data": "update_time"}
 		               ]
 	    var columnDefs = [								
    	    		        {
-	    	    				targets: [4],
+	    	    				targets: [3],
 	    	    				render: function(data, type, row, meta) {		    	    					
 	    	                        return '<div class="btn-group  btn-group-xs">' +	
 		    	                           '<button type="button" name="btn-line-modf" value="'+ row.id +'" class="btn btn-default"  aria-label="Justify"><span class="fa fa-edit" aria-hidden="true"></span>' +	
@@ -992,11 +991,12 @@ $(document).ready(function() {
             success: function(data) {  
             	new PNotify({
                     title: 'Success!',
-                    text: '资产添加成功',
+                    text: '线路添加成功',
                     type: 'success',
                     styling: 'bootstrap3'
                 }); 
-            	RefreshTable('lineAssetsTable', '/api/line/');	
+            	RefreshTable('lineAssetsTable', '/api/line/');
+            	$('#addLineModal').modal("hide");
             }  
     	});  	
     });		
@@ -1137,7 +1137,7 @@ $(document).ready(function() {
             success: function(data) {  
             	new PNotify({
                     title: 'Success!',
-                    text: '资产添加成功',
+                    text: '使用组添加成功',
                     type: 'success',
                     styling: 'bootstrap3'
                 }); 
@@ -1237,7 +1237,7 @@ $(document).ready(function() {
             success: function(data) {  
             	new PNotify({
                     title: 'Success!',
-                    text: '资产添加成功',
+                    text: '机房添加成功',
                     type: 'success',
                     styling: 'bootstrap3'
                 }); 
@@ -1362,11 +1362,12 @@ $(document).ready(function() {
             success: function(data) {  
             	new PNotify({
                     title: 'Success!',
-                    text: '资产添加成功',
+                    text: '闲置资产添加成功',
                     type: 'success',
                     styling: 'bootstrap3'
                 }); 
             	RefreshTable('idleAssetsTable', '/api/idc/idle/');
+            	$('#addIdleModal').modal("hide");
             }  
     	});  	
     });	
@@ -1522,11 +1523,12 @@ $(document).ready(function() {
             success: function(data) {  
             	new PNotify({
                     title: 'Success!',
-                    text: '资产添加成功',
+                    text: '区域添加成功',
                     type: 'success',
                     styling: 'bootstrap3'
                 }); 
             	RefreshTable('zoneAssetsTable', '/api/zone/');
+            	$('#addZoneModal').modal("hide");
             }  
     	});  	
     });	

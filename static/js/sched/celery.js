@@ -696,7 +696,8 @@ $(document).ready(function() {
                     text: "添加成功",
                     type: 'success',
                     styling: 'bootstrap3'
-                }); 				
+                });
+				$('#addTaskModal').modal("hide");	
 			},
 	    	error:function(response){
 	    		btnObj.removeAttr('disabled');

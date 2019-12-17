@@ -99,6 +99,7 @@ class DeployScript(DataHandle):
         try:
             Deploy_Script.objects.create(
                                           script_name=request.POST.get('script_name'),
+                                          script_desc=request.POST.get('script_desc'),
                                           script_args=request.POST.get('script_args'),
                                           script_server=json.dumps(request.POST.getlist('server[]')),
                                           script_group=self.change(request.POST.get('group')),
@@ -123,6 +124,7 @@ class DeployScript(DataHandle):
         self.saveScript(content=QueryDict(request.body).get('script_file'),filePath=filePath)
         try:
             Deploy_Script.objects.filter(id=script.id).update(
+                                          script_desc = QueryDict(request.body).get('script_desc'),
                                           script_server=json.dumps(QueryDict(request.body).getlist('server[]')),
                                           script_group=self.change(QueryDict(request.body).get('group')),
                                           script_tags=self.change(QueryDict(request.body).get('tags')),

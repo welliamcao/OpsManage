@@ -316,117 +316,111 @@
 						添加任务
 					</h4>
 				</div>
+
 				<div class="modal-body">
-					
 					<form class="form-horizontal" id="addTask">
-													
-							<div class="item form-group">
-									<label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>任务名*</strong></label>			
-										<div class="col-sm-5">
-										<input class="form-control" type="text"   value="" placeholder="扩展k8s集群" name="name" id="task_name" required/>																				
-									</div>
+						<div class="item form-group">
+							<label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>任务名*</strong></label>			
+								<div class="col-sm-5">
+								<input class="form-control" type="text"   value="" placeholder="扩展k8s集群" name="name" id="task_name" required/>																				
 							</div>
+						</div>
 
-							<div class="item form-group">
-									<label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>任务*</strong></label>
-						
-									<div class="col-sm-5">
-										<select name="task" id="task" class="form-control" required>
-											<option value="">选择一个任务</option>
-											{% for ds in tasks.regTaskList %}
-												<option value="{{ds}}">{{ds}}</option>
-											{% endfor %}																																								
-										</select>	
-									</div>
-							</div>	
-							<div class="item form-group">
-									<label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>调度类型*</strong></label>
-						
-									<div class="col-sm-5">
-										<select id="schetype" class="form-control" required>
-											<option value="">选择一个类型</option>
-												<option value="select_crontab">Crontab</option>
-												<option value="select_interval">Interval</option>																																								
-										</select>	
-									</div>																				
-									
-							</div>	
-							
-							<div class="item form-group" style="display: none;" id="div_crontab">
-									<label class="col-sm-3 control-label no-padding-right" for="form-field-3"><strong>计划类型*</strong></label>
-										<div class="col-sm-5">
-											<select name="crontab" class="form-control" id="select-crontab">
-												<option value="">选择一个计划任务</option>																																								
-											</select>											
-										<div class="space-2"></div>									
-									</div>
+						<div class="item form-group">
+							<label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>任务*</strong></label>
+				
+							<div class="col-sm-5">
+								<select name="task" id="task" class="form-control" required>
+									<option value="">选择一个任务</option>
+									{% for ds in tasks.regTaskList %}
+										<option value="{{ds}}">{{ds}}</option>
+									{% endfor %}																																								
+								</select>	
 							</div>
-							
-							<div class="item form-group" style="display: none;" id="div_interval">
-									<label class="col-sm-3 control-label no-padding-right" for="form-field-3"><strong>间隔类型*</strong></label>
-										<div class="col-sm-5">
-											<select name="interval" class="form-control" id="select-interval">
-												<option value="">选择一个间隔类型</option>																																								
-											</select>											
-										<div class="space-2"></div>									
-									</div>
+						</div>
+
+						<div class="item form-group">
+							<label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>调度类型*</strong></label>
+				
+							<div class="col-sm-5">
+								<select id="schetype" class="form-control" required>
+									<option value="">选择一个类型</option>
+										<option value="select_crontab">Crontab</option>
+										<option value="select_interval">Interval</option>																																								
+								</select>	
 							</div>
-							
-							<div class="item form-group">
-									<label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>参数列表</strong></label>
+						</div>	
 						
-										<div class="col-sm-5">
-										<input class="form-control" type="text"   value="" placeholder="['192.168.1.233']" name="args" id="args"/>																				
-									</div>
-							</div>							
-									
-							<div class="item form-group">
-									<label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>参数字典</strong></label>
+						<div class="item form-group" style="display: none;" id="div_crontab">
+							<label class="col-sm-3 control-label no-padding-right" for="form-field-3"><strong>计划类型*</strong></label>
+								<div class="col-sm-5">
+									<select name="crontab" class="form-control" id="select-crontab">
+										<option value="">选择一个计划任务</option>																																								
+									</select>											
+								<div class="space-2"></div>									
+							</div>
+						</div>
 						
-										<div class="col-sm-5">
+						<div class="item form-group" style="display: none;" id="div_interval">
+							<label class="col-sm-3 control-label no-padding-right" for="form-field-3"><strong>间隔类型*</strong></label>
+								<div class="col-sm-5">
+									<select name="interval" class="form-control" id="select-interval">
+										<option value="">选择一个间隔类型</option>																																								
+									</select>											
+								<div class="space-2"></div>									
+							</div>
+						</div>
+						
+						<div class="item form-group">
+							<label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>参数列表</strong></label>
+				
+							<div class="col-sm-5">
+								<input class="form-control" type="text"   value="" placeholder="['192.168.1.233']" name="args" id="args"/>																				
+							</div>
+						</div>							
+								
+						<div class="item form-group">
+							<label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>参数字典</strong></label>
+				
+							<div class="col-sm-5">
 <!-- 										<input class="form-control" type="text"   value="" placeholder="{'key':'value'}" name="kwargs" /> -->	
-										<textarea class="form-control" rows="10" name="kwargs" id="kwargs"></textarea>																			
-									</div>
+								<textarea class="form-control" rows="4" name="kwargs" id="kwargs"></textarea>																			
 							</div>
-							<div class="item form-group">
-									<label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>队列</strong></label>
-						
-										<div class="col-sm-5">
-										<input class="form-control" type="text"   value="" placeholder="Queue Name" name="queue" id="queue"/>																				
-									</div>
-							</div>	
- 							<div class="item form-group">
-									<label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>过期时间</strong></label>
-						
+						</div>
 
-									<div class="col-sm-5">
-										<input  class="form-control form_datetime" data-date-format="yyyy-mm-dd hh:ii" type="text"   value="" placeholder="2017-01-10 00:00:01" name="expires" id="expires"/>																				
-									</div>																				
-									
-							</div> 		
-																	
-							
-							<div class="item form-group">
-									<label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>是否激活</strong></label>
-						
+						<div class="item form-group">
+							<label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>队列</strong></label>
+				
+							<div class="col-sm-5">
+								<input class="form-control" type="text"   value="" placeholder="Queue Name" name="queue" id="queue"/>																				
+							</div>
+						</div>
 
-									<div class="col-sm-5">
-										<select name="enabled" id="enabled" class="form-control">
-												<option selected="selected" value="1">激活</option>
-												<option value="0">冻结</option>																																								
-										</select>																				
-									</div>																				
-									
-							</div>				
-																	
+						<div class="item form-group">
+							<label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>过期时间</strong></label>
+				
+							<div class="col-sm-5">
+								<input  class="form-control form_datetime" data-date-format="yyyy-mm-dd hh:ii" type="text"   value="" placeholder="2017-01-10 00:00:01" name="expires" id="expires"/>																				
+							</div>
+						</div>
+
+						<div class="item form-group">
+							<label class="col-sm-3 control-label no-padding-right" for="form-field-4"><strong>是否激活</strong></label>
+				
+							<div class="col-sm-5">
+								<select name="enabled" id="enabled" class="form-control">
+									<option selected="selected" value="1">激活</option>
+									<option value="0">冻结</option>																																								
+								</select>																				
+							</div>
+						</div>
 					</form>	
-					
 				</div>
+
 				<div class="modal-footer">
 					<button type="button" class="btn btn-default" data-dismiss="modal">关闭
 					</button>
-					<button type="button" class="btn btn-primary" id="add_task_button">
-						添加
+					<button type="button" class="btn btn-primary" id="add_task_button">添加
 					</button>
 					<button type="button" class="btn btn-primary" value="" id="modf_task_button" style="display:none;">修改</button>
 				</div>

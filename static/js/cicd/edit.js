@@ -109,7 +109,7 @@ function makeProjectBusinessAssets(businessId){
 		url:'/api/business/nodes/assets/'+ businessId + '/', //请求地址
 		type:"GET",  //提交类似
 		success:function(response){
-			var binlogHtml = '<select class="selectpicker" name="server" id="server" required><option  name="ipvs_assets" value="">请选择服务器</option>'
+			var binlogHtml = '<select class="selectpicker" name="server" id="server" required><option  name="ipvs_assets" value="" disabled>请选择服务器</option>'
 			var selectHtml = '';
 			for (var i=0; i <response.length; i++){
 				 selectHtml += '<option name="server" value="'+ response[i]["id"] +'">' + response[i]["detail"]["ip"] + '</option>' 

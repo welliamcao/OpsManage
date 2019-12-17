@@ -37,22 +37,21 @@
                       <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
                       </li>
-                      <li><a class="close-link"><i class="fa fa-close"></i></a>
-                      </li>
                     </ul>
                     <div class="clearfix"></div>
                   </div>
+
                   <div class="x_content">
                      <form role="form" id="deployModelRun" data-parsley-validate class="form-horizontal form-label-left">{% csrf_token %}
 						<fieldset>						
 							<div class="form-group" >			 		             
-									<label class="col-sm-2 control-label">动态主机</label>	
+									<label class="col-sm-2 control-label">选择方式</label>
 									<div class="col-sm-6">
 										<select class="selectpicker form-control" name="server_model" id="server_model">
-											<option value="" name="server_model" selected="selected">选择一个类型</option>
-											<option value="business" name="server_model">业务类型</option>		
-											<option value="inventory_groups" name="server_model">动态主机组</option>													
-											<option value="group" name="server_model">使用部门</option>	
+											<option value="" name="server_model" disabled selected="selected">选择一个类型</option>
+											<option value="business" name="server_model">业务项目</option>
+											<option value="inventory_groups" name="server_model">主机组</option>
+											<option value="group" name="server_model">使用组</option>
 											<option value="tags" name="server_model">资产标签</option>
 											<option value="custom" name="server_model">自定义</option> 	
 										</select>		
@@ -60,7 +59,7 @@
 							</div>	
 							<div id='project_server'  style="display:none;">
 								<div class="form-group">
-									 <label class="col-sm-2 control-label" >所属项目</label>
+									 <label class="col-sm-2 control-label" >业务项目</label>
 									 <div class="col-sm-6">
                                            <select class="selectpicker form-control" name="business"  id="deploy_business" onchange="javascript:oBtProjectSelect(this);" required>
                                            	<option name="project" value="" selected="selected">请选择一个项目</option>
@@ -70,23 +69,23 @@
 							</div>		
 							<div id='inventory_server'  style="display:none;">
                                 <div class="form-group">
-                                    <label class="col-sm-2 control-label" >动态主机组<i class="fa fa-info-circle" data-toggle="tooltip"  title="根据动态资产添加选择服务器"></i></label>
+                                    <label class="col-sm-2 control-label" >动态资产组<i class="fa fa-info-circle" data-toggle="tooltip"  title="根据动态资产添加选择服务器"></i></label>
                                     <div class="col-sm-6">
 	                                 <select class="selectpicker form-control" name="inventory" onchange="javascript:oBtInventorySelect(this);">
 	                                 </select>
                               		</div>                            		
                                 </div> 
 								<div class="form-group">
-									 <label class="col-sm-2 control-label" >资产组</label>
+									 <label class="col-sm-2 control-label" >主机组</label>
 									 <div class="col-sm-6">
                                            <select class="selectpicker form-control" name="inventory_groups"   onchange="javascript:AssetsTypeSelect(this,'inventory_group');" required>
-											<option name="inventory_groups" value="" selected="selected">请选择一个资产组</option>
+											<option name="inventory_groups" value="" disabled selected="selected">请选择一个主机组</option>
                                            </select>
 									 </div>
 								</div>                                  
                             </div>																				
 							<div id="group_server" class="form-group" style="display:none;">
-								 <label class="col-sm-2 control-label" >使用部门</label>
+								 <label class="col-sm-2 control-label" >使用组</label>
 								 <div class="col-sm-6">
                                        <select class="selectpicker form-control" name="group"  onchange="javascript:AssetsTypeSelect(this,'group');" required> 
                                        </select>
@@ -100,7 +99,7 @@
 								 </div>
 							</div>																																											
 							<div id="custom_server" class="form-group" style="display:none;">
-								 <label class="col-sm-2 control-label" >服务器选择</label>
+								 <label class="col-sm-2 control-label" >服务器</label>
 								 <div class="col-sm-6">
                                     <select multiple class="selectpicker form-control"  data-size="10" data-selected-text-format="count > 5" data-live-search="true" data-width="100%"   autocomplete="off"  class="form-control"   autocomplete="off" name="custom"  id="deploy_server" required>
                                     </select>
@@ -153,7 +152,7 @@
 							<legend></legend>
 							<div class="form-group">
 								<label class="col-sm-4 control-label"></label>
-								<button type="reset"  class="btn btn-default btn-sm" >撤销</button>
+								<button type="reset"  class="btn btn-default btn-sm" >重置</button>
 								{% if perms.deploy.deploy_exec_deploy_script %}
 						 			<button type="button"  class="btn btn-default btn-sm" id="run_deploy_model">执行</button>
 						 		{% else %}
@@ -170,12 +169,11 @@
                   <div class="x_title">
                     <h2>执行结果 <small>Results of execution</small></h2>
                     <ul class="nav navbar-right panel_toolbox">
-                      <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                      <li>
+						<a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
                       </li>
                       <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
-                      </li>
-                      <li><a class="close-link"><i class="fa fa-close"></i></a>
                       </li>
                     </ul>
                     <div class="clearfix"></div>
@@ -188,9 +186,12 @@
                   </div>
                 </div>
               </div>
-            </div>        
-<div style="visibility:hidden"><a id="scrollToTop"></a></div>                        
+        </div>
+<div style="visibility:hidden">
+	<a id="scrollToTop"></a>
+</div>
 {% endblock %}
+
 {% block js-content %}
 	<script src="/static/jquery-confirm/jquery-confirm.min.js"></script>
 	<script src="/static/js/deploy/deploy.js"></script>

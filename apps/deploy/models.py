@@ -5,6 +5,7 @@ from django.db import models
 import django.utils.timezone as timezone
 from django.contrib.auth.models import User
 from datetime import datetime
+
 # Create your models here.
 class Log_Deploy_Model(models.Model): 
     ans_user = models.CharField(max_length=50,verbose_name='使用用户',default=None)
@@ -27,18 +28,19 @@ class Log_Deploy_Model(models.Model):
 class Deploy_Playbook(models.Model):   
     playbook_name = models.CharField(max_length=50,verbose_name='剧本名称',unique=True)
     playbook_desc = models.CharField(max_length=200,verbose_name='功能描述',blank=True,null=True)
-    playbook_vars = models.TextField(verbose_name='模块参数',blank=True,null=True)
     playbook_uuid = models.CharField(max_length=50,verbose_name='唯一id')
     playbook_type = models.CharField(verbose_name='服务器选择类型',max_length=50,blank=True,null=True)
-    playbook_file = models.FileField(upload_to = './playbook/',verbose_name='剧本路径')
-    playbook_business = models.SmallIntegerField(verbose_name='授权业务',blank=True,null=True)
-    playbook_user = models.SmallIntegerField(verbose_name='授权用户',blank=True,null=True,)
-    playbook_server = models.TextField(verbose_name='目标机器',blank=True,null=True)
-    playbook_group = models.SmallIntegerField(verbose_name='授权组',blank=True,null=True)
+    playbook_business = models.SmallIntegerField(verbose_name='业务项目',blank=True,null=True)
+    playbook_server = models.TextField(verbose_name='服务器',blank=True,null=True)
+    playbook_group = models.SmallIntegerField(verbose_name='使用组',blank=True,null=True)
     playbook_tags = models.SmallIntegerField(verbose_name='资产标签',blank=True,null=True)
-    playbook_inventory_groups = models.SmallIntegerField(verbose_name='资产组',blank=True,null=True)
+    playbook_inventory_groups = models.SmallIntegerField(verbose_name='主机组',blank=True,null=True)
+    playbook_file = models.FileField(upload_to = './playbook/',verbose_name='剧本路径')
+    playbook_vars = models.TextField(verbose_name='外部变量',blank=True,null=True)
+    playbook_user = models.SmallIntegerField(verbose_name='修改人',blank=True,null=True,)
     create_time = models.DateTimeField(default = timezone.now,blank=True,null=True,verbose_name='创建时间')
-    update_date = models.DateTimeField(auto_now=True,blank=True,null=True,verbose_name='修改时间')    
+    update_date = models.DateTimeField(auto_now=True,blank=True,null=True,verbose_name='修改时间')
+
     class Meta:
         db_table = 'opsmanage_deploy_playbook'
         default_permissions = ()
@@ -89,20 +91,20 @@ class Deploy_Playbook(models.Model):
         
 class Deploy_Script(models.Model): 
     script_name = models.CharField(max_length=50,verbose_name='脚本名称',unique=True)
+    script_desc = models.CharField(max_length=200,verbose_name='功能描述',blank=True,null=True)
     script_uuid = models.CharField(max_length=50,verbose_name='唯一id',blank=True,null=True)
-    script_server = models.TextField(verbose_name='目标机器',blank=True,null=True)
+    script_type = models.CharField(verbose_name='服务器选择类型',max_length=50,blank=True,null=True)
+    script_business = models.SmallIntegerField(verbose_name='业务项目',blank=True,null=True)
+    script_server = models.TextField(verbose_name='服务器',blank=True,null=True)
+    script_group = models.SmallIntegerField(verbose_name='使用组',blank=True,null=True)
+    script_tags = models.SmallIntegerField(verbose_name='资产标签',blank=True,null=True)
+    script_inventory_groups = models.SmallIntegerField(verbose_name='主机组',blank=True,null=True)
     script_file = models.FileField(upload_to = './scripts/',verbose_name='脚本路径')
     script_args = models.TextField(blank=True,null=True,verbose_name='脚本参数')
-    script_business = models.SmallIntegerField(verbose_name='授权业务',blank=True,null=True)
-    script_user = models.SmallIntegerField(verbose_name='添加人',blank=True,null=True)
-    script_group = models.SmallIntegerField(verbose_name='授权组',blank=True,null=True)
-    script_tags = models.SmallIntegerField(verbose_name='资产标签',blank=True,null=True)
-    script_inventory_groups = models.SmallIntegerField(verbose_name='资产组',blank=True,null=True)
-    script_type = models.CharField(max_length=50,verbose_name='脚本类型',blank=True,null=True)
+    script_user = models.SmallIntegerField(verbose_name='修改人',blank=True,null=True)
     create_time = models.DateTimeField(default = timezone.now,blank=True,null=True,verbose_name='创建时间')
     update_date = models.DateTimeField(auto_now=True,blank=True,null=True,verbose_name='修改时间')
-   
-    
+
     class Meta:
         db_table = 'opsmanage_deploy_script'
         default_permissions = ()
