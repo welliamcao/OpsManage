@@ -14,7 +14,7 @@ from rest_framework.views import  APIView,Response
 
 
 @api_view(['GET', 'POST' ])
-@permission_required('apps.project_read_project_config',raise_exception=True)
+@permission_required('cicd.project_read_project_config',raise_exception=True)
 def project_list(request,format=None):  
     if request.method == 'GET':     
         snippets = Project_Config.objects.all()
@@ -23,7 +23,7 @@ def project_list(request,format=None):
     
     
 @api_view(['DELETE'])
-@permission_required('apps.project_delete_project_config',raise_exception=True)
+@permission_required('cicd.project_delete_project_config',raise_exception=True)
 def project_detail(request, id,format=None):
     try:
         snippet = Project_Config.objects.get(id=id)
@@ -31,13 +31,13 @@ def project_detail(request, id,format=None):
         return Response(status=status.HTTP_404_NOT_FOUND)
      
     if request.method == 'DELETE':
-        if not request.user.has_perm('apps.project_read_project_config'):
+        if not request.user.has_perm('cicd.project_read_project_config'):
             return Response(status=status.HTTP_403_FORBIDDEN)
         snippet.delete()
         return Response(status=status.HTTP_204_NO_CONTENT) 
 
 @api_view(['DELETE'])
-@permission_required('apps.project_delete_project_config',raise_exception=True)
+@permission_required('cicd.project_delete_project_config',raise_exception=True)
 def project_log_detail(request, id,format=None):
     try:
         snippet = Log_Project_Config.objects.get(id=id)
@@ -45,7 +45,7 @@ def project_log_detail(request, id,format=None):
         return Response(status=status.HTTP_404_NOT_FOUND)   
      
     if request.method == 'DELETE':
-        if not request.user.has_perm('apps.project_delete_project_config'):
+        if not request.user.has_perm('cicd.project_delete_project_config'):
             return Response(status=status.HTTP_403_FORBIDDEN)
         try:
             Log_Project_Record.objects.filter(task_id=snippet.task_id).delete()
@@ -87,7 +87,7 @@ class AppsCounts(APIView,AppsCount):
 
 
 @api_view(['GET', 'POST' ])
-@permission_required('apps.project_add_project_config',raise_exception=True)
+@permission_required('cicd.project_add_project_config',raise_exception=True)
 def apps_roles_list(request,format=None):
     """
     List all order, or create a server assets order.
@@ -105,7 +105,7 @@ def apps_roles_list(request,format=None):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET', 'PUT', 'DELETE'])
-@permission_required('apps.project_change_project_config',raise_exception=True)
+@permission_required('cicd.project_change_project_config',raise_exception=True)
 def apps_roles_detail(request, id,format=None):
     """
     Retrieve, update or delete a server assets instance.
@@ -127,7 +127,7 @@ def apps_roles_detail(request, id,format=None):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
      
     elif request.method == 'DELETE':
-        if not request.user.has_perm('apps.project_delete_project_config'):
+        if not request.user.has_perm('cicd.project_delete_project_config'):
             return Response(status=status.HTTP_403_FORBIDDEN)
         snippet.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)          
