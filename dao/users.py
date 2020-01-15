@@ -232,17 +232,17 @@ class UsersManage(PermsManage,AssetsBase):
             return "用户不存在"         
     
         
-class GroupManage(PermsManage):  
+class GroupsManage(PermsManage):  
     
     def __init__(self):
-        super(GroupManage, self).__init__()     
+        super(GroupsManage, self).__init__()     
     
     def allowcator(self,sub,args):
         if hasattr(self,sub):
             func= getattr(self,sub)
             return func(args)
         else:
-            logger.error(msg="GroupManage没有{sub}方法".format(sub=sub))       
+            logger.error(msg="GroupsManage没有{sub}方法".format(sub=sub))       
             return "参数错误"
         
     def get_group(self,request):
