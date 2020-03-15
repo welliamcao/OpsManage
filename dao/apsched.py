@@ -276,9 +276,6 @@ class ApschedNodeJobsManage(ApschedNodeManage):
       
     def rpc_update_jobs(self,jobs,uri):
         data = self.queryJobs(jobs) #要修改这里               
-#         result = sched_rpc.post(url="http://{ip}:{port}/api/v1/{uri}/".format(ip=jobs.job_node.sched_server.server_assets.ip,
-#                                                                                 port=jobs.job_node.port,uri=uri),
-#                                                                                 data=data,token=jobs.job_node.token)
         result = sched_rpc.request(method="post", endpoint="{ip}:{port}".format(ip=jobs.job_node.sched_server.server_assets.ip,port=jobs.job_node.port),uri=uri, body=data,node=jobs.job_node)
         jobs.status = "stopped"
         if isinstance(result, str):
