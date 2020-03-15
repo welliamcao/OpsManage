@@ -27,14 +27,14 @@ class HostInventory(Host):
             self.set_variable('ansible_ssh_pass', host_data['password'])
         if host_data.get('private_key'):
             self.set_variable('ansible_ssh_private_key_file', host_data['private_key'])
-        become = host_data.get("become", False)
-        if become:
-            self.set_variable("ansible_become", True)
-            self.set_variable("ansible_become_method", become.get('method', 'sudo'))
-            self.set_variable("ansible_become_user", become.get('user', 'root'))
-            self.set_variable("ansible_become_pass", become.get('pass', ''))
-        else:
-            self.set_variable("ansible_become", False)
+#         become = host_data.get("become", False) #注释 
+#         if become:
+#             self.set_variable("ansible_become", True)
+#             self.set_variable("ansible_become_method", become.get('method', 'sudo'))
+#             self.set_variable("ansible_become_user", become.get('user', 'root'))
+#             self.set_variable("ansible_become_pass", become.get('pass', ''))
+#         else:
+#             self.set_variable("ansible_become", False)
             
     def __set_extra_variables(self):
         for k, v in self.host_data.get('vars', {}).items():

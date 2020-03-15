@@ -1,5 +1,6 @@
 #!/usr/bin/env python  
 # _#_ coding:utf-8 _*_
+import json
 from api import serializers
 from dao.apsched import ApschedNodeManage,ApschedNodeJobsManage,ApschedBase
 from django.http import JsonResponse
@@ -74,8 +75,8 @@ class ApschedNodeJobsQuery(ApschedNodeManage,View):
     def dispatch(self, request, *args, **kwargs):
         return super(ApschedNodeJobsQuery, self).dispatch(request, *args, **kwargs)
         
-    def post(self,request, *args, **kwargs):
-        return JsonResponse({"code":200,"data":self.get_node_jobs_by_token(request.POST.get('token'))})  
+    def get(self,request, *args, **kwargs): 
+        return JsonResponse(self.get_node_jobs_by_token(request))  
     
 class ApschedNodeJobsRecord(ApschedNodeJobsManage,View):
 

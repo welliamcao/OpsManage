@@ -4,21 +4,25 @@ from __future__ import unicode_literals
 from django.db import models
 
 # Create your models here.
-class Cron_Config(models.Model): 
-    cron_server = models.ForeignKey('asset.Assets',related_name='crontab_total',on_delete=models.CASCADE) 
-    cron_minute = models.CharField(max_length=10,verbose_name='分',default=None)
-    cron_hour = models.CharField(max_length=10,verbose_name='时',default=None)
-    cron_day = models.CharField(max_length=10,verbose_name='天',default=None)
-    cron_week = models.CharField(max_length=10,verbose_name='周',default=None)
-    cron_month = models.CharField(max_length=10,verbose_name='月',default=None)
-    cron_user = models.CharField(max_length=50,verbose_name='任务用户',default=None)
-    cron_name = models.CharField(max_length=100,verbose_name='任务名称',default=None)
-    cron_log_path = models.CharField(max_length=500,blank=True,null=True,verbose_name='任务日志路径',default=None)
-    cron_type = models.CharField(max_length=10,verbose_name='任务类型',default=None)
-    cron_command = models.CharField(max_length=200,verbose_name='任务参数',default=None)
-    cron_script = models.FileField(upload_to = './cron/',blank=True,null=True,verbose_name='脚本路径',default=None)
-    cron_script_path =  models.CharField(max_length=100,blank=True,null=True,verbose_name='脚本路径',default=None)
-    cron_status = models.SmallIntegerField(verbose_name='任务状态',default=None)
+from django.utils import timezone
+
+
+class Cron_Config(models.Model):
+    cron_server = models.ForeignKey('asset.Assets', related_name='crontab_total', on_delete=models.CASCADE)
+    cron_minute = models.CharField(max_length=10, verbose_name='分', default=None)
+    cron_hour = models.CharField(max_length=10, verbose_name='时', default=None)
+    cron_day = models.CharField(max_length=10, verbose_name='天', default=None)
+    cron_week = models.CharField(max_length=10, verbose_name='周', default=None)
+    cron_month = models.CharField(max_length=10, verbose_name='月', default=None)
+    cron_user = models.CharField(max_length=50, verbose_name='任务用户', default=None)
+    cron_name = models.CharField(max_length=100, verbose_name='任务名称', default=None)
+    cron_log_path = models.CharField(max_length=500, blank=True, null=True, verbose_name='任务日志路径', default=None)
+    cron_type = models.CharField(max_length=10, verbose_name='任务类型', default=None)
+    cron_command = models.CharField(max_length=200, verbose_name='任务参数', default=None)
+    cron_script = models.FileField(upload_to='./cron/', blank=True, null=True, verbose_name='脚本路径', default=None)
+    cron_script_path = models.CharField(max_length=100, blank=True, null=True, verbose_name='脚本路径', default=None)
+    cron_status = models.SmallIntegerField(verbose_name='任务状态', default=None)
+
     class Meta:
         db_table = 'opsmanage_cron_config'
         default_permissions = ()
@@ -51,8 +55,12 @@ class Sched_Node(models.Model):
     sched_node = models.AutoField(primary_key=True) 
     sched_server = models.ForeignKey('asset.Assets',related_name='sched_node',on_delete=models.CASCADE) 
     port = models.SmallIntegerField(verbose_name='端口')
-    token = models.CharField(max_length=100,verbose_name='认证密码',unique=True)
-    enable = models.SmallIntegerField(verbose_name='端口',default=1)
+    ak = models.CharField(max_length=100, verbose_name='AK', unique=True)
+    sk = models.CharField(max_length=100, verbose_name='SK', unique=True)
+    enable = models.SmallIntegerField(verbose_name='端口', default=1)
+    create_time = models.DateTimeField(default=timezone.now, blank=True, null=True, verbose_name="创建时间")
+    update_time = models.DateTimeField(auto_now=True, blank=True, null=True, verbose_name="修改时间")
+
     class Meta:
         db_table = 'opsmanage_sched_node'
         default_permissions = ()
@@ -65,7 +73,8 @@ class Sched_Node(models.Model):
             "sched_node":self.sched_node,
             "sched_server":self.sched_server.server_assets.ip,
             "port":self.port,
-            "token":self.token,
+            "ak":self.ak,
+            "sk":self.sk,
             "enable":self.enable
         }
         return  json_format     
@@ -106,7 +115,8 @@ class Sched_Job_Config(models.Model):
     end_date = models.CharField(max_length=20,verbose_name='结束时间',blank=True,null=True,default=None)
     run_date = models.CharField(max_length=20,verbose_name='指定时间',blank=True,null=True,default=None)
     sched_type = models.CharField(choices=SCHED_TYPE,max_length=10,verbose_name='调度类型')
-    status = models.CharField(max_length=10,choices=JOBSTATUS,verbose_name='任务状态') 
+    status = models.CharField(max_length=10,choices=JOBSTATUS,verbose_name='任务状态')
+    timeout = models.IntegerField(blank=True,null=True,verbose_name='超时时间')
     is_alert = models.SmallIntegerField(default=0,verbose_name='执行失败是否通知')
     notice_trigger = models.SmallIntegerField(choices=TRIGGER_TYPE,verbose_name='触发类型',blank=True,null=True,default=0)  
     notice_type =  models.SmallIntegerField(choices=NOTICE_TYPE,verbose_name='通知类型',blank=True,null=True,default=0)  

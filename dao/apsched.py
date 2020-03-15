@@ -1,7 +1,7 @@
 #!/usr/bin/env python  
 # _#_ coding:utf-8 _*_ 
 #coding: utf8
-import uuid,time
+import uuid, time, hashlib
 from sched.models import Sched_Node,Sched_Job_Config,Sched_Job_Logs
 from utils.logger import logger
 from django.http import QueryDict
@@ -29,6 +29,13 @@ class ApschedNodeManage(AssetsBase):
     
     def __init__(self):
         super(ApschedNodeManage, self).__init__()  
+
+    def _sig(self, content_md5, date, ak, sk):
+        sha1 = hashlib.sha1(sk.encode("utf-8"))
+        sha1.update(content_md5)
+        sha1.update("application/json".encode("utf-8"))
+        sha1.update(date)
+        return "OPS-2:%s:%s" % (ak, sha1.hexdigest())
     
     def schedNode(self,request):
         if request.method == 'GET':cid = request.GET.get('sched_node')
@@ -41,25 +48,44 @@ class ApschedNodeManage(AssetsBase):
             logger.warn(msg="获取计划任务节点失败: {ex}".format(ex=ex))
             return False    
     
-    def get_node_jobs_by_token(self,token):
+    def get_node_jobs_by_token(self,request):
+        #判断header信息
         try:
-            node = Sched_Node.objects.get(token=token)
+            r_auth = request.META.get("HTTP_AUTHORIZATION")
+            ak = r_auth.split(":")[1]       
+            content_md5 = hashlib.md5(request.get_full_path().encode("utf-8")).hexdigest().encode("utf-8")
+        except:
+            return {"data":[],"msg":"header信息不正确","code":500} 
+        
+        #检查header里面的authorization信息，判断节点是否注册
+        try:
+            node = Sched_Node.objects.get(ak=ak)
         except Exception as ex:
             logger.warn(msg="获取计划任务节点失败: {ex}".format(ex=ex))
-            return []  
-              
+            return {"data":[],"msg":"节点未注册","code":404}  
+
         jobsList = []
         
-        if node.enable == 0: return []
+        #通过如果AK信息正确则对比SK信息签名是否一致
+        if r_auth == self._sig(content_md5, request.META.get("HTTP_DATE").encode("utf-8"),ak,node.sk):
+            try:
+                node.save() #签名一致就更新数据库
+            except Exception as ex:
+                logger.warn(msg="获取计划任务节点失败: {ex}".format(ex=ex))            
+        else:    
+            return {"data":[],"msg":"节点认证失败","code":403} 
+            
+        if node.enable == 0: return {"data":[],"msg":"节点未激活","code":500} 
         
+        #如果节点激活就返回节点任务列表
         for job in node.node_jobs.all():
             if job.status == "running":
                 if job.sched_type == "date":data = job.to_date_json()
                 elif job.sched_type == "interval":data = job.to_interval_json()
                 else:data = job.to_cron_json()
                 jobsList.append(data)
-            
-        return  jobsList            
+                
+        return {"data":jobsList,"msg":"success","code":200}             
     
     def create_node(self,request):   
         assets = self.assets(request.POST.get("sched_server"))
@@ -68,7 +94,8 @@ class ApschedNodeManage(AssetsBase):
                 sched = Sched_Node.objects.create(
                                             sched_server = assets,
                                             port = request.POST.get('port'),
-                                            token = request.POST.get('token'),
+                                            ak = request.POST.get('ak'),
+                                            sk = request.POST.get('sk'),
                                             enable = request.POST.get('enable',1),
                                         )
                 return sched
@@ -159,7 +186,7 @@ class ApschedNodeJobsManage(ApschedNodeManage):
         except:
             atime = 0
         if jobs.get('is_alert') > 0 and int(time.time()) - atime > 0:
-            print(jobLogs)
+            pass
 #             apsched_notice.apply_async(**{"jobs":jobs,"jobslog":jobLogs})
                 
     def create_jobs(self,request):   
@@ -248,10 +275,11 @@ class ApschedNodeJobsManage(ApschedNodeManage):
     
       
     def rpc_update_jobs(self,jobs,uri):
-        data = self.queryJobs(jobs)                
-        result = sched_rpc.post(url="http://{ip}:{port}/api/v1/{uri}".format(ip=jobs.job_node.sched_server.server_assets.ip,
-                                                                                port=jobs.job_node.port,uri=uri),
-                                                                                data=data,token=jobs.job_node.token)
+        data = self.queryJobs(jobs) #要修改这里               
+#         result = sched_rpc.post(url="http://{ip}:{port}/api/v1/{uri}/".format(ip=jobs.job_node.sched_server.server_assets.ip,
+#                                                                                 port=jobs.job_node.port,uri=uri),
+#                                                                                 data=data,token=jobs.job_node.token)
+        result = sched_rpc.request(method="post", endpoint="{ip}:{port}".format(ip=jobs.job_node.sched_server.server_assets.ip,port=jobs.job_node.port),uri=uri, body=data,node=jobs.job_node)
         jobs.status = "stopped"
         if isinstance(result, str):
             jobs.save()                     

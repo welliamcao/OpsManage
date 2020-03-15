@@ -343,9 +343,11 @@ class CronSerializer(serializers.ModelSerializer):
 class ApschedNodeSerializer(serializers.ModelSerializer):
     ip = serializers.CharField(source='sched_server.server_assets.ip', read_only=True)
     jobs_count = serializers.SerializerMethodField(read_only=True,required=False)
+    create_time = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S")
+    update_time = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S")
     class  Meta:
         model = Sched_Node
-        fields = ('sched_node','port', 'token','enable','ip','jobs_count')         
+        fields = ('sched_node','port', 'ak', 'sk','enable','ip','jobs_count','create_time', 'update_time')         
 
     def get_jobs_count(self,obj):
         return obj.node_jobs.all().count()      

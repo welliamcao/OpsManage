@@ -573,9 +573,10 @@ function makeSchedNodeManageTableList(dataList){
                    {"data": "sched_node"},
                    {"data": "ip"},
                    {"data": "port"},                  
-	               {"data": "token"},
+	               {"data": "ak"},
 	               {"data": "jobs_count"},
 	               {"data": "enable"},
+		       {"data": "update_time"},
 	               ]
    var columnDefs = [
 	    		        {
@@ -596,14 +597,14 @@ function makeSchedNodeManageTableList(dataList){
 	   	    				}
 	    		        },      		        
 	    		        {
-   	    				targets: [6],
+   	    				targets: [7],
    	    				render: function(data, type, row, meta) {  	    					
    	                        return '<div class="btn-group  btn-group-xs">' +	
 	    	                           '<button type="button" name="btn-node-edit" value="'+ row.sched_node +'" class="btn btn-default"><span class="fa fa-edit" aria-hidden="true"></span>' +	
 	    	                           '</button>' +  
 	    	                           '<button type="button" name="btn-node-add" value="'+ row.sched_node +'" class="btn btn-default"><span class="fa fa-plus" aria-hidden="true"></span>' +	
 	    	                           '</button>' +	    	                               	                           
-	    	                           '<button type="button" name="btn-node-delete" value="'+ row.sched_node +'" class="btn btn-default" aria-label="Justify"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span>' +	
+	    	                           '<button type="button" name="btn-node-delete" value="'+ row.sched_node +'" class="btn btn-default" aria-label="Justify"><span class="fa fa-trash" aria-hidden="true"></span>' +	
 	    	                           '</button>' +			                            
 	    	                           '</div>';
    	    				},
@@ -687,7 +688,7 @@ function makeschedNodeJobsManageTableList(){
 	    	                           '</button>' + 	    	                           
 	    	                           '<button type="button" name="btn-jobs-logs" value="'+ row.id +'" class="btn btn-default" data-toggle="modal"><span class="fa fa-search-plus" aria-hidden="true"></span>' +	
 	    	                           '</button>' + 	    	                           
-	    	                           '<button type="button" name="btn-jobs-delete" value="'+ row.id +'" class="btn btn-default" aria-label="Justify"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span>' +	
+	    	                           '<button type="button" name="btn-jobs-delete" value="'+ row.id +'" class="btn btn-default" data-toggle="modal" ><span class="fa fa-trash" aria-hidden="true"></span>' +	
 	    	                           '</button>' +			                            
 	    	                           '</div>';
    	    				},
@@ -754,7 +755,7 @@ function makeschedNodeJobsLogsTableList(url){
    	    				targets: [8],
    	    				render: function(data, type, row, meta) {  	    					
    	                        return '<div class="btn-group  btn-group-xs">' +		    	                           
-	    	                           '<button type="button" name="btn-jobs-logs-delete" value="'+ row.id +'" class="btn btn-default" aria-label="Justify"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span>' +	
+	    	                           '<button type="button" name="btn-jobs-logs-delete" value="'+ row.id +'" class="btn btn-default" aria-label="Justify"><span class="fa fa-trash" aria-hidden="true"></span>' +	
 	    	                           '</button>' +			                            
 	    	                           '</div>';
    	    				},
@@ -888,7 +889,7 @@ $(document).ready(function() {
     	var td = $(this).parent().parent().parent().find("td")
     	var node =  td.eq(1).text()
     	var port =  td.eq(2).text()
-    	var token =  td.eq(3).text()
+    	var ak =  td.eq(3).text()
     	var enable =  td.eq(4).text()
     	if(enable=="上线"){
     		var isActiveSelect = '<select class="form-control" name="modf_enable"><option selected="selected" name="modf_enable" value="1">上线</option><option name="modf_enable" value="0">下线</option></select>'
@@ -911,7 +912,7 @@ $(document).ready(function() {
 			              '<label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">Token<span class="required">*</span>' +
 			              '</label>' +
 			              '<div class="col-md-6 col-sm-6 col-xs-12">' +
-			              	'<textarea row="3" class="form-control" name="modf_token"  required="required"  class="form-control col-md-7 col-xs-12">'+ token +'</textarea>' +
+			              	'<textarea row="3" class="form-control" name="modf_ak"  required="required"  class="form-control col-md-7 col-xs-12">'+ ak +'</textarea>' +
 			              '</div>' +
 			            '</div>' + 	
 			            '<div class="form-group">' +
@@ -928,14 +929,14 @@ $(document).ready(function() {
 	                btnClass: 'btn-blue',
 	                action: function() {
 	                    var port = this.$content.find("[name='modf_port']").val();
-	                    var token = this.$content.find("[name='modf_token']").val()
+	                    var ak = this.$content.find("[name='modf_ak']").val()
 	                    var enable = this.$content.find("select[name='modf_enable'] option:selected").val()
 				    	$.ajax({  
 				            type: "PUT",  
 				            url:"/sched/apsched/node/",  
 							data:{
 								"sched_node":vIds,
-				            	"token":token,
+				            	"ak":ak,
 				            	"port":port,
 				            	"enable":enable,
 				            },

@@ -1669,14 +1669,18 @@ DROP TABLE IF EXISTS `opsmanage_sched_node`;
 CREATE TABLE `opsmanage_sched_node` (
   `sched_node` int(11) NOT NULL AUTO_INCREMENT,
   `port` smallint(6) NOT NULL,
-  `token` varchar(100) NOT NULL,
+  `sk` varchar(100) NOT NULL,
   `enable` smallint(6) NOT NULL,
   `sched_server_id` int(11) NOT NULL,
+  `create_time` datetime(6) DEFAULT NULL,
+  `update_time` datetime(6) DEFAULT NULL,
+  `ak` varchar(255) NOT NULL,
   PRIMARY KEY (`sched_node`),
-  UNIQUE KEY `token` (`token`),
   UNIQUE KEY `opsmanage_sched_node_sched_server_id_port_9416442b_uniq` (`sched_server_id`,`port`),
+  UNIQUE KEY `sk` (`sk`) USING BTREE,
+  UNIQUE KEY `ak` (`ak`) USING BTREE,
   CONSTRAINT `opsmanage_sched_node_sched_server_id_25dd7e4c_fk_opsmanage` FOREIGN KEY (`sched_server_id`) REFERENCES `opsmanage_assets` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
