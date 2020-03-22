@@ -63,6 +63,7 @@ class DataBase_Server_Config(models.Model):
             ("database_binlog_database_server_config", "数据库Binglog解析权限"),        
             ("database_schema_database_server_config", "数据库表结构查询权限"),
             ("database_optimize_database_server_config", "数据库SQL优化建议权限"),
+            ("database_sqldict_database_server_config", "数据库查看数据字典权限"),
         )
         unique_together = (("db_port", "db_assets","db_env","db_business"))
         verbose_name = '数据库管理'  

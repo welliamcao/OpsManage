@@ -72,6 +72,7 @@ urlpatterns = [
             url(r'^db/server/(?P<pk>[0-9]+)/list/$', db_api.DB_SERVER_DETAIL.as_view()),
             url(r'^db/server/(?P<pk>[0-9]+)/sync/$', db_api.DB_SERVER_TABLES.as_view()),
             url(r'^db/server/(?P<sid>[0-9]+)/db/(?P<id>[0-9]+)/$', db_api.db_server_db_detail),
+            url(r'^db/server/(?P<sid>[0-9]+)/db/(?P<did>[0-9]+)/dict/$', db_api.DB_DATA_DICT.as_view()),
             url(r'^db/user/list/$', db_api.DB_USER_DB_LIST.as_view()),
             url(r'^db/user/(?P<uid>[0-9]+)/$', db_api.DB_USER_DB.as_view()),
             url(r'^db/user/(?P<uid>[0-9]+)/server/(?P<sid>[0-9]+)/db/$', db_api.DB_USER_SERVER_DBLIST.as_view()),

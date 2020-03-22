@@ -22,6 +22,7 @@ var language =  {
 			"sSortDescending" : ": 以降序排列此列"
 		}
 	}
+
 function requests(method,url,data){
 	var ret = '';
 	$.ajax({
@@ -121,7 +122,9 @@ function makeDbQueryTableList(dataList){
 	    	                           '<button type="button" name="btn-database-query" value="'+ row.id +'" class="btn btn-default"  aria-label="Justify"><span class="fa fa-search-plus" aria-hidden="true"></span>' +	
 	    	                           '</button>' +	
 	    	                           '<button type="button" name="btn-database-table" value="'+ row.id +'" class="btn btn-default"  aria-label="Justify"><span class="fa fa-bar-chart" aria-hidden="true"></span>' +	
-	    	                           '</button>' +    		    	                           			                            
+	    	                           '</button>' +  
+	    	                           '<button type="button" name="btn-database-dict" value="'+ row.id + ':' + row.sid +'" class="btn btn-default"  aria-label="Justify"><span class="fa fa-cloud-download" aria-hidden="true"></span>' +	
+	    	                           '</button>' +	    	                           
 	    	                           '</div>';
    	    				},
    	    				"className": "text-center",
@@ -269,6 +272,14 @@ $(document).ready(function () {
 	            	
 	            } 
         	});          	
+        });	    	
+    	
+    	$('#UserDatabaseListTable tbody').on('click',"button[name='btn-database-dict']",function(){   
+        	let vIds = $(this).val().split(":");
+        	let td = $(this).parent().parent().parent().find("td")
+        	downLoadFile({ //调用下载方法
+	        	url:"/api/db/server/"+vIds[1]+"/db/"+vIds[0]+"/dict/"
+	        });          	
         });	    	
     	
     }	

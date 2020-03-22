@@ -2,20 +2,19 @@
 # _#_ coding:utf-8 _*_ 
 #coding: utf8
 import time
+from jinja2 import Template
 from databases.models import *
 from utils.logger import logger
 from .assets import AssetsBase 
 from asset.models import *
-from django.http import QueryDict
 from datetime import datetime
 from dao.base import MySQLPool
 from utils import base
 from utils.mysql.binlog2sql import Binlog2sql
-from utils.mysql.const import SQL_PERMISSIONS
+from utils.mysql.const import SQL_PERMISSIONS,SQL_DICT_HTML
 from apps.tasks.celery_sql import record_exec_sql
 from django.db.models import Count
 from mptt.templatetags.mptt_tags import cache_tree_children  
-from django.db.models import Q
 from utils.base import getDayAfter
 
 def format_time(seconds):
@@ -158,6 +157,68 @@ class DBConfig(AssetsBase):
         Database_Table_Detail_Record.objects.filter(db=db,table_name__in=del_db_table_list).delete()
                   
         return Database_Table_Detail_Record.objects.filter(db=db)
+    
+    def get_user_db_tables(self,db,user):
+        dataList = []
+        try:
+            return Database_User.objects.get(db=db.id,user=user.id).tables.split(",")
+        except:
+            pass        
+        return dataList
+    
+    def get_db_dict(self,dbServer, db, user_tables=None):
+        js_db_server = dbServer.to_json()
+        
+        db_table_list = self.__get_db_server_connect(dbServer).get_db_tables(db.db_name)
+        table_strs = ''
+        for ds in db_table_list:
+            
+            if len(user_tables) > 0 and ds.get("TABLE_NAME") not in user_tables:continue
+            
+            table_columns_list = self.__get_db_server_connect(dbServer).get_db_table_columns(db.db_name,ds.get("TABLE_NAME"))
+            tr_strs = ''
+            
+            for ts in table_columns_list:
+                tr_str = """<tr>     
+                                <td class="c1">{COLUMN_NAME}</td>
+                                <td class="c2">{COLUMN_TYPE}</td>
+                                <td class="c3">{COLUMN_DEFAULT}</td>
+                                <td class="c4">{IS_NULLABLE}</td>
+                                <td class="c5">{EXTRA}</td>
+                                <td class="c5">{COLUMN_KEY}</td>
+                                <td class="c6">{COLUMN_COMMENT}</td>
+                            </tr>""".format(COLUMN_NAME=ts.get("COLUMN_NAME"),COLUMN_TYPE=ts.get("COLUMN_TYPE"),
+                                            COLUMN_DEFAULT=ts.get("COLUMN_DEFAULT"),IS_NULLABLE=ts.get("IS_NULLABLE"),
+                                            EXTRA=ts.get("EXTRA"),COLUMN_KEY=ts.get("COLUMN_KEY"),
+                                            COLUMN_COMMENT=ts.get("COLUMN_COMMENT"))
+                tr_strs = tr_str + tr_strs
+            
+            table_str = """
+                        <table border="1" cellspacing="0" cellpadding="0" align="center">
+                        <caption>表名：{TABLE_NAME}  总记录数：{TABLE_ROWS}</caption>
+                        <caption>注释：{TABLE_COMMENT}</caption>
+                            <tbody>
+                                <tr>
+                                    <th>字段名</th>
+                                    <th>数据类型</th>
+                                    <th>默认值</th>
+                                    <th>允许非空</th>
+                                    <th>自动递增</th>
+                                    <th>是否主键</th>
+                                    <th>备注</th>
+                                </tr> 
+                                    {TR_STR}                              
+                            </tbody>
+                        </table>
+                        </br>""".format(TABLE_NAME=ds.get("TABLE_NAME"),TABLE_ROWS=ds.get("TABLE_ROWS"),TABLE_COMMENT=ds.get("TABLE_COMMENT"),TR_STR=tr_strs)
+            table_strs = table_str + table_strs
+        
+        return Template(SQL_DICT_HTML).render(host=js_db_server.get("ip"),
+                                             port=js_db_server.get("db_port"),
+                                             db_name=db.db_name,
+                                             export_time=datetime.now(),
+                                             total_tables = len(db_table_list),
+                                             dict_data=table_strs) 
     
 class DBUser(object):
     def __init__(self):

@@ -144,20 +144,20 @@ function makeFileDownloadResultTable(dataList){
 	});			
 }
 
-var downLoadFile = function (options){
-    var config = $.extend(true, { method: 'post' }, options);
-    var $iframe = $('<iframe id="down-file-iframe"/>');
-    var $form = $("<form target='down-file-iframe' method=" + config.method + " />");
-    $form.attr('action', config.url);
-    for (var key in config.data) {
-        $form.append('<input type="hidden" name="' + key + '" value="' + config.data[key] +  '"/>');
-    }
-    $form.append('<input type="hidden" name="csrfmiddlewaretoken" value="'+ $("input[name='csrfmiddlewaretoken']").val() +'">');
-    $iframe.append($form);
-    $(document.body).append($iframe);
-    $form[0].submit();
-    $iframe.remove();
-}	
+//var downLoadFile = function (options){
+//    var config = $.extend(true, { method: 'post' }, options);
+//    var $iframe = $('<iframe id="down-file-iframe"/>');
+//    var $form = $("<form target='down-file-iframe' method=" + config.method + " />");
+//    $form.attr('action', config.url);
+//    for (var key in config.data) {
+//        $form.append('<input type="hidden" name="' + key + '" value="' + config.data[key] +  '"/>');
+//    }
+//    $form.append('<input type="hidden" name="csrfmiddlewaretoken" value="'+ $("input[name='csrfmiddlewaretoken']").val() +'">');
+//    $iframe.append($form);
+//    $(document.body).append($iframe);
+//    $form[0].submit();
+//    $iframe.remove();
+//}	
 
 function downLoadOrderFiles(obj,path,host,id){
 	$("button[name='download_button']").attr("disabled",true);

@@ -1,21 +1,22 @@
 #!/usr/bin/env python  
 # _#_ coding:utf-8 _*_
+import os
 from rest_framework import viewsets,permissions
 from api import serializers
 from databases.models import *
 from asset.models import Assets
 from django.http import QueryDict
 from rest_framework import status
-from django.http import Http404
+from django.http import Http404,StreamingHttpResponse
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from django.contrib.auth.decorators import permission_required
-from dao.base import MySQLPool
+from dao.base import MySQLPool,DataHandle
 from dao.database import MySQLARCH,DBManage,DBConfig, DBUser
 from django.http import JsonResponse
 from utils.logger import logger
-from utils.base import method_decorator_adaptor,getDayAfter
+from utils.base import method_decorator_adaptor,file_iterator
 from django.contrib.auth.models import User
   
     
@@ -259,6 +260,32 @@ def db_server_db_detail(request, sid, id,format=None):
         Database_User.objects.filter(db=snippet.id).delete() #删除用户关联数据库记录
         snippet.delete()
         return Response(status=status.HTTP_204_NO_CONTENT) 
+
+
+class DB_DATA_DICT(APIView,DBConfig,DataHandle):
+    def get_db_server(self, sid):
+        try:
+            return DataBase_Server_Config.objects.get(id=sid)
+        except DataBase_Server_Config.DoesNotExist:
+            raise Http404 
+        
+    def get_db(self, did):
+        try:
+            return Database_Detail.objects.get(id=did)
+        except Database_Detail.DoesNotExist:
+            raise Http404              
+    
+    @method_decorator_adaptor(permission_required, "databases.database_sqldict_database_server_config","/403/")    
+    def post(self,request, sid, did, format=None):
+        dbServer,db = self.get_db_server(sid), self.get_db(did) 
+        user_tables = self.get_user_db_tables(db, request.user)
+        data = self.get_db_dict(dbServer, db, user_tables)
+        filePath = self.saveScript(content=data,filePath='./upload/sql_dict/{db_server}_{db_name}.html'.format(db_server=(dbServer.to_json().get('ip')+ '_' +str(dbServer.db_port)),db_name=db.db_name))
+        response = StreamingHttpResponse(file_iterator(filePath))
+        response['Content-Type'] = 'application/octet-stream'
+        response['Content-Disposition'] = 'attachment; filename="{file_name}'.format(file_name=os.path.basename(filePath))
+        return response 
+
 
 class DB_USER_DB_LIST(APIView,DBUser):
     
