@@ -336,7 +336,7 @@ class MySQLPool(APBase):
     
     def get_db_table_columns(self,dbname,table_name):
         dataList = []
-        data = self.execute_for_query(sql="""SELECT COLUMN_NAME,COLUMN_TYPE,COLUMN_DEFAULT,IS_NULLABLE,EXTRA,COLUMN_KEY,COLUMN_COMMENT
+        data = self.execute_for_query(sql="""SELECT COLUMN_NAME,COLUMN_TYPE,ifnull(COLUMN_DEFAULT,''),IS_NULLABLE,EXTRA,COLUMN_KEY,COLUMN_COMMENT
                                              FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA='{dbname}' AND TABLE_NAME='{table_name}';""".format(dbname=dbname,table_name=table_name))
         if isinstance(data, tuple):   
             for ds in data[1]:
