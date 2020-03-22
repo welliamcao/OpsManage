@@ -118,7 +118,7 @@ function makeDbQueryTableList(dataList){
    	    				targets: [5],
    	    				render: function(data, type, row, meta) {
    	                        return '<div class="btn-group  btn-group-xs">' +	
-	    	                           '<button type="button" name="btn-database-query" value="'+ row.id +'" class="btn btn-default"  aria-label="Justify"><span class="glyphicon glyphicon glyphicon-zoom-in" aria-hidden="true"></span>' +	
+	    	                           '<button type="button" name="btn-database-query" value="'+ row.id +'" class="btn btn-default"  aria-label="Justify"><span class="fa fa-search-plus" aria-hidden="true"></span>' +	
 	    	                           '</button>' +	
 	    	                           '<button type="button" name="btn-database-table" value="'+ row.id +'" class="btn btn-default"  aria-label="Justify"><span class="fa fa-bar-chart" aria-hidden="true"></span>' +	
 	    	                           '</button>' +    		    	                           			                            
@@ -190,7 +190,7 @@ function drawTableTree(ids,jsonData){
 							obj = inst.get_node(data.reference);
 							viewTableSchema(obj)
 						}
-	            }		    		
+		            }		    		
 		    	}
 		      }	    
 	});		
@@ -221,7 +221,7 @@ $(document).ready(function () {
         	$("#dbTables").html('<i  class="fa  fa-paper-plane" >数据库  <u class="red">'+ td.eq(1).text() +'</u> 表结构</i>')
         	let dbname = td.eq(1).text()
         	var jsonData = {
-                "id": 1,
+                "did": vIds,
                 "text": dbname,
                 "icon": "fa fa-database",
                 "children":[]
@@ -440,6 +440,7 @@ $(document).ready(function () {
 
 
 function viewTableSchema(obj){
+	console.log(obj["original"])
 	if (obj["original"]["db"]){
     	$.ajax({  
             cache: true,  

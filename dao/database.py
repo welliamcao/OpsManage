@@ -1,21 +1,22 @@
 #!/usr/bin/env python  
 # _#_ coding:utf-8 _*_ 
 #coding: utf8
-import os,json,queue,time
+import time
 from databases.models import *
 from utils.logger import logger
 from .assets import AssetsBase 
 from asset.models import *
 from django.http import QueryDict
 from datetime import datetime
-from django.contrib.auth.models import User
 from dao.base import MySQLPool
 from utils import base
 from utils.mysql.binlog2sql import Binlog2sql
+from utils.mysql.const import SQL_PERMISSIONS
 from apps.tasks.celery_sql import record_exec_sql
 from django.db.models import Count
 from mptt.templatetags.mptt_tags import cache_tree_children  
 from django.db.models import Q
+from utils.base import getDayAfter
 
 def format_time(seconds):
     m, s = divmod(seconds, 60)
@@ -103,266 +104,153 @@ class DBConfig(AssetsBase):
         else:
             logger.error(msg="DBConfig没有{sub}方法".format(sub=sub))       
             return "参数错误"      
-            
-    def get_custom_sql(self,request=None):
-        dataList = []
-        for ds in Custom_High_Risk_SQL.objects.all():
-            dataList.append(self.convert_to_dict(ds))
-        return dataList
-        
-    def database(self,ids): 
-        try:
-            database = DataBase_Server_Config.objects.get(id=ids)
-        except Exception as ex:
-            return "查询数据库{ids}，失败{ex}".format(ids=ids,ex=ex) 
-        return  json.dumps(self.convert_to_dict(database))       
-    
-    def get_all_db(self,request=None):
-        dataList = []
-        for ds in DataBase_Server_Config.objects.all():            
-            dataList.append(ds.to_json())
-        return dataList
-    
-    def create_data_base(self,request):        
-        try:
-            DataBase_Server_Config.objects.create(
-                                          db_env=request.POST.get('db_env'),
-                                          db_type=request.POST.get('db_type'),
-                                          db_host=request.POST.get('db_host'),
-                                          db_mode=request.POST.get('db_mode'),
-                                          db_user=request.POST.get('db_user'),
-                                          db_port=request.POST.get('db_port'),
-                                          db_mark=request.POST.get('db_mark'),
-                                          db_business=request.POST.get('db_business')
-                                          )
-        except Exception as ex:
-            logger.warn(msg="添加数据库失败: {ex}".format(ex=ex))  
-            return "添加数据库失败: {ex}".format(ex=ex)
-        return True
-    
-    def update_data_base(self,request): 
-        try:   
-            database = DataBase_Server_Config.objects.get(id=QueryDict(request.body).get('script_id'))
-        except Exception as ex:
-            return "更新数据库失败: {ex}".format(ex=ex)
-        try:
-            DataBase_Server_Config.objects.filter(id=database.id).update(
-                                          db_env=QueryDict(request.body).get('db_env'),
-                                          db_type=QueryDict(request.body).get('db_type'),
-                                          db_host=QueryDict(request.body).get('db_host'),
-                                          db_mode=QueryDict(request.body).get('db_mode'),
-                                          db_user=QueryDict(request.body).get('db_user'),
-                                          db_port=QueryDict(request.body).get('db_port'),
-                                          db_business=QueryDict(request.body).get('db_business'),
-                                          db_mark=QueryDict(request.body).get('db_mark'),                                          
-                                          update_date = datetime.now()
-                                          )
-        except Exception as ex:
-            logger.error(msg="更新数据库失败: {ex}".format(ex=str(ex)))
-            return "更新数据库失败: {ex}".format(ex=str(ex))
-        return True  
-    
-    def delete_data_base(self,request):
-        try:   
-            database = DataBase_Server_Config.objects.get(id=QueryDict(request.body).get('id'))
-            database.delete()
-        except Exception as ex:
-            return "删除数据库配置失败: {ex}".format(ex=ex)             
-        return True  
-           
-    
-    def get_user_db(self,request=None):
-        user_database_list = []
-        for ds in Database_User.objects.all():
-            try:
-                dbUser = User.objects.get(id=ds.user)
-            except Exception as ex:
-                logger.error(msg="查询数据库用户失败: {ex}".format(ex=str(ex)))  
-                continue              
-            try:
-                dbConfig = DataBase_Server_Config.objects.get(id=ds.db)
-                data = dbConfig.to_json()
-                data["username"] = dbUser.username
-                data["uid"] = dbUser.id
-                user_database_list.append(data)
-            except Exception as ex:
-                logger.error(msg="查询数据库失败: {ex}".format(ex=str(ex)))  
-        return user_database_list
-        
 
+    def __get_db_server_connect(self,dbServer):
+        try:
+            return MySQLPool(dbServer=dbServer.to_connect())
+        except Exception as ex:
+            logger.error(msg="数据库不存在: {ex}".format(ex=ex)) 
+            return ex 
+
+    def sync_db(self,dbServer):
+        dataList  = self.__get_db_server_connect(dbServer).get_db_size()
+        old_db_list = [ ds.db_name for ds in Database_Detail.objects.filter(db_server=dbServer)]
+        current_db_list = [ ds.get("db_name") for ds in dataList ]
+        for ds in dataList:
+            try:
+                Database_Detail.objects.get_or_create(
+                                              db_server=dbServer,
+                                              db_name=ds.get("db_name"),
+                                              db_size=ds.get("size"),
+                                              total_table = ds.get("total_table")
+                                              )
+            except Exception as ex:
+                logger.error(msg="同步数据库失败: {ex}".format(ex=ex))
+        
+        del_db_list = list(set(old_db_list).difference(set(current_db_list)))
+        
+        del_db = Database_Detail.objects.filter(db_server=dbServer,db_name__in=del_db_list)
+
+        Database_Table_Detail_Record.objects.filter(db__in= [ ds.id for ds in del_db]).delete() #清除数据库里面表记录
+        Database_User.objects.filter(db__in= [ ds.id for ds in del_db]).delete() #清除用户数据库里面表记录
+        
+        del_db.delete() 
+        return Database_Detail.objects.filter(db_server=dbServer)
+    
+    def sync_table(self,dbServer,db,dbname):
+        dataList  = self.__get_db_server_connect(dbServer).get_db_table_info(dbname)
+        current_db_table_list = [ ds.get("table_name") for ds in dataList ]
+        old_db_table_list = [ ds.table_name for ds in Database_Table_Detail_Record.objects.filter(db=db)]
+        for ds in dataList:
+            try:
+                Database_Table_Detail_Record.objects.get_or_create(
+                                              db=db,
+                                              table_name=ds.get("table_name"),
+                                              table_size=ds.get("table_size"),
+                                              table_row = ds.get("table_rows"),
+                                              last_time = int(time.time())
+                                              )
+            except Exception as ex:
+                logger.error(msg="同步数据库失败: {ex}".format(ex=ex))
+        
+        del_db_table_list = list(set(old_db_table_list).difference(set(current_db_table_list))) 
+               
+        Database_Table_Detail_Record.objects.filter(db=db,table_name__in=del_db_table_list).delete()
+                  
+        return Database_Table_Detail_Record.objects.filter(db=db)
+    
 class DBUser(object):
     def __init__(self):
         super(DBUser,self).__init__() 
         self.user_grants = ["create","drop","alter","truncate","insert","update","delete","select","show","desc","explain","rename"]
-        
-    def allowcator(self,sub,args):
-        if hasattr(self,sub):
-            func= getattr(self,sub)
-            return func(args)
-        else:
-            logger.error(msg="DBUser没有{sub}方法".format(sub=sub))       
-            return "参数错误" 
-
-    def create_user_database(self,request):    
-        for ds in request.POST.getlist('db'):   
+    
+    def get_user_db(self, user, s_query_params={}, u_query_params={}):
+        dataList = []  
+        for ds in Database_User.objects.filter(user=user.id,**u_query_params):
             try:
-                Database_User.objects.create(
-                                              user=request.POST.get('user'),
-                                              db=ds,
-                                              )
-            except Exception as ex:
-                logger.warn(msg="用户分配数据库失败: {ex}".format(ex=ex))  
-                return "添加数据库失败: {ex}".format(ex=ex)
-        return True    
-
-    def update_user_database(self,request):
-        db_list = [ int(i) for i in QueryDict(request.body).getlist('db[]') ]
-        user_db_list = [ ds.db for ds in self.query_db(request)]
-        add_db_List = list(set(db_list).difference(set(user_db_list)))
-        del_db_list = list(set(user_db_list).difference(set(db_list)))   
-        #添加新增的db
-        for db in add_db_List:
-            try:
-                Database_User.objects.create(user=QueryDict(request.body).get('user'),db=db)
-            except Exception as ex:
-                logger.warn(msg="更新用户数据库失败: {ex}".format(ex=ex))  
-                return "更新用户数据库失败: {ex}".format(ex=ex)                
-        #删除去掉的db
-        try:
-            Database_User.objects.filter(user=QueryDict(request.body).get('user'),db__in=del_db_list).delete()
-        except Exception as ex:
-            logger.warn(msg="更新用户数据库失败: {ex}".format(ex=ex)) 
-            return "更新用户数据库失败: {ex}".format(ex=ex)
-        return True
-
-    def modf_user_tables(self,request):
-        table_list =  request.POST.getlist('table_name[]')
-
-        try:
-            userDbServer = Database_User.objects.get(id=request.POST.get('id',0))
-        except Exception as ex:
-            logger.warn(msg="查询用户数据库失败: {ex}".format(ex=ex)) 
-            return '用户数据库未分配'  
-
-        try:
-            userDbServer.tables = ",".join(table_list)
-            userDbServer.save()
-        except Exception as ex:
-            msg="修改用户数据库表失败: {ex}".format(ex=ex)
-            logger.warn(msg=msg) 
-            return msg         
-    
-    def modf_user_grants(self,request):
-        grants_list =  request.POST.getlist('grants[]')
-
-        try:
-            userDbServer = Database_User.objects.get(id=request.POST.get('id',0))
-        except Exception as ex:
-            logger.warn(msg="查询用户数据库失败: {ex}".format(ex=ex)) 
-            return '用户数据库未分配'  
-
-        try:
-            userDbServer.privs = ",".join(grants_list)
-            userDbServer.save()
-        except Exception as ex:
-            msg="修改用户数据库表权限失败: {ex}".format(ex=ex)
-            logger.warn(msg=msg) 
-            return msg        
-           
-    def delete_user_database(self,request):
-        try:
-            Database_User.objects.get(db=QueryDict(request.body).get('id'),user=QueryDict(request.body).get('uid')).delete()
-        except Exception as ex:
-            logger.warn(msg="删除用户数据库失败: {ex}".format(ex=ex)) 
-            return "删除用户数据库失败: {ex}".format(ex=ex)
-        return True        
-            
-    def query_db(self,request):
-        return Database_User.objects.filter(user=QueryDict(request.body).get('user'))
-    
-    
-    def get_all_user_db(self,request):
-        user_database_list = []        
-        for ds in DataBase_Server_Config.objects.all():
-            data = ds.to_json()
-            data["count"] = Database_User.objects.filter(user=request.GET.get('uid',request.user.id),db=ds.id).count()
-            user_database_list.append(data)
-        return user_database_list
-    
-    def get_user_db_tables(self,request):  
-        user_table_list = []
-        try:
-            userDbServer = Database_User.objects.get(id=request.GET.get('id',0))
-        except Exception as ex:
-            logger.warn(msg="查询用户数据库失败: {ex}".format(ex=ex)) 
-            return '用户数据库未分配'
-        
-        try:
-            dbServer = DataBase_Server_Config.objects.get(id=userDbServer.db)
-        except Exception as ex:
-            logger.warn(msg="查询数据库失败: {ex}".format(ex=ex)) 
-            return '数据库不存在'  
-              
-        result= MySQLPool(dbServer=dbServer).queryMany('show tables',10000) 
-        
-        if not isinstance(result, str):
-            count,tableList,colName = result[0],result[1],result[2]
-            try:
-                if userDbServer.tables:grant_tables = userDbServer.tables.split(",")
-                else:grant_tables = []
-            except Exception as ex:
-                logger.warn(msg="查询用户授权表失败: {ex}".format(ex=ex)) 
-                grant_tables = []
-
-            if count > 0:
-                for ds in tableList:
-                    data = dict()
-                    data["name"] = ds[0]
-                    if ds[0] not in grant_tables:                    
-                        data["count"] = 0
-                    else:
-                        data["count"] = 1
-                    user_table_list.append(data)
-
-        return user_table_list
-
-    def get_user_db_grants(self,request):  
-        user_grants_list = []
-        try:
-            userDbServer = Database_User.objects.get(id=request.GET.get('id',0))
-        except Exception as ex:
-            logger.warn(msg="查询用户数据库失败: {ex}".format(ex=ex)) 
-            return '用户数据库未分配'
-
-        try:
-            if userDbServer.privs:user_grants = userDbServer.privs.split(",")
-            else:user_grants = []
-        except Exception as ex:
-            logger.warn(msg="查询用户权限失败: {ex}".format(ex=ex)) 
-            user_grants = []        
-        for tb in self.user_grants:
-            data = dict()
-            data["name"] = tb
-            if tb not in user_grants:                    
-                data["count"] = 0
-            else:
+                data = Database_Detail.objects.get(id=ds.db,**s_query_params).to_json()
+                data["username"] = user.username
+                data["uid"] = ds.user
+                data["user_db_id"] = ds.id
+                data["valid_date"] = ds.valid_date
                 data["count"] = 1
-            user_grants_list.append(data)            
-        return user_grants_list
+                data["is_write"] = ds.is_write
+                dataList.append(data)
+            except Exception as ex: 
+                continue               
+        return  dataList    
+    
+    def get_user_db_sql(self, db):
+        user_sql_list = []
+        if db.sqls:
+            user_sql_list = db.sqls.split(",")
+        
+        dataList = []    
+        for k in SQL_PERMISSIONS.keys():
+            count = 0
+            if k in user_sql_list:count = 1
+            dataList.append({"value":k,"desc":SQL_PERMISSIONS[k].get("desc"),"count":count})   
+        
+        return dataList
+    
+    def get_server_all_db(self, db_server, user):
+        dataList = []
+        for ds in Database_Detail.objects.filter(db_server=db_server):
+            data = ds.to_json()
+            try:
+                user_db = Database_User.objects.get(db=ds.id,user=user.id)
+                data["count"] = 1
+                data["user_db_id"] = user_db.id
+                data["uid"] = user_db.user
+                data["valid_date"] = user_db.valid_date
+                data["is_write"] = user_db.is_write
+                data["username"] = user.username                
+            except:
+                pass
+            dataList.append(data)
+        return dataList        
+    
+    def get_user_server_db(self, db_server, user):
+        dataList = []
+        for ds in Database_Detail.objects.filter(db_server=db_server):
+            try:
+                user_db = Database_User.objects.get(db=ds.id,user=user.id)
+            except:
+                continue
+            data = ds.to_json()
+            data["uid"] = user_db.user
+            data["count"] = 1
+            data["valid_date"] = user_db.valid_date
+            data["username"] = user.username
+            data["user_db_id"] = user_db.id
+            data["is_write"] = user_db.is_write
+            dataList.append(data)
+        return dataList
+    
+    
+    def update_user_server_db(self, request, db_server, user):       
+        all_user_db_list = [ ds.db for ds in Database_User.objects.filter(db__in=[ ds.id for ds in db_server.databases.all()],user=user.id)]
 
-    def get_user_db(self,request,**query_params):
-        if request.user.is_superuser:
-            dbList = DataBase_Server_Config.objects.filter(**query_params)   
-        else: 
-            user_db_list = [ds.db for ds in Database_User.objects.filter(user=request.user.id)]     
-            dbList = DataBase_Server_Config.objects.filter(id__in=user_db_list,**query_params)   
-        return  dbList     
+        update_user_db_list = [ int(ds) for ds in request.data.getlist('dbIds') ]
+
+        update_list = list(set(update_user_db_list).difference(set(all_user_db_list)))        
+        
+        for dbIds in update_list:
+            obj, created = Database_User.objects.update_or_create(db=dbIds, user=user.id,
+                                                                  valid_date = getDayAfter(int(request.POST.get('valid_date',1)),format='%Y-%m-%d %H:%M:%S'))  
+        
+        #更新已有记录
+        Database_User.objects.filter(db__in=update_user_db_list, user=user.id).update(valid_date = getDayAfter(int(request.POST.get('valid_date',1)),format='%Y-%m-%d %H:%M:%S'), 
+                                                                                      is_write = int(request.POST.get('is_write',0))) 
+                
+              
+        
              
 
 class DBManage(AssetsBase):  
-    dml_sql = ["insert","update","delete"]
-    dql_sql = ["select","show","desc","explain"]
-    ddl_sql = ["create","drop","alter","truncate"]
+    dml_sql = ["INSERT","UPDATE","DELETE"]
+    dql_sql = ["SELECT","SHOW","DESC","EXPLAIN"]
+    ddl_sql = ["CREATE","DROP","ALTER","TRUNCATE"]
     
     def __init__(self):
         super(DBManage,self).__init__() 
@@ -376,16 +264,18 @@ class DBManage(AssetsBase):
             logger.error(msg="DBManage没有{sub}方法".format(sub=sub))       
             return "参数错误" 
     
-    def __check_user_perms(self,request,perms='databases.databases_read_database_server_config'):
+    def __check_user_perms(self,request,perms='databases.database_read_database_server_config'):
         
         dbServer = self.__get_db(request)
 
         if request.user.is_superuser and dbServer:
             return dbServer
         
-        if  dbServer and request.user.has_perm(perms): 
-            try:     
-                if Database_User.objects.get(user=request.user.id,db=dbServer.get("id")):return dbServer
+        if  dbServer and request.user.has_perm(perms):
+            try:
+                user_db = Database_User.objects.get(db=request.POST.get('db'),user=request.user.id) 
+                if base.changeTotimestamp(str(user_db.valid_date)) - int(time.time()) > 0:#判断用户数据权限是否过期
+                    return dbServer
             except Exception as ex:
                 logger.warn(msg="查询用户数据库信息失败: {ex}".format(ex=str(ex)))  
                 return False    
@@ -393,8 +283,6 @@ class DBManage(AssetsBase):
         return False
     
     def __check_user_db_tables(self,request):
-        if request.user.is_superuser:
-            return []
         try:     
             userDbServer = Database_User.objects.get(user=request.user.id,db=request.POST.get('db'))
             if userDbServer.tables:return userDbServer.tables.split(",")
@@ -403,26 +291,22 @@ class DBManage(AssetsBase):
             
         return []    
     
-    def __check_user_db_privs(self,request):
-        if request.user.is_superuser:
-            return []
+    def __check_user_db_sql(self,request):
         try:     
             userDbServer = Database_User.objects.get(user=request.user.id,db=request.POST.get('db'))
-            if userDbServer.privs:return userDbServer.privs.split(",")
+            if userDbServer.sqls:return userDbServer.sqls.split(",")
         except Exception as ex:
             logger.warn(msg="查询用户数据库权限失败: {ex}".format(ex=str(ex)))  
             
         return []              
     
-    def __check_sql_parse(self,request, allow_sql,dbname):
-        
+    def __check_sql_parse(self,request, allow_sql, dbname):
         try:
-            sqlCmd = request.POST.get('sql').split(' ')[0].lower()
+            sql = request.POST.get('sql').split(' ')
+            sqlCmd,sqlCmds = sql[0].upper(),(sql[0]+'_'+sql[1]).upper().replace(";","")
         except Exception as ex:
             logger.error(msg="解析SQL失败: {ex}".format(ex=ex)) 
             return '解析SQL失败'        
-
-        if sqlCmd not in allow_sql: return 'SQL类型不支持'
         
         #查询用户是不是有授权表
         grant_tables = self.__check_user_db_tables(request)
@@ -436,9 +320,16 @@ class DBManage(AssetsBase):
                     if tb.find('.') >= 0:
                         db,tb = tb.split('.')[0],tb.split('.')[1]                        
                         if db != dbname:return "不支持跨库查询" 
-                    if tb not in grant_tables:return "操作的表未授权"           
-        else:
-            return "SQL解析失败，无法获取表名"
+                    if tb not in grant_tables:return "操作的表未授权"  
+        else:#如果提交的SQL里面没有包含授权的表，就检查SQL类型是否授权
+            #查询用户授权的SQL类型
+            grant_sql = self.__check_user_db_sql(request)
+            
+            if sqlCmd.upper() in grant_sql or sqlCmds in grant_sql:return True
+            
+            if sqlCmd not in allow_sql: return 'SQL类型不支持'            
+            
+            return "SQL未授权, 联系管理员授权"
             
         return True 
                   
@@ -464,7 +355,7 @@ class DBManage(AssetsBase):
     
     def exec_sql(self, request):
         
-        dbServer = self.__check_user_perms(request,'databases.databases_dml_database_server_config')
+        dbServer = self.__check_user_perms(request,'databases.database_dml_database_server_config')
         if not dbServer:return "您没有权限操作此项"        
                
         sql_parse = self.__check_sql_parse(request, allow_sql=self.dml_sql + self.ddl_sql + self.dql_sql,dbname=dbServer.get('db_name'))
@@ -478,14 +369,14 @@ class DBManage(AssetsBase):
             return sql_parse   
         
     def query_sql(self, request):
-        dbServer = self.__check_user_perms(request,'databases.databases_query_database_server_config')
+        dbServer = self.__check_user_perms(request,'databases.database_query_database_server_config')
 
         if not dbServer:return "您没有权限操作此项"
         
         if dbServer.get('db_rw') not in ["read","r/w"]:return "请勿在主库上面执行查询操作"
         
-        sql_parse = self.__check_sql_parse(request, allow_sql=["select","show","desc","explain"],dbname=dbServer.get('db_name'))
-
+        sql_parse = self.__check_sql_parse(request, allow_sql=self.dql_sql,dbname=dbServer.get('db_name'))
+        
         if not isinstance(sql_parse, str):    
             result = self.__get_db_server(request).queryMany(request.POST.get('sql'),1000)
             time_consume = int(time.time())-self.stime
@@ -495,7 +386,7 @@ class DBManage(AssetsBase):
             
     
     def binlog_sql(self,request):
-        if not  self.__check_user_perms(request,'databases.databases_binlog_database_server_config'):return "您没有权限操作此项"
+        if not  self.__check_user_perms(request,'databases.database_binlog_database_server_config'):return "您没有权限操作此项"
         result = self.__get_db_server(request).queryAll(sql='show binary logs;')
         binLogList = []
         if isinstance(result,tuple):
@@ -504,7 +395,7 @@ class DBManage(AssetsBase):
         return binLogList
     
     def table_list(self,request):
-        if not self.__check_user_perms(request,'databases.databases_query_database_server_config'):return "您没有权限操作此项"
+        if not self.__check_user_perms(request,'databases.database_query_database_server_config'):return "您没有权限操作此项"
         result = self.__get_db_server(request).queryAll(sql='show tables;')
         grant_tables = self.__check_user_db_tables(request)
         tableList = []
@@ -519,7 +410,7 @@ class DBManage(AssetsBase):
         return tableList
     
     def table_schema(self,request):
-        if not self.__check_user_perms(request,'databases.databases_schema_database_server_config'):return "您没有权限操作此项"
+        if not self.__check_user_perms(request,'databases.database_schema_database_server_config'):return "您没有权限操作此项"
         table_data = {}
         dbInfo = self.__get_db(request)
         dbRbt  = self.__get_db_server(request)
@@ -535,7 +426,7 @@ class DBManage(AssetsBase):
         return table_data
             
     def parse_sql(self,request):
-        if not self.__check_user_perms(request,'databases.databases_binlog_database_server_config'):return "您没有权限操作此项"
+        if not self.__check_user_perms(request,'databases.database_binlog_database_server_config'):return "您没有权限操作此项"
         sqlList = []
         try:
             dbServer = self.__get_db(request)
@@ -558,13 +449,14 @@ class DBManage(AssetsBase):
         return sqlList
     
     def optimize_sql(self,request):
-        if not self.__check_user_perms(request,'databases.databases_optimize_database_server_config'):return "您没有权限操作此项"
+        if not self.__check_user_perms(request,'databases.database_optimize_database_server_config'):return "您没有权限操作此项"
         dbServer = self.__get_db(request)
         status,result = base.getSQLAdvisor(host=dbServer.get("ip"), user=dbServer.get("db_user"),
                                            passwd=dbServer.get("db_passwd"), dbname=dbServer.get("db_name"), 
                                            sql=request.POST.get('sql'),port=dbServer.get("db_port"))
         return [result]        
     
+        
     def __record_operation(self,request,dbServer,time_consume,result):
         
         if isinstance(result, str):

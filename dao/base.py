@@ -306,7 +306,25 @@ class MySQLPool(APBase):
                         slaveList.append(data)
                     count = count + 1 
         return  slaveList                     
-           
+    
+    def get_db_size(self):
+        dataList = []
+        db_size = self.execute_for_query(sql="""SELECT table_schema, Round(Sum(data_length + index_length) / 1024 / 1024, 1) as size,count(TABLE_NAME) as total_table
+                                            FROM information_schema.tables where table_schema not in ("performance_schema","information_schema","mysql")
+                                            GROUP BY table_schema;""")
+        if isinstance(db_size, tuple): 
+            for ds in db_size[1]:
+                dataList.append({"db_name":ds[0],"size":ds[1],"total_table":ds[2]})
+        return  dataList   
+    
+    def get_db_table_info(self,dbname):
+        dataList = []
+        data = self.execute_for_query(sql="""select table_schema,table_name,table_rows,round((DATA_LENGTH+INDEX_LENGTH)/1024/1024,2) as size 
+                                            from information_schema.tables where table_schema = '{dbname}' order by table_rows desc;""".format(dbname=dbname))
+        if isinstance(data, tuple):   
+            for ds in data[1]:
+                dataList.append({"db_name":ds[0],"table_name":ds[1],"table_rows":ds[2],"table_size":ds[3]})
+        return  dataList  
             
 if __name__=='__main__':   
     import Queue

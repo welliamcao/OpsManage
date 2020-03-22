@@ -170,7 +170,7 @@ function makeDbManageTableList(dataList){
    	    				targets: [5],
    	    				render: function(data, type, row, meta) {
    	                        return '<div class="btn-group  btn-group-xs">' +	
-	    	                           '<button type="button" name="btn-database-query" value="'+ row.id +'" class="btn btn-default"  aria-label="Justify"><span class="glyphicon glyphicon glyphicon-zoom-in" aria-hidden="true"></span>' +	
+	    	                           '<button type="button" name="btn-database-query" value="'+ row.id +'" class="btn btn-default"  aria-label="Justify"><span class="fa fa-search-plus" aria-hidden="true"></span>' +	
 	    	                           '</button>' +			    	                           			                            
 	    	                           '</div>';
    	    				},
@@ -566,7 +566,7 @@ $(document).ready(function () {
 	     if(select_node["last_node"] == 1){
 				$.ajax({
 					  type: 'GET',
-					  url: '/api/db/user/list/?db_server='+select_node["db_server"],
+					  url: '/api/db/user/list/?db_server='+ select_node["db_server"] + '&is_write=1',
 				      success:function(response){	
 				    	  if ($('#UserDatabaseListTable').hasClass('dataTable')) {
 				            dttable = $('#UserDatabaseListTable').dataTable();

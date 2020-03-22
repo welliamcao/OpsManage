@@ -317,13 +317,30 @@
 										 <select required="required" class="selectpicker form-control" data-live-search="true" name="db_server" id="db_server"  data-size="10" data-selected-text-format="count > 3"  data-width="100%"   autocomplete="off">
 										   	<option >请选择一个数据库服务器</option>							   							
 										 </select>											
-									</div>	
+									</div>									
 									<div class="form-group" >
 										 <label> 数据库名<i class="fa fa-info-circle" data-toggle="tooltip" title="选择数据库名"></i></label>
 										 <select multiple required="required" class="selectpicker form-control" data-live-search="true" name="db_server_db" id="db_server_db"  data-size="10" data-selected-text-format="count > 3"  data-width="100%"    autocomplete="off">
 										   	<option >请选择一个数据库</option>							   							
 										 </select>											
-									</div>																																															
+									</div>		
+									<div class="form-group" >
+										 <label> 是否可写<i class="fa fa-info-circle" data-toggle="tooltip" title="默认只有只读权限"></i></label>
+										 <select required="required" class="selectpicker form-control"  name="is_write" id="is_write" autocomplete="off">
+										 	<option value="0">拒绝</option>
+										   	<option value="1">允许</option>								   							
+										 </select>											
+									</div>																		
+									<div class="form-group" >
+										 <label> 过期日期<i class="fa fa-info-circle" data-toggle="tooltip" title="权限过期日期"></i></label>
+										 <select  required="required" class="selectpicker form-control" data-live-search="true" name="valid_date" id="valid_date"   autocomplete="off">
+										 	<option value="36500">永久</option>
+										   	<option value="1">一天</option>	
+										   	<option value="7">七天</option>
+										   	<option value="30">三十天</option>		
+										   	<option value="365">一年</option>		   							
+										 </select>											
+									</div>																																																							
 									<lable><button type="button" value="" class="btn btn-default" id="add_user_db_btn" disabled>保存</button></lable>
 									<lable><button type="button" value="" class="btn btn-default" id="modf_user_db_btn" value="" style="display:none;">修改</button></lable>
 									<button type="reset" class="btn btn-default">撤销</button>
@@ -341,7 +358,9 @@
 													<th>数据库地址</th>		
 													<th>端口</th>		
 													<th>备注</th>	
-													<th>读写类型</th>		
+													<th>读写类型</th>	
+													<th>权限过期</th>	
+													<th>写入权限</th>	
 													<th class="text-center">操作</th>
 												</tr>											    
 		                                </thead>
@@ -372,6 +391,29 @@
               <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                 <button type="button" id="userTableListSubmit"  class="btn btn-primary">保存</button>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <div  class="modal fade bs-example-modal-user-sql" data-backdrop="static"  tabindex="-1" role="dialog" aria-hidden="true">
+          <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span>
+                </button>
+                <h4 class="modal-title" id="myUserDatabaseSqlModalLabel">数据库SQL类型</h4>
+              </div>
+              <div class="modal-body ue-container">
+              
+				 <select multiple="multiple" size="10" name="user-sql-list" class="demo"> </select>
+
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" id="userDatabaseSqlListSubmit"  class="btn btn-primary">保存</button>
               </div>
 
             </div>
@@ -416,9 +458,9 @@
 					        <div class="input-group-btn">
 					            <button type="button" class="btn btn-default" data-dismiss="modal" disabled>数据库名称</button>
 					        </div>
-					        <input id="server_database_input" type="text" class="form-control" placeholder="输入数据库名称">
+					        <input id="server_database_input" type="text" class="form-control" placeholder="点击同步数据信息">
 							<span class="input-group-btn">
-							    <button class="btn btn-success" id="server_database_submit" value="">添加</button>
+							    <button class="btn btn-success" id="server_database_submit" value="">同步</button>
 							</span>					        
 					    </div>
 					</div>              
@@ -427,6 +469,7 @@
 									<tr>
 										<th>名称</th>
 										<th>大小(MB)</th>		
+										<th>表数量(张)</th>	
 										<th class="text-center">操作</th>
 									</tr>											    
                                </thead>

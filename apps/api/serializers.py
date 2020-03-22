@@ -257,11 +257,17 @@ class DataBaseServerSerializer(serializers.ModelSerializer):
 class DatabaseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Database_Detail
-        fields = ('id','db_name','db_size') 
+        fields = ('id','db_name','db_size',"total_table") 
           
     def create(self,  validated_data):
         return Database_Detail.objects.create(db_server=self.context["db_server"], **validated_data)        
-        
+
+
+class DatabaseTableSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Database_Table_Detail_Record
+        fields = ('id','table_size','table_row','table_name','last_time')        
+             
         
 class CustomSQLSerializer(serializers.ModelSerializer):
     class Meta:

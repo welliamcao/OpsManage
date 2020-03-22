@@ -30,7 +30,7 @@ def extract_table_name_from_sql(sql_str):
             if token.lower() not in ["", "select"]:
                 result.append(token)
             get_next = False
-        get_next = token.lower() in ["from", "join","into","table","update"]
+        get_next = token.lower() in ["from", "join","into","table","update","desc"]
 
     return result
 
@@ -126,10 +126,10 @@ def getSQLAdvisor(host,port,user,passwd,dbname,sql):
     cmd = """/usr/bin/sqladvisor -h {host}  -P {port}  -u {user} -p '{passwd}' -d {dbname} -q '{sql}' -v 1""".format(host=host,port=port,user=user,passwd=passwd,dbname=dbname,sql=sql)
     return subprocess.getstatusoutput(cmd)
 
-def getDayAfter(num,ft=None):
+def getDayAfter(num,format=None):
     #获取今天多少天以后的日期
-    if ft:
-        return time.strftime(ft ,time.localtime(time.time()+(num*86400)))
+    if format:
+        return time.strftime(format ,time.localtime(time.time()+(num*86400)))
     else:
         return time.strftime('%Y-%m-%d' ,time.localtime(time.time()+(num*86400)))
     
