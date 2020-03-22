@@ -180,13 +180,13 @@ class DBConfig(AssetsBase):
             
             for ts in table_columns_list:
                 tr_str = """<tr>     
-                                <td class="c1">{COLUMN_NAME}</td>
-                                <td class="c2">{COLUMN_TYPE}</td>
-                                <td class="c3">{COLUMN_DEFAULT}</td>
-                                <td class="c4">{IS_NULLABLE}</td>
-                                <td class="c5">{EXTRA}</td>
-                                <td class="c5">{COLUMN_KEY}</td>
-                                <td class="c6">{COLUMN_COMMENT}</td>
+                                <td>{COLUMN_NAME}</td>
+                                <td>{COLUMN_TYPE}</td>
+                                <td>{COLUMN_DEFAULT}</td>
+                                <td>{IS_NULLABLE}</td>
+                                <td>{EXTRA}</td>
+                                <td>{COLUMN_KEY}</td>
+                                <td>{COLUMN_COMMENT}</td>
                             </tr>""".format(COLUMN_NAME=ts.get("COLUMN_NAME"),COLUMN_TYPE=ts.get("COLUMN_TYPE"),
                                             COLUMN_DEFAULT=ts.get("COLUMN_DEFAULT"),IS_NULLABLE=ts.get("IS_NULLABLE"),
                                             EXTRA=ts.get("EXTRA"),COLUMN_KEY=ts.get("COLUMN_KEY"),

@@ -108,13 +108,7 @@ SQL_DICT_HTML = """<html>
         table { border-collapse:collapse;border:1px solid #CCC;background:#C0C0C0; }  
         table caption{text-align:left; background-color:#fff; line-height:2em; font-size:14px; font-weight:bold; }  
         table th{text-align:left; font-weight:bold;height:26px; line-height:26px; font-size:12px; border:1px solid #CCC;padding-left:5px;}  
-        table td{height:20px; font-size:12px; border:1px solid #CCC;background-color:#fff;padding-left:5px;}  
-        .c1{ width: 150px; }  
-        .c2{ width: 150px; }  
-        .c3{ width: 80px; }  
-        .c4{ width: 100px; }  
-        .c5{ width: 100px; }  
-        .c6{ width: 300px; }
+        table td{height:20px; font-size:12px; border:1px solid #CCC;background-color:#fff;padding-left:5px; word-break:break-all;}  
     </style>
     <body>
     <h1 style="text-align:center;">{{host}}:{{port}} <code>{{ db_name }}</code> 数据字典 (共 {{ total_tables }} 个表)</h1>
