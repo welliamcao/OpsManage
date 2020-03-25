@@ -99,7 +99,7 @@ def sql_custom_detail(request, id,format=None):
     
 class DatabaseExecuteHistroy(APIView):
     
-    @method_decorator_adaptor(permission_required, "databases.databases_read_sql_execute_histroy","/403/")        
+    @method_decorator_adaptor(permission_required, "databases.database_read_sql_execute_histroy","/403/")        
     def get(self,request,*args,**kwargs):
         query_params = dict()
         for k in request.query_params.keys():
@@ -110,20 +110,40 @@ class DatabaseExecuteHistroy(APIView):
             logs_list = SQL_Execute_Histroy.objects.filter(**query_params)
             
         elif not request.user.is_superuser and query_params:
-            query_params["exe_user"] = request.user.first_name
+            query_params["exe_user"] = request.user.username
             logs_list = SQL_Execute_Histroy.objects.filter(**query_params)
             
         elif request.user.is_superuser:   
             logs_list = SQL_Execute_Histroy.objects.all()
             
         else:    
-            query_params["exe_user"] = request.user.first_name
+            query_params["exe_user"] = request.user.username
             logs_list = SQL_Execute_Histroy.objects.filter(**query_params)
         
         page = serializers.PageConfig()  # 注册分页
         page_user_list = page.paginate_queryset(queryset=logs_list, request=request, view=self)
         ser = serializers.HistroySQLSerializer(instance=page_user_list, many=True)
         return page.get_paginated_response(ser.data)    
+
+class DatabaseExecuteHistroyDetail(APIView):  
+    
+    @method_decorator_adaptor(permission_required, "databases.database_change_sql_execute_histroy","/403/")  
+    def put(self,request, id, *args, **kwargs):
+        try:
+            snippet = SQL_Execute_Histroy.objects.get(id=id)
+        except SQL_Execute_Histroy.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)  
+        
+        try:
+            snippet.favorite = request.POST.get("favorite")
+            snippet.mark = request.POST.get("mark")
+            snippet.save()
+        except Exception as ex:
+            return Response(str(ex), status=status.HTTP_400_BAD_REQUEST)  
+                  
+        serializer = serializers.HistroySQLSerializer(snippet)
+        return Response(serializer.data)   
+
     
 @api_view(['POST','GET'])
 @permission_required('databases.database_can_read_database_server_config',raise_exception=True)  
@@ -334,7 +354,7 @@ class DB_USER_SERVER_DBLIST(APIView,DBUser):
         except User.DoesNotExist:
             raise Http404      
     
-    @method_decorator_adaptor(permission_required, "databases.databases_can_read_database_server_config","/403/")    
+    @method_decorator_adaptor(permission_required, "databases.database_can_read_database_server_config","/403/")    
     def get(self, request, uid, sid, format=None):   
         return Response(self.get_server_all_db(self.get_db_server(sid), self.get_user(uid)))
     
@@ -351,8 +371,7 @@ class DB_USER_SERVER_DBLIST(APIView,DBUser):
     def delete(self, request, uid, sid, format=None):
         Database_User.objects.filter(id=QueryDict(request.body).get("user_db_id")).delete()
         return Response(self.get_user_server_db(self.get_db_server(sid), self.get_user(uid)))        
-        
-        
+                
 @api_view(['GET','POST'])
 def db_user_db_table_list(request, uid, did, format=None):
         
@@ -418,7 +437,7 @@ class DB_USER_SERVER_DBSQL(APIView,DBUser):
         except User.DoesNotExist:
             raise Http404          
         
-    @method_decorator_adaptor(permission_required, "databases.databases_can_read_database_server_config","/403/")    
+    @method_decorator_adaptor(permission_required, "databases.database_can_read_database_server_config","/403/")    
     def get(self, request, uid, did, format=None):   
         return Response(self.get_user_db_sql(self.get_db(uid, did)))    
     

@@ -201,7 +201,7 @@ function makeUserManageTableList(){
 	    	                           '</button>' + 
 	    	                           '<button type="button" name="btn-user-assets" value="'+ row.id +'" class="btn btn-default" data-toggle="modal" data-target=".bs-example-modal-user-assets"><span class="fa fa-desktop" aria-hidden="true"></span>' +	
 	    	                           '</button>' + 	    	                           
-	    	                           '<button type="button" name="btn-user-delete" value="'+ row.id +'" class="btn btn-default" aria-label="Justify"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span>' +	
+	    	                           '<button type="button" name="btn-user-delete" value="'+ row.id +'" class="btn btn-default" aria-label="Justify"><span class="fa fa-trash" aria-hidden="true"></span>' +	
 	    	                           '</button>' +			                            
 	    	                           '</div>';
    	    				},

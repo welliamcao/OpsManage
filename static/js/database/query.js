@@ -1,3 +1,63 @@
+var sqlHistroyResults = {}
+var sqlHistroyDataList = []
+
+function InitSQLHistroyDataTable(tableId,url,buttons,columns,columnDefs){
+	  sqlHistroyDataList = requests('get',url)
+	  oOverviewTable =$('#'+tableId).dataTable(
+			  {
+				  	"dom": "Bfrtip",
+				  	"buttons":buttons,
+		    		"bScrollCollapse": false, 				
+		    	    "bRetrieve": true,	
+		    		"destroy": true, 
+		    		"data":	sqlHistroyDataList['results'],
+		    		"columns": columns,
+		    		"columnDefs" :columnDefs,			  
+		    		"language" : language,
+		    		"order": [[ 0, "ase" ]],
+		    		"autoWidth": false	    			
+		    	});
+	  if (sqlHistroyDataList['next']){
+		  $("button[name='page_next']").attr("disabled", false).val(sqlHistroyDataList['next']);	
+	  }else{
+		  $("button[name='page_next']").attr("disabled", true).val();
+	  }
+	  if (sqlHistroyDataList['previous']){
+		  $("button[name='page_previous']").attr("disabled", false).val(sqlHistroyDataList['next']);	
+	  }else{
+		  $("button[name='page_previous']").attr("disabled", true).val();
+	  }	    	 	  
+}
+
+function RefreshSQLHistroyDataTable(tableId, urlData){
+	$.getJSON(urlData, null, function( dataList ){
+    table = $('#'+tableId).dataTable();
+    oSettings = table.fnSettings();
+    
+    table.fnClearTable(this);
+
+    for (var i=0; i<dataList['results'].length; i++){
+      table.oApi._fnAddData(oSettings, dataList['results'][i]);
+      sqlHistroyResults[dataList["results"][i]["id"]] = dataList["results"][i]["exe_sql"]
+    }
+
+    oSettings.aiDisplay = oSettings.aiDisplayMaster.slice();
+    table.fnDraw();
+    
+    if (dataList['next']){
+  	  $("button[name='page_next']").attr("disabled", false).val(dataList['next']);	
+    }else{
+  	  $("button[name='page_next']").attr("disabled", true).val();
+    }
+    if (dataList['previous']){
+  	  $("button[name='page_previous']").attr("disabled", false).val(dataList['previous']);	
+    }else{
+  	  $("button[name='page_previous']").attr("disabled", true).val();
+    } 
+            
+  });	
+}
+
 var language =  {
 		"sProcessing" : "处理中...",
 		"sLengthMenu" : "显示 _MENU_ 项结果",
@@ -119,7 +179,7 @@ function makeDbQueryTableList(dataList){
    	    				targets: [5],
    	    				render: function(data, type, row, meta) {
    	                        return '<div class="btn-group  btn-group-xs">' +	
-	    	                           '<button type="button" name="btn-database-query" value="'+ row.id +'" class="btn btn-default"  aria-label="Justify"><span class="fa fa-search-plus" aria-hidden="true"></span>' +	
+	    	                           '<button type="button" name="btn-database-query" value="'+ row.id  +'" class="btn btn-default"  aria-label="Justify"><span class="fa fa-search-plus" aria-hidden="true"></span>' +	
 	    	                           '</button>' +	
 	    	                           '<button type="button" name="btn-database-table" value="'+ row.id +'" class="btn btn-default"  aria-label="Justify"><span class="fa fa-bar-chart" aria-hidden="true"></span>' +	
 	    	                           '</button>' +  
@@ -199,6 +259,91 @@ function drawTableTree(ids,jsonData){
 	});		
 }
 
+function makeUserDBQueryHistory(db_id) {  	
+    var columns = [
+		            { "data": "id" },
+		            { "data": "db_env"},
+		            { "data": "db_host","className": "text-center" },
+		            { "data": "db_name","className": "text-center"},
+		            { "data": "exe_user","className": "text-center"},
+		            { "data": "exe_sql"},	    		            
+		            { "data": "exec_status","defaultContent": ''},
+		            { "data": "exe_time","defaultContent": ''},
+		            { "data": "exe_result","defaultContent": ''},
+		            { "data": "create_time"},   
+	        ]
+   var columnDefs = [  
+					   	{
+								targets: [0],
+								render: function(data, type, row, meta) {
+									if(row.favorite > 0){
+										var favorite =  '<button type="button" name="btn-user-db-sql-favorite" value="' + row.id + ":" + row.favorite + ":" + row.exe_db +'" class="btn btn-default" title="取消收藏" aria-label="Justify"><span class="fa fa-heart" aria-hidden="true"></span></button>'
+									}else{
+										var favorite =  '<button type="button" name="btn-user-db-sql-favorite" value="' + row.id + ":" + row.favorite + ":" + row.exe_db +'" class="btn btn-default" title="收藏语句" aria-label="Justify"><span class="fa fa-heart-o" aria-hidden="true"></span></button>'
+									}
+									return '<div class="btn-group  btn-group-xs">' + favorite +	                
+			    	                           '<button type="button" name="btn-user-db-sql-execute"  value="'+ row.id +'" class="btn btn-default" title="快速查询" aria-label="Justify"><span class="fa fa-search-plus" aria-hidden="true"></span>' +	
+			    	                           '</button>' +			                            
+		    	                           '</div>';									
+								},
+								"className": "text-center",
+					     }, 	   
+    		        	{
+	   	    				targets: [1],
+	   	    				render: function(data, type, row, meta) {
+	   	                        if(row.db_env=="测试环境"){
+	   	                        	return '<span class="label label-success">测试</span>'
+	   	                        }else{
+	   	                        	return '<span class="label label-danger">生产</span>'
+	   	                        }
+	   	    				},
+	   	    				"className": "text-center",
+		    		     },    
+    		        	{
+	   	    				targets: [6],
+	   	    				render: function(data, type, row, meta) {
+	   	                        if(row.exec_status==0){
+	   	                        	return '<span class="label label-success">成功</span>'
+	   	                        }else{
+	   	                        	return '<span class="label label-danger">失败</span>'
+	   	                        }
+	   	    				},
+	   	    				"className": "text-center",
+		    		     },	    		    		      		    		        
+		                 {
+							targets: [5],
+							render: function(data, type, row, meta) {  
+								return row.exe_sql				              
+							},
+					     }, 
+	    		      ]	
+    var buttons = [{
+        text: '<span class="fa fa-plus"></span>',
+        className: "btn-xs",
+        action: function ( e, dt, node, config ) {
+        	return false
+        }	        
+    }]
+    InitSQLHistroyDataTable("databaseSQLExecuteHistroy","/api/logs/sql/?exe_db="+db_id,buttons,columns,columnDefs)  
+    sqlHistroyDataList
+	if(sqlHistroyDataList["results"].length){
+		for (var i = 0; i < sqlHistroyDataList["results"].length; ++i) {
+			sqlHistroyResults[sqlHistroyDataList["results"][i]["id"]] = sqlHistroyDataList["results"][i]["exe_sql"]
+		}
+	}		    
+}
+
+function makeUserSQLSelect(ids,dataList){
+	var binlogHtml = '<select required="required" class="selectpicker form-control" data-live-search="true"  data-size="10" data-width="100%" name="'+ ids +'" id="'+ids+'"  autocomplete="off" title="常用查询">'
+	var selectHtml = '';
+	for (var i=0; i <dataList.length; i++){
+		selectHtml += '<option value="'+ dataList[i]["exe_sql"] +'">'+ dataList[i]["mark"] +'</option>' 					 
+	};                        
+	binlogHtml =  binlogHtml + selectHtml + '</select>';
+	document.getElementById(ids).innerHTML= binlogHtml;							
+	$('#'+ids).selectpicker('refresh');		
+}
+
 $(document).ready(function () {
 
 	try{
@@ -208,14 +353,29 @@ $(document).ready(function () {
 		console.log(err)
 	}		
 	
+    $("#db_user_sql").change(function(){ 
+		let sql = $('#db_user_sql :selected').val()   
+		if(sql.length){
+	    	aceEditAdd.setValue("")
+	    	aceEditAdd.insert(sql)			
+		}
+    }) 	
 	
     if ($("#UserDatabaseListTable").length) {   
 
     	$('#UserDatabaseListTable tbody').on('click',"button[name='btn-database-query']",function(){   
         	let vIds = $(this).val();
         	let td = $(this).parent().parent().parent().find("td")
-        	$("#dbChoice").html('<i  class="fa  fa-paper-plane" >数据库  <u class="red">'+ td.eq(1).text() +'</u> 查询入口</i>')
+        	$("#dbChoice").html('<lable>数据库  <u class="red">'+ td.eq(1).text() +'</u> 查询入口<i class="fa fa-info-circle" data-toggle="tooltip" title="选择常用SQL"></i>:  </lable>')
 			$("#db_query_btn").removeClass("disabled").text("查询").val(vIds)
+    	    if ($('#databaseSQLExecuteHistroy').hasClass('dataTable')) {
+    	    	dttable = $('#databaseSQLExecuteHistroy').dataTable();
+    	    	dttable.fnClearTable();
+    	    	dttable.fnDestroy(); 
+    	    }					
+			makeUserDBQueryHistory(vIds)
+			$('#show_sql_result').show();	
+			makeUserSQLSelect("db_user_sql",requests("get","/api/logs/sql/?exe_db="+vIds+"&&favorite=1")["results"])
         });	    	
     	
     	$('#UserDatabaseListTable tbody').on('click',"button[name='btn-database-table']",function(){   
@@ -322,8 +482,7 @@ $(document).ready(function () {
 		var btnObj = $(this);
 		btnObj.attr('disabled',true); 
 		var db = $(this).val()
-		if (db > 0){
-			$('#show_sql_result').show();		
+		if (db > 0){	
 			var sql = aceEditAdd.getSession().getValue();
 		    if ( sql.length == 0 || db == 0){
 		    	new PNotify({
@@ -354,7 +513,7 @@ $(document).ready(function () {
 						for (var i=0; i <response["data"].length; i++){
 							var tableId = "query_result_list_"+ i
 							tablesList.push(tableId)
-							if (response["data"][i]["dataList"][0] >= 0){
+							if (response["data"][i]["dataList"] && response["data"][i]["dataList"][0] >= 0){
 								var tableHtml = '<table class="table" id="'+ tableId +'"><thead><tr>'
 								var trHtml = '';
 								for (var x=0; x <response["data"][i]["dataList"][2].length; x++){
@@ -376,7 +535,7 @@ $(document).ready(function () {
 							}
 			
 						}
-						$("#result").html(tableHtml);
+						$("#query_result").html(tableHtml);
 					    if (tablesList.length) {
 					    	for (var i=0; i <tablesList.length; i++){
 							   var table = $("#"+tablesList[i]).DataTable( {
@@ -428,11 +587,12 @@ $(document).ready(function () {
 								},					            
 							   });	
 							}				    		
-					    }						
+					    }		
+					    RefreshSQLHistroyDataTable('databaseSQLExecuteHistroy','/api/logs/sql/?exe_db='+db)
 						}
 					else{
-						var selectHtml = '<div id="result">' + response["msg"] + '</div>';
-						$("#result").html(selectHtml);						
+						var selectHtml = '<div id="query_result">' + response["msg"] + '</div>';
+						$("#query_result").html(selectHtml);						
 					}		                								
 				},
 		    	error:function(response){
@@ -446,7 +606,121 @@ $(document).ready(function () {
 		    	}
 			});			
 		}
-	});    
+	});  
+	
+	$('#databaseSQLExecuteHistroy tbody').on('click',"button[name='btn-user-db-sql-execute']",function(){   
+    	let vIds = $(this).val();
+    	let td = $(this).parent().parent().parent().find("td")
+    	aceEditAdd.setValue("")
+    	aceEditAdd.insert(td.eq(5).text())
+    });		
+	
+	$('#databaseSQLExecuteHistroy tbody').on('click',"button[name='btn-user-db-sql-favorite']",function(){   
+    	let vIds = $(this).val().split(":");
+    	let td = $(this).parent().parent().parent().find("td")
+    	let sql = td.eq(5).text()
+    	if (vIds[1] > 0){
+    		$.confirm({
+    		    title: '取消收藏',
+    		    content:  '确认取消收藏这条SQL吗？',
+    		    type: 'red',
+    		    buttons: {
+    		       确定: function () {
+    		    	$.ajax({  
+    		            cache: true,  
+			            type: "put",  
+			            url:"/api/logs/sql/" + vIds[0] + '/',  
+			            data:{
+			            	"favorite":0,
+			            	"mark":""
+			            },
+    		            error: function(response) {  
+    		            	new PNotify({
+    		                    title: 'Ops Failed!',
+    		                    text: "操作失败",
+    		                    type: 'error',
+    		                    styling: 'bootstrap3'
+    		                });     
+    		            },  
+    		            success: function(response) {  
+    		            	new PNotify({
+    		                    title: 'Success!',
+    		                    text: "操作成功",
+    		                    type: 'success',
+    		                    styling: 'bootstrap3'
+    		                });	 
+    		            	makeUserSQLSelect("db_user_sql",requests("get","/api/logs/sql/?exe_db="+vIds[2]+"&&favorite=1")["results"])
+    		            	RefreshSQLHistroyDataTable('databaseSQLExecuteHistroy','/api/logs/sql/?exe_db='+vIds[2])
+    		            }  
+    		    	});
+    		        },
+    		        取消: function () {
+    		            return true;			            
+    		        },			        
+    		    }
+    		});	    		
+    		
+    	}else{
+    	    $.confirm({
+    	        icon: 'fa fa-plus',
+    	        type: 'blue',
+    	        title: '收藏SQL语句',
+    	        content: '<form  data-parsley-validate class="form-horizontal form-label-left">' +
+    			          '<div class="form-group">' +
+    			            '<label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">名称: <span class="required">*</span>' +
+    			            '</label>' +
+    			            '<div class="col-md-6 col-sm-6 col-xs-12">' +
+    			              '<input type="text"  name="mark" value="" required="required" class="form-control col-md-7 col-xs-12">' +
+    			            '</div>' +
+    			          '</div>' +		          
+    			        '</form>',
+    	        buttons: {
+    	            '取消': function() {},
+    	            '保存': {
+    	                btnClass: 'btn-blue',
+    	                action: function() {
+    	                	var formData = {};	
+    	            		var vipForm = this.$content.find('input');                	
+    	            		for (var i = 0; i < vipForm.length; ++i) {
+    	            			var name =  vipForm[i].name
+    	            			var value = vipForm[i].value 
+    	            			if (name.length >0 && value.length > 0){
+    	            				formData[name] = value	
+    	            			};		            						
+    	            		};	
+    	            		formData["favorite"] = 1
+    				    	$.ajax({  
+    				            cache: true,  
+    				            type: "put",  
+    				            url:"/api/logs/sql/" + vIds[0] + '/', 
+    				            data:formData,
+    				            error: function(request) {  
+    				            	new PNotify({
+    				                    title: 'Ops Failed!',
+    				                    text: request.responseText,
+    				                    type: 'error',
+    				                    styling: 'bootstrap3'
+    				                });       
+    				            },  
+    				            success: function(data) {  
+    				            	new PNotify({
+    				                    title: 'Success!',
+    				                    text: 'SQL收藏成功',
+    				                    type: 'success',
+    				                    styling: 'bootstrap3'
+    				                }); 
+    				            	makeUserSQLSelect("db_user_sql",requests("get","/api/logs/sql/?exe_db="+vIds[2]+"&&favorite=1")["results"])
+    				            	RefreshSQLHistroyDataTable('databaseSQLExecuteHistroy','/api/logs/sql/?exe_db='+vIds[2])
+    				            }  
+    				    	});
+    	                }
+    	            }
+    	        }
+    	    });    		
+    	}
+	    	
+    });		
+	
 })    
 
 

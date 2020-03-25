@@ -262,7 +262,6 @@ class DatabaseSerializer(serializers.ModelSerializer):
     def create(self,  validated_data):
         return Database_Detail.objects.create(db_server=self.context["db_server"], **validated_data)        
 
-
 class DatabaseTableSerializer(serializers.ModelSerializer):
     class Meta:
         model = Database_Table_Detail_Record
@@ -281,7 +280,7 @@ class HistroySQLSerializer(serializers.ModelSerializer):
     db_env = serializers.SerializerMethodField(read_only=True,required=False)
     class Meta:
         model = SQL_Execute_Histroy
-        fields = ('id','exe_sql','exe_user','exec_status','exe_result','db_host','db_name','create_time','db_env','exe_db',"exe_time")        
+        fields = ('id','exe_sql','exe_user','exec_status','exe_result','db_host','db_name','create_time','db_env','exe_db',"exe_time","exe_effect_row","favorite","mark")        
     
     def get_db_env(self,obj):
         return obj.exe_db.db_server.dataMap["env"][obj.exe_db.db_server.db_env]

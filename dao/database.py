@@ -342,7 +342,7 @@ class DBManage(AssetsBase):
                 return False    
             
         return False
-    
+
     def __check_user_db_tables(self,request):
         try:     
             userDbServer = Database_User.objects.get(user=request.user.id,db=request.POST.get('db'))

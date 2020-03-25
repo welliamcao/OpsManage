@@ -457,23 +457,7 @@ $(document).ready(function() {
 			});			
 		}	 		
 	})		
-	
-/*	$(function() {
-		if($('#query_db').length ){
-			$.ajax({
-				async : true,  
-				url:'/db/manage/?type=query_user_db', //请求地址
-				type:"GET",  //提交类似
-				success:function(response){
-					makeDatabaseSelect("query_db",response);
-					makeDatabaseSelect("table_schema",response);	
-					makeDatabaseSelect("binlog_db",response);
-					makeDatabaseSelect("optimize_db",response);
-				}					
-			});				
-		}
-	})*/	
-	
+		
 	
 	try
 		{

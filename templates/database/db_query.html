@@ -101,57 +101,88 @@
 			                    <li role="presentation" id="li_tab_content1" class="active"><a href="#tab_content1" id="query" role="tab" data-toggle="tab" aria-expanded="true"><i class="fa fa-cubes"></i> SQL Query</a>
 			                    </li>
 			                    <li role="presentation" id="li_tab_content3" class=""><a href="#tab_content3" role="tab" id="tableDDL" data-toggle="tab" aria-expanded="false"><i class="fa fa-bar-chart"></i> 表结构查询</a>
-			                    </li>                     
-<!--			                    <li role="presentation" class=""><a href="#tab_content4" role="tab" id="#optimize" data-toggle="tab" aria-expanded="false"><i class="fa fa-paint-brush"></i> SQL优化建议</a>
-			                    </li> -->                                                
+			                    </li>                                                                 
 			                  </ul>
-			                  <div id="myTabContent" class="tab-content">
+			                  <div class="tab-content">
 			                    <div role="tabpanel" class="tab-pane fade active in" id="tab_content1" aria-labelledby="#query">
-			                    {% csrf_token %}
+			                    
 									<div class="col-md-12 col-xs-12">
-										<legend>
-											<p id="dbChoice"></p>
-										</legend>
-										<form role="form" method="post" id="exec_db_query" class="main form-horizontal"  novalidate>																								
+
+										<form role="form" method="post" id="exec_db_query" class="main form-horizontal form-label-left"  novalidate>	
 											<div class="form-group">
-												<label>SQL内容<i class="fa fa-info-circle" data-toggle="tooltip" title="输入查询SQL"></i></label>	
+												<label id="dbChoice">查询入口<i class="fa fa-info-circle" data-toggle="tooltip" title="选择常用SQL"></i> : </label>	
+												<select required="required" class="selectpicker form-control" data-live-search="true" title="常用查询" data-size="10" data-width="20%" name="db_env" id="db_user_sql" autocomplete="off"></select>	
+											</div>									
+											<legend></legend>													
+											<div class="form-group">
+												<label>SQL内容<i class="fa fa-info-circle" data-toggle="tooltip" title="输入查询SQL"></i> : </label>	
 												<div id="compile-editor-add" class="ace_editor"></div> 	
 											</div>																																						
 											<lable><button type="button" value="" class="btn btn-default btn-sm disabled" id="db_query_btn">请先选择数据库</button></lable>
+											{% csrf_token %}
 										</form> 
 									</div>
 									<div class="hr hr32 hr-dotted"></div>
-						            <div class="col-md-12 col-xs-12" id="show_sql_result" style="display:none;">
-						            <div class="x_panel">
-						              <div class="x_title">
-						                <h2>查询结果 <small>Results of execution</small></h2>
-						                <ul class="nav navbar-right panel_toolbox">
-						                  <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
-						                  </li>
-						                  <li class="dropdown">
-						                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
-						                  </li>
-						                  <li><a class="close-link"><i class="fa fa-close"></i></a>
-						                  </li>
-						                </ul>
-						                <div class="clearfix"></div>
-						              </div>
-						              <div class="x_content">
-						                    <div id="result">
-						                    </div>             
-						              </div>
-						            </div>
-						            </div>  									
-								</div>
-			                    <div role="tabpanel" class="tab-pane fade" id="tab_content2" aria-labelledby="#Binglog">
-									<div class="col-lg-12">
-										<legend>
-											<i class="fa  fa-paper-plane-o"></i> 解析结果
-										</legend>
-										<div id="binlog_result">
-					                    </div>							
-									 </div>						 
-			                    </div> 
+						            <div class="col-md-12 col-xs-12" id="show_sql_result" style="display:none;">				
+				
+						                <div class="x_panel">
+						                  <div class="x_title">
+						                    <h2><i class="fa fa-bars"></i> 查询结果 <small>SQL Query History</small></h2>
+						                    <ul class="nav navbar-right panel_toolbox">
+						                      <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+						                      </li>
+						                      <li class="dropdown">
+						                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
+						                      </li>
+						                      <li><a class="close-link"><i class="fa fa-close"></i></a>
+						                      </li>
+						                    </ul>
+						                    <div class="clearfix"></div>
+						                  </div>
+						                  <div class="x_content">
+						
+						
+						                    <div class="" role="tabpanel" data-example-id="togglable-tabs">
+						                      <ul id="myTab" class="nav nav-tabs bar_tabs" role="tablist">
+						                        <li role="presentation" class="active"><a href="#history_sql" role="tab" id="profile-tab" data-toggle="tab" aria-expanded="false">历史查询</a>
+						                        </li>				                      
+						                        <li role="presentation" class=""><a href="#query_result" id="home-tab" role="tab" data-toggle="tab" aria-expanded="true">查询结果</a>
+						                        </li>
+						                      </ul>
+						                      <div class="tab-content">
+						                        <div role="tabpanel" class="tab-pane fade" id="query_result" aria-labelledby="home-tab">
+						                          	<div id="query_result">
+								                    </div> 
+						                        </div>
+						                        <div role="tabpanel" class="tab-pane fade active in" id="history_sql" aria-labelledby="profile-tab">
+								                    <table id="databaseSQLExecuteHistroy" class="table">
+								                      <thead>
+								                        <tr>
+											                <th>操作</th>
+											                <th>环境</th>
+											                <th>数据库地址</th>
+											                <th>数据库名</th>
+											                <th>执行人</th>
+											                <th>SQL</th>
+											                <th>执行状态</th>
+											                <th>耗时(sec)</th>
+											                <th>执行结果</th>
+											                <th>执行时间</th>
+								                        </tr>
+								                      </thead>
+								                      <tbody>
+								                      </tbody>
+								                    </table>
+						                        </div>
+						                      </div>
+						                    </div>
+						
+						                  </div>
+						                </div>
+				
+				                  </div>
+				                </div>
+					            
 			                    <div role="tabpanel" class="tab-pane fade" id="tab_content3" aria-labelledby="#tableDDL">
 									<div class="col-lg-12">
 										<legend>
@@ -168,17 +199,7 @@
 				                        </div>					                      
 				                      </div>			                        						
 									 </div>						 
-			                    </div>                     
-			                     <!-- CustomSql -->
-			                    <div role="tabpanel" class="tab-pane fade" id="tab_content4" aria-labelledby="#optimize">
-									 <div class="col-lg-12">
-										<legend>
-											<i class="fa  fa-paper-plane-o"></i> 建议结果
-										</legend>
-				                        <div id="optimize_result">		                        
-				                        </div>															 	
-									 </div>
-			                    </div>                         
+			                    </div>                                
 			                </div>                                  
 			              </div>
                         </div>
@@ -190,124 +211,8 @@
               </div>
             </div>        
 
-                  <div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static" style="width:auto; height:auto;">
-                    <div class="modal-dialog modal-lg">
-                      <div class="modal-content">
-
-                        <div class="modal-header">
-							<div class="btn-group  btn-group-sm">
-		                        <button class="btn btn-default" type="button" name="monitor_half_hour" value="">最近半小时</button>
-		                        <button class="btn btn-default" type="button" name="monitor_one_hour" value="">最近1小时</button>
-		                        <button class="btn btn-default" type="button" name="monitor_six_hour" value="">最近6小时</button>
-		                        <button class="btn btn-default" type="button" name="monitor_one_day" value="">最近1天</button>
-	                      	</div>	
-                          <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span></button>	                      	                      									                                        
-                        </div>
-                        <div class="modal-body">                       
-		                  <ul class="list-unstyled timeline">
-		                    <li>
-		                      <div class="block">
-		                        <div class="tags">
-		                          <a href="" class="tag">
-		                            <span>CPU</span>
-		                          </a>
-		                        </div>
-		                        <div class="block_content">
-		                           <div id="draw_line_cpu" style="width:100%; height:300px;"></div>
-		                        </div>
-		                      </div>
-		                    </li>
-		                    <li>
-		                      <div class="block">
-		                        <div class="tags">
-		                          <a href="" class="tag">
-		                            <span>内存</span>
-		                          </a>
-		                        </div>
-		                        <div class="block_content">
-		                          <div id="draw_line_mem" style="width:100%; height:300px;"></div>
-		                        </div>
-		                      </div>
-		                    </li>			                    
-		                    <li>
-		                      <div class="block">
-		                        <div class="tags">
-		                          <a href="" class="tag">
-		                            <span>流量</span>
-		                          </a>
-		                        </div>
-		                        <div class="block_content">
-		                          <div id="draw_line_taffic" style="width:100%; height:300px;"></div>
-		                        </div>
-		                      </div>
-		                    </li>
-		                    <li>
-		                      <div class="block">
-		                        <div class="tags">
-		                          <a href="" class="tag">
-		                            <span>磁盘I/O</span>
-		                          </a>
-		                        </div>
-		                        <div class="block_content">
-		                          <div id="draw_line_disk" style="width:100%; height:300px;"></div>
-		                        </div>
-		                      </div>
-		                    </li>				                    		                    
-		                  </ul> 
-                        </div>
-                        <div class="modal-footer">
-                          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                        </div>
-
-                      </div>
-                    </div>
-                  </div>
-                  
-		        <div class="modal fade bs-example-modal-tags-info"  tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static">  
-		          <div class="modal-dialog modal-lg">
-		            <div class="modal-content">
-		
-		              <div class="modal-header">
-		                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span>
-		                </button>
-		                <h4 class="modal-title" id="myModalLabel">标签分类</h4>
-		              </div>
-		              <div class="modal-body ue-container">
-		              
-						 <select multiple="multiple" size="10" name="doublebox" class="demo">
-					        </select>
-		
-		              </div>
-		              <div class="modal-footer">
-		                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-		                <button type="button" id="taggroupsubmit" value=""  class="btn btn-primary">保存</button>
-		              </div>
-		
-		            </div>
-		          </div>
-		        </div>  
-		        
-		        <div class="modal fade bs-example-modal-webssh-info"  tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static" data-keyboard="false">  
-		          <div class="modal-dialog modal-lg" style="width:1290px;height: 600px">
-		            <div class="modal-content">
-		
-		              <div class="modal-header">
-		                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span>
-		                </button>
-		                <h4 class="modal-title" id="myWebsshModalLabel">WebSSH</h4>
-		              </div>
-		              <div class="modal-body">
-						<div id="webssh_tt"  style="width:800px;" >
-						    </div>	
-		              </div>
-		              <div class="modal-footer">
-		                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-		                <button type="button" id="websshConnect" value=""  class="btn btn-primary">连接</button>
-		              </div>
-		
-		            </div>
-		          </div>
-		        </div>		                        
+                   
+		        		                        
                       
 {% endblock %}
 {% block js-content %}
