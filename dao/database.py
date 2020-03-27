@@ -519,11 +519,10 @@ class DBManage(AssetsBase):
     
         
     def __record_operation(self,request,dbServer,time_consume,result):
-        
         if isinstance(result, str):
-            record_exec_sql.apply_async((request.user.username,request.POST.get('db'),request.POST.get('sql'),time_consume,1,result),queue='default')
+            record_exec_sql.apply_async((request.user.username,request.POST.get('db'), request.POST.get('sql'), time_consume, 1,result), queue='default')
         else:
-            record_exec_sql.apply_async((request.user.username,request.POST.get('db'),request.POST.get('sql'),time_consume,0),queue='default')        
+            record_exec_sql.apply_async((request.user.username,request.POST.get('db'), request.POST.get('sql'), time_consume, result[0], 0),queue='default')        
         
     def __query_user_db_server(self,request=None):
         if request.user.is_superuser:

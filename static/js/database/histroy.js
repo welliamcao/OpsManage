@@ -152,6 +152,7 @@ $(document).ready(function() {
 	    		            { "data": "exe_sql"},	    		            
 	    		            { "data": "exec_status","defaultContent": ''},
 	    		            { "data": "exe_time","defaultContent": ''},
+	    		            { "data": "exe_effect_row","defaultContent": ''},
 	    		            { "data": "exe_result","defaultContent": ''},
 	    		            { "data": "create_time"},   
 			        ]

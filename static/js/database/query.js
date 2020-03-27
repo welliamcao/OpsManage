@@ -269,6 +269,7 @@ function makeUserDBQueryHistory(db_id) {
 		            { "data": "exe_sql"},	    		            
 		            { "data": "exec_status","defaultContent": ''},
 		            { "data": "exe_time","defaultContent": ''},
+		            { "data": "exe_effect_row","defaultContent": ''},
 		            { "data": "exe_result","defaultContent": ''},
 		            { "data": "create_time"},   
 	        ]
@@ -298,7 +299,7 @@ function makeUserDBQueryHistory(db_id) {
 	   	                        }
 	   	    				},
 	   	    				"className": "text-center",
-		    		     },    
+		    		     },     		    		      		    		        		                 	    		     
     		        	{
 	   	    				targets: [6],
 	   	    				render: function(data, type, row, meta) {
@@ -309,13 +310,7 @@ function makeUserDBQueryHistory(db_id) {
 	   	                        }
 	   	    				},
 	   	    				"className": "text-center",
-		    		     },	    		    		      		    		        
-		                 {
-							targets: [5],
-							render: function(data, type, row, meta) {  
-								return row.exe_sql				              
-							},
-					     }, 
+		    		     } 
 	    		      ]	
     var buttons = [{
         text: '<span class="fa fa-plus"></span>',

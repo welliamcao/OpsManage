@@ -22,6 +22,7 @@ class EmailNotice(NotcieBase):
         msg['Subject'] = "%s " % kwargs.get('e_sub')
         msg['From'] = self.e_from
         if kwargs.get('e_to').find(',') == -1:
+            e_to = kwargs.get('e_to')
             msg['To'] = kwargs.get('e_to')
         else: 
             e_to = kwargs.get('e_to').split(',')

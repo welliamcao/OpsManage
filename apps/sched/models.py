@@ -131,6 +131,9 @@ class Sched_Job_Config(models.Model):
     
     def to_alert_json(self):
         json_format = {
+            "job_name":self.job_name,
+            "job_cmd":self.job_command,
+            "job_node":self.job_node.sched_server.server_assets.ip,
             "notice_type":self.notice_type,
             "notice_number":self.notice_number,
             "notice_interval":self.notice_interval,
@@ -210,7 +213,7 @@ class Sched_Job_Logs(models.Model):
             'jid': self.job_id.job_id,
             'stime':self.stime,
             'etime':self.etime,
-            "status":self.status,
+            "status":int(self.status),
             "result":self.result,
         }
         return json_format                      
