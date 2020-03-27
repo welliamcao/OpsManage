@@ -1,6 +1,6 @@
 #!/usr/bin/env python  
 # _#_ coding:utf-8 _*_ 
-import uuid,xlrd
+import uuid,xlrd, json
 from asset.models import *
 from deploy.models import *
 from databases.models import *
@@ -641,15 +641,15 @@ class AssetsSource(object):
             assetsList = []
         return self.source(self.query_user_assets(request, assetsList))
     
-    def idSourceList(self,ids):
+    def idSourceList(self, ids):
         assetsList = Assets.objects.filter(id__in=ids)
         return self.source(assetsList)        
     
-    def idSource(self,ids):
+    def idSource(self, ids):
         assetsList = Assets.objects.filter(id=ids)
         return self.source(assetsList)
                 
-    def source(self,assetsList):                             
+    def source(self, assetsList):                             
         for assets in assetsList:
             data = {}
             if hasattr(assets,'server_assets'):
@@ -677,13 +677,14 @@ class AssetsSource(object):
                     data["sudo_passwd"] = assets.network_assets.sudo_passwd
                     data["connection"] = 'local'
                 except Exception as ex:
-                    logger.warn(msg="id:{assets}, error:{ex}".format(assets=assets.id,ex=ex))   
+                    logger.warn(msg="id:{assets}, error:{ex}".format(assets=assets.id,ex=ex)) 
+                      
             if assets.host_vars:
-                try:                         
-                    for k,v in eval(assets.host_vars).items():
-                        if k not in ["ip", "port", "username", "password","ip"]:data[k] = v
+                try: 
+                    data["vars"] = json.loads(assets.host_vars)
                 except Exception as ex:
                     logger.warn(msg="资产: {assets},转换host_vars失败:{ex}".format(assets=assets.id,ex=ex)) 
+                    
             self.resource.append(data)
         return self.sList, self.resource
         
@@ -1052,7 +1053,7 @@ class AssetsAnsible(DataHandle):
                     data["port"] = int(assets.server_assets.port)
                     data["username"] = assets.server_assets.username
                     data["hostname"] = assets.server_assets.ip
-                    data["sudo_passwd"] = assets.server_assets.sudo_passwd
+                    data["sudo_passwd"] = assets.server_assets.sudo_passwd                   
                     if assets.server_assets.keyfile == 0:data["password"] =  assets.server_assets.passwd  
                     elif assets.server_assets.keyfile_path:
                         data["private_key"] = assets.server_assets.keyfile_path                                            
@@ -1069,13 +1070,14 @@ class AssetsAnsible(DataHandle):
                     data["sudo_passwd"] = assets.network_assets.sudo_passwd
                     data["connection"] = 'local'
                 except Exception as ex:
-                    logger.warn(msg="id:{assets}, error:{ex}".format(assets=assets.id,ex=ex))   
+                    logger.warn(msg="id:{assets}, error:{ex}".format(assets=assets.id,ex=ex)) 
+                    
             if assets.host_vars:
-                try:                         
-                    for k,v in eval(assets.host_vars).items():
-                        if k not in ["ip", "port", "username", "password","ip"]:data[k] = v
+                try:                      
+                    data["vars"] = json.loads(assets.host_vars)
                 except Exception as ex:
                     logger.warn(msg="资产: {assets},转换host_vars失败:{ex}".format(assets=assets.id,ex=ex)) 
+                    
             resource.append(data)
         return sList,resource    
         

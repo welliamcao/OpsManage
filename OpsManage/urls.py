@@ -16,7 +16,7 @@ Including another URLconf
 from django.conf.urls import url,include
 from django.contrib import admin
 from OpsManage.views import index,users
-
+from django.conf.urls import handler404
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
@@ -40,3 +40,5 @@ urlpatterns = [
     url(r'^order/',include('orders.urls')),
     url(r'^apply/',include('apply.urls')),
 ]
+
+handler404 = index.PageError.as_view()

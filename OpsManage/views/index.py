@@ -37,7 +37,8 @@ def logout(request):
 
 
 
-class Permission(View):
+class Permission(LoginRequiredMixin, View):
+    login_url = '/login/'
     def get(self, request, *args, **kwagrs):     
         return render(request,'403.html',{"user":request.user})
 
@@ -50,7 +51,8 @@ class Permission(View):
     def delete(self, request, *args, **kwagrs):     
         return JsonResponse({'msg':"你没有权限操作此项","code":403,'data':[]})
     
-class PageError(View):
+class PageError(LoginRequiredMixin, View):
+    login_url = '/login/'
     def get(self, request, *args, **kwagrs):     
         return render(request,'404.html',{"user":request.user})    
     

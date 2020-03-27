@@ -203,7 +203,7 @@ def deploy_host_vars(request, id,format=None):
         host_vars = request.data.get('host_vars',None)
         if host_vars:
             try:
-                host_vars = eval(request.data.get('host_vars'))
+                host_vars = json.dumps(eval(request.data.get('host_vars')))
             except Exception as ex:
                 return JsonResponse({'msg':"更新主机变量失败: {ex}".format(ex=ex),"code":500,'data':{}}) 
         assets.host_vars = host_vars
