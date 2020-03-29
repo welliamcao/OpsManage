@@ -302,13 +302,13 @@ function RefreshConfigTable(tableId, urlData){
 $(document).ready(function() {
 	
 	
-	var groupList = requests("get","/api/group/")
+	var groupList = requests("get","/api/account/group/")
 	$(function() {
 		if($('#grant_group').length){
 			var binlogHtml = '<select required="required" class="selectpicker form-control" data-live-search="true"  data-size="10" data-width="100%" name="grant_group" id="grant_group"  autocomplete="off"><option selected="selected" value="">选择一个授权组</option>'
 			var selectHtml = '';
 			for (var i=0; i <groupList.length; i++){
-				selectHtml += '<option value="'+ groupList[i]["id"] +'">'+ groupList[i]["name"] +'</option>' 					 
+				selectHtml += '<option value="'+ groupList[i]["id"] +'">'+ groupList[i]["text"] +'</option>' 					 
 			};                        
 			binlogHtml =  binlogHtml + selectHtml + '</select>';
 			document.getElementById("grant_group").innerHTML= binlogHtml;							
@@ -501,7 +501,7 @@ $(document).ready(function() {
     })  	
 	
 	
-	var userList = requests("get","/api/user/")
+	var userList = requests("get","/api/account/user/")
 	for (var i=0; i <userList.length; i++){
 		userInfo[userList[i]["id"]] = userList[i]
 	}

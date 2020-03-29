@@ -83,7 +83,8 @@ INSTALLED_APPS = [
     'django_celery_beat',
     'django_celery_results',
     'websocket',
-    'apply'
+    'apply',
+    'account'
 ]
 
 MIDDLEWARE = [
@@ -95,6 +96,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
 
 
 REST_FRAMEWORK = {
@@ -113,6 +115,12 @@ MEDIA_ROOT = os.path.join(BASE_DIR,'upload/')
 WORKSPACES = config.get('deploy', 'path')
 
 ROOT_URLCONF = 'OpsManage.urls'
+
+AUTH_USER_MODEL = 'account.User'
+
+AUTHENTICATION_BACKENDS = (
+    'apps.account.backends.ModelBackend',
+)
 
 TEMPLATES = [
     {

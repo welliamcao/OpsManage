@@ -8,7 +8,8 @@ from navbar.models import *
 from sched.models import *
 from wiki.models import *
 from orders.models import *
-from django.contrib.auth.models import User,Group
+from django.contrib.auth.models import Group
+from account.models import User,Structure
 from utils.logger import logger
 from dao.base import DjangoCustomCursors,DataHandle
 from django.http import QueryDict
@@ -57,9 +58,6 @@ class AssetsBase(DataHandle):
     def tagsList(self):
         return Tags_Assets.objects.all()      
     
-    def groupList(self):
-        return Group.objects.all()
-    
     def zoneList(self):
         return Zone_Assets.objects.all()
     
@@ -74,6 +72,12 @@ class AssetsBase(DataHandle):
     
     def assetsList(self):
         return Assets.objects.all()
+    
+    def groupList(self):
+        dicts = []
+        for ds in Structure.objects.filter(level__gt=0):
+            if ds.last_node() > 0:dicts.append(ds.to_json())
+        return dicts
     
     def manufacturerList(self):
         try:
@@ -119,15 +123,15 @@ class AssetsBase(DataHandle):
       
     
     def base(self):
-        return {"userList":self.userList(),"idcList":self.idcList(),
-                "groupList":self.groupList(),"raidList":self.raidList(),
+        return {"userList":self.userList(),"idcList":self.idcList(),               
                 "name":self.name,"serverList":self.serverList(),
                 "inventoryList":self.inventoryList(),"uuid": uuid.uuid4(),
                 "cabinetList":self.cabinetList(),"lineList":self.lineList(),
                 "manufacturerList":self.manufacturerList(),"modelList":self.modelList(),
                 "providerList":self.providerList(),"cpuList":self.cpuList(),
                 "systemList":self.systemList(),"kernelList":self.kernelList(),
-                "tagsList":self.tagsList(),"zoneList":self.zoneList()
+                "tagsList":self.tagsList(),"zoneList":self.zoneList(),
+                "raidList":self.raidList(),"groupList":self.groupList(),
                 }  
         
     def assets(self,id):

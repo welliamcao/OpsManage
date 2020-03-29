@@ -183,7 +183,7 @@ $(document).ready(function() {
 			setAceEditMode("mysql",true);
 			makeDatabaseSelect("order_db",data["data"]["detail"]["db"])	
 			DynamicSelect("sql_backup",data["data"]["detail"]["sql"]["sql_backup"])
-			makeUserSelect('order_executor',requests('get','/api/user/',false))
+			makeUserSelect('order_executor',requests('get','/api/account/user/',false))
 			DynamicSelect('order_executor',data["data"]["order_executor"])
 			if (data["data"]["detail"]["sql"]["order_type"] == "online"){
 				switch(data["data"]["order_status"])

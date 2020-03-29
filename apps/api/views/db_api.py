@@ -17,7 +17,7 @@ from dao.database import MySQLARCH,DBManage,DBConfig, DBUser
 from django.http import JsonResponse
 from utils.logger import logger
 from utils.base import method_decorator_adaptor,file_iterator
-from django.contrib.auth.models import User
+from account.models import User
   
     
 @api_view(['GET','PUT', 'DELETE'])

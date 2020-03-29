@@ -1,29 +1,37 @@
 from django.conf.urls import url
 from api.views import (assets_api,deploy_api,db_api,
-                       users_api,orders_api,cron_api,
-                       celery_api,cicd_api,monitor_api,
-                       nav_api,wiki_api,apscehd_api,
-                       ipvs_api)
+                       orders_api,cron_api,celery_api,
+                       cicd_api,monitor_api,nav_api,
+                       wiki_api,apscehd_api,ipvs_api,account_api)
 urlpatterns = [
             url(r'^assets/$', assets_api.AssetList.as_view()),   
             url(r'^assets/(?P<id>[0-9]+)/$', assets_api.asset_detail),
             url(r'^assets/info/(?P<id>[0-9]+)/$', assets_api.asset_info),     
             url(r'^assets/count/$', assets_api.asset_count),     
-            url(r'^assets/tags/(?P<id>[0-9]+)/$',assets_api.assets_tags),      
-            url(r'^group/$', assets_api.group_list), 
-            url(r'^group/(?P<id>[0-9]+)/$',assets_api.group_detail), 
+            url(r'^assets/tags/(?P<id>[0-9]+)/$',assets_api.assets_tags),   
+            
+            url(r'^account/user/$', account_api.user_list), 
+            url(r'^account/user/(?P<id>[0-9]+)/$',account_api.user_detail),        
+            url(r'^account/group/$',account_api.GROUP_LIST.as_view()),       
+            url(r'^account/role/$', account_api.role_list), 
+            url(r'^account/role/(?P<id>[0-9]+)/$',account_api.role_detail), 
+            url(r'^account/structure/$',account_api.STRUCTURE_TREE_LIST.as_view()), 
+            url(r'^account/structure/nodes/$',account_api.STRUCTURE_LIST.as_view()), 
+            url(r'^account/structure/nodes/(?P<pk>[0-9]+)/$',account_api.STRUCTURE_NODE_DETAIL.as_view()), 
+            url(r'^account/structure/nodes/member/(?P<pk>[0-9]+)/$', account_api.NODES_MEMBER_DETAIL.as_view()), 
+            
             url(r'^business/last/$', assets_api.business_list),            
             url(r'^business/env/$', assets_api.env_list), 
             url(r'^business/env/(?P<id>[0-9]+)/$',assets_api.env_detail),      
             url(r'^business/tree/$', assets_api.BUSINESS_TREE_LIST.as_view()), 
             url(r'^business/nodes/$',assets_api.NODE_LIST.as_view()), 
             url(r'^business/nodes/(?P<pk>[0-9]+)/$',assets_api.NODE_DETAIL.as_view()), 
-            url(r'^business/nodes/assets/(?P<pk>[0-9]+)/$', assets_api.NODES_ASSERS_DETAIL.as_view()),                               
+            url(r'^business/nodes/assets/(?P<pk>[0-9]+)/$', assets_api.NODES_ASSERS_DETAIL.as_view()), 
+                                          
             url(r'^tags/$', assets_api.tags_list), 
             url(r'^tags/(?P<id>[0-9]+)/$',assets_api.tags_detail),    
-            url(r'^tags/assets/(?P<id>[0-9]+)/$',assets_api.tags_assets),                   
-            url(r'^user/$', users_api.user_list), 
-            url(r'^user/(?P<id>[0-9]+)/$',users_api.user_detail), 
+            url(r'^tags/assets/(?P<id>[0-9]+)/$',assets_api.tags_assets),  
+                                       
             url(r'^idc/$', assets_api.idc_list), 
             url(r'^idc/(?P<id>[0-9]+)/$',assets_api.idc_detail),    
             url(r'^idc/idle/$', assets_api.idle_list), 

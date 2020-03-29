@@ -8,7 +8,7 @@ from .assets import AssetsBase
 from django.http import QueryDict
 from utils.deploy.git import GitTools
 from utils.deploy.svn import SvnTools 
-from django.contrib.auth.models import User
+from account.models import User
 from utils import base
 import uuid,random,json
 from cicd.service.deploy import DeployRunner

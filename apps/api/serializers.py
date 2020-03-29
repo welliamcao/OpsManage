@@ -11,7 +11,7 @@ from navbar.models import *
 from wiki.models import *
 from orders.models import *
 from apply.models import *
-from django.contrib.auth.models import Group,User
+from account.models import User,Structure,Role
 from django_celery_beat.models  import CrontabSchedule,IntervalSchedule,PeriodicTask
 from django_celery_results.models import TaskResult 
 from rest_framework.pagination import CursorPagination
@@ -24,15 +24,21 @@ class PageConfig(CursorPagination):
     max_page_size = 200
 
 class UserSerializer(serializers.ModelSerializer):
-    date_joined = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S")
-    last_login = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S")
+    date_joined = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S",required=False)
+    last_login = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S",required=False)
+    superior_name = serializers.SerializerMethodField(read_only=True,required=False)
     class Meta:
         model = User
         fields = ('id','last_login','is_superuser','username',
                   'first_name','last_name','email','is_staff',
-                  'is_active','date_joined')       
- 
-           
+                  'is_active','date_joined',"mobile","name","department",
+                  'post','superior','roles','superior_name'
+                  )     
+        
+    def get_superior_name(self,obj):
+        return obj.superior_name()
+              
+        
 class BusinessEnvSerializer(serializers.ModelSerializer):
     class Meta:
         model = Business_Env_Assets
@@ -69,10 +75,28 @@ class BusinessTreeSerializer(serializers.ModelSerializer):
     def get_icon(self,obj):
         return obj.icon()
     
-class GroupSerializer(serializers.ModelSerializer):
+class RoleSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Group
-        fields = ('id','name')
+        model = Role
+        fields = ('id','name','desc')
+        
+class StructureSerializer(serializers.ModelSerializer):
+    paths = serializers.SerializerMethodField(read_only=True,required=False)
+    icon = serializers.SerializerMethodField(read_only=True,required=False)
+    last_node = serializers.SerializerMethodField(read_only=True,required=False)    
+    class Meta:
+        model = Structure
+        fields = ('id','text','desc', 'type', 'parent', 'mail_group', 'wechat_webhook_url', 'dingding_webhook_url','icon','paths','last_node','tree_id')     
+           
+    def get_paths(self,obj):
+        return obj.node_path()
+    
+    def get_last_node(self,obj):
+        return obj.last_node()
+    
+    def get_icon(self,obj):
+        return obj.icon()
+
           
 class TagsSerializer(serializers.ModelSerializer):
     class Meta:

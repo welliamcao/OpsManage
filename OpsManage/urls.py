@@ -15,7 +15,7 @@ Including another URLconf
 """
 from django.conf.urls import url,include
 from django.contrib import admin
-from OpsManage.views import index,users
+from OpsManage.views import index
 from django.conf.urls import handler404
 
 urlpatterns = [
@@ -25,9 +25,6 @@ urlpatterns = [
     url(r'^logout/$', index.logout),
     url(r'^403/$', index.Permission.as_view()),
     url(r'^404/$', index.PageError.as_view()),
-    url(r'^user/manage/$', users.UserManage.as_view()),
-    url(r'^user/center/$', users.UserCenter.as_view()),
-    url(r'^group/manage/$', users.GroupManage.as_view()),
     url(r'^api/',include('api.urls')),
     url(r'^assets/',include('asset.urls')),
     url(r'^deploy/',include('deploy.urls')),
@@ -39,6 +36,7 @@ urlpatterns = [
     url(r'^wiki/',include('wiki.urls')),
     url(r'^order/',include('orders.urls')),
     url(r'^apply/',include('apply.urls')),
+    url(r'^account/',include('account.urls')),
 ]
 
 handler404 = index.PageError.as_view()

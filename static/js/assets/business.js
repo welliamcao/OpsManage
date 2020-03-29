@@ -336,7 +336,7 @@ function abolishAssetBind(select_node,dataList){
 }
 
 function create_nodes(obj,inst){
-	var userList = requests("get","/api/user/")
+	var userList = requests("get","/api/account/user/")
 	var userHtml = '<select required="required" class="form-control" name="manage"  autocomplete="off">'
 	var userSelectHtml = '<option value="0">继承</option>';
 	for (var i=0; i <userList.length; i++){
@@ -423,7 +423,7 @@ function create_nodes(obj,inst){
 }
 
 function modf_nodes(obj,inst){
-	var userList = requests("get","/api/user/")
+	var userList = requests("get","/api/account/user/")
 	var userHtml = '<select required="required" class="form-control" name="manage"  autocomplete="off">'
 	var userSelectHtml = '<option value="0">继承</option>';
 	for (var i=0; i <userList.length; i++){
@@ -1036,7 +1036,7 @@ function drawTree(ids,dataList){
 
 
 
-RefreshUserInfo(requests("get","/api/user/"))
+RefreshUserInfo(requests("get","/api/account/user/"))
 
 var envDataList = requests('get',"/api/business/env/")
 
@@ -1231,7 +1231,7 @@ $(document).ready(function() {
             className: "btn-xs",
             action: function ( e, dt, node, config ) {
             	$('#addBusinessRootModal').modal("show");	
-            	makeSelect('businessRootManageSelect','username','manage',requests("get","/api/user/"))
+            	makeSelect('businessRootManageSelect','username','manage',requests("get","/api/account/user/"))
             	makeSelect('businessRootEnvSelect','name','env',requests("get","/api/business/env/"))								            	
             }
         }]
@@ -1252,7 +1252,7 @@ $(document).ready(function() {
 		var manage = td.eq(3).text(); 
 		var group = td.eq(4).text(); 
 		var desc = td.eq(6).text(); 
-    	var userList = requests("get","/api/user/")
+    	var userList = requests("get","/api/account/user/")
 		var userHtml = '<select required="required" class="form-control" name="manage"  autocomplete="off">'
 		var userSelectHtml = '';
 		for (var i=0; i <userList.length; i++){

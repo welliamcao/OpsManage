@@ -1054,7 +1054,7 @@ $(document).ready(function() {
     function makeAppsRole(){
 		$.ajax({
 			dataType: "JSON",
-			url:"/api/user/" ,  
+			url:"/api/account/user/" ,  
 			type:"get",  //提交类似
 			async:false,
             error: function(response) {  

@@ -422,7 +422,7 @@ $(document).ready(function() {
 		if($('#user').length){
 			$.ajax({
 				async : true,  
-				url:'/api/user/', //请求地址
+				url:'/api/account/user/', //请求地址
 				type:"GET",  //提交类似
 				success:function(response){
 					var binlogHtml = '<select required="required" class="selectpicker form-control" data-live-search="true"  data-size="10" data-width="100%" name="user" id="user"  autocomplete="off"><option selected="selected" value="">请选择一个用户</option>	'

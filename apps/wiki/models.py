@@ -5,8 +5,7 @@ from django.db import models
 
 # Create your models here.
 
-from django.contrib.auth.models import User
-
+from account.models import User
 
 
 class Category(models.Model):
@@ -52,7 +51,7 @@ class Post(models.Model):
     modified_time = models.DateTimeField(auto_now_add=True,verbose_name='修改时间')
     category = models.ForeignKey(Category,verbose_name='分类', on_delete=models.CASCADE)
     tags = models.ManyToManyField(Tag, blank=True,verbose_name='标签')
-    author = models.ForeignKey(User,verbose_name='创建者', on_delete=models.CASCADE)
+    author = models.ForeignKey(User,related_name='user_post',verbose_name='创建者', on_delete=models.CASCADE)
 
     class Meta:
         db_table = 'opsmanage_wiki_post'

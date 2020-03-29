@@ -3,7 +3,7 @@
 #coding: utf8
 from wiki.models import Category,Tag,Post
 from utils.logger import logger
-from django.contrib.auth.models import User
+from account.models import User
 from dao.base import DjangoCustomCursors,DataHandle
 
 class WikeManage(DataHandle):

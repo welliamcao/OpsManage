@@ -2,7 +2,7 @@
 # _#_ coding:utf-8 _*_  
 from django.db import models
 import django.utils.timezone as timezone
-from django.contrib.auth.models import User
+from account.models import User
 from datetime import datetime
 from mptt.models import MPTTModel, TreeForeignKey
 
@@ -51,6 +51,7 @@ class Assets(models.Model):
     mark = models.TextField(blank=True,null=True,verbose_name='资产标示')
     cabinet = models.SmallIntegerField(blank=True,null=True,verbose_name='机柜位置')
     business_tree = models.ManyToManyField('Business_Tree_Assets',blank=True)
+    department_tree = models.ManyToManyField('account.Structure',blank=True)
     create_date = models.DateTimeField(auto_now_add=True)
     update_date = models.DateTimeField(auto_now_add=True)
     class Meta:

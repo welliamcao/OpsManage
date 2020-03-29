@@ -911,7 +911,7 @@ $(document).ready(function() {
 		$("#modf_user_pw_btn").on("click", function(){
 	    	$.ajax({  
 	            type: "POST",  
-	            url:"/user/manage/",  
+	            url:"/account/user/manage/",  
 				data:{
 					"type":"change_passwd",
 					"id":$("#userid").val(),

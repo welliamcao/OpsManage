@@ -9,10 +9,10 @@ def apsched_notice(jobs, jobLogs):
     
     if jobLogs.get("status") == 0:status = "成功"
     
-    message = """<strong>节点:</strong> {job_node}<br>
-                 <strong>命令:</strong> {job_cmd}<br>
-                 <strong>执行结果:</strong> {result}<br>
-                 <strong>执行状态:</strong> {status}""".format(job_node=jobs.get("job_node"),job_cmd=jobs.get("job_cmd"),
+    message = """<strong>节点: </strong> {job_node}<br>
+                 <strong>命令: </strong> {job_cmd}<br>
+                 <strong>执行结果: </strong> {result}<br>
+                 <strong>执行状态: </strong> {status}""".format(job_node=jobs.get("job_node"),job_cmd=jobs.get("job_cmd"),
                                                                                                           result=jobLogs.get("result"), status=status)
 
     if jobs.get("notice_type") == 0:    

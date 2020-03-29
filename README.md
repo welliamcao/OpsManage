@@ -98,6 +98,7 @@ mysql>\q
 六、生成数据表与管理员账户
 ```
 # cd /mnt/OpsManage/
+# /usr/local/python3/bin/python3 manage.py makemigrations account
 # /usr/local/python3/bin/python3 manage.py makemigrations wiki
 # /usr/local/python3/bin/python3 manage.py makemigrations orders
 # /usr/local/python3/bin/python3 manage.py makemigrations filemanage

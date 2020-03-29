@@ -3,7 +3,7 @@
 import json  
 from django.db import models
 import django.utils.timezone as timezone
-from django.contrib.auth.models import User
+from account.models import User
 from datetime import datetime
 
 # Create your models here.

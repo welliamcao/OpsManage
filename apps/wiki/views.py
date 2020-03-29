@@ -5,7 +5,7 @@ from django.shortcuts import render
 from django.contrib.auth.decorators import permission_required
 from django.contrib.auth.decorators import login_required
 from wiki.models import  Tag,Post,Category
-from django.contrib.auth.models import User
+from account.models import User
 from utils.logger import logger
 from utils import base 
 # Create your views here.

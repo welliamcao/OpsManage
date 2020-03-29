@@ -117,7 +117,7 @@ var userInfo = {
 $(document).ready(function() {
 	
 	$(function(){
-		var userList = requests("get","/api/user/")
+		var userList = requests("get","/api/account/user/")
 		for (var i=0; i <userList.length; i++){
 			userInfo[userList[i]["id"]] = userList[i]
 		}		

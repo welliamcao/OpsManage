@@ -167,7 +167,7 @@
 								   <select class="form-control" name="asset_group"  required>
 								   		<option selected="selected" value="">请选择一个类型</option>
 											{% for g in assets.groupList %}
-												<option value="{{g.id}}" name="asset_group">{{g.name}}</option>
+												<option value="{{g.id}}" name="asset_group">{{g.paths}}</option>
 											{% endfor %}							   		
 									</select>
 								 </div>

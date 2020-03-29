@@ -3,7 +3,7 @@
 import random,os,json
 from dao.base import DjangoCustomCursors,DataHandle,Struct
 from dao.assets import AssetsSource,AssetsBase
-from django.contrib.auth.models import User
+from account.models import User
 from filemanage.models import *
 from orders.models import *
 from databases.models import Database_Detail
