@@ -52,7 +52,6 @@ def user_detail(request, id,format=None):
         return Response(serializer.data)
  
     elif request.method == 'PUT':
-        print(request.data)
         serializer = serializers.UserSerializer(snippet, data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -147,7 +146,6 @@ class STRUCTURE_TREE_LIST(APIView):
         root_nodes = cache_tree_children(tree_list)
         dicts = []
         for n in root_nodes:
-            print(n)
             dicts.append(self.recursive_node_to_dict(n))
      
         return Response(dicts)     

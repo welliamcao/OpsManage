@@ -226,6 +226,7 @@
 			                          <th>ID</th>
 			                          <th>名称</th>
 			                          <th>备注</th>
+			                          <th>部门负责人</th>
 			                          <th>类型</th>
 			                          <th>邮件组地址</th>
 			                          <th>企业微信地址</th>
@@ -296,7 +297,7 @@
               <div class="modal-body">
                     <form id="structureRootForm" class="main form-horizontal">{% csrf_token %}                   
                       <div class="item form-group">
-                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="structure-node-name">名称 <span class="required">*</span>
+                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="structure-node-name">名称 <span class="required"></span>
                         </label>
                         <div class="col-md-6 col-sm-6 col-xs-12">
                           <input type="text" required="required" id="structure-node-name" name="text" class="form-control col-md-7 col-xs-12">
@@ -313,11 +314,19 @@
                         <label class="control-label col-md-3 col-sm-3 col-xs-12" for="structure-node-type">类型 <span class="required"></span>
                         </label>
                         <div class="col-md-6 col-sm-6 col-xs-12">
-                          <select class="form-control" id="structure-node-type" name="type">
+                          <select class="selectpicker form-control" id="structure-node-type" name="type">
                           	<option value="unit">单位</option>
                           </select>
                         </div>
                       </div>  
+                      <div class="item form-group">
+                        <label class="control-label col-md-3 col-sm-3 col-xs-12">负责人<span class="required"></span>
+                        </label>
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                          <select class="selectpicker form-control" id="structure-node-manage" data-live-search="true" data-live-search-placeholder="搜索" data-none-Selected-Text="请选择" data-size="10" name="manage" title="部门负责人">
+                          </select>
+                        </div>
+                      </div>                       
                       <div class="item form-group">
                         <label class="control-label col-md-3 col-sm-3 col-xs-12" for="structure-node-desc">邮件<span class="required"></span>
                         </label>

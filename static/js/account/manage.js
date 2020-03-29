@@ -377,6 +377,10 @@ function makeStructureTreeTables(){
 					{
                     	"data": "desc",
                     	"defaultContent" :"",
+					},
+					{
+						"data": "manage_name",
+						"defaultContent" :"",
 					},						
                     {
 						"data": "type",
@@ -397,7 +401,7 @@ function makeStructureTreeTables(){
 	               ]
     var columnDefs = [		
 				        {
-							targets: [3],
+							targets: [4],
 							render: function(data, type, row, meta) {		    	    					
 				                if(row.type=="unit"){
 				                	return "单位"
@@ -408,7 +412,7 @@ function makeStructureTreeTables(){
 							"className": "text-center",
 				        },    	
 	    		        {
-    	    				targets: [7],
+    	    				targets: [8],
     	    				render: function(data, type, row, meta) {		    	    					
     	                        return '<div class="btn-group  btn-group-xs">' +
     	                        	   	'<button type="button" name="btn-structure-root-tree" value="'+ row.tree_id +'" class="btn btn-default"  aria-label="Justify"><span class="fa fa-search-plus" aria-hidden="true"></span>' +	
@@ -426,9 +430,9 @@ function makeStructureTreeTables(){
         text: '<span class="fa fa-plus"></span>',
         className: "btn-xs",
         action: function ( e, dt, node, config ) {
+        	let dataList = requests("get","/api/account/user/")
+        	makeSelectpicker("structure-node-manage","username",dataList) 	
         	$('#addStructureRootModal').modal("show");	
-//        	makeSelect('businessRootManageSelect','username','manage',requests("get","/api/account/user/"))
-//        	makeSelect('businessRootEnvSelect','name','env',requests("get","/api/business/env/"))								            	
         }
     }]
 	InitUrlDataTable('structureRootTableLists',"/api/account/structure/nodes/",buttons,columns,columnDefs)			
@@ -466,7 +470,7 @@ function drawTree(ids,dataList){
 function create_nodes(obj,inst){
 	var userList = requests("get","/api/account/user/")
 	var userHtml = '<select required="required" class="form-control" name="manage"  autocomplete="off">'
-	var userSelectHtml = '<option value="0">继承</option>';
+	var userSelectHtml = '<option value="">无</option>';
 	for (var i=0; i <userList.length; i++){
 		userSelectHtml += '<option value="'+ userList[i]["id"] +'">'+ userList[i]["username"] +'</option>' 						 
 	};  
@@ -490,6 +494,13 @@ function create_nodes(obj,inst){
 			              '<input type="text"  name="desc" value="" required="required" class="form-control col-md-7 col-xs-12">' +
 			            '</div>' +
 			          '</div>' +
+			          '<div class="form-group">' +
+			            '<label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">负责人 <span class="required">*</span>' +
+			            '</label>' +
+			            '<div class="col-md-6 col-sm-6 col-xs-12">' +
+			            		userHtml +
+			            '</div>' +
+			          '</div>' +				          
 			          '<div class="form-group">' +
 			            '<label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">邮件 <span class="required">*</span>' +
 			            '</label>' +
@@ -557,18 +568,18 @@ function create_nodes(obj,inst){
 }
 
 function modf_nodes(obj,inst){
-//	var userList = requests("get","/api/account/user/")
-//	var userHtml = '<select required="required" class="form-control" name="manage"  autocomplete="off">'
-//	var userSelectHtml = '<option value="0">继承</option>';
-//	for (var i=0; i <userList.length; i++){
-//		if (obj.original["manage"]==userList[i]["id"]){
-//			userSelectHtml += '<option selected="selected" value="'+ userList[i]["id"] +'">'+ userList[i]["username"] +'</option>'
-//		}else{
-//			userSelectHtml += '<option value="'+ userList[i]["id"] +'">'+ userList[i]["username"] +'</option>'
-//		}
-//		 						 
-//	};  
-//	userHtml =  userHtml + userSelectHtml + '</select>';
+	var userList = requests("get","/api/account/user/")
+	var userHtml = '<select required="required" class="form-control" name="manage"  autocomplete="off">'
+	var userSelectHtml = '<option value="">无</option>';
+	for (var i=0; i <userList.length; i++){
+		if (obj.original["manage"]==userList[i]["id"]){
+			userSelectHtml += '<option selected="selected" value="'+ userList[i]["id"] +'">'+ userList[i]["username"] +'</option>'
+		}else{
+			userSelectHtml += '<option value="'+ userList[i]["id"] +'">'+ userList[i]["username"] +'</option>'
+		}
+		 						 
+	};  
+	userHtml =  userHtml + userSelectHtml + '</select>';
 	console.log(obj.original)
     $.confirm({
         icon: 'fa fa-plus',
@@ -582,13 +593,20 @@ function modf_nodes(obj,inst){
 			           '<input type="text"  name="text" value="'+  obj.original["text"] +'" required="required" class="form-control col-md-7 col-xs-12">' +
 			        '</div>' +
 			      '</div>' +				          
-			        '<div class="form-group">' +
+			      '<div class="form-group">' +
 			        '<label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">备注 <span class="required">*</span>' +
 			        '</label>' +
 			        '<div class="col-md-6 col-sm-6 col-xs-12">' +
 			          '<input type="text"  name="desc" value="'+ obj.original["desc"] +'" required="required" class="form-control col-md-7 col-xs-12">' +
 			        '</div>' +
 			      '</div>' +
+			      '<div class="form-group">' +
+			        '<label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">负责人 <span class="required">*</span>' +
+			        '</label>' +
+			        '<div class="col-md-6 col-sm-6 col-xs-12">' +
+			        		userHtml +
+			        '</div>' +
+			      '</div>' +			      
 			      '<div class="form-group">' +
 			        '<label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">邮件 <span class="required">*</span>' +
 			        '</label>' +
@@ -830,7 +848,7 @@ function makeMemberTableList(dataList,select_node){
            action: function (e, dt, button, config) {        	
         	let dataList = requests("get","/api/account/structure/nodes/member/"+ select_node["id"] +"/?type=unallocated")
         	if (dataList.length){
-        		makeSelectpicker("addStructureMemberSelect","name",dataList)
+        		makeSelectpicker("addStructureMemberSelect","username",dataList)
         		$('#addStructureMemberModal').modal("show");
         		$("#addStructureMemberModalLabel").html('<h4 class="modal-title" id="addStructureMemberModalLabel"><code>'+ select_node["paths"] +'</code> 关联成员</h4>')
         		$("#addStructureMemberSubmit").val(select_node["id"])         		
@@ -1662,7 +1680,7 @@ $(document).ready(function() {
 
 	makeStructureTreeTables()	
 	
-    $('#addStructureRootSubmit').on('click', function() {
+    $('#addStructureRootSubmit').on('click', function() {   	 	
     	$.ajax({  
             cache: true,  
             type: "POST",  
@@ -1760,9 +1778,23 @@ $(document).ready(function() {
     	var td = $(this).parent().parent().parent().find("td")
 		let text = td.eq(1).text(); 
     	let desc = td.eq(2).text(); 
+    	let manage = td.eq(3).text();
     	let mail_group = td.eq(4).text(); 
     	let wechat_webhook_url = td.eq(5).text(); 	
     	let dingding_webhook_url = td.eq(6).text(); 	
+
+		let selectHtmls = '<select class="form-control"  name="manage" title="上级"><option value="">无</option>'
+    	let optionHtml = ''
+    	let dataList = requests("get","/api/account/user/")
+		for (var i=0; i <dataList.length; i++){
+			if (manage==dataList[i]['username'] || manage==dataList[i]['name']){
+				optionHtml += '<option selected="selected" value="'+ dataList[i]["id"] +'">'+ dataList[i]['username'] +'</option>' 	
+			}else{
+				optionHtml += '<option value="'+ dataList[i]["id"] +'">'+ dataList[i]['username'] +'</option>' 	
+			}
+							 
+		};   	
+		selectHtmls = selectHtmls + optionHtml + '</select>'; 
 	    $.confirm({
 	        icon: 'fa fa-edit',
 	        type: 'blue',
@@ -1775,13 +1807,20 @@ $(document).ready(function() {
 			               '<input type="text"  name="text" value="'+ text +'" required="required" class="form-control col-md-7 col-xs-12">' +
 			            '</div>' +
 			          '</div>' +				          
-			            '<div class="form-group">' +
+			          '<div class="form-group">' +
 			            '<label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">备注 <span class="required">*</span>' +
 			            '</label>' +
 			            '<div class="col-md-6 col-sm-6 col-xs-12">' +
 			              '<input type="text"  name="desc" value="'+ desc +'" required="required" class="form-control col-md-7 col-xs-12">' +
 			            '</div>' +
 			          '</div>' +
+			          '<div class="form-group">' +
+			            '<label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">负责人 <span class="required">*</span>' +
+			            '</label>' +
+			            '<div class="col-md-6 col-sm-6 col-xs-12">' +
+			            		selectHtmls +
+			            '</div>' +
+			          '</div>' +			          
 			          '<div class="form-group">' +
 			            '<label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">邮件 <span class="required">*</span>' +
 			            '</label>' +

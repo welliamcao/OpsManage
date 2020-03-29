@@ -1,7 +1,6 @@
 #!/usr/bin/env python  
 # _#_ coding:utf-8 _*_
 from django.db import models
-from django.contrib import auth
 from django.contrib.auth.models import AbstractUser, Permission
 from mptt.models import MPTTModel, TreeForeignKey
 
@@ -38,6 +37,7 @@ class Structure(MPTTModel):
     desc = models.CharField(max_length=150, blank=True, null=True, verbose_name="描述")
     type = models.CharField(max_length=20, choices=type_choices, default="department", verbose_name="类型")
     parent = TreeForeignKey('self', on_delete=models.SET_NULL, verbose_name='上级业务', null=True, blank=True,db_index=True ,related_name='children')
+    manage = models.SmallIntegerField(blank=True,null=True,verbose_name='负责人')
     mail_group = models.CharField(max_length=200, verbose_name="邮件群组地址", blank=True, null=True)
     wechat_webhook_url = models.TextField(verbose_name="企业微信群聊机器人WebHook", blank=True, null=True)
     dingding_webhook_url = models.TextField(verbose_name="钉钉群聊机器人WebHook", blank=True, null=True)
@@ -81,7 +81,22 @@ class Structure(MPTTModel):
         if self.is_leaf_node():
             return 'fa fa-minus-square-o' 
         return icon           
+    
+    def manage_name(self):
+        
+        if self.manage:
 
+            try:
+                user =  User.objects.get(id=self.manage)
+            except:
+                return "无"
+            
+            if user.name:
+                return user.name
+            else:
+                return user.username
+
+                
     def to_json(self):
         if self.parent: 
             parentId = self.parent.id
@@ -97,6 +112,8 @@ class Structure(MPTTModel):
             "lft":self.lft,
             "rght":self.rght,
             "paths":self.node_path(),
+            "manage":self.manage,
+            "manage_name":self.manage_name(),
             "last_node":self.last_node(),
             "parentId": parentId,    
             "mail_group":self.mail_group,
@@ -113,7 +130,8 @@ class User(AbstractUser):
     post = models.CharField(max_length=50, null=True, blank=True, verbose_name="职位")
     superior = models.ForeignKey("self", null=True, blank=True, on_delete=models.SET_NULL, verbose_name="上级主管")
     roles = models.ManyToManyField("Role", verbose_name="角色", blank=True)
-      
+
+     
     class Meta:
         db_table = 'opsmanage_user'
         default_permissions = ()

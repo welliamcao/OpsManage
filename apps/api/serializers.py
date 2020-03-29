@@ -83,10 +83,11 @@ class RoleSerializer(serializers.ModelSerializer):
 class StructureSerializer(serializers.ModelSerializer):
     paths = serializers.SerializerMethodField(read_only=True,required=False)
     icon = serializers.SerializerMethodField(read_only=True,required=False)
-    last_node = serializers.SerializerMethodField(read_only=True,required=False)    
+    last_node = serializers.SerializerMethodField(read_only=True,required=False) 
+    manage_name = serializers.SerializerMethodField(read_only=True,required=False)    
     class Meta:
         model = Structure
-        fields = ('id','text','desc', 'type', 'parent', 'mail_group', 'wechat_webhook_url', 'dingding_webhook_url','icon','paths','last_node','tree_id')     
+        fields = ('id','text','desc', 'type', 'parent', 'mail_group','manage','manage_name','wechat_webhook_url', 'dingding_webhook_url','icon','paths','last_node','tree_id')     
            
     def get_paths(self,obj):
         return obj.node_path()
@@ -96,7 +97,9 @@ class StructureSerializer(serializers.ModelSerializer):
     
     def get_icon(self,obj):
         return obj.icon()
-
+    
+    def get_manage_name(self,obj):
+        return obj.manage_name()
           
 class TagsSerializer(serializers.ModelSerializer):
     class Meta:
