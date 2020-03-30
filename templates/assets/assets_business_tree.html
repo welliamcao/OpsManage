@@ -105,7 +105,7 @@
 				                    <div class="clearfix"></div>
 				                  </div>
 				                  <div class="x_content">
-				                    <table class="table table-striped table-bordered" id="businessLastNodesAssetsTableList">
+				                    <table class="table table-striped table-bordered" id="businessLastNodesAssetsTableLists">
 				                      <thead>
 				                        <tr>
 				                          <th class="text-center">选择</th>                       
@@ -363,14 +363,16 @@
                         <label class="control-label col-md-3 col-sm-3 col-xs-12" for="group-name">所属部门 <span class="required"></span>
                         </label>
                         <div class="col-md-6 col-sm-6 col-xs-12">
-                          <input type="text"  required="required" id="group-name" name="group" class="form-control col-md-7 col-xs-12">
+<!--                           <input type="text"  required="required" id="groupName" name="group" class="form-control col-md-7 col-xs-12"> -->
+                          <select class="selectpicker form-control" id="groupName" name="group">
+                          </select>                          
                         </div>
                       </div>                      
                       <div class="item form-group">
                         <label class="control-label col-md-3 col-sm-3 col-xs-12" for="businessRootManageSelect">负责人 <span class="required"></span>
                         </label>
                         <div class="col-md-6 col-sm-6 col-xs-12">
-                          <select class="form-control" id="businessRootManageSelect" name="manage">
+                          <select class="selectpicker form-control" id="businessRootManageSelect" name="manage">
                           </select>
                         </div>
                       </div>

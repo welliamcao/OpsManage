@@ -50,9 +50,10 @@ class BusinessTreeSerializer(serializers.ModelSerializer):
     last_node = serializers.SerializerMethodField(read_only=True,required=False)
     manage_name = serializers.SerializerMethodField(read_only=True,required=False)
     env_name = serializers.SerializerMethodField(read_only=True,required=False)
+    group_paths = serializers.SerializerMethodField(read_only=True,required=False)
     class Meta:
         model = Business_Tree_Assets
-        fields = ('id','text','env','env_name','manage','manage_name','parent','group','desc','icon','paths','last_node','tree_id')          
+        fields = ('id','text','env','env_name','manage','manage_name','parent','group','group_paths','desc','icon','paths','last_node','tree_id')          
     
     def get_env_name(self,obj):
         try:
@@ -74,6 +75,9 @@ class BusinessTreeSerializer(serializers.ModelSerializer):
     
     def get_icon(self,obj):
         return obj.icon()
+    
+    def get_group_paths(self,obj):
+        return obj.group_path()
     
 class RoleSerializer(serializers.ModelSerializer):
     class Meta:

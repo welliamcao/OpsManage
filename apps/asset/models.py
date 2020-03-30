@@ -2,7 +2,7 @@
 # _#_ coding:utf-8 _*_  
 from django.db import models
 import django.utils.timezone as timezone
-from account.models import User
+from account.models import User,Structure
 from datetime import datetime
 from mptt.models import MPTTModel, TreeForeignKey
 
@@ -307,7 +307,7 @@ class Business_Tree_Assets(MPTTModel):
     env = models.SmallIntegerField(blank=True,null=True,verbose_name='项目环境')
     parent = TreeForeignKey('self', on_delete=models.CASCADE, verbose_name='上级业务', null=True, blank=True,db_index=True ,related_name='children')
     manage = models.SmallIntegerField(blank=True,null=True,verbose_name='项目负责人')
-    group = models.CharField(blank=True,null=True,max_length=100,verbose_name='所属部门')   
+    group = models.SmallIntegerField(blank=True,null=True,verbose_name='所属部门')   
     desc = models.CharField(blank=True,null=True,max_length=200) 
 
     class Meta:
@@ -357,7 +357,13 @@ class Business_Tree_Assets(MPTTModel):
         if self.is_leaf_node():
             return 'fa fa-minus-square-o' 
         return icon           
-
+    
+    def group_path(self):
+        if self.group:
+            return Structure.objects.get(id=self.group).node_path()
+        return "无"
+            
+    
     def to_json(self):
         if self.parent: 
             parentId = self.parent.id
@@ -370,6 +376,7 @@ class Business_Tree_Assets(MPTTModel):
             "level":self.level,
             "manage":self.manage,
             "group":self.group,
+            "group_paths":self.group_path(),
             "desc":self.desc,
             "tree_id":self.tree_id,
             "lft":self.lft,

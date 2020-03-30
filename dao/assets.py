@@ -417,7 +417,7 @@ class AssetsCount(DjangoCustomCursors):
         
     def groupAssets(self):
         try:
-            return [ {"count":ds.count,"name":ds.name} for ds in Group.objects.raw("""SELECT t1.id,count(*) as count,t1.name from auth_group t1, opsmanage_assets t2 WHERE t2.group = t1.id GROUP BY t1.id ORDER BY count desc limit 5""")]
+            return [ {"count":ds.count,"name":ds.text} for ds in Group.objects.raw("""SELECT t1.id,count(*) as count,t1.text from opsmanage_structure t1, opsmanage_assets t2 WHERE t2.group = t1.id GROUP BY t1.id ORDER BY count desc limit 5;""")]
         except Exception as ex:
             logger.error(msg="统计业务组主机资产失败:{ex}".format(ex=ex))
         return self.dataList

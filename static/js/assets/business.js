@@ -168,13 +168,14 @@ function updateAssetsByAnsible(dataList,ids){
 
 
 function makeSelect(ids,key,name,dataList){
-	var userHtml = '<select required="required" class="form-control" name="'+ name +'" autocomplete="off">'
+	var userHtml = '<select required="required" class="form-control" name="'+ name +'" autocomplete="off"><option value="" selected="selected">请选择</option>'
 	var selectHtml = '';
 	for (var i=0; i <dataList.length; i++){
 		selectHtml += '<option value="'+ dataList[i]["id"] +'">'+ dataList[i][key] +'</option>' 					 
 	};                        
 	userHtml =  userHtml + selectHtml + '</select>';
 	document.getElementById(ids).innerHTML = userHtml;	
+	$("#"+ids).selectpicker('refresh');
 }
 
 function makeAssetsSelectpicker(ids,key,name,dataList){
@@ -338,11 +339,20 @@ function abolishAssetBind(select_node,dataList){
 function create_nodes(obj,inst){
 	var userList = requests("get","/api/account/user/")
 	var userHtml = '<select required="required" class="form-control" name="manage"  autocomplete="off">'
-	var userSelectHtml = '<option value="0">继承</option>';
+	var userSelectHtml = '<option value="">继承</option>';
 	for (var i=0; i <userList.length; i++){
 		userSelectHtml += '<option value="'+ userList[i]["id"] +'">'+ userList[i]["username"] +'</option>' 						 
 	};  
 	userHtml =  userHtml + userSelectHtml + '</select>';	
+	
+	var groupList = requests("get","/api/account/group/")
+	var groupHtml = '<select required="required" class="form-control" name="group"  autocomplete="off">'
+	var groupSelectHtml = '<option value="">继承</option>';
+	for (var i=0; i <groupList.length; i++){
+		groupSelectHtml += '<option value="'+ groupList[i]["id"] +'">'+ groupList[i]["paths"] +'</option>' 						 
+	};  
+	groupHtml =  groupHtml + groupSelectHtml + '</select>';	
+	
     $.confirm({
         icon: 'fa fa-plus',
         type: 'green',
@@ -359,7 +369,7 @@ function create_nodes(obj,inst){
 		            '<label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">所属部门 ' +
 		            '</label>' +
 		            '<div class="col-md-6 col-sm-6 col-xs-12">' +
-		              '<input type="text"  name="group" value="" required="required" class="form-control col-md-7 col-xs-12">' +
+		               groupHtml +
 		            '</div>' +
 		          '</div>' +			          
 		          '<div class="form-group">' +
@@ -425,7 +435,7 @@ function create_nodes(obj,inst){
 function modf_nodes(obj,inst){
 	var userList = requests("get","/api/account/user/")
 	var userHtml = '<select required="required" class="form-control" name="manage"  autocomplete="off">'
-	var userSelectHtml = '<option value="0">继承</option>';
+	var userSelectHtml = '<option value="">继承</option>';
 	for (var i=0; i <userList.length; i++){
 		if (obj.original["manage"]==userList[i]["id"]){
 			userSelectHtml += '<option selected="selected" value="'+ userList[i]["id"] +'">'+ userList[i]["username"] +'</option>'
@@ -435,6 +445,20 @@ function modf_nodes(obj,inst){
 		 						 
 	};  
 	userHtml =  userHtml + userSelectHtml + '</select>';	
+	
+	var groupList = requests("get","/api/account/group/")
+	var groupHtml = '<select required="required" class="form-control" name="group"  autocomplete="off">'
+	var groupSelectHtml = '<option value="">继承</option>';
+	for (var i=0; i <groupList.length; i++){
+		if (obj.original["manage"]==groupList[i]["id"]){
+			groupSelectHtml += '<option selected="selected" value="'+ groupList[i]["id"] +'">'+ groupList[i]["paths"] +'</option>'
+		}else{
+			groupSelectHtml += '<option value="'+ groupList[i]["id"] +'">'+ groupList[i]["paths"] +'</option>'
+		}
+		 						 
+	};  
+	groupHtml =  groupHtml + groupSelectHtml + '</select>';	
+	
     $.confirm({
         icon: 'fa fa-plus',
         type: 'blue',
@@ -451,14 +475,14 @@ function modf_nodes(obj,inst){
 		            '<label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">所属部门 ' +
 		            '</label>' +
 		            '<div class="col-md-6 col-sm-6 col-xs-12">' +
-		              '<input type="text"  name="group" value="'+ obj.original["group"] +'" required="required" class="form-control col-md-7 col-xs-12">' +
+		            	groupHtml +
 		            '</div>' +
 		          '</div>' +			          
 		          '<div class="form-group">' +
 		            '<label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">负责人' +
 		            '</label>' +
 		            '<div class="col-md-6 col-sm-6 col-xs-12">' +
-		              userHtml +
+		              	userHtml +
 		            '</div>' +
 		          '</div>' + 
 		          '<div class="form-group">' +
@@ -1206,7 +1230,7 @@ $(document).ready(function() {
 	                    {"data": "text"},
 						{"data": "env_name"},						
 	                    {"data": "manage_name"},
-						{"data": "group"},
+						{"data": "group_paths"},
 						{"data": "paths"},
 						{"data": "desc"}
 		               ]
@@ -1229,10 +1253,11 @@ $(document).ready(function() {
         var buttons = [{
             text: '<span class="fa fa-plus"></span>',
             className: "btn-xs",
-            action: function ( e, dt, node, config ) {
-            	$('#addBusinessRootModal').modal("show");	
+            action: function ( e, dt, node, config ) {          		
+            	makeSelect('groupName','paths','group',requests("get","/api/account/group/"))
             	makeSelect('businessRootManageSelect','username','manage',requests("get","/api/account/user/"))
-            	makeSelect('businessRootEnvSelect','name','env',requests("get","/api/business/env/"))								            	
+            	makeSelect('businessRootEnvSelect','name','env',requests("get","/api/business/env/"))		
+            	$('#addBusinessRootModal').modal("show");
             }
         }]
 		InitDataTable('businessRootTableLists',treeDataList,buttons,columns,columnDefs)			
@@ -1245,16 +1270,17 @@ $(document).ready(function() {
 
   //修改项目资产
 	$('#businessRootTableLists tbody').on('click',"button[name='btn-business-root-modf']", function(){
-    	var vIds = $(this).val();
-    	var td = $(this).parent().parent().parent().find("td")
-		var business = td.eq(1).text(); 
-    	var env = td.eq(2).text();
-		var manage = td.eq(3).text(); 
-		var group = td.eq(4).text(); 
-		var desc = td.eq(6).text(); 
-    	var userList = requests("get","/api/account/user/")
-		var userHtml = '<select required="required" class="form-control" name="manage"  autocomplete="off">'
-		var userSelectHtml = '';
+		let vIds = $(this).val();
+    	let td = $(this).parent().parent().parent().find("td")
+		let business = td.eq(1).text(); 
+    	let env = td.eq(2).text();
+    	let manage = td.eq(3).text(); 
+		let group = td.eq(4).text(); 
+		let desc = td.eq(6).text(); 
+		
+		let userList = requests("get","/api/account/user/")
+		let userHtml = '<select required="required" class="form-control" name="manage"  autocomplete="off"><option value="">请选择</option>'
+		let userSelectHtml = '';
 		for (var i=0; i <userList.length; i++){
 			if (userList[i]["username"]==manage){
 				userSelectHtml += '<option selected="selected" value="'+ userList[i]["id"] +'">'+ userList[i]["username"] +'</option>' 	
@@ -1262,10 +1288,11 @@ $(document).ready(function() {
 				userSelectHtml += '<option value="'+ userList[i]["id"] +'">'+ userList[i]["username"] +'</option>' 	
 			}						 
 		};                        
-		userHtml =  userHtml + userSelectHtml + '</select>';	
-    	var envList = requests("get","/api/business/env/")
-		var envHtml = '<select required="required" class="form-control" name="env"  autocomplete="off">'
-		var envSelectHtml = '';
+		userHtml =  userHtml + userSelectHtml + '</select>';
+		
+		let envList = requests("get","/api/business/env/")
+		let envHtml = '<select required="required" class="form-control" name="env"  autocomplete="off"><option value="">请选择</option>'
+		let envSelectHtml = '';
 		for (var i=0; i <envList.length; i++){
 			if (envList[i]["name"]==env){
 				envSelectHtml += '<option selected="selected" value="'+ envList[i]["id"] +'">'+ envList[i]["name"] +'</option>' 	
@@ -1274,7 +1301,21 @@ $(document).ready(function() {
 			}
 							 
 		};                        
-		envHtml =  envHtml + envSelectHtml + '</select>';		
+		envHtml =  envHtml + envSelectHtml + '</select>';
+		
+		let groupList = requests("get","/api/account/group/")
+		let groupHtml = '<select required="required" class="form-control" name="group"  autocomplete="off"><option value="">请选择</option>'
+		let groupSelectHtml = '';
+		for (var i=0; i <groupList.length; i++){
+			if (groupList[i]["paths"]==group){
+				groupSelectHtml += '<option selected="selected" value="'+ groupList[i]["id"] +'">'+ groupList[i]["paths"] +'</option>' 	
+			}else{
+				groupSelectHtml += '<option value="'+ groupList[i]["id"] +'">'+ groupList[i]["paths"] +'</option>' 	
+			}
+							 
+		};                        
+		groupHtml =  groupHtml + groupSelectHtml + '</select>';
+		
 	    $.confirm({
 	        icon: 'fa fa-edit',
 	        type: 'blue',
@@ -1298,7 +1339,7 @@ $(document).ready(function() {
 			            '<label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">所属部门 <span class="required">*</span>' +
 			            '</label>' +
 			            '<div class="col-md-6 col-sm-6 col-xs-12">' +
-			              '<input type="text"  name="group" value="'+ group +'" required="required" class="form-control col-md-7 col-xs-12">' +
+			               groupHtml +
 			            '</div>' +
 			          '</div>' +			          
 			          '<div class="form-group">' +

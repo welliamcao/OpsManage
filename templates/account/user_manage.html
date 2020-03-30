@@ -320,29 +320,26 @@
                         </div>
                       </div>  
                       <div class="item form-group">
-                        <label class="control-label col-md-3 col-sm-3 col-xs-12">负责人<span class="required"></span>
-                        </label>
+                        <label class="control-label col-md-3 col-sm-3 col-xs-12">负责人<span class="required"></span></label>
                         <div class="col-md-6 col-sm-6 col-xs-12">
                           <select class="selectpicker form-control" id="structure-node-manage" data-live-search="true" data-live-search-placeholder="搜索" data-none-Selected-Text="请选择" data-size="10" name="manage" title="部门负责人">
                           </select>
                         </div>
                       </div>                       
                       <div class="item form-group">
-                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="structure-node-desc">邮件<span class="required"></span>
-                        </label>
+                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="structure-node-desc">邮件</label>
                         <div class="col-md-6 col-sm-6 col-xs-12">
-                          <input type="text"  required="required" id="structure-node-mail" name="mail_group" class="form-control col-md-7 col-xs-12">
+                          <input type="text" id="structure-node-mail" name="mail_group" class="form-control col-md-7 col-xs-12">
                         </div>
                       </div>     
                       <div class="item form-group">
-                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="structure-node-desc">微信<span class="required"></span>
-                        </label>
+                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="structure-node-desc">微信</label>
                         <div class="col-md-6 col-sm-6 col-xs-12">
-                          <input type="text"  required="required" id="structure-node-wechat" name="wechat_webhook_url" class="form-control col-md-7 col-xs-12">
+                          <input type="text"  id="structure-node-wechat" name="wechat_webhook_url" class="form-control col-md-7 col-xs-12">
                         </div>
                       </div>     
                       <div class="item form-group">
-                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="structure-node-desc">钉钉<span class="required"></span>
+                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="structure-node-desc">钉钉
                         </label>
                         <div class="col-md-6 col-sm-6 col-xs-12">
                           <input type="text"  required="required" id="structure-node-dingding" name="dingding_webhook_url" class="form-control col-md-7 col-xs-12">
@@ -587,6 +584,7 @@
 {% block js-content %}
 	<script src="/static/jquery-confirm/jquery-confirm.min.js"></script>
 	<script src="/static/jstree/js/jstree.min.js"></script>
+	<script src="/static/validator/validator.js"></script>
     <script src="/static/datatable/datatables.net/js/jquery.dataTables.min.js"></script>
 	<script src="/static/datatable/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>	
     <script src="/static/datatable/datatables.net-buttons/js/dataTables.buttons.min.js"></script>

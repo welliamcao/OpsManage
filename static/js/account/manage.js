@@ -481,7 +481,7 @@ function create_nodes(obj,inst){
         title: '添加部门',
         content: '<form  data-parsley-validate class="form-horizontal form-label-left">' +
 			          '<div class="form-group">' +
-			            '<label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">名称<span class="required">*</span>' +
+			            '<label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">名称 <span class="required">*</span>' +
 			            '</label>' +
 			            '<div class="col-md-6 col-sm-6 col-xs-12">' +
 			               '<input type="text"  name="text" value="" required="required" class="form-control col-md-7 col-xs-12">' +
@@ -509,7 +509,7 @@ function create_nodes(obj,inst){
 			            '</div>' +
 			          '</div>' +			          
 			          '<div class="form-group">' +
-			            '<label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">微信<span class="required">*</span>' +
+			            '<label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">微信 <span class="required">*</span>' +
 			            '</label>' +
 			            '<div class="col-md-6 col-sm-6 col-xs-12">' +
 			              '<input type="text"  name="wechat_webhook_url" value="" required="required" class="form-control col-md-7 col-xs-12">' +

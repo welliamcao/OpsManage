@@ -112,6 +112,8 @@ function AssetsSelect(name,dataList,selectIds){
 			var text = dataList[i]["detail"]["ip"]	
 		}else if(name=="business"){
 			var text = dataList[i]["paths"]
+		}else if(name=="group"){
+			var text = dataList[i]["paths"]
 		}
 		else{
 			var text = dataList[i]["name"]
