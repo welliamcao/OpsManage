@@ -12,7 +12,6 @@ class ModelBackend(object):
     """
 
     def authenticate(self, request, username=None, password=None, **kwargs):
-        print(request,username, password)
         if username is None:
             username = kwargs.get(UserModel.USERNAME_FIELD)
         try:
