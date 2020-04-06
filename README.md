@@ -23,8 +23,8 @@
 ## QQ交流群
 ![image](https://github.com/welliamcao/OpsManage/blob/master/demo_imgs/qq_group.png)
 
-## Docker构建OpsManage
-[传送门](https://github.com/welliamcao/OpsManage/wiki/Docker%E6%9E%84%E5%BB%BAOpsManage)
+<!--## Docker构建OpsManage
+[传送门](https://github.com/welliamcao/OpsManage/wiki/Docker%E6%9E%84%E5%BB%BAOpsManage)-->
 
 ## 安装环境配置
 一、安装Python
@@ -101,7 +101,6 @@ mysql>\q
 # /usr/local/python3/bin/python3 manage.py makemigrations account
 # /usr/local/python3/bin/python3 manage.py makemigrations wiki
 # /usr/local/python3/bin/python3 manage.py makemigrations orders
-# /usr/local/python3/bin/python3 manage.py makemigrations filemanage
 # /usr/local/python3/bin/python3 manage.py makemigrations navbar
 # /usr/local/python3/bin/python3 manage.py makemigrations databases
 # /usr/local/python3/bin/python3 manage.py makemigrations asset

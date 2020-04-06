@@ -69,32 +69,38 @@
 									<legend>
 										<i class="fa  fa-paper-plane"></i> 文件下载
 									</legend>
-									<form role="form" method="post" id="run_filedownload_order" enctype="multipart/form-data">
-										{% csrf_token %}
-										<div class="item form-group">
-		 									<label><font color='red'>* </font>工单主题<i class="fa fa-info-circle" data-toggle="tooltip" title="主题"></i></label>
-											<input class="form-control" rows="3" id="filedownload_order_subject" name="filedownload_order_subject" required></input>
-											<input class="form-control" rows="3" id="ans_uuid" name="ans_uuid" type="hidden" value=""></input>
-										</div>								
-										<div class="item form-group">
-		 									<label><font color='red'>* </font>工单内容<i class="fa fa-info-circle" data-toggle="tooltip" title="说明用途"></i></label>
-											<textarea class="form-control" rows="3" id="order_content" name="order_content" required></textarea>
-										</div>	
-										<div class="item form-group">
-										  <label><font color='red'>* </font>服务器选择</label>
-                                          <select multiple class="selectpicker form-control"  data-size="10" data-selected-text-format="count > 5" data-live-search="true" data-width="100%"   autocomplete="off"  autocomplete="off" id="custom" name="custom" required>
-                                          </select>
-										</div>																			
-										<div class="form-group">
-											<label><font color='red'>* </font>目标路径<i class="fa fa-info-circle" data-toggle="tooltip" title="文件分发的目标服务器路径"></i></label>
-											<input class="form-control" id="dest_path" name="dest_path"  disabled></input>					
-										</div>										
-										<div class="item form-group">
-		 									<label>工单状态<i class="fa fa-info-circle" data-toggle="tooltip" title="工单状态"></i></label>
-											<span id="order_status"></span>
-										</div>																									
-										<button type="button" class="btn btn-default" id="filedownloadbtn" name="btn-filedownload-run" disabled>运行</button>
-									</form>
+									<div class="row">
+										<form role="form" method="post" id="run_filedownload_order" enctype="multipart/form-data">
+											{% csrf_token %}
+											<div class="item form-group">
+			 									<label><font color='red'>* </font>工单主题<i class="fa fa-info-circle" data-toggle="tooltip" title="主题"></i></label>
+												<input class="form-control" rows="3" id="filedownload_order_subject" name="filedownload_order_subject" required></input>
+												<input class="form-control" rows="3" id="ans_uuid" name="ans_uuid" type="hidden" value=""></input>
+											</div>								
+											<div class="item form-group">
+			 									<label><font color='red'>* </font>工单内容<i class="fa fa-info-circle" data-toggle="tooltip" title="说明用途"></i></label>
+												<textarea class="form-control" rows="3" id="order_content" name="order_content" required></textarea>
+											</div>	
+											<div class="item form-group">
+											  <label><font color='red'>* </font>服务器选择</label>
+	                                          <select multiple class="selectpicker form-control"  data-size="10" data-selected-text-format="count > 5" data-live-search="true" data-width="100%"   autocomplete="off"  autocomplete="off" id="custom" name="custom" required>
+	                                          </select>
+											</div>																			
+											<div class="form-group">
+												<label><font color='red'>* </font>目标路径<i class="fa fa-info-circle" data-toggle="tooltip" title="文件分发的目标服务器路径"></i></label>
+												<input class="form-control" id="dest_path" name="dest_path"  disabled></input>					
+											</div>	
+											<div class="item form-group">
+												<label>工单周期<i class="fa fa-info-circle" data-toggle="tooltip" title="工单执行时间区间"></i></label>
+											    <input type="text" name="order_time" id="order_time" class="form-control" value="" />				
+											</div>																					
+											<div class="item form-group">
+			 									<label>工单状态<i class="fa fa-info-circle" data-toggle="tooltip" title="工单状态"></i></label>
+												<span id="order_audit_status"></span>
+											</div>																									
+											<button type="button" class="btn btn-default" id="filedownloadbtn" name="btn-filedownload-run" disabled>运行</button>
+										</form>
+									</div>						
 								</div>
 								<!-- /.col-lg-6 (nested) -->
 								<div class="hr hr32 hr-dotted"></div>
@@ -108,7 +114,25 @@
 								</div>	
 
 						</div>
-   
+						<div class="row">
+							<div class="col-lg-12">
+							   <h2  class="page-header">工单变更历史</h2>	
+			                   <table id="ordersLogs" class="table table-hover">
+			                     <thead>
+			                       <tr>
+			                        <th>工单ID</th>
+					                <th>操作人</th>
+					                <th>备注</th>
+					                <th>审核状态</th>
+					                <th>进度状态</th>
+					                <th>操作时间</th>				                
+			                       </tr>
+			                     </thead>
+			                     <tbody>
+			                     </tbody>
+			                   </table> 
+					          </div>							 
+						</div>   
                   </div>
               </div>
         </div> 

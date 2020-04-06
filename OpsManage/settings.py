@@ -77,7 +77,6 @@ INSTALLED_APPS = [
     'deploy',
     'orders',
     'wiki',
-    'filemanage',
     'cicd',
     'sched',
     'django_celery_beat',

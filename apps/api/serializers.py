@@ -262,10 +262,14 @@ class NetworkSerializer(serializers.ModelSerializer):
 class OrderSerializer(serializers.ModelSerializer):
     create_time = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S",required=False)
     modify_time = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S",required=False)
+    start_time = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S",required=False)
+    end_time = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S",required=False)  
+    expire = serializers.SerializerMethodField(read_only=True,required=False)  
     class Meta:
         model = Order_System
-        fields = ('id','order_subject','order_user','order_status','order_cancel',
-                  'order_type','order_level','create_time','modify_time','order_executor')
+        fields = ('id','order_subject','order_user','order_audit_status','order_mark',
+                  'order_type','order_level','create_time','modify_time','order_executor',
+                  'end_time','start_time',"expire","order_execute_status")
         extra_kwargs = {
                         'order_subject': {'required': False},
                         'order_user':{'required': False},
@@ -273,6 +277,16 @@ class OrderSerializer(serializers.ModelSerializer):
                         'order_type':{'required': False},
                         'order_executor':{'required': False},
                         }                 
+    
+    def get_expire(self,obj):
+        if obj.is_expired() and obj.is_unexpired():#未到期
+            return 1
+        
+        elif obj.is_unexpired() == 0 and obj.is_expired(): #还未到期，而且还未到工单执行时间
+            return 2
+
+        elif obj.is_expired() == 0: #过期
+            return 0             
         
 class DataBaseServerSerializer(serializers.ModelSerializer):
     detail = serializers.SerializerMethodField(read_only=True,required=False)
@@ -529,7 +543,7 @@ class PostSerializer(serializers.ModelSerializer):
 class OrdersNoticeConfigSerializer(serializers.ModelSerializer):                        
     class Meta:
         model = Order_Notice_Config
-        fields = ('id','order_type','grant_group','mode','number')     
+        fields = ('id','order_type','mode')     
            
 class IPVSSerializer(serializers.ModelSerializer):
     sip = serializers.CharField(source='ipvs_assets.server_assets.ip', read_only=True)

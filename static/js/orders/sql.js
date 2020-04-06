@@ -1,20 +1,47 @@
+var language =  {
+	"sProcessing" : "处理中...",
+	"sLengthMenu" : "显示 _MENU_ 项结果",
+	"sZeroRecords" : "没有匹配结果",
+	"sInfo" : "显示第 _START_ 至 _END_ 项结果，共 _TOTAL_ 项",
+	"sInfoEmpty" : "显示第 0 至 0 项结果，共 0 项",
+	"sInfoFiltered" : "(由 _MAX_ 项结果过滤)",
+	"sInfoPostFix" : "",
+	"sSearch" : "搜索: ",
+	"sUrl" : "",
+	"sEmptyTable" : "表中数据为空",
+	"sLoadingRecords" : "载入中...",
+	"sInfoThousands" : ",",
+	"oPaginate" : {
+		"sFirst" : "首页",
+		"sPrevious" : "上页",
+		"sNext" : "下页",
+		"sLast" : "末页"
+	},
+	"oAria" : {
+		"sSortAscending" : ": 以升序排列此列",
+		"sSortDescending" : ": 以降序排列此列"
+	}
+}
+
 function get_url_param(name) {
 	 var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
 	 var r = window.location.search.substr(1).match(reg);
 	 if (r != null) return unescape(r[2]); return null; 
 }
 
-var orderStatus = {
-		"0":'<span class="label label-success">已通过</span>',
+var orderAuditStatusHtml = {
 	    "1":'<span class="label label-danger">已拒绝</span>',
 	    "2":'<span class="label label-info">审核中</span>',
-	    "3":'<span class="label label-success">已部署</span> ',
-	    "4":'<span class="label label-info">待授权</span>',
-	    "5":'<span class="label label-success">已执行</span>',
-	    "6":'<span class="label label-default">已回滚</span>',
-	    "7":'<span class="label label-danger">已撤回</span>',
-	    "8":'<span class="label label-warning">已授权</span>',
-	    "9":'<span class="label label-danger">已失败</span>',	
+	    "3":'<span class="label label-success">已授权</span> '
+	}
+
+var orderExecuteStatusHtml = {
+		"0":'<span class="label label-warning">已提交</span>',
+	    "1":'<span class="label label-info">处理中</span>',
+	    "2":'<span class="label label-success">已完成</span>',
+	    "3":'<span class="label label-warning">已回滚</span> ',
+	    "4":'<span class="label label-default">已关闭</span> ',
+	    "5":'<span class="label label-danger">执行失败</span> ',
 	}
 
 function makeSQLresult(ids,dataList){
@@ -173,55 +200,134 @@ function setAceEditMode(model,readOnly) {
 			 
 };	
 
+function makeOrderLogsTableList(url){
+	if ($('#ordersLogs').hasClass('dataTable')) {
+		dttable = $('#ordersLogs').dataTable();
+		dttable.fnClearTable(); //清空table
+		dttable.fnDestroy(); //还原初始化datatable
+	}	
+	var data = requests('get',url)
+    var columns = [		                   
+                    {"data": "order"},
+                    {"data": "operator"},
+                    {"data": "operation_info"},
+                    {"data": "audit_status"},
+                    {"data": "execute_status"},
+	                {"data": "operation_time"}			                			                
+	               ]
+    var columnDefs = [			                      
+						{
+							targets: [3],
+							render: function(data, type, row, meta) {
+						        return orderAuditStatusHtml[row.audit_status]
+							},
+						},
+						{
+							targets: [4],
+							render: function(data, type, row, meta) {
+						        return orderExecuteStatusHtml[row.execute_status]
+							},
+						}						
+	    		      ]
+    
+    var buttons = [
+			    					    
+    ] 		    
+    $('#ordersLogs').dataTable({
+	    "dom": "Bfrtip",
+	    "buttons":buttons,
+		"bScrollCollapse": false, 				
+	    "bRetrieve": true,			
+		"destroy": true, 
+		"data":	data,
+		"columns": columns,
+		"columnDefs" :columnDefs,			  
+		"language" : language,
+		"order": [[ 0, "desc" ]],
+		"autoWidth": false	    			
+	});    
+}
+
 $(document).ready(function() {
-	var data = requests('get','/order/info/?type='+get_url_param("type")+'&&id='+get_url_param("id"))
+	
+	makeOrderLogsTableList("/api/orders/logs/"+ get_url_param("id") +"/")
+	
+	var data = requests('get','/api/orders/'+get_url_param("id")+'/')
 	$(function() {
-		$("#order_status").html(orderStatus[data["data"]["order_status"]])
-		if (data["code"]=="200"){
-			$("#order_desc").val(data["data"]["order_subject"]).attr("disabled","")
-			$("#compile-editor-add").text(data["data"]["detail"]["sql"]["order_sql"])
-			setAceEditMode("mysql",true);
-			makeDatabaseSelect("order_db",data["data"]["detail"]["db"])	
-			DynamicSelect("sql_backup",data["data"]["detail"]["sql"]["sql_backup"])
-			makeUserSelect('order_executor',requests('get','/api/account/user/',false))
-			DynamicSelect('order_executor',data["data"]["order_executor"])
-			if (data["data"]["detail"]["sql"]["order_type"] == "online"){
-				switch(data["data"]["order_status"])
-				{
-				case 8:
-					$("#audit_sql_btn").val(get_url_param("id")).attr("disabled",false)
-				  break;
-				case 9:
-					makeSQLresult('auditResult',data["data"]["detail"]["sql"]["result"])
-				  break;
-				case 5:
-					makeSQLresult('auditResult',data["data"]["detail"]["sql"]["result"])
-					if (data["data"]["detail"]["sql"]["sql_backup"]==1){
-						var rollbackSql = requests('get','/order/info/?type=get_rollback_sql&&id='+get_url_param("id"))
-						makeSQLrollback("auditRollback",rollbackSql["data"]["sql"])
-						$("#audit_sql_btn").hide();
-						$("#rollback_sql_btn").val(get_url_param("id")).text("回滚").attr({"disabled":false});
-						$("#rollback_sql_btn").show();
-					}				
-				  break;
-				case 6:
+		$("#order_audit_status").html(orderAuditStatusHtml[data["order_audit_status"]])
+		$("#order_time").val(data["start_time"]+' - '+ data["end_time"]).attr("disabled","")
+		$("#order_desc").val(data["order_subject"]).attr("disabled","")
+		$("#compile-editor-add").text(data["detail"]["order_sql"])
+		setAceEditMode("mysql",true);
+		makeDatabaseSelect("order_db",data["detail"]["db"])	
+		DynamicSelect("sql_backup",data["detail"]["sql_backup"])
+		makeUserSelect('order_executor',requests('get','/api/account/user/superior/',false))
+		DynamicSelect('order_executor',data["order_executor"])
+		if (data["detail"]["order_type"] == "online"){
+			
+			if (data["order_audit_status"] == 3){
+				$("#audit_sql_btn").val(get_url_param("id")).attr("disabled",false)
+			}				
+
+			if (data["order_execute_status"] == 2){
+				makeSQLresult('auditResult',data["detail"]["result"])
+				if (data["detail"]["sql_backup"]==1){
 					var rollbackSql = requests('get','/order/info/?type=get_rollback_sql&&id='+get_url_param("id"))
 					makeSQLrollback("auditRollback",rollbackSql["data"]["sql"])
-				  break;			  
-				}			
-			}else if(data["data"]["detail"]["sql"]["order_type"] == "file" || data["data"]["detail"]["sql"]["order_type"] == "human"){
-				if (data["data"]["order_status"]==9){
-					makeSQLresult('auditResult',data["data"]["detail"]["sql"]["order_err"])
-					return false
-				}			
+					$("#audit_sql_btn").hide();
+					$("#rollback_sql_btn").val(get_url_param("id")).text("回滚").attr({"disabled":false});
+					$("#rollback_sql_btn").show();
+				}	
+			}			
+			
+			if (data["order_execute_status"] == 3){
+				var rollbackSql = requests('get','/order/info/?type=get_rollback_sql&&id='+get_url_param("id"))
+				makeSQLrollback("auditRollback",rollbackSql["data"]["sql"])
+			}		
+			
+			if (data["order_execute_status"] == 5){
+				makeSQLresult('auditResult',data["detail"]["result"])
+			}				
+			
+/*			switch(data["order_audit_status"])
+			{
+			case 2:
 				$("#audit_sql_btn").val(get_url_param("id")).attr("disabled",false)
-			}
-		}
+			  break;
+			case 9:
+				makeSQLresult('auditResult',data["detail"]["result"])
+			  break;
+			case 5:
+				makeSQLresult('auditResult',data["detail"]["result"])
+				if (data["detail"]["sql_backup"]==1){
+					var rollbackSql = requests('get','/order/info/?type=get_rollback_sql&&id='+get_url_param("id"))
+					makeSQLrollback("auditRollback",rollbackSql["data"]["sql"])
+					$("#audit_sql_btn").hide();
+					$("#rollback_sql_btn").val(get_url_param("id")).text("回滚").attr({"disabled":false});
+					$("#rollback_sql_btn").show();
+				}				
+			  break;
+			case 6:
+				var rollbackSql = requests('get','/order/info/?type=get_rollback_sql&&id='+get_url_param("id"))
+				makeSQLrollback("auditRollback",rollbackSql["data"]["sql"])
+			  break;	
+			}	*/		
+		}else if(data["detail"]["order_type"] == "file" || data["detail"]["order_type"] == "human"){
+			if (data["order_execute_status"]==5){
+				makeSQLresult('auditResult',data["detail"]["order_err"])
+				return false
+			}	
+			if (data["order_audit_status"] == 3){
+				$("#audit_sql_btn").val(get_url_param("id")).attr("disabled",false)
+			}				
+		}		
+/*		if (data["code"]=="200"){
+
+		}*/
 	})
     $("button[name='audit_sql_btn']").on('click', function() {
     	var value = $(this).val();
     	var btnObj = $(this)
-    	console.log(value)
     	btnObj.attr('disabled',true);
 		if (value>=1){
 	    	$.ajax({  
@@ -236,22 +342,22 @@ $(document).ready(function() {
 	            	btnObj.attr('disabled',false);
 	            	new PNotify({
 	                    title: 'Ops Failed!',
-	                    text: response.responseText,
+	                    text: response.statusText,
 	                    type: 'error',
 	                    styling: 'bootstrap3'
-	                });       
+	                });      
 	            },  
 	            success: function(response) {  
 	            	btnObj.attr('disabled',false);
 					if (response["code"] == 200){
-						if (data["data"]["detail"]["sql"]["order_type"]=='online' && $.isArray(response["data"]["result"])){
+						if (data["detail"]["order_type"]=='online' && $.isArray(response["data"]["result"])){
 							makeSQLresult('auditResult',response["data"]["result"])
-							$("#order_status").html(orderStatus[response["data"]["status"]])
+							$("#order_audit_status").html(orderAuditStatusHtml[response["data"]["status"]])
 							$("#audit_sql_btn").attr("disabled",true)
 							queryOsc()
 						}
-						else if (data["data"]["detail"]["sql"]["order_type"]=='file' || data["data"]["detail"]["sql"]["order_type"]=='human'){
-							$("#order_status").html(orderStatus[response["data"]["status"]])
+						else if (data["detail"]["order_type"]=='file' || data["detail"]["order_type"]=='human'){
+							$("#order_audit_status").html(orderAuditStatusHtml[response["data"]["status"]])
 							$("#audit_sql_btn").attr("disabled",true)
 							if (response["data"]["result"].length > 0){
 					    		$.alert({
@@ -269,6 +375,7 @@ $(document).ready(function() {
 			    		    type: 'red',
 			    		});		    		
 					};
+					makeOrderLogsTableList("/api/orders/logs/"+ get_url_param("id") +"/")
 	            }  
 	    	});			
 		}
@@ -285,7 +392,7 @@ $(document).ready(function() {
     	    $.confirm({
     	        icon: 'fa fa-check',
     	        type: 'red',
-    	        title: '确认回滚<strong>'+data["data"]["order_subject"]+'</strong>工单?',
+    	        title: '确认回滚<strong>'+data["order_subject"]+'</strong>工单?',
     	        content: '',
     	        buttons: {
     	            '确认': {
@@ -303,14 +410,14 @@ $(document).ready(function() {
     	        	            	btnObj.attr('disabled',false);
     	        	            	new PNotify({
     	        	                    title: 'Ops Failed!',
-    	        	                    text: response.responseText,
+    	        	                    text: response.statusText,
     	        	                    type: 'error',
     	        	                    styling: 'bootstrap3'
     	        	                });       
     	        	            },  
     	        	            success: function(response) {  
     	        					if (response["code"] == 200){
-    	        						$("#order_status").html(orderStatus[6])
+    	        						$("#order_audit_status").html(orderExecuteStatusHtml[3])
         				            	new PNotify({
         				                    title: 'Success!',
         				                    text: '工单回滚成功',
@@ -326,6 +433,7 @@ $(document).ready(function() {
     	        			    		    type: 'red',
     	        			    		});		    		
     	        					};
+    	        					makeOrderLogsTableList("/api/orders/logs/"+ get_url_param("id") +"/")
     	        	            }  
     	        	    	});
     	                }
@@ -364,7 +472,6 @@ $(document).ready(function() {
 	                });       
 	            },  
 	            success: function(response) {  
-	            	console.log(response)
 	            	btnObj.attr('disabled',false);
 					if (response["code"] == 200){
 		            	new PNotify({
@@ -373,7 +480,6 @@ $(document).ready(function() {
 		                    type: 'success',
 		                    styling: 'bootstrap3'
 		                }); 	
-		            	console.log(response["data"])
 					}
 					else {
 		            	new PNotify({
@@ -383,6 +489,7 @@ $(document).ready(function() {
 		                    styling: 'bootstrap3'
 		                }); 	    		
 					};
+					makeOrderLogsTableList("/api/orders/logs/"+ get_url_param("id") +"/")
 	            }  
 	    	});			
 		}

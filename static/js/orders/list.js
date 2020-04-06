@@ -23,48 +23,100 @@ var language =  {
 	}
 }
 
+function makeOrderAuditStatusSelect(value){
+    switch(value)
+    {
+    case 1:
+    	return '<select class="form-control" name="order_audit_status">' + 
+	                  '<option selected="selected"  value="1">拒绝</option>' +
+	                  '<option value="2">审核</option>' +
+	                  '<option value="3">通过</option>' +
+               '</select>'  
+    case 2:
+    	return '<select class="form-control" name="order_audit_status">' + 
+	                '<option value="1">拒绝</option>' +
+	                '<option selected="selected" value="2">审核</option>' +
+	                '<option value="3">通过</option>' +
+               '</select>' 
+    case 3:
+    	return '<select class="form-control" name="order_audit_status">' + 
+	                '<option value="1">拒绝</option>' +
+	                '<option value="2">审核</option>' +
+	                '<option selected="selected" value="3">通过</option>' +
+               '</select>'
+    }
+
+}
+
+function makeOrderExecuteStatusSelect(value){
+    switch(value)
+    {
+    case 0:
+    	return '<select class="form-control" name="order_execute_status">' + 
+                  '<option selected="selected" value="0">已提交</option>' +
+                  '<option value="1">处理中</option>' +
+                  '<option value="2">已完成</option>' +
+                  '<option value="3">已回滚</option>' +
+                  '<option value="4">已关闭</option>' +
+                  '<option value="5">执行失败</option>' +
+               '</select>'      
+    case 1:
+    	return '<select class="form-control" name="order_execute_status">' + 
+		        '<option value="0">已提交</option>' +
+		        '<option selected="selected" value="1">处理中</option>' +
+		        '<option value="2">已完成</option>' +
+		        '<option value="3">已回滚</option>' +
+		        '<option value="4">已关闭</option>' +
+		        '<option value="5">执行失败</option>' +
+		     '</select>' 
+    case 2:
+    	return '<select class="form-control" name="order_execute_status">' + 
+		        '<option selected="selected"  value="0">已提交</option>' +
+		        '<option value="1">处理中</option>' +
+		        '<option selected="selected" value="2">已完成</option>' +
+		        '<option value="3">已回滚</option>' +
+		        '<option value="4">已关闭</option>' +
+		        '<option value="5">执行失败</option>' +
+		     '</select>' 
+    case 3:
+    	return '<select class="form-control" name="order_execute_status">' + 
+		        '<option value="0">已提交</option>' +
+		        '<option value="1">处理中</option>' +
+		        '<option value="2">已完成</option>' +
+		        '<option selected="selected" value="3">已回滚</option>' +
+		        '<option value="4">已关闭</option>' +
+		        '<option value="5">执行失败</option>' +
+		     '</select>' 
+    case 4:
+    	return '<select class="form-control" name="order_execute_status">' + 
+		        '<option selected="selected"  value="0">已提交</option>' +
+		        '<option value="1">处理中</option>' +
+		        '<option value="2">已完成</option>' +
+		        '<option value="3">已回滚</option>' +
+		        '<option selected="selected" value="4">已关闭</option>' +
+		        '<option value="5">执行失败</option>' +
+		     '</select>'  
+    case 5:
+    	return '<select class="form-control" name="order_execute_status">' + 
+		        '<option selected="selected"  value="0">已提交</option>' +
+		        '<option value="1">处理中</option>' +
+		        '<option value="2">已完成</option>' +
+		        '<option value="3">已回滚</option>' +
+		        '<option value="4">已关闭</option>' +
+		        '<option selected="selected" value="5">执行失败</option>' +
+		     '</select>'		        
+    }
+
+}
+
+
 function orderInfoFormat(dataList) {
-	if (dataList["order_type"]==2){
-	    var trHtml = '';
-		for (var i=0; i <dataList["detail"]["files"].length; i++){	
-		    trHtml += '<tr><td class="col-md-1 col-sm-12 col-xs-12">'+ dataList["detail"]["files"][i]["file_path"] +'</td>'+ '<td class="col-md-1 col-sm-12 col-xs-12">'+ dataList["detail"]["files"][i]["file_type"] +'</td></tr>'	    
-		};
-		var uploadHtml = '<div class="col-md-6 col-sm-12 col-xs-12">' +
-			    			'<legend>工单明细</legend>' +
-			    				'<table class="table table-striped" cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">'+ 
-			    				'<tr>' +
-			    					'<th>目标路径</th>' +
-			    					'<th>工单内容</th>' +
-			    					'<th>目标服务器</th>' +
-			    					'<th>宿主</th>' +
-			    					'<th>权限</th>' +
-			    					'<th>取消原因</th>' +
-			    				'</tr>' + 
-			    				'</tr>' + 
-									 '<td class="col-md-1 col-sm-12 col-xs-12">'+ dataList["detail"]["upload"]["dest_path"] +'</td>'+ 
-								  	 '<td class="col-md-1 col-sm-12 col-xs-12"><a data-toggle="modal" id="tooltips-order_content-'+dataList["id"]+'">'+dataList["detail"]["upload"]["order_content"].substring(-1,10)+'...</a></td>' +
-								  	 '<td class="col-md-1 col-sm-12 col-xs-12"><a data-toggle="modal" id="tooltips-order_server-' +dataList["id"]+'">'+dataList["detail"]["upload"]["server"][0].substring(-1,10)+'...</a></td>' +
-								  	 '<td class="col-md-1 col-sm-12 col-xs-12">'+ dataList["detail"]["upload"]["chown_user"] +'</td>' +
-								  	 '<td class="col-md-1 col-sm-12 col-xs-12">'+ dataList["detail"]["upload"]["chown_rwx"] +'</td>' +
-								  	'<td class="col-md-1 col-sm-12 col-xs-12">'+ dataList["order_cancel"] +'</td>' +
-							  	 '</tr>' +		    				
-			    				'</table>' +
-		    				'</div>'; 	
-			
-	    var fileHtml = '<div class="col-md-6 col-sm-12 col-xs-12">' +
-		    				'<legend>文件信息</legend>' +
-		    				'<table class="table table-striped" cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">'+
-			    				'<tr>' +
-			    					'<th>文件名称</th>' +
-			    					'<th>文件类型(检测)</th>' +
-		    					'</tr>'	+    				
-			    				 trHtml  +
-		    				'</table>' +
-	    				'</div>'; 	
-	    return '<div class="row">'+ uploadHtml + '</div><div class="row">' +  fileHtml + '</div>';
-	}else if(dataList["order_type"]==0){  
-		if(dataList["detail"]["sql"]["order_err"]){
-			var err = '<td class="col-md-1 col-sm-12 col-xs-12"><a data-toggle="modal" id="tooltips-err-'+dataList["id"]+'">'+dataList["detail"]["sql"]["order_err"].substring(-1,10)+'...</a></td>'
+	
+	switch(dataList["order_type"])
+	{
+	case 0:
+		if(dataList["detail"]["order_err"]){
+			var err = '<td class="col-md-1 col-sm-12 col-xs-12"><a data-toggle="modal" id="tooltips-err-'+dataList["id"]+'">'+dataList["detail"]["order_err"].substring(-1,10)+'...</a></td>'
 		}else{
 			var err = '<td class="col-md-1 col-sm-12 col-xs-12">无</td>'
 		}
@@ -79,11 +131,11 @@ function orderInfoFormat(dataList) {
 			    					'<th>取消原因</th>' +
 			    				'</tr>' + 
 			    				'</tr>' + 
-									 '<td class="col-md-1 col-sm-12 col-xs-12"><code>'+ orderSQLtypeJson[dataList["detail"]["sql"]["order_type"]] +'</code></td>'+ 
-								  	 '<td class="col-md-1 col-sm-12 col-xs-12"><a data-toggle="modal" id="tooltips-sql-'+dataList["id"]+'">'+dataList["detail"]["sql"]["order_sql"].substring(-1,10)+'...</a></td>' +
+									 '<td class="col-md-1 col-sm-12 col-xs-12"><code>'+ orderSQLtypeJson[dataList["detail"]["order_type"]] +'</code></td>'+ 
+								  	 '<td class="col-md-1 col-sm-12 col-xs-12"><a data-toggle="modal" id="tooltips-sql-'+dataList["id"]+'">'+dataList["detail"]["order_sql"].substring(-1,10)+'...</a></td>' +
 								  	  err +
-								  	 '<td class="col-md-1 col-sm-12 col-xs-12">'+ orderBackupHmtl[dataList["detail"]["sql"]["sql_backup"]] +'</td>' +
-								  	 '<td class="col-md-1 col-sm-12 col-xs-12">'+ dataList["order_cancel"] +'</td>' +
+								  	 '<td class="col-md-1 col-sm-12 col-xs-12">'+ orderBackupHmtl[dataList["detail"]["sql_backup"]] +'</td>' +
+								  	 '<td class="col-md-1 col-sm-12 col-xs-12">'+ dataList["order_mark"] +'</td>' +
 							  	 '</tr>' +		    				
 			    				'</table>' +
 		    				'</div>'; 	
@@ -106,7 +158,46 @@ function orderInfoFormat(dataList) {
 		    				'</table>' +
 	    				'</div>'; 
 	    return '<div class="row">'+ sqlHtml + '</div><div class="row">' +  dbHtml + '</div>';
-	}else if(dataList["order_type"]==3){
+	case 2:
+	    var trHtml = '';
+		for (var i=0; i <dataList["detail"]["files"].length; i++){	
+		    trHtml += '<tr><td class="col-md-1 col-sm-12 col-xs-12">'+ dataList["detail"]["files"][i]["file_path"] +'</td>'+ '<td class="col-md-1 col-sm-12 col-xs-12">'+ dataList["detail"]["files"][i]["file_type"] +'</td></tr>'	    
+		};
+		var uploadHtml = '<div class="col-md-6 col-sm-12 col-xs-12">' +
+			    			'<legend>工单明细</legend>' +
+			    				'<table class="table table-striped" cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">'+ 
+			    				'<tr>' +
+			    					'<th>目标路径</th>' +
+			    					'<th>工单内容</th>' +
+			    					'<th>目标服务器</th>' +
+			    					'<th>宿主</th>' +
+			    					'<th>权限</th>' +
+			    					'<th>取消原因</th>' +
+			    				'</tr>' + 
+			    				'</tr>' + 
+									 '<td class="col-md-1 col-sm-12 col-xs-12">'+ dataList["detail"]["dest_path"] +'</td>'+ 
+								  	 '<td class="col-md-1 col-sm-12 col-xs-12"><a data-toggle="modal" id="tooltips-order_content-'+dataList["id"]+'">'+dataList["detail"]["order_content"].substring(-1,10)+'...</a></td>' +
+								  	 '<td class="col-md-1 col-sm-12 col-xs-12"><a data-toggle="modal" id="tooltips-order_server-' +dataList["id"]+'">'+dataList["detail"]["server"][0].substring(-1,10)+'...</a></td>' +
+								  	 '<td class="col-md-1 col-sm-12 col-xs-12">'+ dataList["detail"]["chown_user"] +'</td>' +
+								  	 '<td class="col-md-1 col-sm-12 col-xs-12">'+ dataList["detail"]["chown_rwx"] +'</td>' +
+								  	'<td class="col-md-1 col-sm-12 col-xs-12">'+ dataList["order_mark"] +'</td>' +
+							  	 '</tr>' +		    				
+			    				'</table>' +
+		    				'</div>'; 	
+			
+	    var fileHtml = '<div class="col-md-6 col-sm-12 col-xs-12">' +
+		    				'<legend>文件信息</legend>' +
+		    				'<table class="table table-striped" cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">'+
+			    				'<tr>' +
+			    					'<th>文件名称</th>' +
+			    					'<th>文件类型(检测)</th>' +
+		    					'</tr>'	+    				
+			    				 trHtml  +
+		    				'</table>' +
+	    				'</div>'; 	
+	    return '<div class="row">'+ uploadHtml + '</div><div class="row">' +  fileHtml + '</div>';
+	    
+	case 3:
 		var downloadHtml = '<div class="col-md-6 col-sm-12 col-xs-12">' +
 		'<legend>工单明细</legend>' +
 			'<table class="table table-striped" cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">'+ 
@@ -117,16 +208,39 @@ function orderInfoFormat(dataList) {
 				'<th>取消原因</th>' +
 			'</tr>' + 
 			'</tr>' + 
-				 '<td class="col-md-1 col-sm-12 col-xs-12">'+ dataList["detail"]["download"]["dest_path"] +'</td>'+ 
-			  	 '<td class="col-md-1 col-sm-12 col-xs-12"><a data-toggle="modal" id="tooltips-order_content-'+dataList["id"]+'">'+dataList["detail"]["download"]["order_content"].substring(-1,10)+'...</a></td>' +
-			  	 '<td class="col-md-1 col-sm-12 col-xs-12"><a data-toggle="modal" id="tooltips-order_server-' +dataList["id"]+'">'+dataList["detail"]["download"]["server"][0].substring(-1,10)+'...</a></td>' +
-			  	 '<td class="col-md-1 col-sm-12 col-xs-12">'+ dataList["order_cancel"] +'</td>' +
+				 '<td class="col-md-1 col-sm-12 col-xs-12">'+ dataList["detail"]["dest_path"] +'</td>'+ 
+			  	 '<td class="col-md-1 col-sm-12 col-xs-12"><a data-toggle="modal" id="tooltips-order_content-'+dataList["id"]+'">'+dataList["detail"]["order_content"].substring(-1,10)+'...</a></td>' +
+			  	 '<td class="col-md-1 col-sm-12 col-xs-12"><a data-toggle="modal" id="tooltips-order_server-' +dataList["id"]+'">'+dataList["detail"]["server"][0].substring(-1,10)+'...</a></td>' +
+			  	 '<td class="col-md-1 col-sm-12 col-xs-12">'+ dataList["order_mark"] +'</td>' +
 		  	 '</tr>' +		    				
 			'</table>' +
 		'</div>'; 	
 
 		return '<div class="row">'+ downloadHtml + '</div>';
-	}			
+	    	    						
+	default:
+		var serviceHtml = '<div class="col-md-12 col-sm-12 col-xs-12">' +
+		'<legend>工单明细</legend>' +
+			'<table class="table table-striped" cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">'+ 
+			'<tr>' +
+				'<th>工单内容</th>' +
+				'<th>工单文件</th>' +
+				'<th>文件类型</th>' +
+				'<th>md5值</th>' +
+				'<th>最后修改时间</th>' +
+			'</tr>' + 
+			'</tr>' + 
+			  	 '<td class="col-md-1 col-sm-12 col-xs-12"><a data-toggle="modal" id="tooltips-order_content-'+dataList["id"]+'">'+dataList["detail"]["order_content"].substring(-1,10)+'...</a></td>' +
+			  	 '<td class="col-md-1 col-sm-12 col-xs-12"><a data-toggle="modal" id="tooltips-order_server-' +dataList["id"]+'">'+dataList["detail"]["file_path"]+'</a></td>' +
+			  	 '<td class="col-md-1 col-sm-12 col-xs-12">'+ dataList["detail"]["file_type"] +'</td>' +
+			  	 '<td class="col-md-1 col-sm-12 col-xs-12">'+ dataList["detail"]["file_md5"] +'</td>' +
+			  	'<td class="col-md-1 col-sm-12 col-xs-12">'+ dataList["detail"]["modify_time"] +'</td>' +
+		  	 '</tr>' +		    				
+			'</table>' +
+		'</div>'; 		
+		return '<div class="row">'+ serviceHtml + '</div>';		
+	}	
+				
 }
 
 function DynamicSelect(ids,value){
@@ -153,40 +267,36 @@ function requests(method,url,data){
 }
 
 var orderMode = {
-    "0":'邮箱',
-    "1":'微信',         
-    "2":'钉钉',		
-}
+	    "0":'邮箱',
+	    "1":'微信',         
+	    "2":'钉钉',		
+	}
 
-var userInfo = {
-		
-}
+var orderAuditStatusHtml = {
+	    "1":'<span class="label label-danger">已拒绝</span>',
+	    "2":'<span class="label label-info">审核中</span>',
+	    "3":'<span class="label label-success">已授权</span> '
+	}
 
-
-
-var orderStatusHtml = {
-	"0":'<span class="label label-success">已通过</span>',
-    "1":'<span class="label label-danger">已拒绝</span>',
-    "2":'<span class="label label-info">审核中</span>',
-    "3":'<span class="label label-success">已部署</span> ',
-    "4":'<span class="label label-info">待授权</span>',
-    "5":'<span class="label label-success">已执行</span>',
-    "6":'<span class="label label-default">已回滚</span>',
-    "7":'<span class="label label-danger">已撤回</span>',
-    "8":'<span class="label label-warning">已授权</span>',
-    "9":'<span class="label label-danger">已失败</span>',	
-}
+var orderExecuteStatusHtml = {
+		"0":'<span class="label label-warning">已提交</span>',
+	    "1":'<span class="label label-info">处理中</span>',
+	    "2":'<span class="label label-success">已完成</span>',
+	    "3":'<span class="label label-warning">已回滚</span> ',
+	    "4":'<span class="label label-default">已关闭</span> ',
+	    "5":'<span class="label label-danger">执行失败</span> ',
+	}
 
 var orderTypeHtml = {
-	"0":'<span class="label label-info">SQL更新</span>',
-	"1":'<span class="label label-success">代码更新</span>',
-	"2":'<span class="label label-warning">文件分发</span>',
-	"3":'<span class="label label-danger">文件下载</span>'
+	"0":'<b>SQL更新</b>',
+	"1":'<b>运维服务</b>',
+	"2":'<b>文件分发</b>',
+	"3":'<b>文件下载</b>'
 }
 
 var orderTypeJson = {
 	"0":'sql',
-	"1":'deploy',
+	"1":'service',
 	"2":'fileupload',
 	"3":'filedownload'		
 }
@@ -194,7 +304,8 @@ var orderTypeJson = {
 var orderSQLtypeJson = {
 	"online":"工具审核",
 	"file":"SQL文件",
-	"human":"人工审核"
+	"human":"人工审核",
+	"service":"运维服务"
 }
 
 var dbEnvHtml = {
@@ -206,6 +317,11 @@ var orderBackupHmtl = {
 	"0":'<span class="label label-warning">无备份</span>',	
 	"1":'<span class="label label-success">有备份</span>',
 }
+
+var userInfo = {
+		
+}
+
 
 function InitDataTable(tableId,url,buttons,columns,columnDefs){
 	  var data = requests('get',url)
@@ -299,22 +415,37 @@ function RefreshConfigTable(tableId, urlData){
 	});
 }
 
+function makeOrderLogsTableList(url){
+    var columns = [		                   
+                    {"data": "order"},
+                    {"data": "operator"},
+                    {"data": "operation_info"},
+                    {"data": "audit_status"},
+                    {"data": "execute_status"},
+	                {"data": "operation_time"}			                			                
+	               ]
+    var columnDefs = [			                      
+						{
+							targets: [3],
+							render: function(data, type, row, meta) {
+						        return orderAuditStatusHtml[row.audit_status]
+							},
+						},
+						{
+							targets: [4],
+							render: function(data, type, row, meta) {
+						        return orderExecuteStatusHtml[row.execute_status]
+							},
+						}						
+	    		      ]
+    
+    var buttons = [
+			    					    
+    ] 		    
+    InitDataConfigTable('ordersLogs',url,buttons,columns,columnDefs);   		
+}
+
 $(document).ready(function() {
-	
-	
-	var groupList = requests("get","/api/account/group/")
-	$(function() {
-		if($('#grant_group').length){
-			var binlogHtml = '<select required="required" class="selectpicker form-control" data-live-search="true"  data-size="10" data-width="100%" name="grant_group" id="grant_group"  autocomplete="off"><option selected="selected" value="">选择一个授权组</option>'
-			var selectHtml = '';
-			for (var i=0; i <groupList.length; i++){
-				selectHtml += '<option value="'+ groupList[i]["id"] +'">'+ groupList[i]["text"] +'</option>' 					 
-			};                        
-			binlogHtml =  binlogHtml + selectHtml + '</select>';
-			document.getElementById("grant_group").innerHTML= binlogHtml;							
-			$('#grant_group').selectpicker('refresh');					
-		}
-	})	
 	
 	$("button[name='noticeonfig']").on("click", function(){
 		var vIds = $(this).val();
@@ -326,7 +457,6 @@ $(document).ready(function() {
 				data:{
 					"order_type":$('#order_type option:selected').val(),
 					"mode":$('#mode option:selected').val(),
-					"grant_group":$('#grant_group option:selected').val(),
 					"number":$("#number").val()
 				}, //提交参数
 				success:function(response){
@@ -377,19 +507,14 @@ $(document).ready(function() {
 	})
 	
 	function makeConfigList(){
-		var groupData = {}
-		for (var i=0; i <groupList.length; i++){	
-			groupData[groupList[i]["id"]] = groupList[i]["name"]
-		}
 	    var columns = [
 	                   	{"data": "id","className": "text-center",},
-	                    {"data": "order_type","className": "text-center",},
-	                    {"data": "grant_group","className": "text-center",},	
+	                    {"data": "order_type","className": "text-center",},	
 	                    {"data": "mode","className": "text-center",},
-	                    {"data": "number","className": "text-center",},
+/*	                    {"data": "number","className": "text-center",},*/
 		               ]
 	    var columnDefs = [		
-	   	    		        {
+	   	    		    {
 	    	    				targets: [1],
 	    	    				render: function(data, type, row, meta) {		    	    					
 	    	    					return orderTypeHtml[row.order_type]
@@ -402,16 +527,9 @@ $(document).ready(function() {
     	    					return '<strong>'+orderMode[row.mode]+'</strong>'
     	    				},
     	    				"className": "text-center",
-	    		        },  
+	    		        },  	    		        
    	    		        {
-    	    				targets: [3],
-    	    				render: function(data, type, row, meta) {		    	    					
-    	    					return groupData[row.grant_group]
-    	    				},
-    	    				"className": "text-center",
-	    		        },	    		        
-   	    		        {
-	    	    				targets: [5],
+	    	    				targets: [3],
 	    	    				render: function(data, type, row, meta) {		    	    					
 	    	                        return '<div class="btn-group  btn-group-xs">' +	
 		    	                           '<button type="button" name="btn-config-edit" value="'+ row.id +'" class="btn btn-default"  aria-label="Justify"><span class="fa fa-edit" aria-hidden="true"></span>' +	
@@ -532,8 +650,10 @@ $(document).ready(function() {
 			                {"data": "order_subject"},
 			                {"data": "order_executor"},	
 			                {"data": "create_time"},	
-			                {"data": "order_status","className": "text-center",},	
-			                {"data": "modify_time"},			                			                
+			                {"data": "order_execute_status","className": "text-center",},
+			                {"data": "order_audit_status","className": "text-center",},	
+			                {"data": "expire","className": "text-center",},	
+			                {"data": "end_time"},			                			                
 			               ]
 		    var columnDefs = [			                      
 								{
@@ -545,67 +665,74 @@ $(document).ready(function() {
 								{
 									targets: [3],
 									render: function(data, type, row, meta) {
-								        return userInfo[row.order_user]["username"]
+								        return userInfo[row.order_user]["name"]
 									},
 								},
 								{
 									targets: [5],
 									render: function(data, type, row, meta) {
-								        return userInfo[row.order_executor]["username"]
+								        return userInfo[row.order_executor]["name"]
 									},
 								},	
 								{
 									targets: [7],
 									render: function(data, type, row, meta) {
-								        return orderStatusHtml[row.order_status]
+								        return orderExecuteStatusHtml[row.order_execute_status]
+									},
+								},									
+								{
+									targets: [8],
+									render: function(data, type, row, meta) {
+								        return orderAuditStatusHtml[row.order_audit_status]
+									},
+								},		
+								{
+									targets: [9],
+									render: function(data, type, row, meta) {
+										switch(row.expire){
+										case 1:
+											return '<span class="label label-success">未过期</span>'
+										case 2:
+											return '<span class="label label-warning">未到期</span>'											
+										default:
+											return '<span class="label label-danger">已过期</span>'
+										}
 									},
 								},								
 	    	    		        {
-		    	    				targets: [9],
+		    	    				targets: [11],
 		    	    				render: function(data, type, row, meta) {	
-		    	    					if (row.order_status==4 || row.order_status==2){
-		    	    						/*如果是工单状态是待授权或者审核中，则开启授权功能*/
-			    	    					if (currentUser==row.order_executor || userInfo[currentUser]["is_superuser"]){
-			    	    						/*如果是工单执行人或者超级管理员授权*/
-			    	    						var grant = '<button type="button" name="btn-order-grant" value="'+ row.id +'" class="btn btn-default"  aria-label="Justify"><span class="fa fa-check" aria-hidden="true"></span></button>'
-			    	    					}else{
-			    	    						var grant = '<button type="button" name="btn-order-grant" value="'+ row.id +'" class="btn btn-default"  aria-label="Justify" disabled><span class="fa fa-check" aria-hidden="true"></span></button>'
-			    	    					}		    	    						
+		    	    					if (currentUser==row.order_executor || userInfo[currentUser]["is_superuser"]){
+		    	    						/*如果是工单完成人或者超级管理员授权*/
+		    	    						var grant = '<button type="button" name="btn-order-grant" value="'+ row.id + ':' + row.order_audit_status  +'" class="btn btn-default"  aria-label="Justify"><span class="fa fa-check" aria-hidden="true"></span></button>'
 		    	    					}else{
-		    	    						var grant = '<button type="button" name="btn-order-grant" value="'+ row.id +'" class="btn btn-default"  aria-label="Justify" disabled><span class="fa fa-check" aria-hidden="true"></span></button>'
-		    	    					}
-		    	    					/*----------*/
+		    	    						var grant = ''
+		    	    					}		    	    					
 		    	    					if (userInfo[currentUser]["is_superuser"]){
-		    	    						/*超级管理员才能删除工单*/
-		    	    						var dels = '<button type="button" name="btn-order-delete" value="'+ row.id +'" class="btn btn-default" aria-label="Justify"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button>'
+		    	    						/*如果是运维服务工单已授权，*/
+		    	    						var edit = '<button type="button" name="btn-order-edit" value="'+ row.id + ':' + row.order_execute_status  +'" class="btn btn-default"  aria-label="Justify"><span class="fa fa-edit" aria-hidden="true"></span></button>'
 		    	    					}else{
-		    	    						var dels = ''
-		    	    					}
-		    	    					/*----------*/
-		    	    					if (row.order_status==4 || row.order_status==8){
-		    	    						/*如果是工单状态是待授权或者已授权，则开启取消功能*/
-		    	    						var cancel = '<button type="button" name="btn-order-cancel" value="'+ row.id +'" class="btn btn-default"  aria-label="Justify"><span class="fa fa-times" aria-hidden="true"></span></button>'
-		    	    					}else{
-		    	    						var cancel = '<button type="button" name="btn-order-cancel" value="'+ row.id +'" class="btn btn-default"  aria-label="Justify" disabled><span class="fa fa-times" aria-hidden="true"></span></button>'
+		    	    						var edit = ''
 		    	    					}
 		    	    					/*----------*/
 		    	    					switch(row.order_type)
 		    	    					{
 		    	    					case 0:
-		    	    						var url = '/order/sql/handle/?type=sql&&id='+row.id
+		    	    						var url = '/order/sql/handle/?id='+row.id
 		    	    					  break;
 		    	    					case 2:
-		    	    						var url = '/order/fileupload/handle/?type=fileupload&&id='+row.id
+		    	    						var url = '/order/fileupload/handle/?id='+row.id
 		    	    					  break;
 		    	    					case 3:
-		    	    						var url = '/order/filedownload/handle/?type=filedownload&&id='+row.id
+		    	    						var url = '/order/filedownload/handle/?id='+row.id
 		    	    					  break;		    	    						
 		    	    					default:
-		    	    						var url = '/order/apps/handle/?type=deploy&&id='+row.id
+		    	    						var url = '/order/service/handle/?id='+row.id
 		    	    					}
 		    	                        return '<div class="btn-group  btn-group-sm">' +	
-			    	                           '<button type="button" name="btn-order-run" value="'+ row.id +'" class="btn btn-default"  aria-label="Justify"><a href="'+url+'"><span class="fa fa-play-circle-o" aria-hidden="true"></span></a>' +	
-			    	                           '</button>' + grant + cancel + dels + 			                            
+			    	                           '<button type="button" name="btn-order-run" value="'+ row.id +'" class="btn btn-default"  aria-label="Justify"><a href="'+url+'"><span class="glyphicon glyphicon-play-circle" aria-hidden="true"></span></a>' +	
+			    	                           '</button>' + grant + edit + 	
+			    	                           '<button type="button" name="btn-order-log" value="'+ row.id +'" class="btn btn-default"  aria-label="Justify" data-toggle="modal" data-target=".bs-example-modal-log"><span class="fa fa-search-plus" aria-hidden="true"></span></button>'
 			    	                           '</div>';
 		    	    				},
 		    	    				"className": "text-center",
@@ -662,11 +789,12 @@ $(document).ready(function() {
 	        aId = row.data()["id"];
 	        order_type = row.data()["order_type"]
 	        $.ajax({
-	            url : "/order/info/?type="+ orderTypeJson[order_type] +"&&id="+aId,
+//	            url : "/order/info/?type="+ orderTypeJson[order_type] +"&&id="+aId,
+	        	url: "/api/orders/"+ aId +"/",
 	            type : "get",
 	            async : false,
 	            success : function(result) {
-	            	dataList = result.data;
+	            	dataList = result;
 	            }
 	        });	        
 	        if ( row.child.isShown() ) {
@@ -685,27 +813,36 @@ $(document).ready(function() {
 		            align: 'c',	   // 默认属性值
 		            height: 'auto',
 		            width: 'auto',
-		            content: dataList["detail"]["sql"]["order_sql"].replace(/;/g, ";<br>") 
+		            content: dataList["detail"]["order_sql"].replace(/;/g, ";<br>") 
 		        }); 
 		        $('#tooltips-err-'+aId).pt({
 		            position: 'r', // 默认属性值
 		            align: 'c',	   // 默认属性值
 		            height: 'auto',
 		            width: 'auto',
-		            content: dataList["detail"]["sql"]["order_err"].replace(/;/g, ";<br>") 
+		            content: dataList["detail"]["order_err"].replace(/;/g, ";<br>") 
 		        });
 	          break;
+	        case 1:
+		        $('#tooltips-order_content-'+aId).pt({
+		            position: 'r', // 默认属性值
+		            align: 'c',	   // 默认属性值
+		            height: 'auto',
+		            width: 'auto',
+		            content: dataList["detail"]["order_content"]
+		        });	
+	          break;	          
 	        case 2:
 	        	var server = ''
-	        	for (var i=0; i <dataList["detail"]["upload"]["server"].length; i++){
-	        		server += dataList["detail"]["upload"]["server"][i] + ';'
+	        	for (var i=0; i <dataList["detail"]["server"].length; i++){
+	        		server += dataList["detail"]["server"][i] + ';'
 	        	}
 		        $('#tooltips-order_content-'+aId).pt({
 		            position: 'r', // 默认属性值
 		            align: 'c',	   // 默认属性值
 		            height: 'auto',
 		            width: 'auto',
-		            content: dataList["detail"]["upload"]["order_content"]
+		            content: dataList["detail"]["order_content"]
 		        });	
 		        $('#tooltips-order_server-'+aId).pt({
 		            position: 'r', // 默认属性值
@@ -717,15 +854,15 @@ $(document).ready(function() {
 	          break;
 	        case 3:
 	        	var server = ''
-		        	for (var i=0; i <dataList["detail"]["download"]["server"].length; i++){
-		        		server += dataList["detail"]["download"]["server"][i] + ';'
+		        	for (var i=0; i <dataList["detail"]["server"].length; i++){
+		        		server += dataList["detail"]["server"][i] + ';'
 		        	}
 			        $('#tooltips-order_content-'+aId).pt({
 			            position: 'r', // 默认属性值
 			            align: 'c',	   // 默认属性值
 			            height: 'auto',
 			            width: 'auto',
-			            content: dataList["detail"]["download"]["order_content"]
+			            content: dataList["detail"]["order_content"]
 			        });	
 			        $('#tooltips-order_server-'+aId).pt({
 			            position: 'r', // 默认属性值
@@ -739,85 +876,51 @@ $(document).ready(function() {
 	          break;
 	        }         
 	    });	
-    	
-    	$('#ordersLists tbody').on('click','button[name="btn-order-cancel"]',function(){
-    		var vIds = $(this).val();
-    		orderInfo = $(this).parent().parent().parent().find("td")
-    		username =  orderInfo.eq(3).text()
-    		order_subject = orderInfo.eq(4).text()
-    	    $.confirm({
-    	        icon: 'fa fa-times',
-    	        type: 'red',
-    	        title: '取消<code>'+username+'</code>申请的<strong>《'+ order_subject  + '》</strong>工单?',
-    	        content: '<form  data-parsley-validate class="form-horizontal form-label-left">' +
-    			            '<div class="form-group">' +
-    			              '<label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">取消说明<span class="required">*</span>' +
-    			              '</label>' +
-    			              '<div class="col-md-6 col-sm-6 col-xs-12">' +
-    			              	'<input type="text"  name="modf_order_cancel" value="" required="required" class="form-control col-md-7 col-xs-12">' +
-    			              '</div>' +                                           			
-    			          '</form>',
-    	        buttons: {
-    	            '取消': function() {},
-    	            '确认': {
-    	                btnClass: 'btn-blue',
-    	                action: function() {
-    	                    var cancel = this.$content.find("[name='modf_order_cancel']").val();
-    				    	$.ajax({  
-    				            cache: true,  
-    				            type: "PUT",  
-    				            url:"/api/orders/" + vIds + '/',  
-    				            data:{
-    				            	"order_cancel":cancel,
-    				            	"order_status":7,
-    				            	},
-    				            error: function(request) {  
-    				            	new PNotify({
-    				                    title: 'Ops Failed!',
-    				                    text: request.responseText,
-    				                    type: 'error',
-    				                    styling: 'bootstrap3'
-    				                });       
-    				            },  
-    				            success: function(data) {  
-    				            	new PNotify({
-    				                    title: 'Success!',
-    				                    text: '工单取消成功',
-    				                    type: 'success',
-    				                    styling: 'bootstrap3'
-    				                }); 
-    				            	/*RefreshDeployRolesTable("#deployRolesList","/apps/config/?type=info&id="+get_url_param('id'))*/
-    				            	RefreshOrdersTable('ordersLists','/api/orders/list/')
-    				            }  
-    				    	});
-    	                }
-    	            }
-    	        }
-    	    });     		
-    	});	 
+    	 
     	
     	$('#ordersLists tbody').on('click','button[name="btn-order-grant"]',function(){
-    		var vIds = $(this).val();
-    		orderInfo = $(this).parent().parent().parent().find("td")
-    		username =  orderInfo.eq(3).text()
-    		order_subject = orderInfo.eq(4).text()
+    		var vIds = $(this).val().split(":");
+    		let orderInfo = $(this).parent().parent().parent().find("td")
+    		let username =  orderInfo.eq(3).text()
+    		let order_subject = orderInfo.eq(4).text()
     	    $.confirm({
     	        icon: 'fa fa-check',
     	        type: 'blue',
-    	        title: '确认授权<code>'+username+'</code>申请的<strong>《'+ order_subject  + '》</strong>工单?',
-    	        content: '',
+    	        title: '修改<code>'+username+'</code>申请的<strong>《'+ order_subject  + '》</strong>工单审核状态?',
+    	        content: '<form  data-parsley-validate class="form-horizontal form-label-left">' +
+				            '<div class="form-group">' +
+				              '<label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">工单状态<span class="required">*</span>' +
+				              '</label>' +
+				              '<div class="col-md-6 col-sm-6 col-xs-12">' +
+				              			makeOrderAuditStatusSelect(parseInt(vIds[1])) +
+				              '</div>' +
+				            '</div>' + 
+					        '<div class="form-group">' +
+					        '<label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">审批建议: <span class="required">*</span>' +
+					        '</label>' +
+					        '<div class="col-md-6 col-sm-6 col-xs-12">' +
+					          '<input type="text"  name="order_mark" class="form-control col-md-7 col-xs-12">' +
+					        '</div>' +				            
+				          '</form>',
     	        buttons: {
     	            '取消': function() {},
     	            '确认': {
     	                btnClass: 'btn-blue',
     	                action: function() {
+    	                	var formData = {};	
+    	            		var vipForm = this.$content.find('select,input');                	
+    	            		for (var i = 0; i < vipForm.length; ++i) {
+    	            			var name =  vipForm[i].name
+    	            			var value = vipForm[i].value 
+    	            			if (name.length >0 && value.length > 0){
+    	            				formData[name] = value	
+    	            			};		            						
+    	            		};	    	                	
     				    	$.ajax({  
     				            cache: true,  
     				            type: "PUT",  
-    				            url:"/api/orders/" + vIds + '/',  
-    				            data:{
-    				            	"order_status":8,
-    				            	},
+    				            url:"/api/orders/" + vIds[0] + '/',  
+    				            data:formData,
     				            error: function(request) {  
     				            	new PNotify({
     				                    title: 'Ops Failed!',
@@ -843,25 +946,49 @@ $(document).ready(function() {
     	    });     		
     	});	  
     	
-    	$('#ordersLists tbody').on('click','button[name="btn-order-delete"]',function(){
-    		var vIds = $(this).val();
-    		orderInfo = $(this).parent().parent().parent().find("td")
-    		username =  orderInfo.eq(3).text()
-    		order_subject = orderInfo.eq(4).text()
+    	$('#ordersLists tbody').on('click','button[name="btn-order-edit"]',function(){
+    		var vIds = $(this).val().split(":");
+    		let orderInfo = $(this).parent().parent().parent().find("td")
+    		let username =  orderInfo.eq(3).text()
+    		let order_subject = orderInfo.eq(4).text()
     	    $.confirm({
     	        icon: 'fa fa-check',
-    	        type: 'red',
-    	        title: '确认删除<code>'+username+'</code>申请的<strong>《'+ order_subject  + '》</strong>工单?',
-    	        content: '',
+    	        type: 'blue',
+    	        title: '修改<code>'+username+'</code>申请的<strong>《'+ order_subject  + '》</strong>工单进度?',
+    	        content: '<form  data-parsley-validate class="form-horizontal form-label-left">' +
+				            '<div class="form-group">' +
+				              '<label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">工单进度<span class="required">*</span>' +
+				              '</label>' +
+				              '<div class="col-md-6 col-sm-6 col-xs-12">' +
+				              		 makeOrderExecuteStatusSelect(parseInt(vIds[1])) +
+				              '</div>' +
+				            '</div>' + 
+					        '<div class="form-group">' +
+					        '<label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">处理建议: <span class="required">*</span>' +
+					        '</label>' +
+					        '<div class="col-md-6 col-sm-6 col-xs-12">' +
+					          '<input type="text"  name="order_mark"  class="form-control col-md-7 col-xs-12">' +
+					        '</div>' +				            
+				          '</form>',
     	        buttons: {
     	            '取消': function() {},
-    	            '删除': {
+    	            '确认': {
     	                btnClass: 'btn-blue',
     	                action: function() {
+    	                	var formData = {};	
+    	            		var vipForm = this.$content.find('select,input');                	
+    	            		for (var i = 0; i < vipForm.length; ++i) {
+    	            			var name =  vipForm[i].name
+    	            			var value = vipForm[i].value 
+    	            			if (name.length >0 && value.length > 0){
+    	            				formData[name] = value	
+    	            			};		            						
+    	            		};	    	                	
     				    	$.ajax({  
     				            cache: true,  
-    				            type: "DELETE",  
-    				            url:"/api/orders/" + vIds + '/',  
+    				            type: "PUT",  
+    				            url:"/api/orders/" + vIds[0] + '/',  
+    				            data:formData,
     				            error: function(request) {  
     				            	new PNotify({
     				                    title: 'Ops Failed!',
@@ -873,10 +1000,11 @@ $(document).ready(function() {
     				            success: function(data) {  
     				            	new PNotify({
     				                    title: 'Success!',
-    				                    text: '工单删除成功',
+    				                    text: '工单授权成功',
     				                    type: 'success',
     				                    styling: 'bootstrap3'
     				                }); 
+    				            	/*RefreshDeployRolesTable("#deployRolesList","/apps/config/?type=info&id="+get_url_param('id'))*/
     				            	RefreshOrdersTable('ordersLists','/api/orders/list/')
     				            }  
     				    	});
@@ -884,7 +1012,20 @@ $(document).ready(function() {
     	            }
     	        }
     	    });     		
-    	});	  	
+    	});	 
+    	
+    	$('#ordersLists tbody').on('click','button[name="btn-order-log"]',function(){
+    		var vIds = $(this).val();
+    		orderInfo = $(this).parent().parent().parent().find("td")
+    		order_subject = orderInfo.eq(4).text()
+    		$("#orderLogModalLabel").text(order_subject)
+    		if ($('#ordersLogs').hasClass('dataTable')) {
+    			dttable = $('#ordersLogs').dataTable();
+    			dttable.fnClearTable(); //清空table
+    			dttable.fnDestroy(); //还原初始化datatable
+    		}	    		
+    		makeOrderLogsTableList("/api/orders/logs/"+ vIds +"/")
+    	});    	
     	
 	}
     

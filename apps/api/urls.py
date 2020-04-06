@@ -11,7 +11,8 @@ urlpatterns = [
             url(r'^assets/tags/(?P<id>[0-9]+)/$',assets_api.assets_tags),   
             
             url(r'^account/user/$', account_api.user_list), 
-            url(r'^account/user/(?P<id>[0-9]+)/$',account_api.user_detail),        
+            url(r'^account/user/(?P<id>[0-9]+)/$',account_api.user_detail), 
+            url(r'^account/user/superior/$',account_api.UserSuperior.as_view()),       
             url(r'^account/group/$',account_api.GROUP_LIST.as_view()),       
             url(r'^account/role/$', account_api.role_list), 
             url(r'^account/role/(?P<id>[0-9]+)/$',account_api.role_detail), 
@@ -86,11 +87,14 @@ urlpatterns = [
             url(r'^db/user/(?P<uid>[0-9]+)/server/(?P<sid>[0-9]+)/db/$', db_api.DB_USER_SERVER_DBLIST.as_view()),
             url(r'^db/user/(?P<uid>[0-9]+)/db/(?P<did>[0-9]+)/table/$', db_api.db_user_db_table_list),
             url(r'^db/user/(?P<uid>[0-9]+)/db/(?P<did>[0-9]+)/sql/$', db_api.DB_USER_SERVER_DBSQL.as_view()),
+            
             url(r'^orders/list/$', orders_api.OrdersPaginator.as_view()),
-            url(r'^orders/(?P<id>[0-9]+)/$', orders_api.order_detail),
+            url(r'^orders/(?P<pk>[0-9]+)/$', orders_api.OrderDetail.as_view()),
+            url(r'^orders/logs/(?P<pk>[0-9]+)/$', orders_api.OrderLogsDetail.as_view()),
             url(r'^orders/count/$', orders_api.order_count),
             url(r'^orders/notice/$', orders_api.notice_config),
             url(r'^orders/notice/(?P<id>[0-9]+)/$', orders_api.notice_config_detail),
+            
             url(r'^sql/custom/$', db_api.DB_CUSTOM_SQL.as_view()),
             url(r'^sql/custom/(?P<id>[0-9]+)/$', db_api.sql_custom_detail), 
             url(r'^apps/list/$', cicd_api.project_list),   

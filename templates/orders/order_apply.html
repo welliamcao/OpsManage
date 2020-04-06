@@ -11,6 +11,7 @@
     <link href="/static/datatable/datatables.net-fixedheader-bs/css/fixedHeader.bootstrap.min.css" rel="stylesheet">
     <link href="/static/datatable/datatables.net-responsive-bs/css/responsive.bootstrap.min.css" rel="stylesheet">
     <link href="/static/datatable/datatables.net-scroller-bs/css/scroller.bootstrap.min.css" rel="stylesheet"> 	  
+    <link href="/static/bootstrap-daterangepicker/daterangepicker.css" rel="stylesheet">
 	<style type="text/css"> 
 		td.details-control {
 		    background: url('/static/images/details_open.png') no-repeat center center; */
@@ -51,17 +52,17 @@
                   	<!--<div class="" role="tabpanel" data-example-id="togglable-tabs"  id="add_inventory" style="display:none;">-->
                     <div class="" role="tabpanel" data-example-id="togglable-tabs"  id="add_inventory">
                       <ul id="myTab" class="nav nav-tabs bar_tabs" role="tablist">
-                        <li role="presentation" class="active"><a href="#tab_content1" id="#database" role="tab" data-toggle="tab" aria-expanded="true"><i class="fa fa-cubes"></i> SQL上线</a>
+                         <li role="presentation" class="active"><a href="#tab_content4" role="tab" id="#allot" data-toggle="tab" aria-expanded="false"><i class="fa fa-cogs"></i> 运维服务</a>
+                        </li>                          
+                        <li role="presentation" class=""><a href="#tab_content1" id="#database" role="tab" data-toggle="tab" aria-expanded="true"><i class="fa fa-cubes"></i> SQL上线</a>
                         </li>
                         <li role="presentation" class=""><a href="#tab_content2" role="tab" id="#Inception" data-toggle="tab" aria-expanded="false"><i class="fa fa-cloud-upload"></i> 文件分发</a>
                         </li> 
                         <li role="presentation" class=""><a href="#tab_content3" role="tab" id="#CustomSql" data-toggle="tab" aria-expanded="false"><i class="fa fa-cloud-download"></i> 文件下载</a>
-                        </li>   
-<!--                         <li role="presentation" class=""><a href="#tab_content4" role="tab" id="#allot" data-toggle="tab" aria-expanded="false"><i class="fa fa-cogs"></i> DB分配</a>
-                        </li>  -->                                                                      
+                        </li>                                                                       
                       </ul>
                       <div id="myTabContent" class="tab-content">
-                        <div role="tabpanel" class="tab-pane fade active in" id="tab_content1" aria-labelledby="#database">
+                        <div role="tabpanel" class="tab-pane fade" id="tab_content1" aria-labelledby="#database">
 							<div class="col-md-6 col-xs-12">
 								<legend>
 									<i class="fa  fa-paper-plane"></i> SQL信息
@@ -89,7 +90,11 @@
 										<div class="item form-group" id="uploadSQL" style="display:none;">
 											<label>上传SQL<i class="fa fa-info-circle" data-toggle="tooltip" title="申请上线的SQL文件"></i></label>
 											<input type="file" class="file" id="order_file"  value="" />								
-										</div>														
+										</div>
+										<div class="item form-group">
+											<label>工单周期<i class="fa fa-info-circle" data-toggle="tooltip" title="工单执行时间区间"></i></label>
+										    <input type="text" name="order_time"   class="form-control" value="" />				
+										</div>																								
 										<lable id="auditContol"><button type="button" class="btn btn-default" name="audit_sql_btn">提交</button></lable>
 										<button type="reset" class="btn btn-default">撤销</button>
 							</div>
@@ -115,10 +120,10 @@
 								</div>							
 												
 								<div class="item form-group">
-									<label>执行人<i class="fa fa-info-circle"
+									<label>审核人<i class="fa fa-info-circle"
 										data-toggle="tooltip" title="工单发送给谁审核执行"></i></label> 
 										<select class="selectpicker form-control" data-live-search="true" id="order_executor" name="order_executor" required> 
-											<option name="order_executor" value="">选择一个执行者</option> 
+											<option name="order_executor" value="">选择一个审核人</option> 
 										</select>								
 									<p class="help-block">例如：admin</p>
 								</div>
@@ -172,7 +177,11 @@
 										<div class="form-group">
 											<label><font color='red'>* </font>上传文件<i class="fa fa-info-circle" data-toggle="tooltip" title="申请上传的文件"></i></label>
 											<input type="file" class="file" id="order_files" name="order_files" data-show-upload="false" data-show-caption="true" multiple  value="" required/>						
-										</div>														
+										</div>
+										<div class="item form-group">
+											<label>工单周期<i class="fa fa-info-circle" data-toggle="tooltip" title="工单执行时间区间"></i></label>
+										    <input type="text" name="order_time"   class="form-control" value="" />				
+										</div>																									
 										<lable><button type="button" class="btn btn-default" id="fileuploadbtn" name="btn-fileupload-add" >上传</button></lable>
 										<button type="reset" class="btn btn-default">撤销</button>
 								</div>
@@ -201,13 +210,13 @@
 										<input class="form-control" id="chown_rwx" name="chown_rwx" value="0755" required></input>
 									</div>																															
 									<div class="form-group">
-										<label><font color='red'>* </font>授权人<i class="fa fa-info-circle"
+										<label><font color='red'>* </font>审核人<i class="fa fa-info-circle"
 											data-toggle="tooltip" title="工单发送给谁授权"></i></label> 
 											<select class="form-control" data-live-search="true" id="fileupload_order_executor" name="order_executor" required> 
-												<option name="order_executor" value="">选择一个授权人</option> 
+												<option name="order_executor" value="">选择一个审核人</option> 
 											</select>								
 										<p class="help-block">例如：admin</p>
-									</div>
+									</div>									
 									</form>
 								</div>	
 							</div>				
@@ -228,7 +237,11 @@
 										<div class="item form-group">
 		 									<label><font color='red'>* </font>工单内容<i class="fa fa-info-circle" data-toggle="tooltip" title="说明用途"></i></label>
 											<textarea class="form-control" rows="3" id="filedownload_order_content" name="order_content" required></textarea>
-										</div>																							
+										</div>		
+										<div class="item form-group">
+											<label>工单周期<i class="fa fa-info-circle" data-toggle="tooltip" title="工单执行时间区间"></i></label>
+										    <input type="text" name="order_time"  class="form-control" value="" />				
+										</div>																																
 										<lable><button type="button" class="btn btn-default" id="filedownloadbtn" name="btn-filedownload-add" >提交</button></lable>
 										<button type="reset" class="btn btn-default">撤销</button>
 								</div>
@@ -248,10 +261,10 @@
 										<input class="form-control" id="filedownload_dest_path" name="filedownload_dest_path" value="/usr/local/src/" required></input>
 									</div>																																
 									<div class="form-group">
-										<label><font color='red'>* </font>授权人<i class="fa fa-info-circle"
+										<label><font color='red'>* </font>审核人<i class="fa fa-info-circle"
 											data-toggle="tooltip" title="工单发送给谁授权"></i></label> 
 											<select class="form-control" data-live-search="true" id="filedownload_order_executor" name="order_executor" required> 
-												<option name="order_executor" value="">选择一个授权人</option> 
+												<option name="order_executor" value="">选择一个审核人</option> 
 											</select>								
 										<p class="help-block">例如：admin</p>
 									</div>
@@ -260,7 +273,47 @@
 							</div>
                         </div>
                          <!-- CustomSql -->
-                        <div role="tabpanel" class="tab-pane fade" id="tab_content4" aria-labelledby="#allot">						 
+                        <div role="tabpanel" class="tab-pane fade active in" id="tab_content4" aria-labelledby="#allot">		
+								<div class="col-lg-8">
+									<legend>
+										<i class="fa  fa-paper-plane"></i> 运维服务
+									</legend>
+									<form role="form" method="post" id="audit_service_order" enctype="multipart/form-data">
+										{% csrf_token %}
+										<div class="item form-group">
+		 									<label><font color='red'>* </font>工单主题<i class="fa fa-info-circle" data-toggle="tooltip" title="主题"></i></label>
+											<input class="form-control" rows="3" id="service_order_subject" name="order_subject" required></input>
+										</div>								
+										<div class="item form-group">
+		 									<label><font color='red'>* </font>工单内容<i class="fa fa-info-circle" data-toggle="tooltip" title="说明用途"></i></label>
+											<textarea class="form-control" rows="10" id="service_order_content" name="order_content" required>业务：
+
+主机：
+
+服务部署类型：
+
+											</textarea>
+										</div>									
+										<div class="form-group">
+											<label><font color='red'> </font>工单文件<i class="fa fa-info-circle" data-toggle="tooltip" title="申请上传的文件"></i></label>
+											<input type="file" class="file" id="service_order_files" name="order_files" data-show-upload="false" data-show-caption="true"  value="" required/>						
+										</div>
+										<div class="item form-group">
+											<label>工单周期<i class="fa fa-info-circle" data-toggle="tooltip" title="工单执行时间区间"></i></label>
+										    <input type="text" name="order_time" class="form-control" value="" />				
+										</div>		
+										<div class="form-group">
+											<label><font color='red'>* </font>审核人<i class="fa fa-info-circle"
+												data-toggle="tooltip" title="工单发送给谁授权"></i></label> 
+												<select class="form-control" data-live-search="true" id="service_order_executor" name="order_executor" required> 
+													<option  value="">选择一个审核人</option> 
+												</select>								
+											<p class="help-block">例如：admin</p>
+										</div>																																		
+										<lable><button type="button" class="btn btn-default" id="servicebtn" name="btn-service-add" >申请</button></lable>
+										<button type="reset" class="btn btn-default">撤销</button>
+									</form>
+								</div>                        				 
                         </div>                                                 
                     </div>                                  
                   </div>
@@ -277,6 +330,9 @@
     <script src="/static/datatable/datatables.net-buttons/js/buttons.flash.min.js"></script>
     <script src="/static/datatable/datatables.net-buttons/js/buttons.html5.min.js"></script>
     <script src="/static/datatable/datatables.net-buttons/js/buttons.print.min.js"></script>  
+	<!-- bootstrap-daterangepicker -->
+    <script src="/static/moment/min/moment.min.js"></script>
+    <script src="/static/bootstrap-daterangepicker/daterangepicker.js"></script>    
 	<script src="/static/js/orders/apply.js"></script>
 	<script src="/static/validator/validator.js"></script>
 	<script src="/static/fileinput/js/fileinput.js" type="text/javascript"></script> 

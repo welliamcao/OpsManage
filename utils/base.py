@@ -3,7 +3,7 @@
 '''版本控制方法'''
 import magic
 from random import choice
-import string,hashlib,calendar
+import string, hashlib, calendar
 import subprocess,os,time,smtplib
 from datetime import datetime,timedelta,date
 from email.mime.text import MIMEText
@@ -45,13 +45,6 @@ def method_decorator_adaptor(adapt_to, *decorator_args, **decorator_kwargs):
         return decorator
     return decorator_outer
 
-class LazyEncoder(DjangoJSONEncoder):
-    def default(self, obj):
-        if isinstance(obj,  datetime):
-            return obj.strftime('%Y-%m-%d %H:%M:%S')  
-        elif isinstance(obj, date):  
-            return obj.strftime("%Y-%m-%d")         
-        return super().default(obj)
 
 def file_iterator(file_name, chunk_size=512):
     f = open(file_name, "rb")
@@ -163,6 +156,14 @@ def getFileType(filePath):
         file_type = '未知'
         logger.error("获取文件类型失败: {ex}".format(ex=ex))
     return file_type
+
+def get_file_md5sum(file):
+    m = hashlib.md5()
+    with open(file,'rb') as f:
+        for line in f:
+            m.update(line)
+    return m.hexdigest()
+
    
 def get_date_list(begin_date, end_date,fmt="%Y-%m-%d %H:%M"):
     dates = []

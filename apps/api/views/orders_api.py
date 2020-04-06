@@ -1,7 +1,7 @@
 #!/usr/bin/env python  
 # _#_ coding:utf-8 _*_
+import json
 from django.db.models import Q
-from rest_framework import viewsets,permissions
 from api import serializers
 from orders.models import *
 from rest_framework import status
@@ -11,34 +11,95 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from django.contrib.auth.decorators import permission_required
 from orders.models import Order_System
-from dao.orders import ORDERS_COUNT_RBT
+from dao.orders import ORDERS_COUNT_RBT,OrderBase
 from django.http import JsonResponse
+from django.core.exceptions import PermissionDenied
 
 
-@api_view(['PUT', 'DELETE'])
-@permission_required('orders.orders_change_order_system',raise_exception=True)
-def order_detail(request, id,format=None):
-    """
-    Retrieve, update or delete a server assets instance.
-    """
-    try:
-        snippet = Order_System.objects.get(id=id)
-    except Order_System.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
+class OrderDetail(APIView,OrderBase):
     
-    if request.method == 'PUT':           
-        serializer = serializers.OrderSerializer(snippet, data=request.data)
-        if request.user.is_superuser or request.user.id == serializer.order_executor: 
-            if serializer.is_valid():
-                serializer.save()
-                return Response(serializer.data)
+    def get_object(self, pk):
+        try:
+            return Order_System.objects.get(id=pk)
+        except Order_System.DoesNotExist:
+            raise Http404          
+
+    def check_perms(self, request, pk):
+        order = self.get_object(pk)
+
+        if request.user.is_superuser:
+            return order
+        
+#         if order.is_expired() and order.is_unexpired():  
+              
+        if request.user.id == order.order_user or request.user.id == order.order_executor:
+            return order  
+        
+        raise PermissionDenied()        
+
+    def get(self, request, pk, *args, **kwargs):
+        
+        order = self.check_perms(request, pk)
+       
+        return Response(self.order_detail(order))
+        
+    def put(self, request, pk, *args, **kwargs): 
+        
+        order_mark = None
+        
+        snippet = self.get_object(pk)
+        
+        data = request.data.copy()
+
+        if "order_audit_status" in data.keys():
+            data = self.update_order_progress(data)
+        
+        if "order_mark" in data.keys():
+            order_mark = data.get("order_mark")
+        
+        if "order_content"  in data.keys():#更新工单内容
+            
+            if snippet.order_execute_status in [0,1]:   
+                
+                if hasattr(snippet, 'service_audit_order'):
+                    
+                    snippet.service_audit_order.order_content = data.get("order_content")
+                    snippet.service_audit_order.save()
+                    
+                    self.record_order_operation(snippet.id, snippet.order_audit_status, snippet.order_execute_status, request.user, data.get("order_content"))
+                    
+                    return Response(snippet.to_json())
+            else:
+                
+                return Response(status=status.HTTP_400_BAD_REQUEST)
+        else:#更新工单审核状体或者工单进度
+            
+            serializer = serializers.OrderSerializer(snippet, data=data)
+            
+            if request.user.is_superuser or request.user.id == serializer.order_executor: 
+                if serializer.is_valid():
+                    serializer.save()
+                    self.record_order_operation(snippet.id, snippet.order_audit_status, snippet.order_execute_status, request.user, order_mark)
+                    return Response(serializer.data)            
+            
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-     
-    elif request.method == 'DELETE':
-        if not request.user.has_perm('orders.orders_delete_order_system'):
-            return Response(status=status.HTTP_403_FORBIDDEN)
-        snippet.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT) 
+
+
+class OrderLogsDetail(APIView):
+    
+    def get_object(self, pk):
+        try:
+            return Order_System.objects.get(id=pk)
+        except Order_System.DoesNotExist:
+            raise Http404   
+        
+    def get(self, request, pk, *args, **kwargs):
+        order = self.get_object(pk)
+        
+        if request.user.is_superuser or request.user.id == order.order_user or request.user.id == order.order_executor:
+            return Response([ ds.to_json() for ds in OrderLog.objects.filter(order=order.id).order_by("-id") ])
+                
+        return Response(status=status.HTTP_403_FORBIDDEN) 
     
 @api_view(['GET'])
 def order_count(request,format=None):

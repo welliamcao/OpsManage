@@ -164,7 +164,7 @@ class User(AbstractUser):
             "username":self.username,
             "is_staff":self.is_staff,
             "is_active":self.is_active,
-            "date_joined":self.date_joined,
+            "date_joined":self.date_joined.strftime('%Y-%m-%d %H:%M:%S'),
             "name":self.name,
             "mobile":self.mobile,
             "email":self.email,

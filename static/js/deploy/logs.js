@@ -173,7 +173,7 @@ function makePlaybookLogsTableList(dataList){
    	                        return '<div class="btn-group  btn-group-xs">' +	
 	    	                           '<button type="button" name="btn-playbook-view" value="'+ row.id +'" class="btn btn-default"><span class="fa fa-search-plus" aria-hidden="true"></span>' +	
 	    	                           '</button>' +	    	                               	                           
-	    	                           '<button type="button" name="btn-playbook-delete" value="'+ row.id +'" class="btn btn-default" aria-label="Justify"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span>' +	
+	    	                           '<button type="button" name="btn-playbook-delete" value="'+ row.id +'" class="btn btn-default" aria-label="Justify"><span class="fa fa-trash" aria-hidden="true"></span>' +	
 	    	                           '</button>' +			                            
 	    	                           '</div>';
    	    				},
@@ -201,7 +201,7 @@ function makeModelLogsTableList(){
    	                        return '<div class="btn-group  btn-group-xs">' +		    	                           
 	    	                           '<button type="button" name="btn-model-view" value="'+ row.id +'" class="btn btn-default" data-toggle="modal"><span class="fa fa-search-plus" aria-hidden="true"></span>' +	
 	    	                           '</button>' + 	    	                           
-	    	                           '<button type="button" name="btn-model-delete" value="'+ row.id +'" class="btn btn-default" aria-label="Justify"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span>' +	
+	    	                           '<button type="button" name="btn-model-delete" value="'+ row.id +'" class="btn btn-default" aria-label="Justify"><span class="fa fa-trash" aria-hidden="true"></span>' +	
 	    	                           '</button>' +			                            
 	    	                           '</div>';
    	    				},

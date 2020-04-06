@@ -2,8 +2,8 @@
 {% block css-content %}
     <link rel="stylesheet" href="/static/jquery-confirm/jquery-confirm.min.css">
     <link rel="stylesheet" href="/static/css/bootstrap-select.css"> 
-    <link href="/static/datatable/datatables.net-bs/css/dataTables.bootstrap.min.css" rel="stylesheet">
 	<link href="/static/fileinput/css/fileinput.css" media="all" rel="stylesheet" type="text/css" /> 
+    <link href="/static/datatable/datatables.net-bs/css/dataTables.bootstrap.min.css" rel="stylesheet">	
 	<link href="/static/datatable/datatables.net-buttons-bs/css/buttons.bootstrap.min.css" rel="stylesheet">
 	<link href="/static/datatable/datatables.net-fixedheader-bs/css/fixedHeader.bootstrap.min.css" rel="stylesheet">
 	<link href="/static/datatable/datatables.net-responsive-bs/css/responsive.bootstrap.min.css" rel="stylesheet">
@@ -97,8 +97,10 @@
 								                <th>工单主题</th>
 								                <th>操作人</th>
 								                <th>申请时间</th>
-								                <th>状态</th>	
-								                <th>操作时间</th>				                
+								                <th>执行状态</th>
+								                <th>审核状态</th>	
+								                <th>过期状态</th>	
+								                <th>过期时间</th>			                
 												<th class="text-center">操作</th>
 					                        </tr>
 					                      </thead>
@@ -271,7 +273,7 @@
                 <div class="modal-content">
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                        <h4 class="modal-title" id="myModalLabel">Excel文件批量导入资产</h4><small>模板文件(<u class="red">设备资产批量导入模板文件.xls</u>)</small>
+                        <h4 class="modal-title">Excel文件批量导入资产</h4><small>模板文件(<u class="red">设备资产批量导入模板文件.xls</u>)</small>
                         
                     </div>                  
                     <form role="form" method="post" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"  enctype="multipart/form-data" action='/assets/import/' class="main form-horizontal">{% csrf_token %}
@@ -288,11 +290,44 @@
                          <button type="submit" class="btn btn-primary">导入</button>
                      </div>
                     </form>
+                    </div>
                 </div>
                 <!-- /.modal-content -->
            </div>
            <!-- /.modal-dialog -->
        </div>             
+            
+        <div class="modal fade  bs-example-modal-log" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog" style="width:800px;height: 600px">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title" id="orderLogModalLabel"></h4>
+                    </div>                  
+                    <div class="modal-body">
+					   <table id="ordersLogs" class="table table-hover">
+						 <thead>
+						   <tr>
+	                        <th>工单ID</th>
+			                <th>操作人</th>
+			                <th>备注</th>
+			                <th>审核状态</th>
+			                <th>进度状态</th>
+			                <th>操作时间</th>				                
+						   </tr>
+						 </thead>
+						 <tbody>
+						 </tbody>
+					   </table> 
+                         
+                     <div class="modal-footer">                     
+                         <!-- <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button> -->
+                     </div>
+                </div>
+                <!-- /.modal-content -->
+           </div>
+           <!-- /.modal-dialog -->
+       </div>            
                        
 {% endblock %}
 {% block js-content %}

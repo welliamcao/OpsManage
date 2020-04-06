@@ -50,26 +50,50 @@
 								<legend>
 									<i class="fa  fa-paper-plane"></i> SQL信息
 								</legend>
-								<form role="form" method="post" id="audit_sql_order" enctype="multipart/form-data" class="main form-horizontal">
-										{% csrf_token %}
-										<div class="item form-group">
-		 									<label>用途<i class="fa fa-info-circle" data-toggle="tooltip" title="说明用途"></i></label>
-											<textarea class="form-control" rows="3" name="order_desc" id="order_desc"></textarea>
-										</div>									
-										<div class="item form-group" id="onlineSql">
-											<label>上线SQL<i class="fa fa-info-circle" data-toggle="tooltip" title="申请上线的SQL语句"></i></label>
-											<div id="compile-editor-add" class="ace_editor"></div>
-											<p class="help-block">例如：insert into tablename (xxx,xxx,xxx) values (xxx,xxx,xxx);</p>								
-										</div>	
-										<div class="item form-group">
-		 									<label>工单状态<i class="fa fa-info-circle" data-toggle="tooltip" title="工单状态"></i></label>
-											<span id="order_status"></span>
-										</div>																								
-										<lable id="auditContol">
-											<button type="button" class="btn btn-default" id="audit_sql_btn" name="audit_sql_btn" disabled>执行</button>
-											<button type="button" class="btn btn-default" id="rollback_sql_btn" style="display:none" name="rollback_sql_btn" disabled>回滚</button>
-										</lable>
-										
+								<div class="row">
+									<form role="form" method="post" id="audit_sql_order" enctype="multipart/form-data" class="main form-horizontal">
+											{% csrf_token %}
+											<div class="item form-group">
+			 									<label>用途<i class="fa fa-info-circle" data-toggle="tooltip" title="说明用途"></i></label>
+												<textarea class="form-control" rows="3" name="order_desc" id="order_desc"></textarea>
+											</div>									
+											<div class="item form-group" id="onlineSql">
+												<label>上线SQL<i class="fa fa-info-circle" data-toggle="tooltip" title="申请上线的SQL语句"></i></label>
+												<div id="compile-editor-add" class="ace_editor"></div>
+												<p class="help-block">例如：insert into tablename (xxx,xxx,xxx) values (xxx,xxx,xxx);</p>								
+											</div>
+											<div class="item form-group">
+												<label>工单周期<i class="fa fa-info-circle" data-toggle="tooltip" title="工单执行时间区间"></i></label>
+											    <input type="text" name="order_time" id="order_time" class="form-control" value="" />				
+											</div>												
+											<div class="item form-group">
+			 									<label>工单状态<i class="fa fa-info-circle" data-toggle="tooltip" title="工单状态"></i></label>
+												<span id="order_audit_status"></span>
+											</div>																								
+											<lable id="auditContol">
+												<button type="button" class="btn btn-default" id="audit_sql_btn" name="audit_sql_btn" disabled>执行</button>
+												<button type="button" class="btn btn-default" id="rollback_sql_btn" style="display:none" name="rollback_sql_btn" disabled>回滚</button>
+											</lable>
+								</div>	
+<!-- 								<h2  class="page-header">工单变更历史</h2>	
+								<div class="row">
+									<div class="col-lg-12">
+					                   <table id="ordersLogs" class="table table-hover">
+					                     <thead>
+					                       <tr>
+					                        <th>工单ID</th>
+							                <th>操作人</th>
+							                <th>备注</th>
+							                <th>审核状态</th>
+							                <th>进度状态</th>
+							                <th>操作时间</th>				                
+					                       </tr>
+					                     </thead>
+					                     <tbody>
+					                     </tbody>
+					                   </table> 
+					                </div>		
+				                </div>	 -->								
 							</div>
 							<div class="hr hr32 hr-dotted"></div>
 							<div class="col-md-6 col-xs-12">
@@ -146,7 +170,25 @@
 							<!-- /.col-lg-6 (nested) -->
 							<div class="hr hr32 hr-dotted"></div>
 						</div>
-   
+						<div class="row">
+							<div class="col-lg-12">
+							   <h2  class="page-header">工单变更历史</h2>	
+			                   <table id="ordersLogs" class="table table-hover">
+			                     <thead>
+			                       <tr>
+			                        <th>工单ID</th>
+					                <th>操作人</th>
+					                <th>备注</th>
+					                <th>审核状态</th>
+					                <th>进度状态</th>
+					                <th>操作时间</th>				                
+			                       </tr>
+			                     </thead>
+			                     <tbody>
+			                     </tbody>
+			                   </table> 
+					          </div>							 
+						</div>   
                   </div>
               </div>
         </div> 

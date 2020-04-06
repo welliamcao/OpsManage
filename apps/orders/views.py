@@ -6,7 +6,7 @@ from django.views.generic import View
 from django.http import HttpResponseRedirect,JsonResponse,StreamingHttpResponse
 from django.shortcuts import render
 from dao.orders import (ApplyManage,OrderSQLManage,
-                        OrderFileDownloadManage,OrderStatus,
+                        OrderFileDownloadManage,OrderProgres,
                         OrderFileUploadManage)
 from django.contrib.auth.mixins import LoginRequiredMixin
 from utils.logger import logger
@@ -28,7 +28,7 @@ class OrderLists(LoginRequiredMixin,View):
         return render(request,'orders/order_list.html',{"user":request.user})    
     
 
-class OrderInfo(LoginRequiredMixin,OrderStatus,View):
+class Progress(LoginRequiredMixin,OrderProgres,View):
     login_url = '/login/'
     def get(self, request, *args, **kwagrs):
         res = self.allowcator(request.GET.get('type'), request)
@@ -38,12 +38,7 @@ class OrderInfo(LoginRequiredMixin,OrderStatus,View):
 class OrderSQLHandle(LoginRequiredMixin,OrderSQLManage,View): 
     login_url = '/login/'
     def get(self, request, *args, **kwagrs):
-        if request.GET.get('id') and request.GET.get('type'):
-            res = self.allowcator(request.GET.get('type'), request)
-            if isinstance(res, str):return HttpResponseRedirect("/404/")
-            return render(request,'orders/order_sql.html',{"user":request.user})  
-        else:       
-            return HttpResponseRedirect("/404/")
+        return render(request,'orders/order_sql.html',{"user":request.user})  
         
     def post(self, request, *args, **kwagrs):
         res = self.allowcator(request.POST.get('type'), request)
@@ -54,12 +49,7 @@ class OrderSQLHandle(LoginRequiredMixin,OrderSQLManage,View):
 class OrderFileUploadHandle(LoginRequiredMixin,OrderFileUploadManage,View): 
     login_url = '/login/'
     def get(self, request, *args, **kwagrs):
-        if request.GET.get('id') and request.GET.get('type'):
-            res = self.allowcator(request.GET.get('type'), request)
-            if isinstance(res, str):return HttpResponseRedirect("/404/")
-            return render(request,'orders/order_fileupload.html',{"user":request.user})  
-        else:       
-            return HttpResponseRedirect("/404/")
+        return render(request,'orders/order_fileupload.html',{"user":request.user})  
         
     def post(self, request, *args, **kwagrs):
         res = self.allowcator(request.POST.get('type'), request)
@@ -69,12 +59,8 @@ class OrderFileUploadHandle(LoginRequiredMixin,OrderFileUploadManage,View):
 class OrderFileDwonloadHandle(LoginRequiredMixin,OrderFileDownloadManage,View): 
     login_url = '/login/'
     def get(self, request, *args, **kwagrs):
-        if request.GET.get('id') and request.GET.get('type'):
-            res = self.allowcator(request.GET.get('type'), request)
-            if isinstance(res, str):return HttpResponseRedirect("/404/")
-            return render(request,'orders/order_filedownload.html',{"user":request.user})  
-        else:       
-            return HttpResponseRedirect("/404/")
+        return render(request,'orders/order_filedownload.html',{"user":request.user})  
+
         
     def post(self, request, *args, **kwagrs):
         if request.POST.get('type') == "downloads":return self.downloads(request)
@@ -99,3 +85,14 @@ class OrderFileDwonloadHandle(LoginRequiredMixin,OrderFileDownloadManage,View):
             response['Content-Disposition'] = 'attachment; filename="{file_name}'.format(file_name=os.path.basename(filePath))
             return response   
         return JsonResponse({'msg':"文件不存在","code":500,'data':[]})                  
+
+
+class OrderServiceHandle(LoginRequiredMixin, View): 
+    login_url = '/login/'
+    def get(self, request, *args, **kwagrs):
+        return render(request,'orders/order_service.html',{"user":request.user})  
+
+    def post(self, request, *args, **kwagrs):
+        res = self.allowcator(request.POST.get('type'), request)
+        if isinstance(res, str):return JsonResponse({'msg':res,"code":500,'data':[]})
+        return JsonResponse({'msg':"操作成功","code":200,'data':res}) 

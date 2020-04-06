@@ -58,81 +58,72 @@
                   <div class="x_content">
 
 						<div class="row">
-
-								<div class="col-lg-4">
-									<legend>
-										<i class="fa  fa-paper-plane"></i> 文件分发
-									</legend>
-									<div class="row">
-										<form role="form" method="post" id="run_fileupload_order" enctype="multipart/form-data">
+							<div class="row">
+														
+									<div class="col-lg-8">
+										<legend>
+											<i class="fa  fa-paper-plane"></i> 运维服务
+										</legend>
+										<form role="form" method="post" id="run_service_order" enctype="multipart/form-data">
 											{% csrf_token %}
 											<div class="item form-group">
 			 									<label><font color='red'>* </font>工单主题<i class="fa fa-info-circle" data-toggle="tooltip" title="主题"></i></label>
-												<input class="form-control" rows="3" id="fileupload_order_subject" name="fileupload_order_subject" required></input>
-												<input class="form-control" rows="3" id="ans_uuid" name="ans_uuid" type="hidden" value=""></input>
+												<input class="form-control" rows="3" id="service_order_subject" name="order_subject" required></input>
 											</div>								
 											<div class="item form-group">
 			 									<label><font color='red'>* </font>工单内容<i class="fa fa-info-circle" data-toggle="tooltip" title="说明用途"></i></label>
-												<textarea class="form-control" rows="3" id="order_content" name="order_content" required></textarea>
-											</div>	
-											<div class="item form-group">
-											  <label><font color='red'>* </font>服务器选择</label>
-	                                          <select multiple class="selectpicker form-control"  data-size="10" data-selected-text-format="count > 5" data-live-search="true" data-width="100%"   autocomplete="off"  autocomplete="off" id="custom" name="custom" required>
-	                                          </select>
-											</div>																			
-											<div class="form-group">
-												<label><font color='red'>* </font>目标路径<i class="fa fa-info-circle" data-toggle="tooltip" title="文件分发的目标服务器路径"></i></label>
-												<input class="form-control" id="dest_path" name="dest_path"  disabled></input>					
-											</div>
-											<div class="item form-group">
-											  <label><font color='red'>* </font>文件选择</label>
-	                                          <select multiple class="selectpicker form-control"  data-size="10" data-selected-text-format="count > 5" data-live-search="true" data-width="100%"   autocomplete="off"  autocomplete="off" id="files" name="files" required>
-	                                          </select>
-											</div>	
+												<textarea class="form-control" rows="10" id="service_order_content" name="order_content" required>业务：
+	
+主机：
+	
+服务部署类型：
+	
+												</textarea>
+											</div>									
+<!-- 											<div class="form-group">
+												<label><font color='red'> </font>工单文件<i class="fa fa-info-circle" data-toggle="tooltip" title="申请上传的文件"></i></label>
+												<input type="file" class="file" id="service_order_files" name="order_files" data-show-upload="false" data-show-caption="true"  value="" required/>						
+											</div> -->
 											<div class="item form-group">
 												<label>工单周期<i class="fa fa-info-circle" data-toggle="tooltip" title="工单执行时间区间"></i></label>
-											    <input type="text" name="order_time" id="order_time" class="form-control" value="" />				
-											</div>																					
-											<div class="item form-group">
-			 									<label>工单状态<i class="fa fa-info-circle" data-toggle="tooltip" title="工单状态"></i></label>
-												<span id="order_audit_status"></span>
-											</div>																									
-											<button type="button" class="btn btn-default" id="fileuploadbtn" name="btn-fileupload-run" disabled>上传</button>
+											    <input type="text" id="order_time" name="order_time" class="form-control" value="" />				
+											</div>		
+											<div class="form-group">
+												<label><font color='red'>* </font>审核人<i class="fa fa-info-circle"
+													data-toggle="tooltip" title="工单发送给谁授权"></i></label> 
+													<select class="form-control" data-live-search="true" id="service_order_executor" name="order_executor" required> 
+														<option  value="">选择一个审核人</option> 
+													</select>								
+												<p class="help-block">例如：admin</p>
+											</div>																																		
+											<lable><button type="button" class="btn btn-default" id="servicebtn" name="btn-service-edit" disabled>申请</button></lable>
 										</form>
-									</div>									
-								</div>
-								<!-- /.col-lg-6 (nested) -->
-								<div class="hr hr32 hr-dotted"></div>
-								<div class="col-lg-8">
-									<legend>
-										<i class="fa  fa-paper-plane-o"></i> 分发结果
-									</legend>	
-				                  <div class="x_content">
-				                     <div id="result">
-				                     </div>                   
-				                  </div>																
-								</div>	
+									</div>  
+									</div>
+									
+									<div class="row">
+									
+										<div class="col-lg-8">
+										<h2  class="page-header">工单变更历史</h2>	
+						                   <table id="ordersLogs" class="table table-hover">
+						                     <thead>
+						                       <tr>
+						                        <th>工单ID</th>
+								                <th>操作人</th>
+								                <th>备注</th>
+								                <th>审核状态</th>
+								                <th>进度状态</th>
+								                <th>操作时间</th>				                
+						                       </tr>
+						                     </thead>
+						                     <tbody>
+						                     </tbody>
+						                   </table> 
+						                </div>		
+					                </div>										
 
 						</div>
-						<div class="row">
-							<div class="col-lg-12">
-							   <h2  class="page-header">工单变更历史</h2>	
-			                   <table id="ordersLogs" class="table table-hover">
-			                     <thead>
-			                       <tr>
-			                        <th>工单ID</th>
-					                <th>操作人</th>
-					                <th>备注</th>
-					                <th>审核状态</th>
-					                <th>进度状态</th>
-					                <th>操作时间</th>				                
-			                       </tr>
-			                     </thead>
-			                     <tbody>
-			                     </tbody>
-			                   </table> 
-					          </div>							 
-						</div>
+   
                   </div>
               </div>
         </div> 
@@ -143,6 +134,7 @@
 	<script src="/static/jquery-confirm/jquery-confirm.min.js"></script>
     <script src="/static/datatable/datatables.net/js/jquery.dataTables.min.js"></script>
 	<script src="/static/datatable/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>	
-	<script src="/static/js/orders/fileupload.js">
+	<script src="/static/js/orders/service.js">
 	<script src="/static/validator/validator.js"></script>
+	<script src="/static/fileinput/js/fileinput.js" type="text/javascript"></script>
 {% endblock %}

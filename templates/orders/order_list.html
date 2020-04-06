@@ -1,10 +1,12 @@
 {% extends 'base.html' %}
 {% block css-content %}
     <link rel="stylesheet" href="/static/jquery-confirm/jquery-confirm.min.css">
-    <link href="/static/datatable/datatables.net-buttons-bs/css/buttons.bootstrap.min.css" rel="stylesheet">
-    <link href="/static/datatable/datatables.net-fixedheader-bs/css/fixedHeader.bootstrap.min.css" rel="stylesheet">
-    <link href="/static/datatable/datatables.net-responsive-bs/css/responsive.bootstrap.min.css" rel="stylesheet">
-    <link href="/static/datatable/datatables.net-scroller-bs/css/scroller.bootstrap.min.css" rel="stylesheet"> 
+    <link href="/static/datatable/datatables.net-bs/css/dataTables.bootstrap.min.css" rel="stylesheet">	
+	<link href="/static/datatable/datatables.net-buttons-bs/css/buttons.bootstrap.min.css" rel="stylesheet">
+	<link href="/static/datatable/datatables.net-fixedheader-bs/css/fixedHeader.bootstrap.min.css" rel="stylesheet">
+	<link href="/static/datatable/datatables.net-responsive-bs/css/responsive.bootstrap.min.css" rel="stylesheet">
+	<link href="/static/datatable/datatables.net-scroller-bs/css/scroller.bootstrap.min.css" rel="stylesheet"> 
+	<link href="/static/datatable/datatables.net-select/css/select.dataTables.min.css" rel="stylesheet">
     <link rel="stylesheet" href="/static/css/bootstrap-select.css">  
     <link rel="stylesheet" href="/static/tooltips/css/tooltips.css">    
 	<style type="text/css"> 
@@ -102,20 +104,20 @@
 												</select>
 											 </div>						 	
 										</div>											
-										<div class="item form-group" >
+<!-- 										<div class="item form-group" >
 											 <label class="col-sm-2 control-label" >授权组<span class="required">*</span></label>
 											 <div class="col-sm-10">
 												<select class="selectpicker form-control"  name="grant_group" id="grant_group" required>
 													<option  value="" selected="selected">选择一个授权组</option>
 												</select>
 											 </div>						 	
-										</div>									
-										<div class="item form-group">
+										</div> -->									
+<!-- 										<div class="item form-group">
 											<label class="col-sm-2 control-label" >通知对象<span class="required">*</span></label>
 											<div class="col-sm-10">
 												<textarea class="form-control" rows="3" name="number" placeholder="分号隔开" id="number" required></textarea>		
 											</div>					
-										</div>														
+										</div>	 -->													
 										<legend></legend>																											
 										<div class="form-group">
 											<label class="col-sm-4 control-label"></label> 								
@@ -139,8 +141,7 @@
 													</th>
 													<th class="text-center">工单类型</th>				
 													<th class="text-center">通知类型</th>
-													<th class="text-center">授权组</th>
-													<th class="text-center">通知对象</th>
+													<!-- <th class="text-center">通知对象</th> -->
 													<th class="text-center">操作</th>
 												</tr>											    
 		                                </thead>
@@ -190,8 +191,10 @@
 				                <th>工单主题</th>
 				                <th>操作人</th>
 				                <th>申请时间</th>
-				                <th class="text-center">状态</th>	
-				                <th>操作时间</th>				                
+				                <th>执行状态</th>
+				                <th>审核状态</th>	
+				                <th>过期状态</th>	
+				                <th>过期时间</th>				                
 								<th class="text-center">操作</th>
 	                        </tr>
 	                      </thead>
@@ -204,7 +207,38 @@
             </div>
         </div>
               
+        <div class="modal fade bs-example-modal-log" tabindex="-1" role="dialog" aria-hidden="true">
+          <div class="modal-dialog modal-lg">
+            <div class="modal-content">
 
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span>
+                </button>
+                <h4 class="modal-title" id="orderLogModalLabel"></h4>
+              </div>
+              <div class="modal-body">
+                   <table id="ordersLogs" class="table table-hover">
+                     <thead>
+                       <tr>
+                        <th>工单ID</th>
+		                <th>操作人</th>
+		                <th>备注</th>
+		                <th>审核状态</th>
+		                <th>进度状态</th>
+		                <th>操作时间</th>				                
+                       </tr>
+                     </thead>
+                     <tbody>
+                     </tbody>
+                   </table> 					
+              </div>
+              <div class="modal-footer">
+                <!-- <button type="button" class="btn btn-default" data-dismiss="modal">Close</button> -->
+              </div>
+
+            </div>
+          </div>
+        </div>
 
 
 

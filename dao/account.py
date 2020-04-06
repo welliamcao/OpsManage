@@ -188,6 +188,19 @@ class UsersManage(PermsManage,AssetsBase):
             else:
                 return "资产不存在"       
     
+    def get_user_superior(self,user):
+        dataList, uidList = [], []
+        if user.superior:
+            uidList.append(user.superior.id)
+            dataList.append(user.superior.to_json())
+            
+        for ds in user.department.values():
+            user = User.objects.get(id=ds.get("manage"))
+            if user.id not in uidList:
+                uidList.append(user.id)
+                dataList.append(user.to_json()) 
+        return dataList
+    
         
 class RolesManage(PermsManage):  
     

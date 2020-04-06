@@ -701,7 +701,7 @@ $(document).ready(function() {
 			})			
 		}else{
 			$.ajax({
-				url:'/api/db/config/', //请求地址
+				url:'/api/db/list/', //请求地址
 				type:"POST",  //提交类似
 				contentType : "application/json", 
 				data:JSON.stringify({
@@ -719,7 +719,7 @@ $(document).ready(function() {
 				}),
 				success:function(response){
 					btnObj.removeAttr('disabled');
-					RefreshTable('#DatabaseListTable', '/api/db/config/list/') 	                				
+					RefreshTable('#DatabaseListTable', '/api/db/list/') 	                				
 					
 				},
 		    	error:function(response){
@@ -814,7 +814,7 @@ $(document).ready(function() {
 		                    type: 'success',
 		                    styling: 'bootstrap3'
 		                });	
-		            	RefreshTable('#DatabaseListTable', '/api/db/config/list/')   
+		            	RefreshTable('#DatabaseListTable', '/api/db/list/')   
 		            }  
 		    	});
 		        },

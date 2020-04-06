@@ -74,14 +74,6 @@ function AssetsSelect(name,dataList,selectIds){
 	$("select[name='"+name+"']").selectpicker('refresh');		
 }
 
-
-
-
-
-
-
-
-
 function requests(method,url,data){
 	var ret = '';
 	$.ajax({
@@ -139,6 +131,14 @@ function setAceEditMode(model) {
 
 $(document).ready(function() {
 	
+	$("input[name='order_time']").daterangepicker({
+        timePicker: !0,
+        timePickerIncrement: 30,
+        locale: {
+            format: "YYYY-MM-DD HH:mm:ss"
+        }
+    })	
+	
 	$("button[name='sql_model_chioce']button[value='"+sql_type+"']").attr('disabled',true);
 	
 	if($("select[name='custom']").length){
@@ -146,7 +146,8 @@ $(document).ready(function() {
 	}
 
 	setAceEditMode("mysql");
-
+	
+	
     $("button[name='sql_model_chioce']").on('click', function() {
     	var value = $(this).val();
 		if (value=='online'){
@@ -201,11 +202,12 @@ $(document).ready(function() {
 		}
 	})		
 	
+	var aduitUserList = requests("get","/api/account/user/superior/")
+	
 	$(function() {
 		if($('#order_executor').length){		
 			try {
-				var group = requests("get","/api/orders/notice/?order_type=0")[0]["grant_group"]
-				makeUserSelect("order_executor",requests("get","/group/manage/?type=get_group_users&id="+group)["data"])
+				makeUserSelect("order_executor",aduitUserList)
 			}
 			catch(err) {
 				console.log("请先配置授权组")
@@ -216,8 +218,7 @@ $(document).ready(function() {
 	$(function() {
 		if($('#fileupload_order_executor').length){		
 			try {
-				var group = requests("get","/api/orders/notice/?order_type=2")[0]["grant_group"]
-				makeUserSelect("fileupload_order_executor",requests("get","/group/manage/?type=get_group_users&id="+group)["data"])
+				makeUserSelect("fileupload_order_executor",aduitUserList)
 			}
 			catch(err) {
 				console.log("请先配置授权组")
@@ -228,8 +229,7 @@ $(document).ready(function() {
 	$(function() {
 		if($('#filedownload_order_executor').length){		
 			try {
-				var group = requests("get","/api/orders/notice/?order_type=3")[0]["grant_group"]
-				makeUserSelect("filedownload_order_executor",requests("get","/group/manage/?type=get_group_users&id="+group)["data"])
+				makeUserSelect("filedownload_order_executor",aduitUserList)
 			}
 			catch(err) {
 				console.log("请先配置授权组")
@@ -237,10 +237,21 @@ $(document).ready(function() {
 		}
 	})		
 	
+	$(function() {
+		if($('#service_order_executor').length){		
+			try {
+				makeUserSelect("service_order_executor",aduitUserList)
+			}
+			catch(err) {
+				console.log("请先配置授权组")
+			}
+		}
+	})	
+	
     $("button[name='audit_sql_btn']").on('click', function() {
     	var btnObj = $(this)
     	btnObj.attr('disabled',true);
-		var required = ["order_db","order_executor","order_desc"];
+		var required = ["order_db","order_executor","order_desc","order_time"];
 		var form = document.getElementById('audit_sql_order');
 		for (var i = 0; i < form.length; ++i) {
 			var name = form[i].name;
@@ -258,7 +269,11 @@ $(document).ready(function() {
 				return false;
 			}else if (value.length > 0){
 				$("[name='"+ name +"']").parent().removeClass("has-error");
-			}			
+			}	
+			if (name=="order_time"){
+				var start_time = value.split(" - ")[0]
+				var end_time = value.split(" - ")[1]
+			}				
 		};				
 		var editor = ace.edit("compile-editor-add");
 	    var order_sql = editor.getSession().getValue(); 
@@ -276,6 +291,17 @@ $(document).ready(function() {
 	    if (sql_type=='file'){
 	    	formData.append('order_file', $('#order_file')[0].files[0]);
 	    };
+	    
+		if (!$('#order_executor option:selected').val().length){
+        	new PNotify({
+                title: 'Warning!',
+                text: '审核人不能为空',
+                type: 'warning',
+                styling: 'bootstrap3'
+            }); 
+        	return false
+		}		    
+	    
 	    formData.append('order_desc',$('#order_desc').val());
 	    formData.append('order_db',$('#order_db option:selected').val());
 	    formData.append('order_executor',$('#order_executor option:selected').val());
@@ -283,6 +309,8 @@ $(document).ready(function() {
 	    formData.append('order_sql',order_sql);
 	    formData.append('sql_type',sql_type);
 	    formData.append('type','sql_audit');
+	    formData.append('start_time',start_time);
+	    formData.append('end_time',end_time);		    
 		$.ajax({
 			url:'/order/apply/', //请求地址
 			type:"POST",  //提交类似
@@ -386,6 +414,10 @@ $(document).ready(function() {
             	btnObj.attr('disabled',false);
 				return false;
 			}
+			if (name=="order_time"){
+				var start_time = value.split(" - ")[0]
+				var end_time = value.split(" - ")[1]
+			}			
 		};
 		var serverList = new Array();
 		$("#applyFileUploadDiv select[name='custom'] option:selected").each(function(){
@@ -394,7 +426,18 @@ $(document).ready(function() {
 		for (var i = 0; i < files.length; i++) {
 			  var file = files[i];
 			  formData.append('order_files[]', file, file.name);
-		}						
+		}	
+		
+		if (!$('#fileupload_order_executor option:selected').val().length){
+        	new PNotify({
+                title: 'Warning!',
+                text: '审核人不能为空',
+                type: 'warning',
+                styling: 'bootstrap3'
+            }); 
+        	return false
+		}		
+		
 	    formData.append('order_desc',$('#fileupload_order_subject').val());
 	    formData.append('dest_path',$('#dest_path').val());
 	    formData.append('chown_user',$('#chown_user').val());		    
@@ -403,6 +446,8 @@ $(document).ready(function() {
 	    formData.append('type','upload_audit');
 	    formData.append('server',serverList);
 	    formData.append('order_executor',$('#fileupload_order_executor option:selected').val());
+	    formData.append('start_time',start_time);
+	    formData.append('end_time',end_time);	    
 		$.ajax({
 /* 				dataType: "JSON", */
 			url:'/order/apply/', //请求地址
@@ -442,7 +487,7 @@ $(document).ready(function() {
 	
 	$("button[name='btn-filedownload-add']").on('click', function() {	
 		var btnObj = $(this);
-		var required = ["order_subject","order_executor","dest_path","order_content"];
+		var required = ["order_subject","order_executor","dest_path","order_content","order_time"];
 	    var formData = new FormData();		
 		btnObj.attr('disabled',true);
 		var form = document.getElementById('audit_filedownload_order');
@@ -460,17 +505,34 @@ $(document).ready(function() {
             	btnObj.attr('disabled',false);
 				return false;
 			}
+			if (name=="order_time"){
+				var start_time = value.split(" - ")[0]
+				var end_time = value.split(" - ")[1]
+			}
 		};
 		var serverList = new Array();
 		$("#applyFileDownloadDiv select[name='custom'] option:selected").each(function(){
 			serverList.push($(this).val());
-        });					
+        });		
+		
+		if (!$('#filedownload_order_executor option:selected').val().length){
+        	new PNotify({
+                title: 'Warning!',
+                text: '审核人不能为空',
+                type: 'warning',
+                styling: 'bootstrap3'
+            }); 
+        	return false
+		}
+		
 	    formData.append('order_desc',$('#filedownload_order_subject').val());
 	    formData.append('dest_path',$('#filedownload_dest_path').val());
 	    formData.append('order_content',$('#filedownload_order_content').val());
 	    formData.append('type','download_audit');
 	    formData.append('server',serverList);
 	    formData.append('order_executor',$('#filedownload_order_executor option:selected').val());
+	    formData.append('start_time',start_time);
+	    formData.append('end_time',end_time);
 		$.ajax({
 /* 				dataType: "JSON", */
 			url:'/order/apply/', //请求地址
@@ -507,6 +569,97 @@ $(document).ready(function() {
 	    	}
 		});	
 	}) 	
-	
+
+	$("button[name='btn-service-add']").on('click', function() {	
+		var btnObj = $(this);
+		var required = ["order_subject","order_executor","order_content","order_time"];
+	    var formData = new FormData();
+		var fileSelect = document.getElementById('service_order_files');
+		var files = fileSelect.files;		
+		for (var i = 0; i < files.length; i++) {
+			  var file = files[i];
+			  formData.append('order_files', file, file.name);
+		}
+		btnObj.attr('disabled',true);
+		var form = document.getElementById('audit_service_order');
+		for (var i = 0; i < form.length; ++i) {
+			var name = form[i].name;
+			var value = form[i].value;	
+			idx = $.inArray(name, required);						
+			if (idx >= 0 && value.length == 0){
+            	new PNotify({
+                    title: 'Warning!',
+                    text: '请注意必填项不能为空~',
+                    type: 'warning',
+                    styling: 'bootstrap3'
+                }); 	
+            	btnObj.attr('disabled',false);
+				return false;
+			}
+			if (name=="order_time"){
+				var start_time = value.split(" - ")[0]
+				var end_time = value.split(" - ")[1]
+			}			
+		};
+		var serverList = new Array();
+		$("#applyFileUploadDiv select[name='custom'] option:selected").each(function(){
+			serverList.push($(this).val());
+        });
+		for (var i = 0; i < files.length; i++) {
+			  var file = files[i];
+			  formData.append('order_files[]', file, file.name);
+		}	
+		
+		if (!$('#service_order_executor option:selected').val().length){
+        	new PNotify({
+                title: 'Warning!',
+                text: '审核人不能为空',
+                type: 'warning',
+                styling: 'bootstrap3'
+            }); 
+        	return false
+		}		
+	    formData.append('order_desc',$('#service_order_subject').val());
+	    formData.append('order_content',$('#service_order_content').val());
+	    formData.append('order_executor',$('#service_order_executor option:selected').val());
+	    formData.append('type','service_audit');
+	    formData.append('start_time',start_time);
+	    formData.append('end_time',end_time);	    
+		$.ajax({
+/* 				dataType: "JSON", */
+			url:'/order/apply/', //请求地址
+			type:"POST",  //提交类似
+		    processData: false,
+		    contentType: false,				
+			data:formData,  //提交参数
+			success:function(response){
+				btnObj.removeAttr('disabled');				
+				if (response["code"] == 200){
+	            	new PNotify({
+	                    title: 'Success!',
+	                    text: '工单申请成功',
+	                    type: 'success',
+	                    styling: 'bootstrap3'
+	                }); 
+				}
+				else {
+		    		$.alert({
+		    		    title: '工单申请失败',
+		    		    content: response["msg"],
+		    		    type: 'red',
+		    		});	
+				};
+			},
+	    	error:function(response){
+	    		btnObj.removeAttr('disabled');
+	        	new PNotify({
+	                title: 'Warning!',
+	                text: '工单申请失败',
+	                type: 'warning',
+	                styling: 'bootstrap3'
+	            }); 
+	    	}
+		});	
+	}) 	
 	
 })

@@ -79,18 +79,22 @@ function AssetsSelect(name,dataList,selectIds){
 	$("select[name='"+name+"']").selectpicker('refresh');		
 }
 
-var orderStatus = {
-		"0":'<span class="label label-success">已通过</span>',
+
+var orderAuditStatusHtml = {
 	    "1":'<span class="label label-danger">已拒绝</span>',
 	    "2":'<span class="label label-info">审核中</span>',
-	    "3":'<span class="label label-success">已部署</span> ',
-	    "4":'<span class="label label-info">待授权</span>',
-	    "5":'<span class="label label-success">已执行</span>',
-	    "6":'<span class="label label-default">已回滚</span>',
-	    "7":'<span class="label label-danger">已撤回</span>',
-	    "8":'<span class="label label-warning">已授权</span>',
-	    "9":'<span class="label label-danger">已失败</span>',	
+	    "3":'<span class="label label-success">已授权</span> '
 	}
+
+var orderExecuteStatusHtml = {
+		"0":'<span class="label label-warning">已提交</span>',
+	    "1":'<span class="label label-info">处理中</span>',
+	    "2":'<span class="label label-success">已完成</span>',
+	    "3":'<span class="label label-warning">已回滚</span> ',
+	    "4":'<span class="label label-default">已关闭</span> ',
+	    "5":'<span class="label label-danger">执行失败</span> ',
+	}
+
 function requests(method,url,async){
 	var ret = '';
 	if(!async){async=false;} 
@@ -144,20 +148,6 @@ function makeFileDownloadResultTable(dataList){
 	});			
 }
 
-//var downLoadFile = function (options){
-//    var config = $.extend(true, { method: 'post' }, options);
-//    var $iframe = $('<iframe id="down-file-iframe"/>');
-//    var $form = $("<form target='down-file-iframe' method=" + config.method + " />");
-//    $form.attr('action', config.url);
-//    for (var key in config.data) {
-//        $form.append('<input type="hidden" name="' + key + '" value="' + config.data[key] +  '"/>');
-//    }
-//    $form.append('<input type="hidden" name="csrfmiddlewaretoken" value="'+ $("input[name='csrfmiddlewaretoken']").val() +'">');
-//    $iframe.append($form);
-//    $(document.body).append($iframe);
-//    $form[0].submit();
-//    $iframe.remove();
-//}	
 
 function downLoadOrderFiles(obj,path,host,id){
 	$("button[name='download_button']").attr("disabled",true);
@@ -175,19 +165,70 @@ function downLoadOrderFiles(obj,path,host,id){
     $("button[name='download_button']").attr("disabled",false);
 }	
 
+function makeOrderLogsTableList(url){
+	if ($('#ordersLogs').hasClass('dataTable')) {
+		dttable = $('#ordersLogs').dataTable();
+		dttable.fnClearTable(); //清空table
+		dttable.fnDestroy(); //还原初始化datatable
+	}	
+	var data = requests('get',url)
+    var columns = [		                   
+                    {"data": "order"},
+                    {"data": "operator"},
+                    {"data": "operation_info"},
+                    {"data": "audit_status"},
+                    {"data": "execute_status"},
+	                {"data": "operation_time"}			                			                
+	               ]
+    var columnDefs = [			                      
+						{
+							targets: [3],
+							render: function(data, type, row, meta) {
+						        return orderAuditStatusHtml[row.audit_status]
+							},
+						},
+						{
+							targets: [4],
+							render: function(data, type, row, meta) {
+						        return orderExecuteStatusHtml[row.execute_status]
+							},
+						}						
+	    		      ]
+    
+    var buttons = [
+			    					    
+    ] 		    
+    $('#ordersLogs').dataTable({
+	    "dom": "Bfrtip",
+	    "buttons":buttons,
+		"bScrollCollapse": false, 				
+	    "bRetrieve": true,			
+		"destroy": true, 
+		"data":	data,
+		"columns": columns,
+		"columnDefs" :columnDefs,			  
+		"language" : language,
+		"order": [[ 0, "desc" ]],
+		"autoWidth": false	    			
+	});    
+}
+
 $(document).ready(function() {
 	
+	makeOrderLogsTableList("/api/orders/logs/"+ get_url_param("id") +"/")
+	
 	$(function() {
-		var data = requests('get','/order/info/?type='+get_url_param("type")+'&&id='+get_url_param("id"))
-		$("#order_status").html(orderStatus[data["data"]["order_status"]])
-		$("#filedownload_order_subject").val(data["data"]["order_subject"]).attr("disabled","")
-		$("#order_content").val(data["data"]["detail"]["download"]["order_content"]).attr("disabled","")
-		AssetsSelect("custom",requests('get','/api/assets/?assets_type=ser'),data["data"]["detail"]["download"]["dest_server"])
-		$("#dest_path").val(data["data"]["detail"]["download"]["dest_path"]).attr("disabled","")
+		var data = requests('get','/api/orders/'+get_url_param("id")+'/')
+		$("#order_time").val(data["start_time"]+' - '+ data["end_time"]).attr("disabled","")
+		$("#order_audit_status").html(orderAuditStatusHtml[data["order_audit_status"]])
+		$("#filedownload_order_subject").val(data["order_subject"]).attr("disabled","")
+		$("#order_content").val(data["detail"]["order_content"]).attr("disabled","")
+		AssetsSelect("custom",requests('get','/api/assets/?assets_type=ser'),data["detail"]["dest_server"])
+		$("#dest_path").val(data["detail"]["dest_path"]).attr("disabled","")
 		$("#ans_uuid").val(uuid())
-		switch(data["data"]["order_status"])
+		switch(data["order_audit_status"])
 		{
-		case 8:
+		case 3:
 			$("#filedownloadbtn").val(get_url_param("id")).attr("disabled",false)
 		  break;			  
 		}
@@ -216,7 +257,7 @@ $(document).ready(function() {
 	            	btnObj.attr('disabled',false);
 	            	new PNotify({
 	                    title: 'Ops Failed!',
-	                    text: response.responseText,
+	                    text: response.statusText,
 	                    type: 'error',
 	                    styling: 'bootstrap3'
 	                }); 
@@ -225,6 +266,7 @@ $(document).ready(function() {
 	            	btnObj.attr('disabled',false);
 					if (response["code"] == 200){
 						makeFileDownloadResultTable(response["data"])
+						makeOrderLogsTableList("/api/orders/logs/"+ get_url_param("id") +"/")
 					}
 					else {
 			    		$.alert({
@@ -263,7 +305,7 @@ $(document).ready(function() {
 				            type: "PUT",  
 				            url:"/api/orders/" + ids + '/', 
 				            data:{
-								"order_status":status,
+								"order_audit_status":status,
 								"order_cancel":cancel
 				            },
 				            error: function(request) {  
@@ -281,8 +323,9 @@ $(document).ready(function() {
 				                    type: 'success',
 				                    styling: 'bootstrap3'
 				                }); 
-					         	$("#order_status").html(orderStatus[status])
-					         	$("#filedownloadbtn").attr('disabled',true);				            	
+					         	$("#order_audit_status").html(orderStatus[status])
+					         	$("#filedownloadbtn").attr('disabled',true);
+					         	makeOrderLogsTableList("/api/orders/logs/"+ get_url_param("id") +"/")
 				            }  
 				    	});
 	                }
@@ -297,7 +340,7 @@ $(document).ready(function() {
 	         type: "PUT",  
 	         url:"/api/orders/" + ids + '/',  
 	         data:{
-				"order_status":status,
+				"order_audit_status":status,
 	         },
 	         error: function(request) {  
 	         	new PNotify({
@@ -314,8 +357,9 @@ $(document).ready(function() {
 	                 type: 'success',
 	                 styling: 'bootstrap3'
 	             }); 
-	         	$("#order_status").html(orderStatus[status])
+	         	$("#order_audit_status").html(orderStatus[status])
 	         	$("#filedownloadbtn").attr('disabled',true);
+	         	makeOrderLogsTableList("/api/orders/logs/"+ get_url_param("id") +"/")
 	         }  
 	 	});		
 	}

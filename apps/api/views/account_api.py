@@ -7,7 +7,7 @@ from account.models import User,Role,Structure
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from utils.logger import logger
-from dao.account import StructureManage
+from dao.account import StructureManage,UsersManage
 from mptt.templatetags.mptt_tags import cache_tree_children
 from django.http import Http404
 from django.contrib.auth.decorators import permission_required
@@ -63,6 +63,12 @@ def user_detail(request, id,format=None):
             return Response(status=status.HTTP_403_FORBIDDEN)
         snippet.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)  
+
+
+class UserSuperior(APIView,UsersManage):
+        
+    def get(self,request,*args,**kwargs): 
+        return Response(self.get_user_superior(request.user)) 
 
 @api_view(['GET', 'POST' ])
 def role_list(request,format=None):
