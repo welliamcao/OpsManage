@@ -842,9 +842,7 @@ class OrderFileDownloadManage(OrderBase,AssetsSource):
         
     def __run_filedownload_find_by_ansible(self, order, assetsList, request): 
         assets_data,dataList = {},[]
-        
-        if order.order_status != 8: return "工单状态已经被处理"
-        
+                
         sList, resource  = self.idSourceList(assetsList)
         
         if len(sList) == 0: return "资产信息不存在"
