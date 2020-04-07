@@ -59,7 +59,7 @@ class OrderDetail(APIView,OrderBase):
         
         if "order_content"  in data.keys():#更新工单内容
             
-            if snippet.order_execute_status in [0,1]:   
+            if snippet.order_execute_status in [0,1] and snippet.is_expired() and snippet.is_unexpired():   
                 
                 if hasattr(snippet, 'service_audit_order'):
                     
@@ -75,8 +75,8 @@ class OrderDetail(APIView,OrderBase):
         else:#更新工单审核状体或者工单进度
             
             serializer = serializers.OrderSerializer(snippet, data=data)
-            
-            if request.user.is_superuser or request.user.id == serializer.order_executor: 
+
+            if request.user.is_superuser or request.user.id == snippet.order_executor: 
                 if serializer.is_valid():
                     serializer.save()
                     self.record_order_operation(snippet.id, snippet.order_audit_status, snippet.order_execute_status, request.user, order_mark)

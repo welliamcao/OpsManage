@@ -529,12 +529,16 @@ class DBManage(AssetsBase):
             dbList = DataBase_Server_Config.objects.all()      
         else: 
             user_db_list = [ ud.db for ud in Database_User.objects.filter(user=request.user.id) ]
-            dbList = [ ds.db_server for ds in Database_Detail.objects.filter(id__in=user_db_list)]
+
+            dbLists = [ ds.db_server for ds in Database_Detail.objects.filter(id__in=user_db_list) ]
+
+            dbList = list(dict.fromkeys(dbLists)) #去除重复
+            
         return dbList
 
-    def recursive_node_to_dict(self,node,request,user_db_server_list):
+    def recursive_node_to_dict(self, node, request, user_db_server_list):
         json_format = node.to_json()
-        children = [self.recursive_node_to_dict(c,request,user_db_server_list) for c in node.get_children()]
+        children = [self.recursive_node_to_dict(c, request, user_db_server_list) for c in node.get_children()]
         if children:
             json_format['children'] = children
         else:
@@ -543,7 +547,7 @@ class DBManage(AssetsBase):
         #获取业务树下面的数据库服务器    
         if json_format["last_node"] == 1: 
             db_children = []    
-            for ds in DataBase_Server_Config.objects.filter(id__in=user_db_server_list,db_business=json_format["id"],db_rw__in=request.query_params.getlist('db_rw')):  
+            for ds in DataBase_Server_Config.objects.filter(id__in=user_db_server_list, db_business=json_format["id"], db_rw__in=request.query_params.getlist('db_rw')):  
                 data = ds.to_tree()
                 data["user_id"] = request.user.id
                 db_children.append(data)
@@ -574,10 +578,11 @@ class DBManage(AssetsBase):
                      
         else:    
             user_business = [ ds.get("db_business") for ds in DataBase_Server_Config.objects.filter(id__in=user_db_server_list).values('db_business').annotate(dcount=Count('db_business')) ]
-   
+
         business_list = []
 
         for business in Business_Tree_Assets.objects.filter(id__in=user_business):
+            
             business_list += self.business_paths_id_list(business)
             
         business_list = list(set(business_list))
@@ -587,6 +592,9 @@ class DBManage(AssetsBase):
         root_nodes = cache_tree_children(business_node)
         
         dataList = []
+        
         for n in root_nodes:
-            dataList.append(self.recursive_node_to_dict(n,request,user_db_server_list))         
+            
+            dataList.append(self.recursive_node_to_dict(n, request, user_db_server_list))   
+                  
         return dataList          
