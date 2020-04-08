@@ -54,7 +54,7 @@ $(document).ready(function() {
 		$("#service_order_content").val(data["detail"]["order_content"])
 		makeUserSelect('service_order_executor',requests('get','/api/account/user/superior/',false))
 		DynamicSelect('service_order_executor',data["order_executor"])	
-		if ((data["order_audit_status"] ==3 && data["order_execute_status"] == 1) || (data["order_audit_status"] ==3 && data["order_execute_status"] == 0)){
+		if ((data["order_audit_status"] ==2 && data["order_execute_status"] == 1) || (data["order_audit_status"] ==2 && data["order_execute_status"] == 0)){
 			$("#servicebtn").val(get_url_param("id")).text("更新").attr({"disabled":false})
 		}
 	})
@@ -85,7 +85,7 @@ $(document).ready(function() {
 	    		btnObj.removeAttr('disabled');
 	        	new PNotify({
 	                title: 'Warning!',
-	                text: '工单更新失败',
+	                text: response.statusText,
 	                type: 'warning',
 	                styling: 'bootstrap3'
 	            }); 

@@ -257,10 +257,10 @@ function DynamicSelect(ids,value){
 }
 
 function makeUserSelect(ids,dataList){
-	var binlogHtml = '<select required="required" class="selectpicker form-control" data-live-search="true"  data-size="10" data-width="100%" name="'+ ids +'" id="'+ids+'"  autocomplete="off"><option selected="selected" value="">选择一个用户</option>'
+	var binlogHtml = '<select required="required" class="selectpicker form-control" data-live-search="true"  data-size="10" data-width="100%" name="'+ ids +'" id="'+ids+'"  autocomplete="off">'
 	var selectHtml = '';
 	for (var i=0; i <dataList.length; i++){
-		selectHtml += '<option value="'+ dataList[i]["id"] +'">'+ dataList[i]["username"] +'</option>' 					 
+		selectHtml += '<option value="'+ dataList[i]["id"] +'">'+ dataList[i]["name"] +'</option>' 					 
 	};                        
 	binlogHtml =  binlogHtml + selectHtml + '</select>';
 	$('#'+ids).html(binlogHtml)		

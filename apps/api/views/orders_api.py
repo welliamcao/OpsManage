@@ -36,7 +36,22 @@ class OrderDetail(APIView,OrderBase):
             return order  
         
         raise PermissionDenied()        
-
+    
+    def check_update_content_perms(self, request, order):
+        #如果工单审核状态不是审核中，-直接返回403不可编辑
+        if order.order_audit_status !=2: raise PermissionDenied()        
+        
+        #如果工单进度状态不是，提交或者处理中状态-直接返回403不可编辑
+        if order.order_execute_status not in [0,1]: raise PermissionDenied()
+        
+        #如果工单未到期或者已经过期-直接返回403
+        if order.is_expired() and order.is_unexpired(): raise PermissionDenied()
+        
+        #如果工单申请人不是自己-直接返回403
+        if request.user.id == order.order_user: raise PermissionDenied() 
+                    
+        
+        
     def get(self, request, pk, *args, **kwargs):
         
         order = self.check_perms(request, pk)
@@ -47,7 +62,7 @@ class OrderDetail(APIView,OrderBase):
         
         order_mark = None
         
-        snippet = self.get_object(pk)
+        order = self.get_object(pk)
         
         data = request.data.copy()
 
@@ -59,27 +74,24 @@ class OrderDetail(APIView,OrderBase):
         
         if "order_content"  in data.keys():#更新工单内容
             
-            if snippet.order_execute_status in [0,1] and snippet.is_expired() and snippet.is_unexpired():   
+            self.check_update_content_perms(request, order)  
                 
-                if hasattr(snippet, 'service_audit_order'):
-                    
-                    snippet.service_audit_order.order_content = data.get("order_content")
-                    snippet.service_audit_order.save()
-                    
-                    self.record_order_operation(snippet.id, snippet.order_audit_status, snippet.order_execute_status, request.user, data.get("order_content"))
-                    
-                    return Response(snippet.to_json())
-            else:
+            if hasattr(order, 'service_audit_order'):
                 
-                return Response(status=status.HTTP_400_BAD_REQUEST)
+                order.service_audit_order.order_content = data.get("order_content")
+                order.service_audit_order.save()
+                
+                self.record_order_operation(order.id, order.order_audit_status, order.order_execute_status, request.user, data.get("order_content"))
+                
+                return Response(order.to_json())
         else:#更新工单审核状体或者工单进度
             
-            serializer = serializers.OrderSerializer(snippet, data=data)
+            serializer = serializers.OrderSerializer(order, data=data)
 
-            if request.user.is_superuser or request.user.id == snippet.order_executor: 
+            if request.user.is_superuser or request.user.id == order.order_executor: 
                 if serializer.is_valid():
                     serializer.save()
-                    self.record_order_operation(snippet.id, snippet.order_audit_status, snippet.order_execute_status, request.user, order_mark)
+                    self.record_order_operation(order.id, order.order_audit_status, order.order_execute_status, request.user, order_mark)
                     return Response(serializer.data)            
             
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -113,7 +125,8 @@ def order_count(request,format=None):
 
 class OrdersPaginator(APIView):
 
-    def get(self,request,*args,**kwargs):
+    def get(self, request, *args, **kwargs):
+        
         if request.user.is_superuser:
             ordersList = Order_System.objects.all().order_by("-id")
         else:
@@ -123,6 +136,30 @@ class OrdersPaginator(APIView):
         ser = serializers.OrderSerializer(instance=page_user_list, many=True)
         return page.get_paginated_response(ser.data)
     
+    def post(self,  request, *args, **kwargs):
+        
+        query_params = dict()
+        for ds in request.POST.keys():
+            query_params[ds] = request.POST.get(ds) 
+
+        if not request.user.is_superuser:#普通用户只能查询自己的工单
+            if "order_user"  in query_params.keys() and "order_executor" in query_params.keys():
+                query_params["order_user"] = request.user.id
+                query_params["order_executor"] = request.user.id
+                
+            elif "order_user" in query_params.keys():    
+                query_params["order_user"] = request.user.id
+                
+            elif "order_executor" in query_params.keys():    
+                query_params["order_executor"] = request.user.id
+                
+            else:
+                query_params["order_user"] = request.user.id 
+                query_params["order_executor"] = request.user.id               
+
+        order_lists = Order_System.objects.filter(**query_params).order_by("-id")[:1000]  
+        serializer = serializers.OrderSerializer(order_lists, many=True)
+        return Response(serializer.data)          
 
 
     

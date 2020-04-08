@@ -172,35 +172,94 @@
                   <div class="clearfix"></div>
                 </div>
                 <div class="x_content">
-                	<div class="row">	
-						<div class="btn-group  btn-group-sm pull-right">
+                  	 <div class="row">
+	                  	 <div class="col-sm-6">             
+				             <p class="text-muted font-13 m-b-30">
+				                 	工单组合查询
+				             </p> 
+				         </div>  	
+		            </div>	
+	                <div class="row">
+				      <div class="col-md-2 col-sm-12 col-xs-12 form-group">
+						 <select class="selectpicker form-control" id="selOrderType" title="工类类型">
+							<option value="0">SQL更新</option>
+							<option value="1">运维服务</option>
+							<option value="2">文件分发</option>
+							<option value="3">文件下载</option>						 						
+						</select>
+				      </div>	                
+
+				      <div class="col-md-2 col-sm-12 col-xs-12 form-group">
+						 <select class="selectpicker form-control" id="selExecute" title="工单执行进度">
+							<option  value="0">已提交</option>
+						    <option  value="1">处理中</option>
+						    <option  value="2">已完成</option>
+						    <option  value="3">已回滚</option>
+						    <option  value="4">已关闭</option>
+						    <option  value="5">已失败</option>						 
+						</select>
+				      </div>  
+	
+	
+	                  <div class="col-md-2 col-sm-12 col-xs-12 form-group">
+	                    	<select class="selectpicker form-control" id="selAudit" title="工单授权状态">	
+							 	<option  value="1">已拒绝</option>
+							 	<option  value="2">审核中</option>	    
+							 	<option  value="3">已授权</option>	                  								
+							</select>  
+	                  </div>
+	
+	                  <div class="col-md-2 col-sm-12 col-xs-12 form-group">
+					   <select  class="selectpicker form-control" id="selAuditUser" title="工单申请人">			   		
+						</select>  				   									   							
+	                  </div>
+	                  
+	                  <div class="col-md-2 col-sm-12 col-xs-12 form-group">
+					   <select  class="selectpicker form-control" id="selExecuteUser" title="工单审核人">			   		
+						</select>  				   									   							
+	                  </div>	                  
+	                  
+				      <div class="col-md-2 col-sm-12 col-xs-12 form-group">
+						 <select class="selectpicker form-control" id="selExpird" title="工单过期状态">
+						 	<option  value="1">未过期</option>
+						 	<option  value="0">已过期</option>
+						</select>
+				      </div>
+				      	                  
+	                  <div class="col-md-1 col-sm-12 col-xs-12 form-group  pull-right">
+	                  		<div class="btn-group  btn-group-sm">
 	                        <button class="btn btn-default" name="page_previous" type="button" value="">上一页</button>
 	                        <button class="btn btn-default" name="page_next" type="button" value="">下一页</button>
 	                        <input type="hidden" id="currentUser" name="custId" value="{{user.id}}">
 	                    </div>
-                    </div>
-                    <br>
-                    <div class="row">							           
-	                    <table id="ordersLists" class="table table-hover">
-	                      <thead>
-	                        <tr>
-	                        	<th class="text-center">详情</th>
-				                <th>ID</th>
-				                <th>工单类型</th>
-				                <th>申请人</th>
-				                <th>工单主题</th>
-				                <th>操作人</th>
-				                <th>申请时间</th>
-				                <th>执行状态</th>
-				                <th>审核状态</th>	
-				                <th>过期状态</th>	
-				                <th>过期时间</th>				                
-								<th class="text-center">操作</th>
-	                        </tr>
-	                      </thead>
-	                      <tbody>
-	                      </tbody>
-	                    </table>   
+	                  </div>   	                  
+	                </div>		                            
+                    <div class="row">
+                    	<div class="col-md-12 col-sm-12 col-xs-12 form-group">	
+                    		<div class="product_price" id="divSelectedType" style="display:none;"></div> 
+                    	</div>
+                    	<div class="col-md-12 col-sm-12 col-xs-12 form-group">						           
+		                    <table id="ordersLists" class="table table-hover">
+		                      <thead>
+		                        <tr>
+		                        	<th class="text-center">详情</th>
+					                <th>ID</th>
+					                <th>工单类型</th>
+					                <th>申请人</th>
+					                <th>工单主题</th>
+					                <th>操作人</th>
+					                <th>申请时间</th>
+					                <th>执行状态</th>
+					                <th>审核状态</th>	
+					                <th>过期状态</th>	
+					                <th>过期时间</th>				                
+									<th class="text-center">操作</th>
+		                        </tr>
+		                      </thead>
+		                      <tbody>
+		                      </tbody>
+		                    </table>   
+	                   </div>
                    </div>	       
                 </div>
               </div>

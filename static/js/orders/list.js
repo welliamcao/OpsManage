@@ -28,8 +28,151 @@ function makeOrderLogsTableList(url){
     InitDataConfigTable('ordersLogs',url,buttons,columns,columnDefs);   		
 }
 
+function search_go() {
+    var parameter = {};
+    $("input[type='hidden'][name^='order_']").each(function () {
+        var key = $(this).prop('name');
+        var value = $(this).val();
+        parameter[key] = value;    
+    })
+
+    var count = 0;
+    for (var i in parameter) {
+        count += i;
+        break;
+    }
+    if (count == 0) {
+        return false;
+    }
+
+    $.post('/api/orders/list/', parameter, function (result) {
+        if (result.length > 0) {
+/*                 	document.getElementById("div-search-result").style.display = ""; */
+				 var table = $('#ordersLists').dataTable();
+				 oSettings = table.fnSettings();
+				 table.fnClearTable(this);
+				 for (var i=0; i<result.length; i++)
+				 {
+				   table.oApi._fnAddData(oSettings, result[i]);
+				 }
+				 oSettings.aiDisplay = oSettings.aiDisplayMaster.slice();
+				 table.fnDraw();                	               	
+        }
+        else{
+        	//没有数据就清空
+        	var table = $('#ordersLists').dataTable();
+        	table.fnClearTable(this);
+        }
+    })
+}
+
+function changepage(pageindex) {
+    curpage = pageindex;
+    search_go();
+}
+
+function removeself(obj) {
+    $(obj).parent().remove();
+    changepage(1);
+}
+
 $(document).ready(function() {
+
+    $('#selOrderType').change(function () {
+        if ($('#selOrderType').val() != "") {
+            $("#hdnOrderType").val($('#selOrderType').val());
+            var span = "<span class='tag' id='spanOrderType'>" + $("#selOrderType").find("option:selected").text()
+            + "&nbsp;&nbsp;<a  title='Removing tag' onclick='removeself(this)'>x<input name='order_type' type='hidden' value='"
+            + $('#selOrderType').val() + "' /></span> &nbsp;";
+            if ($("#spanOrderType").length == 0) {
+            	$("#divSelectedType").show();
+                $('#divSelectedType').append(span);
+            }
+            else {
+                $("#spanOrderType").html($("#selOrderType").find("option:selected").text()
+                 + "&nbsp;&nbsp;<a  title='Removing tag' onclick='removeself(this)'>x<input name='order_type' type='hidden' value='"
+                 + $('#selOrderType').val() + "' /></span> &nbsp;");
+            }
+            changepage(1);
+        }
+    })  
 	
+    $('#selExecute').change(function () {
+        if ($('#selExecute').val() != "") {
+            $("#hdnExecute").val($('#selExecute').val());
+            var span = "<span class='tag' id='spanExecute'>" + $("#selExecute").find("option:selected").text()
+            + "&nbsp;&nbsp;<a  title='Removing tag' onclick='removeself(this)'>x<input name='order_execute_status' type='hidden' value='"
+            + $('#selExecute').val() + "' /></span> &nbsp;";
+            if ($("#spanExecute").length == 0) {
+            	$("#divSelectedType").show();
+                $('#divSelectedType').append(span);
+            }
+            else {
+                $("#spanExecute").html($("#selExecute").find("option:selected").text()
+                 + "&nbsp;&nbsp;<a  title='Removing tag' onclick='removeself(this)'>x<input name='order_execute_status' type='hidden' value='"
+                 + $('#selExecute').val() + "' /></span> &nbsp;");
+            }
+            changepage(1);
+        }
+    })   
+
+    $('#selAudit').change(function () {
+        if ($('#selAudit').val() != "") {
+            $("#hdnAudit").val($('#selAudit').val());
+            var span = "<span class='tag' id='spanAudit'>" + $("#selAudit").find("option:selected").text()
+            + "&nbsp;&nbsp;<a  title='Removing tag' onclick='removeself(this)'>x<input name='order_audit_status' type='hidden' value='"
+            + $('#selAudit').val() + "' /></span> &nbsp;";
+            if ($("#spanAudit").length == 0) {
+            	$("#divSelectedType").show();
+                $('#divSelectedType').append(span);
+            }
+            else {
+                $("#spanAudit").html($("#selAudit").find("option:selected").text()
+                 + "&nbsp;&nbsp;<a  title='Removing tag' onclick='removeself(this)'>x<input name='order_audit_status' type='hidden' value='"
+                 + $('#selAudit').val() + "' /></span> &nbsp;");
+            }
+            changepage(1);
+        }
+    })     
+    
+    $('#selAuditUser').change(function () {
+        if ($('#selAuditUser').val() != "") {
+            $("#hdnAuditUser").val($('#selAuditUser').val());
+            var span = "<span class='tag' id='spanAuditUser'>" + $("#selAuditUser").find("option:selected").text()
+            + "&nbsp;&nbsp;<a  title='Removing tag' onclick='removeself(this)'>x<input name='order_user' type='hidden' value='"
+            + $('#selAuditUser').val() + "' /></span> &nbsp;";
+            if ($("#spanAuditUser").length == 0) {
+            	$("#divSelectedType").show();
+                $('#divSelectedType').append(span);
+            }
+            else {
+                $("#spanAuditUser").html($("#selAuditUser").find("option:selected").text()
+                 + "&nbsp;&nbsp;<a  title='Removing tag' onclick='removeself(this)'>x<input name='order_user' type='hidden' value='"
+                 + $('#selAuditUser').val() + "' /></span> &nbsp;");
+            }
+            changepage(1);
+        }
+    })      
+    
+    $('#selExecuteUser').change(function () {
+        if ($('#selExecuteUser').val() != "") {
+            $("#hdnExecuteUser").val($('#selExecuteUser').val());
+            var span = "<span class='tag' id='spanExecuteUser'>" + $("#selExecuteUser").find("option:selected").text()
+            + "&nbsp;&nbsp;<a  title='Removing tag' onclick='removeself(this)'>x<input name='order_executor' type='hidden' value='"
+            + $('#selExecuteUser').val() + "' /></span> &nbsp;";
+            if ($("#spanExecuteUser").length == 0) {
+            	$("#divSelectedType").show();
+                $('#divSelectedType').append(span);
+            }
+            else {
+                $("#spanExecuteUser").html($("#selExecuteUser").find("option:selected").text()
+                 + "&nbsp;&nbsp;<a  title='Removing tag' onclick='removeself(this)'>x<input name='order_executor' type='hidden' value='"
+                 + $('#selExecuteUser').val() + "' /></span> &nbsp;");
+            }
+            changepage(1);
+        }
+    })     
+    
 	$("button[name='noticeonfig']").on("click", function(){
 		var vIds = $(this).val();
 		if (vIds > 0){
@@ -206,6 +349,15 @@ $(document).ready(function() {
 	for (var i=0; i <userList.length; i++){
 		userInfo[userList[i]["id"]] = userList[i]
 	}
+	
+	if($("#selAuditUser").length){
+		makeUserSelect("selAuditUser", userList)
+	}
+	
+	if($("#selExecuteUser").length){
+		makeUserSelect("selExecuteUser", userList)
+	}	
+	
     if ($("#ordersLists").length) {
     	
         $("button[name^='page_']").on("click", function(){

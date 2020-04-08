@@ -110,7 +110,7 @@ class OrderBase(AssetsBase):
         
 #         if order.is_expired() and order.is_unexpired():  
               
-        if request.user.id == order.order_user or request.user.id == order.order_executor:
+        if request.user.id == order.order_user:
             return order  
         
         raise PermissionDenied()
@@ -497,7 +497,7 @@ class OrderSQLManage(OrderBase):
             if request.user.is_superuser:
                 return order
               
-            if request.user.id == order.order_user or request.user.id == order.order_executor:
+            if request.user.id == order.order_user:
                 return order  
         
         raise PermissionDenied()
@@ -672,7 +672,7 @@ class OrderFileUploadManage(OrderBase,AssetsSource):
             if request.user.is_superuser:
                 return order
               
-            if request.user.id == order.order_user or request.user.id == order.order_executor:
+            if request.user.id == order.order_user:
                 return order   
                     
         raise PermissionDenied()
@@ -816,7 +816,7 @@ class OrderFileDownloadManage(OrderBase,AssetsSource):
             if request.user.is_superuser:
                 return order
               
-            if request.user.id == order.order_user or request.user.id == order.order_executor:
+            if request.user.id == order.order_user:
                 return order  
         
         raise PermissionDenied()

@@ -36,7 +36,7 @@ class Order_System(models.Model):
             )
     order_user = models.SmallIntegerField(verbose_name='工单申请人id')
     order_subject = models.CharField(max_length=200,blank=True,null=True,verbose_name='工单申请主题')   
-    order_executor = models.SmallIntegerField(verbose_name='工单处理人id')
+    order_executor = models.SmallIntegerField(verbose_name='工单审核人')
     order_audit_status = models.SmallIntegerField(choices=ORDER_AUDIT_STATUS,default=2,verbose_name='工单审核状态') 
     order_execute_status = models.SmallIntegerField(choices=ORDER_EXECUTE_STATUS,default=0,verbose_name='工单提交状态') 
     order_level = models.IntegerField(choices=LEVEL,blank=True,null=True,verbose_name='工单紧急程度')
