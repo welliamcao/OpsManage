@@ -78,6 +78,32 @@ function removeself(obj) {
 
 $(document).ready(function() {
 
+	$("input[name='order_time']").daterangepicker({
+        timePicker: !0,
+        timePickerIncrement: 30,
+        locale: {
+            format: "YYYY-MM-DD HH:mm:ss"
+        }
+    })		
+	
+    $('#selOrderTime').change(function () {
+        if ($('#selOrderTime').val() != "") {
+            var span = "<span class='tag' id='spanIp'>" + $("#selOrderTime").val()
+            + "&nbsp;&nbsp;<a  title='Removing tag' onclick='removeself(this)'>x</a><input name='order_time' type='hidden' value='"
+            + $('#selOrderTime').val() + "'/></span> &nbsp;";
+            if ($("#spanIp").length == 0) {
+            	$("#divSelectedType").show();
+                $('#divSelectedType').append(span);
+            }
+            else {
+                $("#spanIp").html($("#selOrderTime").val()
+                 + "&nbsp;&nbsp;<a  title='Removing tag' onclick='removeself(this)'>x</a><input name='order_time' type='hidden' value='"
+                 + $('#selOrderTime').val() + "'/></span> &nbsp;");
+            }
+            changepage(1);
+        }
+    })      
+    
     $('#selOrderType').change(function () {
         if ($('#selOrderType').val() != "") {
             $("#hdnOrderType").val($('#selOrderType').val());

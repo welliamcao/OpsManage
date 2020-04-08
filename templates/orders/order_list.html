@@ -7,6 +7,7 @@
 	<link href="/static/datatable/datatables.net-responsive-bs/css/responsive.bootstrap.min.css" rel="stylesheet">
 	<link href="/static/datatable/datatables.net-scroller-bs/css/scroller.bootstrap.min.css" rel="stylesheet"> 
 	<link href="/static/datatable/datatables.net-select/css/select.dataTables.min.css" rel="stylesheet">
+	<link href="/static/bootstrap-daterangepicker/daterangepicker.css" rel="stylesheet">
     <link rel="stylesheet" href="/static/css/bootstrap-select.css">  
     <link rel="stylesheet" href="/static/tooltips/css/tooltips.css">    
 	<style type="text/css"> 
@@ -225,6 +226,10 @@
 						 	<option  value="0">已过期</option>
 						</select>
 				      </div>
+
+				      <div class="col-md-2 col-sm-12 col-xs-12 form-group">
+							<input type="text" name="order_time" placeholder="工单创建时间"  class="form-control" id="selOrderTime" value="" />	
+				      </div>
 				      	                  
 	                  <div class="col-md-1 col-sm-12 col-xs-12 form-group  pull-right">
 	                  		<div class="btn-group  btn-group-sm">
@@ -315,6 +320,9 @@
     <script src="/static/datatable/datatables.net-buttons/js/buttons.html5.min.js"></script>
     <script src="/static/datatable/datatables.net-buttons/js/buttons.print.min.js"></script>   
     <script src="/static/tooltips/js/jquery.pure.tooltips.js"></script>	 
+	<!-- bootstrap-daterangepicker -->
+    <script src="/static/moment/min/moment.min.js"></script>
+    <script src="/static/bootstrap-daterangepicker/daterangepicker.js"></script>      
     <script src="/static/js/orders/common.js"></script>
     <script src="/static/js/orders/list.js"></script>	
 	<script src="/static/validator/validator.js"></script> 

@@ -141,7 +141,7 @@ class OrdersPaginator(APIView):
         query_params = dict()
         for ds in request.POST.keys():
             query_params[ds] = request.POST.get(ds) 
-
+            
         if not request.user.is_superuser:#普通用户只能查询自己的工单
             if "order_user"  in query_params.keys() and "order_executor" in query_params.keys():
                 query_params["order_user"] = request.user.id
@@ -157,6 +157,15 @@ class OrdersPaginator(APIView):
                 query_params["order_user"] = request.user.id 
                 query_params["order_executor"] = request.user.id               
 
+        if "order_time" in query_params.keys(): 
+            try:
+                order_time = query_params.get('order_time').split(' - ')
+                query_params.pop('order_time')
+                query_params['create_time__gte'] = order_time[0] 
+                query_params['create_time__lte'] = order_time[1]
+            except:
+                pass
+        
         order_lists = Order_System.objects.filter(**query_params).order_by("-id")[:1000]  
         serializer = serializers.OrderSerializer(order_lists, many=True)
         return Response(serializer.data)          
