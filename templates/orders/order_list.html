@@ -88,7 +88,7 @@
 												<select class="selectpicker form-control" id="order_type"  name="order_type" required>
 													<option name="db_env" value="" selected="selected">选择一个类型</option>
 													<option  value="0">SQL审核</option>
-													<!-- <option  value="1">代码部署</option> -->
+													<option  value="1">运维服务</option>
 													<option  value="2">文件上传</option>
 													<option  value="3">文件下载</option>
 												</select>
@@ -221,9 +221,10 @@
 	                  </div>	                  
 	                  
 				      <div class="col-md-2 col-sm-12 col-xs-12 form-group">
-						 <select class="selectpicker form-control" id="selExpird" title="工单过期状态">
-						 	<option  value="1">未过期</option>
+						 <select class="selectpicker form-control" id="selExpired" title="工单过期状态">						 	
 						 	<option  value="0">已过期</option>
+						 	<option  value="1">未过期</option>
+						 	<option  value="2">未到期</option>
 						</select>
 				      </div>
 
@@ -231,8 +232,8 @@
 							<input type="text" name="order_time" placeholder="工单创建时间"  class="form-control" id="selOrderTime" value="" />	
 				      </div>
 				      	                  
-	                  <div class="col-md-1 col-sm-12 col-xs-12 form-group  pull-right">
-	                  		<div class="btn-group  btn-group-sm">
+	                  <div class="col-md-2 col-sm-12 col-xs-12 form-group  pull-right">
+	                  	<div class="btn-group  btn-group-sm pull-right">
 	                        <button class="btn btn-default" name="page_previous" type="button" value="">上一页</button>
 	                        <button class="btn btn-default" name="page_next" type="button" value="">下一页</button>
 	                        <input type="hidden" id="currentUser" name="custId" value="{{user.id}}">

@@ -13,6 +13,7 @@ from django.core.exceptions import PermissionDenied
 from utils.mysql.inception import Inception
 from utils.logger import logger
 from OpsManage.settings import INCEPTION_CONFIG
+from apps.tasks.celery_orders import order_notice
 
 class OrdersCount():
     def __init__(self):
@@ -107,8 +108,6 @@ class OrderBase(AssetsBase):
         
         if request.user.is_superuser:
             return order
-        
-#         if order.is_expired() and order.is_unexpired():  
               
         if request.user.id == order.order_user:
             return order  
@@ -127,6 +126,11 @@ class OrderBase(AssetsBase):
         except Exception as ex:
             logger.error(msg="工单记录审核失败: {ex}".format(ex=str(ex)))
             return str(ex)
+        
+
+        if execute_status !=1 and audit_status==2:#创建工单时发送通知
+            order_notice.apply_async((order,1), queue='default', retry=True)
+            
     
     def update_order_progress(self, data):
         if data.get("order_audit_status") == "1":      

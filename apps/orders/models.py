@@ -20,7 +20,20 @@ ORDER_AUDIT_STATUS = (
       (3,'已授权'),             
     ) 
 
+ORDER_AUDIT_STATUS_DICT = {
+    "1":'已拒绝',
+    "2":'审核中',
+    "3":'已授权'
+    }
 
+ORDER_EXECUTE_STATUS_DICT = {
+    "0":'已提交</span>',
+    "1":'处理中</span>',
+    "2":'已完成</span>',
+    "3":'已回滚</span>',
+    "4":'已关闭',
+    "5":'执行失败',
+    }
 
 class Order_System(models.Model):
 

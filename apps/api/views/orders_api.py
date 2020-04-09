@@ -1,6 +1,6 @@
 #!/usr/bin/env python  
 # _#_ coding:utf-8 _*_
-import json
+import time
 from django.db.models import Q
 from api import serializers
 from orders.models import *
@@ -14,7 +14,7 @@ from orders.models import Order_System
 from dao.orders import ORDERS_COUNT_RBT,OrderBase
 from django.http import JsonResponse
 from django.core.exceptions import PermissionDenied
-
+from utils import base
 
 class OrderDetail(APIView,OrderBase):
     
@@ -165,7 +165,22 @@ class OrdersPaginator(APIView):
                 query_params['create_time__lte'] = order_time[1]
             except:
                 pass
-        
+       
+        if "order_expire" in query_params.keys(): 
+            ctime = base.changeTimestampTodatetime(int(time.time()))
+            
+            if str(query_params.get('order_expire')) == "1":
+                query_params['end_time__gte'] = ctime
+                query_params['start_time__lte'] = ctime
+                
+            elif str(query_params.get('order_expire')) == "2":
+                query_params['start_time__gte'] = ctime
+                
+            else:
+                query_params['end_time__lte'] = ctime
+                
+            query_params.pop('order_expire')
+            
         order_lists = Order_System.objects.filter(**query_params).order_by("-id")[:1000]  
         serializer = serializers.OrderSerializer(order_lists, many=True)
         return Response(serializer.data)          

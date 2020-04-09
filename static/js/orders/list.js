@@ -85,18 +85,37 @@ $(document).ready(function() {
             format: "YYYY-MM-DD HH:mm:ss"
         }
     })		
-	
-    $('#selOrderTime').change(function () {
-        if ($('#selOrderTime').val() != "") {
-            var span = "<span class='tag' id='spanIp'>" + $("#selOrderTime").val()
-            + "&nbsp;&nbsp;<a  title='Removing tag' onclick='removeself(this)'>x</a><input name='order_time' type='hidden' value='"
-            + $('#selOrderTime').val() + "'/></span> &nbsp;";
-            if ($("#spanIp").length == 0) {
+
+    $('#selExpired').change(function () {
+        if ($('#selExpired').val() != "") {
+            $("#hdnExpired").val($('#selExpired').val());
+            var span = "<span class='tag' id='spanExpired'>" + $("#selExpired").find("option:selected").text()
+            + "&nbsp;&nbsp;<a  title='Removing tag' onclick='removeself(this)'>x<input name='order_expire' type='hidden' value='"
+            + $('#selExpired').val() + "' /></span> &nbsp;";
+            if ($("#spanExpired").length == 0) {
             	$("#divSelectedType").show();
                 $('#divSelectedType').append(span);
             }
             else {
-                $("#spanIp").html($("#selOrderTime").val()
+                $("#spanExpired").html($("#selExpired").find("option:selected").text()
+                 + "&nbsp;&nbsp;<a  title='Removing tag' onclick='removeself(this)'>x<input name='order_expire' type='hidden' value='"
+                 + $('#selExpired').val() + "' /></span> &nbsp;");
+            }
+            changepage(1);
+        }
+    })     
+    
+    $('#selOrderTime').change(function () {
+        if ($('#selOrderTime').val() != "") {
+            var span = "<span class='tag' id='spanOrderTime'>" + $("#selOrderTime").val()
+            + "&nbsp;&nbsp;<a  title='Removing tag' onclick='removeself(this)'>x</a><input name='order_time' type='hidden' value='"
+            + $('#selOrderTime').val() + "'/></span> &nbsp;";
+            if ($("#spanOrderTime").length == 0) {
+            	$("#divSelectedType").show();
+                $('#divSelectedType').append(span);
+            }
+            else {
+                $("#spanOrderTime").html($("#selOrderTime").val()
                  + "&nbsp;&nbsp;<a  title='Removing tag' onclick='removeself(this)'>x</a><input name='order_time' type='hidden' value='"
                  + $('#selOrderTime').val() + "'/></span> &nbsp;");
             }
