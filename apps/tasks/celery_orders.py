@@ -6,8 +6,7 @@ from orders.models import Order_Notice_Config,Order_System,ORDER_AUDIT_STATUS_DI
 from account.models import User, Structure
   
 @task
-def order_notice(order,status):
-    print(order)
+def  order_notice(order):
     try:
         order = Order_System.objects.get(id=order)
     except Exception as ex:
@@ -32,18 +31,18 @@ def order_notice(order,status):
     except Exception as ex:
         return {"status":"failed","msg":str(ex)}
 
-    if hasattr(order,'sql_audit_order'):   
+    if order.order_type == 0:
         content = order.sql_audit_order.order_sql
-     
-    elif  hasattr(order,'fileupload_audit_order'):
-        content = order.fileupload_audit_order.order_content
-   
-    elif  hasattr(order,'filedownload_audit_order'):             
-        content = order.filedownload_audit_order.order_content               
-    
-    elif  hasattr(order,'service_audit_order'):             
+        
+    elif order.order_type == 1:
         content = order.service_audit_order.order_content
-    
+
+    elif order.order_type == 2:
+        content = order.fileupload_audit_order.order_content   
+        
+    elif order.order_type == 3:
+        content = order.filedownload_audit_order.order_content            
+
     message = """<strong>申请人: </strong> {order_user}<br>
                  <strong>主题: </strong> {order_subject}<br>
                  <strong>工单内容: </strong> {content}<br>

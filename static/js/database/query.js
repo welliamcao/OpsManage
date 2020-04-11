@@ -253,7 +253,20 @@ function drawTableTree(ids,jsonData){
 							obj = inst.get_node(data.reference);
 							viewTableSchema(obj)
 						}
-		            }		    		
+		            },	
+		            "dump":{
+	              		"separator_before"	: false,
+						"separator_after"	: false,
+						"_disabled"			: false, 
+						"label"				: "导出表数据",
+						"shortcut_label"	: 'F2',
+						"icon"				: "fa fa-cloud-download",
+						"action"			: function (data) {
+							var inst = $.jstree.reference(data.reference),
+							obj = inst.get_node(data.reference);
+							dumpTabledata(obj)
+						}
+		            }	    
 		    	}
 		      }	    
 	});		
@@ -718,9 +731,11 @@ $(document).ready(function () {
 	
 })    
 
+function dumpTabledata(obj){
+	console.log(obj["original"])	
+}
 
 function viewTableSchema(obj){
-	console.log(obj["original"])
 	if (obj["original"]["db"]){
     	$.ajax({  
             cache: true,  

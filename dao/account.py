@@ -190,15 +190,15 @@ class UsersManage(PermsManage,AssetsBase):
     
     def get_user_superior(self,user):
         dataList, uidList = [], []
-        if user.superior:
+        if user.superior and user.superior.id != user.id:
             uidList.append(user.superior.id)
             dataList.append(user.superior.to_json())
             
         for ds in user.department.values():
-            user = User.objects.get(id=ds.get("manage"))
-            if user.id not in uidList:
-                uidList.append(user.id)
-                dataList.append(user.to_json()) 
+            manage_user = User.objects.get(id=ds.get("manage"))
+            if manage_user.id not in uidList and manage_user.id != user.id:
+                uidList.append(manage_user.id)
+                dataList.append(manage_user.to_json()) 
         return dataList
     
         

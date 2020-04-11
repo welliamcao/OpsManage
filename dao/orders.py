@@ -129,7 +129,7 @@ class OrderBase(AssetsBase):
         
 
         if execute_status !=1 and audit_status==2:#创建工单时发送通知
-            order_notice.apply_async((order,1), queue='default', retry=True)
+            order_notice.apply_async((order,), queue='default', retry=True)
             
     
     def update_order_progress(self, data):
