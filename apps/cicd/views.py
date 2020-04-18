@@ -95,85 +95,72 @@ class Manage(LoginRequiredMixin,AppsManage,AssetsSource,View):
         result = []
         project = self.get_apps(request)
         logPaths = request.POST.get('log_path')
-        if project:
-            logPathsList = []
-            for path in project.project_logpath.split(";"):
-                if path not in logPathsList:logPathsList.append(path)
-            sList,resource = self.idSource(request.POST.get('server'))
-            if logPaths and sList and logPaths in logPathsList:
-                if request.POST.get('keywords'):module_args="""grep "{keywords}" {log_path}| tail -n 1000 """.format(keywords=request.POST.get('keywords'),log_path=logPaths) 
-                else:module_args="""tail -n 1000 {log_path}""".format(log_path=logPaths) 
-                ANS = ANSRunner(resource)
-                ANS.run_model(host_list=sList, module_name='raw', module_args=module_args) 
-                result = ANS.handle_model_data(ANS.get_model_result(), 'raw', module_args)   
-            else:                  
-                return JsonResponse({'msg':"日志文件与数据库记录不一致","code":500,'data':[]})
-        else:
-            return JsonResponse({'msg':"项目不存在","code":500,'data':[]})
+        logPathsList = []
+        for path in project.project_logpath.split(";"):
+            if path not in logPathsList:logPathsList.append(path)
+        sList,resource = self.idSource(request.POST.get('server'))
+        if logPaths and sList and logPaths in logPathsList:
+            if request.POST.get('keywords'):module_args="""grep "{keywords}" {log_path}| tail -n 1000 """.format(keywords=request.POST.get('keywords'),log_path=logPaths) 
+            else:module_args="""tail -n 1000 {log_path}""".format(log_path=logPaths) 
+            ANS = ANSRunner(resource)
+            ANS.run_model(host_list=sList, module_name='raw', module_args=module_args) 
+            result = ANS.handle_model_data(ANS.get_model_result(), 'raw', module_args)   
+        else:                  
+            return JsonResponse({'msg':"日志文件与数据库记录不一致","code":500,'data':[]})
         return JsonResponse({'msg':"日志文件与数据库记录不一致","code":200,'data':result})     
              
     def status(self,request, *args, **kwagrs):
         project = self.get_apps(request)
-        if project:
-            if project.project_status == 0:
-                logger.error(msg="项目未初始化:{id}".format(id=project.id))
-                return HttpResponseRedirect('/apps/list/')
+        if project.project_status == 0:
+            logger.error(msg="项目未初始化:{id}".format(id=project.id))
+            return HttpResponseRedirect('/apps/list/')
 
-            #获取最新版本      
-            apps = DeployRunner(apps_id=project.id)                  
-            return render(request, 'cicd/cicd_status.html',{"user":request.user,'project':project,
-                                                            'project_data':{
-                                                                            'type':project.project_model,
-                                                                            'bList':apps.list_branch(),
-                                                                            'tList': apps.list_tag(),
-                                                                            'number':self.get_apps_number(project),                                                                
-                                                                }})
-        else:
-            return HttpResponseRedirect('/404/')
+        #获取最新版本      
+        apps = DeployRunner(apps_id=project.id)                  
+        return render(request, 'cicd/cicd_status.html',{"user":request.user,'project':project,
+                                                        'project_data':{
+                                                                        'type':project.project_model,
+                                                                        'bList':apps.list_branch(),
+                                                                        'tList': apps.list_tag(),
+                                                                        'number':self.get_apps_number(project),                                                                
+                                                            }})
+
 
     def query_repo(self,request):   
         project = self.get_apps(request) 
-        if project:    
-            apps = DeployRunner(apps_id=project.id) 
-            apps.init_apps()  
-            if project.project_model == 'branch':                
-                result = apps.list_commits(branch=request.GET.get('name'))
-                return JsonResponse({'msg':"操作成功","code":200,'data':result}) 
-            else:
-                result = apps.list_tag()    
-                return JsonResponse({'msg':"操作成功","code":200,'data':result})
+        apps = DeployRunner(apps_id=project.id) 
+        apps.init_apps()  
+        if project.project_model == 'branch':                
+            result = apps.list_commits(branch=request.GET.get('name'))
+            return JsonResponse({'msg':"操作成功","code":200,'data':result}) 
         else:
-            return JsonResponse({'msg':"项目不存在","code":500,'data':[]})
+            result = apps.list_tag()    
+            return JsonResponse({'msg':"操作成功","code":200,'data':result})
+
         
     def refresh_branch(self,request):
-        project = self.get_apps(request) 
-        if project:    
-            apps = DeployRunner(apps_id=project.id) 
-            apps.init_apps() 
-            result = apps.list_branch()   
-            return JsonResponse({'msg':"操作成功","code":200,'data':result})
-        else:
-            return JsonResponse({'msg':"项目不存在","code":500,'data':[]}) 
+        project = self.get_apps(request)  
+        apps = DeployRunner(apps_id=project.id) 
+        apps.init_apps() 
+        result = apps.list_branch()   
+        return JsonResponse({'msg':"操作成功","code":200,'data':result})
+
 
     def refresh_commit(self,request):
-        project = self.get_apps(request) 
-        if project:    
-            apps = DeployRunner(apps_id=project.id) 
-            apps.init_apps() 
-            result = apps.list_commits(branch=request.GET.get('name'))   
-            return JsonResponse({'msg':"操作成功","code":200,'data':result})
-        else:
-            return JsonResponse({'msg':"项目不存在","code":500,'data':[]})
+        project = self.get_apps(request)   
+        apps = DeployRunner(apps_id=project.id) 
+        apps.init_apps() 
+        result = apps.list_commits(branch=request.GET.get('name'))   
+        return JsonResponse({'msg':"操作成功","code":200,'data':result})
+
     
     def refresh_tag(self,request):
-        project = self.get_apps(request) 
-        if project:    
-            apps = DeployRunner(apps_id=project.id) 
-            apps.init_apps() 
-            result = apps.list_tag()   
-            return JsonResponse({'msg':"操作成功","code":200,'data':result})
-        else:
-            return JsonResponse({'msg':"项目不存在","code":500,'data':[]})
+        project = self.get_apps(request)    
+        apps = DeployRunner(apps_id=project.id) 
+        apps.init_apps() 
+        result = apps.list_tag()   
+        return JsonResponse({'msg':"操作成功","code":200,'data':result})
+
     
     def download_package(self,request):  
         project = self.get_apps(request)
@@ -187,27 +174,8 @@ class Manage(LoginRequiredMixin,AppsManage,AssetsSource,View):
             return JsonResponse({'msg':"项目或者任务不存在","code":500,'data':[]})        
                            
     
-    @method_decorator_adaptor(permission_required, "cicd.project_change_project_config","/403/")  
-    def create_branch(self,request):  
-        version,project = self.apps_type(request)
-        if project.project_model == 'branch':
-            result = version.createBranch(path=project.project_repo_dir,branchName=request.POST.get('name'))
-        elif request.project_model == 'tag':
-            result = version.createTag(path=project.project_repo_dir,tagName=request.POST.get('name'))
-        if result[0] > 0:return JsonResponse({'msg':result[1],"code":500,'data':[]})
-        else:return JsonResponse({'msg':"操作成功","code":200,'data':[]})   
-    
-    @method_decorator_adaptor(permission_required, "cicd.project_delete_project_config","/403/")     
-    def delete_branch(self,request): 
-        version,project = self.apps_type(request)
-        if project.project_model == 'branch':result = version.delBranch(path=project.project_repo_dir,branchName=request.POST.get('name'))
-        elif project.project_model == 'tag':result = version.delTag(path=project.project_repo_dir,tagName=request.POST.get('name'))                                  
-        if result[0] > 0:return JsonResponse({'msg':result[1],"code":500,'data':[]})
-        else:return JsonResponse({'msg':"操作成功","code":200,'data':[]}) 
-
-        
     def histroy(self,request):
-        version,project = self.apps_type(request)       
+        version, project = self.apps_type(request)       
         result = version.show(path=project.project_repo_dir,branch=request.GET.get('project_branch'),cid=request.POST.get('project_version',None))
         return JsonResponse({'msg':"操作成功","code":200,'data':"<pre> <xmp>" + result[1].replace('<br>','\n') + "</xmp></pre>"})              
             

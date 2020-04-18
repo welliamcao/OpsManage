@@ -21,7 +21,7 @@ class GitTools(object):
         return False  
 
     def clone(self, url):
-        return Repo.clone_from(url, self.path, depth=1)
+        return Repo.clone_from(url, self.path)
 
     def pull(self):       
         repo = Repo(self.path)
@@ -82,4 +82,4 @@ class GitTools(object):
         return {"status":"succeed","msg":result}                
                                     
     def mkdir(self,dir):
-        if os.path.exists(dir) is False:os.makedirs(dir)  
+        if dir and os.path.exists(dir) is False:os.makedirs(dir)  

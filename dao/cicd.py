@@ -12,6 +12,7 @@ from account.models import User
 from utils import base
 import uuid,random,json
 from cicd.service.deploy import DeployRunner
+from django.http import Http404
 
 class AppsCount:
     def __init__(self):
@@ -127,7 +128,7 @@ class AppsManage(AssetsBase):
             return deploy
         except Exception as ex:
             logger.warn(msg="获取部署项目失败: {ex}".format(ex=ex))
-            return False
+            raise Http404
 
     def get_task(self,request):
         if request.method == 'GET':cid = request.GET.get('tasks_id')
@@ -143,11 +144,11 @@ class AppsManage(AssetsBase):
         
     def apps_type(self,request):
         project = self.get_apps(request)
-        if project:
-            if project.project_repertory == 'git':
-                return GitTools(),project
-            elif project.project_repertory == 'svn':
-                return  SvnTools(),project
+#         if project:
+        if project.project_repertory == 'git':
+            return GitTools(),project
+        elif project.project_repertory == 'svn':
+            return  SvnTools(),project
         return (None,None)
 
     #查询项目部署成员
@@ -172,26 +173,26 @@ class AppsManage(AssetsBase):
     #项目信息
     def info_apps(self,request):
         project = self.get_apps(request)
-        if project:
-            data = self.convert_to_dict(project)
+#         if project:
+        data = self.convert_to_dict(project)
 #             data['project_id'] = Project_Assets.objects.get(id=data['project_id']).project_name
 #             data['service_name'] = Service_Assets.objects.get(id=data['project_service']).service_name
-            data['number'] = self.get_apps_number(project)   #member
-            data['roles'] = self.get_role(project)
-            data["project_servers"] = json.loads(project.project_servers)
-            return data
-        return '项目不存在'        
+        data['number'] = self.get_apps_number(project)   #member
+        data['roles'] = self.get_role(project)
+        data["project_servers"] = json.loads(project.project_servers)
+        return data
+#         return '项目不存在'        
     
     #初始化项目
     def init_apps(self,request):
         project = self.get_apps(request)
-        if project:
-            if project.project_status == 1:return '项目已经初始化过'  
-            DeployRunner(apps_id=project.id).init_apps()   
-            project.project_status = 1
-            project.save()
-            return project
-        return '项目不存在'
+#         if project:
+        if project.project_status == 1:return '项目已经初始化过'  
+        DeployRunner(apps_id=project.id).init_apps()   
+        project.project_status = 1
+        project.save()
+        return project
+#         return '项目不存在'
 
     #添加项目
     def create_apps(self,request):           
@@ -228,30 +229,30 @@ class AppsManage(AssetsBase):
     
     def update_apps(self,request):
         project = self.get_apps(request)
-        if project:    
-            try:
-                project.project_env = request.POST.get('project_env')
-                project.project_type = request.POST.get('project_type')
-                project.project_repertory = request.POST.get('project_repertory')
-                project.project_address = request.POST.get('project_address')
-                project.project_remote_command = request.POST.get('project_remote_command')
-                project.project_pre_remote_command = request.POST.get('project_pre_remote_command')
-                project.project_local_command = request.POST.get('project_local_command')
-                project.project_model = request.POST.get('project_model')
-                project.project_dir = request.POST.get('project_dir')
-                project.project_user = request.POST.get('project_user')
-                project.project_is_include = request.POST.get('project_is_include')
-                project.project_exclude = request.POST.get('project_exclude')
-                project.project_repo_user = request.POST.get('project_repo_user')
-                project.project_repo_passwd = request.POST.get('project_repo_passwd')
-                project.project_servers = json.dumps(list(filter(None, request.POST.get('project_servers').split(','))))
-                project.project_target_root = request.POST.get('project_target_root')
-                project.project_logpath = request.POST.get('project_logpath')               
-                project.save()
-            except Exception as ex:
-                logger.warn(msg="修改项目部署失败: {ex}".format(ex=ex)) 
-                return "修改项目部署失败: {ex}".format(ex=ex) 
-        return project
+#         if project:    
+        try:
+            project.project_env = request.POST.get('project_env')
+            project.project_type = request.POST.get('project_type')
+            project.project_repertory = request.POST.get('project_repertory')
+            project.project_address = request.POST.get('project_address')
+            project.project_remote_command = request.POST.get('project_remote_command')
+            project.project_pre_remote_command = request.POST.get('project_pre_remote_command')
+            project.project_local_command = request.POST.get('project_local_command')
+            project.project_model = request.POST.get('project_model')
+            project.project_dir = request.POST.get('project_dir')
+            project.project_user = request.POST.get('project_user')
+            project.project_is_include = request.POST.get('project_is_include')
+            project.project_exclude = request.POST.get('project_exclude')
+            project.project_repo_user = request.POST.get('project_repo_user')
+            project.project_repo_passwd = request.POST.get('project_repo_passwd')
+            project.project_servers = json.dumps(list(filter(None, request.POST.get('project_servers').split(','))))
+            project.project_target_root = request.POST.get('project_target_root')
+            project.project_logpath = request.POST.get('project_logpath')               
+            project.save()
+        except Exception as ex:
+            logger.warn(msg="修改项目部署失败: {ex}".format(ex=ex)) 
+            return "修改项目部署失败: {ex}".format(ex=ex) 
+#         return project
    
     def create_apps_log(self,project,version,user,uuid,content,status='failed',type="deploy"):
         try:
