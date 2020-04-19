@@ -267,10 +267,10 @@ function makeUserSelect(ids,dataList){
 	$('#'+ids).selectpicker('refresh');		
 }
 
-function InitDataTable(tableId,url,buttons,columns,columnDefs){
+function InitDataTable(tableId, url, buttons, columns, columnDefs, page){
 	  var data = requests('get',url)
 	  oOverviewTable =$('#'+tableId).dataTable({
-				    "dom": "Bfrtip",
+				    "dom": "Blfrtip",
 				    "buttons":buttons,
 		    		"bScrollCollapse": false, 				
 		    	    "bRetrieve": true,			
@@ -279,23 +279,24 @@ function InitDataTable(tableId,url,buttons,columns,columnDefs){
 		    		"columns": columns,
 		    		"columnDefs" :columnDefs,			  
 		    		"language" : language,
+		    		"lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
 		    		"order": [[ 0, "ase" ]],
 		    		"autoWidth": false	    			
 	  });
 	  if (data['next']){
-		  $("button[name='page_next']").attr("disabled", false).val(data['next']);	
+		  $("button[name='"+ page +"_page_next']").attr("disabled", false).val(data['next']);	
 	  }else{
-		  $("button[name='page_next']").attr("disabled", true).val();
+		  $("button[name='"+ page +"_page_next']").attr("disabled", true).val();
 	  }
 	  if (data['previous']){
-		  $("button[name='page_previous']").attr("disabled", false).val(data['next']);	
+		  $("button[name='"+ page +"_page_previous']").attr("disabled", false).val(data['next']);	
 	  }else{
-		  $("button[name='page_previous']").attr("disabled", true).val();
+		  $("button[name='"+ page +"_page_previous']").attr("disabled", true).val();
 	  }	  
 
 }
 
-function RefreshOrdersTable(tableId, urlData){
+function RefreshTable(tableId, urlData, page){
 	$.getJSON(urlData, null, function( dataList )
 	{
 	  table = $('#'+tableId).dataTable();
@@ -311,14 +312,14 @@ function RefreshOrdersTable(tableId, urlData){
 	  oSettings.aiDisplay = oSettings.aiDisplayMaster.slice();
 	  table.fnDraw();
 	  if (dataList['next']){
-	   	  $("button[name='page_next']").attr("disabled", false).val(dataList['next']);	
+	   	  $("button[name='"+ page +"_page_next']").attr("disabled", false).val(dataList['next']);	
 	  }else{
-	   	  $("button[name='page_next']").attr("disabled", true).val();
+	   	  $("button[name='"+ page +"_page_next']").attr("disabled", true).val();
 	  }
 	  if (dataList['previous']){
-	   	  $("button[name='page_previous']").attr("disabled", false).val(dataList['previous']);	
+	   	  $("button[name='"+ page +"_page_previous']").attr("disabled", false).val(dataList['previous']);	
 	  }else{
-	   	  $("button[name='page_previous']").attr("disabled", true).val();
+	   	  $("button[name='"+ page +"_page_previous']").attr("disabled", true).val();
 	  } 	  
 	});
 }
@@ -455,6 +456,38 @@ function orderInfoFormat(dataList) {
 		return '<div class="row">'+ serviceHtml + '</div>';		
 	}	
 				
+}
+
+function taskInfoFormat(dataList){
+	if (dataList["file"]){
+		var download = '<td class="col-md-1 col-sm-12 col-xs-12"><div class="btn-group  btn-group-xs"><button type="button" name="btn-task-file" onclick="downLoadTaskFiles(this,\'' +dataList["id"]+'\')" value="'+ dataList["id"] +'" class="btn btn-default" title="下载" aria-label="Justify"><span class="fa fa-cloud-download" aria-hidden="true"></span></button></div></td>'
+	}else{
+		var download = '<td class="col-md-1 col-sm-12 col-xs-12"></td>'
+	}
+	var taskHtml = '<div class="col-md-12 col-sm-12 col-xs-12">' +
+	'<legend>任务明细</legend>' +
+		'<table class="table table-striped" cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">'+ 
+		'<tr>' +
+			'<th>任务文件</th>' +
+			'<th>下载文件</th>' +
+			'<th>失败原因</th>' +
+		'</tr>' + 
+		'</tr>' + 
+		  	 '<td class="col-md-1 col-sm-12 col-xs-12">'+ dataList["file"] + '</td>' +
+		  	 	download +
+		  	 '<td class="col-md-1 col-sm-12 col-xs-12">'+ dataList["msg"] +'</td>' +
+	  	 '</tr>' +		    				
+		'</table>' +
+	'</div>'; 		
+	return '<div class="row">'+ taskHtml + '</div>';		
+}
+
+function downLoadTaskFiles(obj,id){
+	$("button[name='btn-task-file']").attr("disabled",true);
+    downLoadFile({ //调用下载方法
+    			url:"/api/account/user/task/"+ id +"/download/"
+	        	}); 
+    $("button[name='btn-task-file']").attr("disabled",false);
 }
 
 function InitDataConfigTable(tableId,url,buttons,columns,columnDefs){

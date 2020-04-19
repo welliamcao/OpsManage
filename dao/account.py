@@ -56,7 +56,7 @@ class UsersManage(PermsManage,AssetsBase):
         except User.DoesNotExist:
             raise Http404     
                 
-    def change_passwd(self,request):  
+    def change_passwd(self, request):  
         user = self.get_user(request)
 
         if user.id != request.user.id and request.user.is_superuser is False:return "您无权操作此项"  
@@ -72,7 +72,23 @@ class UsersManage(PermsManage,AssetsBase):
                  
         return "修改密码失败"
 
+    def modf_user_profile(self, request):  
+        user = self.get_user(request)
         
+        if user.id != request.user.id and request.user.is_superuser is False:return "您无权操作此项"  
+             
+        elif user.id == request.user.id or request.user.is_superuser:
+            try:                 
+                user.email = request.POST.get('email')
+                user.mobile = request.POST.get('mobile')
+                user.name = request.POST.get('name')
+                user.save()
+                return True
+            except Exception as ex:
+                return "配置信息修改失败：%s" % str(ex) 
+                 
+        return "配置信息修改失败"        
+            
     def modf_user_role(self,request):
         user = self.get_user(request)
         

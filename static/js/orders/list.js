@@ -405,11 +405,11 @@ $(document).ready(function() {
 	
     if ($("#ordersLists").length) {
     	
-        $("button[name^='page_']").on("click", function(){
+        $("button[name^='orders_page_']").on("click", function(){
           	var url = $(this).val();
           	$(this).attr("disabled",true);
           	if (url.length){
-          		RefreshOrdersTable('ordersLists', url);
+          		RefreshTable('ordersLists', url, 'orders');
           	}      	
         	$(this).attr('disabled',false);
           }); 
@@ -555,7 +555,7 @@ $(document).ready(function() {
 					    },						    
 					    
 		    ] 		    
-		    InitDataTable('ordersLists','/api/orders/list/',buttons,columns,columnDefs);   		
+		    InitDataTable('ordersLists','/api/orders/list/',buttons,columns,columnDefs,'orders');   		
     	}
     	
     	makeOrderTableList()
@@ -717,7 +717,7 @@ $(document).ready(function() {
     				                    styling: 'bootstrap3'
     				                }); 
     				            	/*RefreshDeployRolesTable("#deployRolesList","/apps/config/?type=info&id="+get_url_param('id'))*/
-    				            	RefreshOrdersTable('ordersLists','/api/orders/list/')
+    				            	RefreshTable('ordersLists','/api/orders/list/', 'orders')
     				            }  
     				    	});
     	                }
@@ -785,7 +785,7 @@ $(document).ready(function() {
     				                    styling: 'bootstrap3'
     				                }); 
     				            	/*RefreshDeployRolesTable("#deployRolesList","/apps/config/?type=info&id="+get_url_param('id'))*/
-    				            	RefreshOrdersTable('ordersLists','/api/orders/list/')
+    				            	RefreshTable('ordersLists','/api/orders/list/', 'orders')
     				            }  
     				    	});
     	                }

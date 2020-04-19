@@ -12,7 +12,10 @@ urlpatterns = [
             
             url(r'^account/user/$', account_api.user_list), 
             url(r'^account/user/(?P<id>[0-9]+)/$',account_api.user_detail), 
-            url(r'^account/user/superior/$',account_api.UserSuperior.as_view()),       
+            url(r'^account/user/superior/$',account_api.UserSuperior.as_view()),    
+            url(r'^account/user/task/$',account_api.UserTask.as_view()),    
+            url(r'^account/user/task/(?P<pk>[0-9]+)/$',account_api.UserTaskDetail.as_view()), 
+            url(r'^account/user/task/(?P<pk>[0-9]+)/download/$',account_api.UserTaskDownload.as_view()), 
             url(r'^account/group/$',account_api.GROUP_LIST.as_view()),       
             url(r'^account/role/$', account_api.role_list), 
             url(r'^account/role/(?P<id>[0-9]+)/$',account_api.role_detail), 

@@ -11,7 +11,7 @@ from navbar.models import *
 from wiki.models import *
 from orders.models import *
 from apply.models import *
-from account.models import User,Structure,Role
+from account.models import *
 from django_celery_beat.models  import CrontabSchedule,IntervalSchedule,PeriodicTask
 from django_celery_results.models import TaskResult 
 from rest_framework.pagination import CursorPagination
@@ -33,8 +33,7 @@ class UserSerializer(serializers.ModelSerializer):
                   'first_name','last_name','email','is_staff',
                   'is_active','date_joined',"mobile","name","department",
                   'post','superior','roles','superior_name'
-                  )     
-        
+                  )           
     def get_superior_name(self,obj):
         return obj.superior_name()
               
@@ -103,7 +102,26 @@ class StructureSerializer(serializers.ModelSerializer):
         return obj.icon()
     
     def get_manage_name(self,obj):
-        return obj.manage_name()
+        return obj.manage_name()   
+
+class UserTaskSerializer(serializers.ModelSerializer):
+    ctime = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S",required=False)
+    etime = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S",required=False) 
+    user = serializers.SerializerMethodField(read_only=True,required=False)
+    file = serializers.SerializerMethodField(read_only=True,required=False)
+    class Meta:
+        model = User_Async_Task
+        fields = ('id','task_id', 'task_name', 'extra_id', 'user', 'type', 'status', 'args', 'file', 'msg', 'token', 'ctk', 'ctime','etime')     
+           
+    def get_file(self,obj):
+        return str(obj.file).split('/')[-1]
+    
+    def get_user(self,obj):
+        try:  
+            return User.objects.get(id=obj.user).name
+        except Exception as ex:
+            return "未知"
+    
           
 class TagsSerializer(serializers.ModelSerializer):
     class Meta:

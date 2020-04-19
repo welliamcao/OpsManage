@@ -175,3 +175,58 @@ class User(AbstractUser):
             "roles":[ x.id for x in self.roles.all() ]
         }
         return  json_format
+
+TASK_STATUS = (
+        (0, "进行中"),
+        (1, "已完成"),
+        (2, "执行失败"),
+        (3, "执行超时")
+    ) 
+   
+TASK_TYPE = (
+        (0, "部署任务"),
+        (1, "数据导出"),
+        (2, "binlog解析"),
+    )
+    
+class User_Async_Task(models.Model):
+    task_id = models.BigIntegerField(verbose_name='任务id', db_index=True)
+    task_name = models.CharField(max_length=100, verbose_name='任务名称') 
+    extra_id = models.SmallIntegerField(verbose_name='平台其他model的id') 
+    user = models.SmallIntegerField(verbose_name='用户id') 
+    type = models.SmallIntegerField(verbose_name='任务类型',  choices=TASK_TYPE)
+    status = models.SmallIntegerField(verbose_name='任务状态', choices=TASK_STATUS, default=0)
+    file = models.FileField(upload_to = './task/', verbose_name='任务结果文件路径', blank=True, null=True)
+    args = models.CharField(max_length=500, verbose_name='任务参数') 
+    msg = models.TextField(blank=True, null=True, verbose_name='失败原因') 
+    token = models.CharField(max_length=50, verbose_name='token', db_index=True)
+    ctk = models.CharField(max_length=40, verbose_name='celery task id', db_index=True)
+    ctime = models.DateTimeField(auto_now_add=True, blank=True,null=True, verbose_name='开始时间')
+    etime = models.DateTimeField(blank=True,null=True, verbose_name='结束时间')
+    class Meta:
+        db_table = 'opsmanage_user_task'
+        default_permissions = ()
+        verbose_name = '用户任务管理'  
+        verbose_name_plural = '用户异步任务记录表'             
+        index_together = ["user", "type"]
+        
+    def to_json(self):
+        if self.etime:
+            self.etime = self.ctime.strftime('%Y-%m-%d %H:%M:%S')
+        json_format = {
+            "id":self.id,
+            "task_id":self.task_id,
+            "extra_id":self.extra_id,
+            "task_name":self.task_name,
+            "user":self.user,
+            "type":self.type,
+            "status":self.status,
+            "file":str(self.file),           
+            "token":self.token,
+            "args":self.args,
+            "msg":self.msg,
+            "ctk":self.ctk,
+            "ctime":self.ctime.strftime('%Y-%m-%d %H:%M:%S'),
+            "etime":self.etime,
+        }
+        return  json_format      

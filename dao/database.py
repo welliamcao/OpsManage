@@ -1,7 +1,7 @@
 #!/usr/bin/env python  
 # _#_ coding:utf-8 _*_ 
 #coding: utf8
-import time
+import time, json
 from jinja2 import Template
 from databases.models import *
 from utils.logger import logger
@@ -12,10 +12,12 @@ from dao.base import MySQLPool
 from utils import base
 from utils.mysql.binlog2sql import Binlog2sql
 from utils.mysql.const import SQL_PERMISSIONS,SQL_DICT_HTML
-from apps.tasks.celery_sql import record_exec_sql
+from apps.tasks.celery_sql import record_exec_sql, export_table, parse_binlog
 from django.db.models import Count
 from mptt.templatetags.mptt_tags import cache_tree_children  
 from utils.base import getDayAfter
+from account.models import User_Async_Task
+from django.core.exceptions import PermissionDenied
 
 def format_time(seconds):
     m, s = divmod(seconds, 60)
@@ -339,9 +341,8 @@ class DBManage(AssetsBase):
                     return dbServer
             except Exception as ex:
                 logger.warn(msg="查询用户数据库信息失败: {ex}".format(ex=str(ex)))  
-                return False    
-            
-        return False
+                 
+        raise PermissionDenied  
 
     def __check_user_db_tables(self,request):
         try:     
@@ -403,12 +404,11 @@ class DBManage(AssetsBase):
             return  dbServer
         except Exception as ex:
             logger.error(msg="获取DB实例失败: {ex}".format(ex=ex))       
-            return False   
+            raise PermissionDenied   
                                    
     
-    def __get_db_server(self,request):
+    def __get_db_server(self,dbServer):
         try:
-            dbServer = self.__get_db(request)
             return MySQLPool(dbServer=dbServer)
         except Exception as ex:
             logger.error(msg="数据库不存在: {ex}".format(ex=ex)) 
@@ -417,8 +417,7 @@ class DBManage(AssetsBase):
     def exec_sql(self, request):
         
         dbServer = self.__check_user_perms(request,'databases.database_dml_database_server_config')
-        if not dbServer:return "您没有权限操作此项"        
-               
+     
         sql_parse = self.__check_sql_parse(request, allow_sql=self.dml_sql + self.ddl_sql + self.dql_sql,dbname=dbServer.get('db_name'))
 
         if not isinstance(sql_parse, str):              
@@ -431,15 +430,13 @@ class DBManage(AssetsBase):
         
     def query_sql(self, request):
         dbServer = self.__check_user_perms(request,'databases.database_query_database_server_config')
-
-        if not dbServer:return "您没有权限操作此项"
         
         if dbServer.get('db_rw') not in ["read","r/w"]:return "请勿在主库上面执行查询操作"
         
         sql_parse = self.__check_sql_parse(request, allow_sql=self.dql_sql,dbname=dbServer.get('db_name'))
         
         if not isinstance(sql_parse, str):    
-            result = self.__get_db_server(request).queryMany(request.POST.get('sql'),1000)
+            result = self.__get_db_server(dbServer).queryMany(request.POST.get('sql'),1000)
             time_consume = int(time.time())-self.stime
             self.__record_operation(request, dbServer,time_consume ,result)
             return [{"dataList":result,"time":format_time(time_consume)}]
@@ -447,8 +444,8 @@ class DBManage(AssetsBase):
             
     
     def binlog_sql(self,request):
-        if not  self.__check_user_perms(request,'databases.database_binlog_database_server_config'):return "您没有权限操作此项"
-        result = self.__get_db_server(request).queryAll(sql='show binary logs;')
+        dbServer =  self.__check_user_perms(request,'databases.database_binlog_database_server_config')
+        result = self.__get_db_server(dbServer).queryAll(sql='show binary logs;')
         binLogList = []
         if isinstance(result,tuple):
             for ds in result[1]:
@@ -456,8 +453,8 @@ class DBManage(AssetsBase):
         return binLogList
     
     def table_list(self,request):
-        if not self.__check_user_perms(request,'databases.database_query_database_server_config'):return "您没有权限操作此项"
-        result = self.__get_db_server(request).queryAll(sql='show tables;')
+        dbServer = self.__check_user_perms(request,'databases.database_query_database_server_config')
+        result = self.__get_db_server(dbServer).queryAll(sql='show tables;')
         grant_tables = self.__check_user_db_tables(request)
         tableList = []
         if isinstance(result,tuple):
@@ -471,52 +468,137 @@ class DBManage(AssetsBase):
         return tableList
     
     def table_schema(self,request):
-        if not self.__check_user_perms(request,'databases.database_schema_database_server_config'):return "您没有权限操作此项"
+        dbServer = self.__check_user_perms(request,'databases.database_schema_database_server_config')
         table_data = {}
-        dbInfo = self.__get_db(request)
-        dbRbt  = self.__get_db_server(request)
+        dbRbt  = self.__get_db_server(dbServer)
         grant_tables = self.__check_user_db_tables(request)
         if grant_tables and request.POST.get('table_name') not in grant_tables:return "操作的表未授权"
         table_data["schema"] = dbRbt.queryMany(sql="""SELECT TABLE_SCHEMA,TABLE_NAME,TABLE_TYPE,ENGINE,VERSION,ROW_FORMAT,
                                                     TABLE_ROWS,concat(round(sum(DATA_LENGTH/1024/1024),2),'MB') AS DATA_LENGTH,
                                                     MAX_DATA_LENGTH,concat(round(sum(INDEX_LENGTH/1024/1024),2),'MB') AS INDEX_LENGTH,
                                                     DATA_FREE,AUTO_INCREMENT,CREATE_TIME,TABLE_COLLATION,TABLE_COMMENT FROM information_schema.TABLES 
-                                                    WHERE  TABLE_SCHEMA='{db}' AND TABLE_NAME='{table}';""".format(db=dbInfo.get("db_name"),table=request.POST.get('table_name')),num=1000)
-        table_data["index"] = dbRbt.queryMany(sql="""SHOW index FROM `{table}`;""".format(db=dbInfo.get("db_name"),table=request.POST.get('table_name')),num=1000)
-        table_data["desc"] = dbRbt.queryOne(sql="""show create table `{table}`;""".format(db=dbInfo.get("db_name"),table=request.POST.get('table_name')),num=1)[1][1]
+                                                    WHERE  TABLE_SCHEMA='{db}' AND TABLE_NAME='{table}';""".format(db=dbServer.get("db_name"),table=request.POST.get('table_name')),num=1000)
+        table_data["index"] = dbRbt.queryMany(sql="""SHOW index FROM `{table}`;""".format(db=dbServer.get("db_name"),table=request.POST.get('table_name')),num=1000)
+        table_data["desc"] = dbRbt.queryOne(sql="""show create table `{table}`;""".format(db=dbServer.get("db_name"),table=request.POST.get('table_name')),num=1)[1][1]
         return table_data
             
     def parse_sql(self,request):
-        if not self.__check_user_perms(request,'databases.database_binlog_database_server_config'):return "您没有权限操作此项"
+        flashback = False
+        dbServer = self.__check_user_perms(request,'databases.database_binlog_database_server_config')
         sqlList = []
         try:
-            dbServer = self.__get_db(request)
             timeRange =  request.POST.get('binlog_time').split(' - ') 
+            if int(request.POST.get('flashback')) == 1: flashback = True            
             conn_setting = {'host': dbServer.get("ip"), 'port': dbServer.get("db_port"), 
                             'user': dbServer.get("db_user"), 'passwd': dbServer.get("db_passwd"),
                             'charset': 'utf8'}
             binlog2sql = Binlog2sql(connection_settings=conn_setting,             
                                     back_interval=1.0, only_schemas=dbServer.get("db_name"),
                                     end_file='', end_pos=0, start_pos=4,
-                                    flashback=True,only_tables=request.POST.get('binlog_table',''), 
+                                    flashback=flashback,only_tables=request.POST.get('binlog_table',''), 
                                     no_pk=False, only_dml=True,stop_never=False, 
                                     sql_type=['INSERT', 'UPDATE', 'DELETE'], 
                                     start_file=request.POST.get('binlog_db_file'), 
                                     start_time=timeRange[0], 
                                     stop_time=timeRange[1],)
+            if int(request.POST.get('async',0)) == 1:#如果开启异步导出，执行下面流程
+                
+                try:
+                    args = {
+                            "id":request.POST.get('db'),
+                            "user":request.user.name,
+                            "value":dbServer.get('db_name')+ '|' + request.POST.get('binlog_db_file'),
+                            "vars":request.POST.get('binlog_table')
+                        }
+                except Exception as ex:
+                    logger.error(msg="binglog解析失败: {ex}".format(ex=ex)) 
+                    return "参数错误"
+                #通过参数计算唯一token，防止提交大量重复任务
+                token_args = args.copy()
+                token_args.pop("vars")
+                token_args.pop("value")
+                 
+                #去除不必要参数
+                args.pop("id")
+                args.pop("user")
+        #         
+                token = base.makeToken(str(token_args).encode('utf-8'))
+                binlog = binlog2sql.__dict__.copy()
+                for k in list(binlog.keys()):
+                    if k in ["connection","server_id","eof_file","eof_pos"]:
+                        binlog.pop(k)
+                return self.__create_aysnc_task(request, token, args, 2, binlog)                
+                
             sqlList = binlog2sql.process_binlog()   
         except Exception as ex:
             logger.error(msg="binglog解析失败: {ex}".format(ex=ex)) 
+            return "binglog解析失败: {ex}".format(ex=str(ex))
         return sqlList
     
     def optimize_sql(self,request):
-        if not self.__check_user_perms(request,'databases.database_optimize_database_server_config'):return "您没有权限操作此项"
-        dbServer = self.__get_db(request)
+        dbServer = self.__check_user_perms(request,'databases.database_optimize_database_server_config')
         status,result = base.getSQLAdvisor(host=dbServer.get("ip"), user=dbServer.get("db_user"),
                                            passwd=dbServer.get("db_passwd"), dbname=dbServer.get("db_name"), 
                                            sql=request.POST.get('sql'),port=dbServer.get("db_port"))
         return [result]        
     
+    def dump_table(self,request):
+        dbServer = self.__check_user_perms(request,'databases.database_dumptable_database_server_config')
+        try:
+            args = {
+                    "id":request.POST.get('db'),
+                    "user":request.user.name,
+                    "value":dbServer.get('db_name')+ '|' + request.POST.get('table_name'),
+                    "email":request.POST.get('email'), 
+                    "vars":request.POST.get('where')
+                }
+        except Exception as ex:
+            logger.error(msg="导出表数据失败: {ex}".format(ex=ex)) 
+            return "参数错误"
+        #通过参数计算唯一token，防止提交大量重复任务
+        token_args = args.copy()
+        token_args.pop("vars")
+        token_args.pop("email")
+         
+        #去除不必要参数
+        args.pop("id")
+        args.pop("user")
+        
+#         
+        token = base.makeToken(str(token_args).encode('utf-8'))
+        
+        return self.__create_aysnc_task(request, token, args, 1)
+
+    
+    def __create_aysnc_task(self, request, token, args, type, binlog=None):    
+        if User_Async_Task.objects.filter(token=token, user=request.user.id, type=type, status=0).count() == 0:
+            try:
+                task = User_Async_Task.objects.create(
+                        task_name = request.POST.get('task_name'), 
+                        extra_id = request.POST.get('db'), 
+                        task_id = int(time.strftime('%Y%m%d%H%M%S',time.localtime(time.time()))),
+                        user = request.user.id,
+                        type = type,
+                        status = 0,
+                        args = json.dumps(args),
+                        token =token
+                    )
+            except Exception as ex:
+                return str(ex)
+            if type == 1:
+                c_task = export_table.apply_async((task.task_id,), queue='default')
+            elif type == 2:
+                c_task = parse_binlog.apply_async((task.task_id, binlog), queue='default')  
+            else:
+                task.delete()
+                return "任务不支持"  
+            
+            task.ctk = c_task.id
+            task.save()
+
+        else:
+            return "有相同任务正在进行，请勿重复提交"        
+        
         
     def __record_operation(self,request,dbServer,time_consume,result):
         if isinstance(result, str):
@@ -536,9 +618,9 @@ class DBManage(AssetsBase):
             
         return dbList
 
-    def recursive_node_to_dict(self, node, request, user_db_server_list):
+    def __recursive_node_to_dict(self, node, request, user_db_server_list):
         json_format = node.to_json()
-        children = [self.recursive_node_to_dict(c, request, user_db_server_list) for c in node.get_children()]
+        children = [self.__recursive_node_to_dict(c, request, user_db_server_list) for c in node.get_children()]
         if children:
             json_format['children'] = children
         else:
@@ -557,7 +639,7 @@ class DBManage(AssetsBase):
             
         return json_format
     
-    def business_paths_id_list(self,business):
+    def __business_paths_id_list(self,business):
         tree_list = []
         
         dataList = Business_Tree_Assets.objects.raw("""SELECT id FROM opsmanage_business_assets WHERE tree_id = {tree_id} AND  lft < {lft} AND  rght > {rght} ORDER BY lft ASC;""".format(tree_id=business.tree_id,lft=business.lft,rght=business.rght))
@@ -583,7 +665,7 @@ class DBManage(AssetsBase):
 
         for business in Business_Tree_Assets.objects.filter(id__in=user_business):
             
-            business_list += self.business_paths_id_list(business)
+            business_list += self.__business_paths_id_list(business)
             
         business_list = list(set(business_list))
         
@@ -595,6 +677,6 @@ class DBManage(AssetsBase):
         
         for n in root_nodes:
             
-            dataList.append(self.recursive_node_to_dict(n, request, user_db_server_list))   
+            dataList.append(self.__recursive_node_to_dict(n, request, user_db_server_list))   
                   
         return dataList          

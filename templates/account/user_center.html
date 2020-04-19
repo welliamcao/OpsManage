@@ -9,6 +9,7 @@
 	<link href="/static/datatable/datatables.net-responsive-bs/css/responsive.bootstrap.min.css" rel="stylesheet">
 	<link href="/static/datatable/datatables.net-scroller-bs/css/scroller.bootstrap.min.css" rel="stylesheet"> 
 	<link href="/static/datatable/datatables.net-select/css/select.dataTables.min.css" rel="stylesheet">
+	<link href="/static/bootstrap-daterangepicker/daterangepicker.css" rel="stylesheet">
     <link rel="stylesheet" href="/static/tooltips/css/tooltips.css"> 
     <link rel="stylesheet" href="/static/xterm/xterm.css"/>      
 	<style type="text/css"> 
@@ -41,7 +42,7 @@
             }
           .modal-header{
             cursor:move;
-          }		            	
+          }	        	            	
 	</style>	  
 {% endblock %}
 {% block page-content %}
@@ -70,10 +71,10 @@
                         </li>                       
                         <li role="presentation" class=""><a href="#tab_content1" id="#database" role="tab" data-toggle="tab" aria-expanded="false"><i class="fa fa-tasks"></i> 我的工单</a>
                         </li>
-                        <li role="presentation" class=""><a href="#tab_content3" role="tab" id="#CustomSql" data-toggle="tab" aria-expanded="false"><i class="fa fa fa-eye"></i> 密码修改</a>
-                        </li>   
-<!--                         <li role="presentation" class=""><a href="#tab_content4" role="tab" id="#allot" data-toggle="tab" aria-expanded="false"><i class="fa fa-cogs"></i> DB分配</a>
-                        </li>  -->                                                                      
+                        <li role="presentation" class=""><a href="#tab_content4" role="tab" id="#allot" data-toggle="tab" aria-expanded="false"><i class="fa fa-cogs"></i> 我的任务</a>
+                        </li>                          
+                        <li role="presentation" class=""><a href="#tab_content3" role="tab" id="#CustomSql" data-toggle="tab" aria-expanded="false"><i class="fa fa fa-eye"></i> 个人主页</a>
+                        </li>                                                                         
                       </ul>
                       <div id="myTabContent" class="tab-content">
 	                        <div role="tabpanel" class="tab-pane fade " id="tab_content1" aria-labelledby="#database">
@@ -81,8 +82,8 @@
 				                	<div class="row">	
 				                		<div class="col-md-12 col-sm-12 col-xs-12 form-group">	
 											<div class="btn-group  btn-group-sm pull-right">
-						                        <button class="btn btn-default" name="page_previous" type="button" value="">上一页</button>
-						                        <button class="btn btn-default" name="page_next" type="button" value="">下一页</button>
+						                        <button class="btn btn-default" name="orders_page_previous" type="button" value="">上一页</button>
+						                        <button class="btn btn-default" name="orders_page_next" type="button" value="">下一页</button>
 						                        <input type="hidden" id="currentUser" name="custId" value="{{user.id}}">
 						                    </div>
 					                    </div>
@@ -159,12 +160,79 @@
 									<button type="reset" class="btn btn-default">撤销</button>
 								</form>
 							 </div>	
-							 <div class="col-lg-8">															 	
+							 <div class="col-lg-8">		
+								<legend>
+									<i class="fa  fa-user"></i> 个人信息
+								</legend>	
+								<form id="modf_user_profile" class="main form-horizontal">
+									<fieldset>										
+										<div class="item form-group">
+											<label class="col-sm-3 control-label"><i class="fa fa-bookmark"></i></label>
+											<div class="col-sm-6">
+												<input type="text" class="form-control" placeholder="中文名称" id="name" name="name" value="{{user.name}}" required/>
+											</div>
+										</div>		
+														
+										<div class="item form-group">
+											<label class="col-sm-3 control-label"><i class="fa fa-envelope"></i></label>
+											<div class="col-sm-6">
+												<input type="email" class="form-control" placeholder="Email" id="email" name="email" value="{{user.email}}" required/>
+											</div>
+										</div>									
+				
+										<div class="item form-group">
+											<label class="col-sm-3 control-label"><i class="fa fa-phone"></i></label>
+											<div class="col-sm-6">
+												<input type="number" class="form-control" placeholder="电话号码" id="mobile" name="mobile" value="{{user.mobile}}" required/>
+											</div>
+										</div>																					
+											<div class="space-24"></div>
+									</fieldset>
+									<div class="item form-group">
+										<lable class="col-sm-3 control-label"></lable>
+										<div class="col-sm-6">
+											<button type="button" value="{{user.id}}" class="btn btn-default" id="modf_user_profile_btn">修改</button>
+											<button type="reset" class="btn btn-default">撤销</button>
+										</div>
+							 		</div>																	
+								</form>																					 													 	
 							 </div>
                         </div>
                          <!-- CustomSql -->
                         <div role="tabpanel" class="tab-pane fade" id="tab_content4" aria-labelledby="#allot">
-					 
+								<div class="col-md-12 col-xs-12">
+				                	<div class="row">	
+				                		<div class="col-md-12 col-sm-12 col-xs-12 form-group">	
+											<div class="btn-group  btn-group-sm pull-right">
+						                        <button class="btn btn-default" name="tasks_page_previous" type="button" value="">上一页</button>
+						                        <button class="btn btn-default" name="tasks_page_next" type="button" value="">下一页</button>
+						                    </div>
+					                    </div>
+				                    </div>
+				                    <br>
+				                    <div class="row">
+					                    <div class="col-md-12 col-sm-12 col-xs-12 form-group">								           
+						                    <table id="tasksLists" class="table table-hover">
+						                      <thead>
+						                        <tr>
+						                        	<th class="text-center">详情</th>
+									                <th>ID</th>
+									                <th>任务类型</th>									                
+									                <th>任务名称</th>
+									                <th>用户</th>
+													<th>任务参数</th>
+													<th>状态</th>
+									                <th>开始时间</th>
+									                <th>结束时间</th>		                
+													<th class="text-center">操作</th>
+						                        </tr>
+						                      </thead>
+						                      <tbody>
+						                      </tbody>
+						                    </table>   
+					                   </div>
+				                   </div>
+								</div>					 
                         </div>                                                 
                     </div>                                  
                   </div>
@@ -345,9 +413,13 @@
     <script src="/static/datatable/datatables.net-buttons/js/buttons.print.min.js"></script>	
     <script src="/static/datatable/datatables.net-select/js/dataTables.select.min.js"></script>
     <script src="/static/tooltips/js/jquery.pure.tooltips.js"></script>	
+	<!-- bootstrap-daterangepicker -->
+    <script src="/static/moment/min/moment.min.js"></script>
+    <script src="/static/bootstrap-daterangepicker/daterangepicker.js"></script>  
     <script src="/static/js/orders/common.js"></script>
     <script src="/static/js/orders/list.js"></script>
 	<script src="/static/js/account/center.js"></script>
+	<script src="/static/js/account/task.js"></script>
 	<script src="/static/validator/validator.js"></script>
 	<script src="/static/xterm/xterm.js"></script>
   	<script src="/static/xterm/addons/fit/fit.js"></script>

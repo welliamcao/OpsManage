@@ -1,16 +1,20 @@
 #!/usr/bin/env python  
 # _#_ coding:utf-8 _*_
+import os
 from rest_framework.views import APIView
 from api import serializers
 from rest_framework import status
-from account.models import User,Role,Structure
+from account.models import User, Role, Structure, User_Async_Task
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from utils.logger import logger
 from dao.account import StructureManage,UsersManage
 from mptt.templatetags.mptt_tags import cache_tree_children
-from django.http import Http404
+from django.http import Http404,StreamingHttpResponse
 from django.contrib.auth.decorators import permission_required
+from OpsManage.celery import app as celery_app
+from django.utils import timezone
+from utils.base import file_iterator
 
 @api_view(['GET', 'POST' ])
 def user_list(request,format=None):
@@ -69,6 +73,88 @@ class UserSuperior(APIView,UsersManage):
         
     def get(self,request,*args,**kwargs): 
         return Response(self.get_user_superior(request.user)) 
+
+class UserTask(APIView):
+        
+    def get(self, request, *args, **kwargs): 
+        if request.user.is_superuser:
+            task_list = User_Async_Task.objects.all().order_by("-id")
+        else:
+            task_list = User_Async_Task.objects.filter(user=request.user.id).order_by("-id")
+        page = serializers.PageConfig()  # 注册分页
+        page_user_list = page.paginate_queryset(queryset=task_list, request=request, view=self)
+        ser = serializers.UserTaskSerializer(instance=page_user_list, many=True)
+        return page.get_paginated_response(ser.data) 
+
+class UserTaskDetail(APIView):
+     
+    def get_object(self, pk, request):
+        try:
+            task = User_Async_Task.objects.get(id=pk)
+            if not request.user.is_superuser and task.user != request.user.id:
+                raise Http404       
+            return task     
+        except User_Async_Task.DoesNotExist:
+            raise Http404      
+     
+    def get(self, request, pk, *args,**kwargs): 
+        snippet = self.get_object(pk, request)
+        serializer = serializers.UserTaskSerializer(snippet)
+        return Response(serializer.data)         
+         
+    def post(self,request, pk, *args,**kwargs):
+        snippet = self.get_object(pk, request)
+        
+        if request.POST.get("action") == "stop": 
+            ctask = celery_app.AsyncResult(snippet.ctk)
+            if ctask.status == "FAILURE":
+                snippet.msg = ctask.result
+            else:
+                snippet.msg = request.POST.get("msg")
+            #bug https://github.com/celery/celery/issues/2727    
+            celery_app.control.revoke(snippet.ctk, terminate=True, signal='SIGUSR1')
+
+        snippet.etime = timezone.now()
+        snippet.status = 2
+        snippet.save()
+            
+        serializer = serializers.UserTaskSerializer(snippet)
+        return Response(serializer.data)
+
+    def delete(self, request, pk, *args,**kwargs): 
+        
+        snippet = self.get_object(pk, request)
+                  
+        if snippet.file:
+            task_file = os.getcwd() + '/' + str(snippet.file)
+            if os.path.exists(task_file):
+                os.remove(task_file)    
+                     
+        snippet.delete()       
+        return Response(status=status.HTTP_204_NO_CONTENT) 
+
+
+class UserTaskDownload(APIView):
+     
+    def get_object(self, pk, request):
+        try:
+            task = User_Async_Task.objects.get(id=pk)
+            if not request.user.is_superuser and task.user != request.user.id:
+                raise Http404       
+            return task     
+        except User_Async_Task.DoesNotExist:
+            raise Http404      
+              
+    def post(self, request, pk, *args,**kwargs):
+        snippet = self.get_object(pk, request)
+        
+        if snippet.file:
+            task_file = os.getcwd() + '/' + str(snippet.file)
+            response = StreamingHttpResponse(file_iterator(task_file))
+            response['Content-Type'] = 'application/octet-stream'
+            response['Content-Disposition'] = 'attachment; filename="{file_name}'.format(file_name=os.path.basename(task_file))
+            return response 
+        return Http404 
 
 @api_view(['GET', 'POST' ])
 def role_list(request,format=None):

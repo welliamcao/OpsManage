@@ -144,7 +144,6 @@ class AppsManage(AssetsBase):
         
     def apps_type(self,request):
         project = self.get_apps(request)
-#         if project:
         if project.project_repertory == 'git':
             return GitTools(),project
         elif project.project_repertory == 'svn':
@@ -173,26 +172,22 @@ class AppsManage(AssetsBase):
     #项目信息
     def info_apps(self,request):
         project = self.get_apps(request)
-#         if project:
         data = self.convert_to_dict(project)
 #             data['project_id'] = Project_Assets.objects.get(id=data['project_id']).project_name
 #             data['service_name'] = Service_Assets.objects.get(id=data['project_service']).service_name
         data['number'] = self.get_apps_number(project)   #member
         data['roles'] = self.get_role(project)
         data["project_servers"] = json.loads(project.project_servers)
-        return data
-#         return '项目不存在'        
+        return data     
     
     #初始化项目
     def init_apps(self,request):
         project = self.get_apps(request)
-#         if project:
         if project.project_status == 1:return '项目已经初始化过'  
         DeployRunner(apps_id=project.id).init_apps()   
         project.project_status = 1
         project.save()
         return project
-#         return '项目不存在'
 
     #添加项目
     def create_apps(self,request):           
@@ -228,8 +223,7 @@ class AppsManage(AssetsBase):
         
     
     def update_apps(self,request):
-        project = self.get_apps(request)
-#         if project:    
+        project = self.get_apps(request)   
         try:
             project.project_env = request.POST.get('project_env')
             project.project_type = request.POST.get('project_type')
@@ -252,7 +246,6 @@ class AppsManage(AssetsBase):
         except Exception as ex:
             logger.warn(msg="修改项目部署失败: {ex}".format(ex=ex)) 
             return "修改项目部署失败: {ex}".format(ex=ex) 
-#         return project
    
     def create_apps_log(self,project,version,user,uuid,content,status='failed',type="deploy"):
         try:

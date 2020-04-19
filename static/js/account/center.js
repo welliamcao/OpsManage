@@ -947,4 +947,46 @@ $(document).ready(function() {
 	    	});			
 		})
 	}	
+	
+	if($("#modf_user_profile_btn").length){
+		$("#modf_user_profile_btn").on("click", function(){
+			var vIds = $(this).val();
+	    	$.ajax({  
+	            type: "POST",  
+	            url:"/account/user/manage/",   
+				data:{
+					"type":"modf_user_profile",
+					"id":vIds,
+	            	"email":$("#email").val(),
+	            	"mobile":$("#mobile").val(),
+	            	"name":$("#name").val(),
+	            },
+	            error: function(response) {  
+	            	new PNotify({
+	                    title: 'Ops Failed!',
+	                    text: response.responseText,
+	                    type: 'error',
+	                    styling: 'bootstrap3'
+	                });       
+	            },  
+	            success: function(response) {  
+	            	if (response["code"] == 200){
+		            	new PNotify({
+		                    title: 'Success!',
+		                    text: '修改成功',
+		                    type: 'success',
+		                    styling: 'bootstrap3'
+		                }); 				            		
+	            	}else{
+		            	new PNotify({
+		                    title: 'Ops Failed!',
+		                    text: response["msg"],
+		                    type: 'error',
+		                    styling: 'bootstrap3'
+		                });  				            		
+	            	}				            		
+	            }  
+	    	});			
+		})
+	}	
 })

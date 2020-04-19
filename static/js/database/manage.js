@@ -246,38 +246,15 @@ function drawTableTree(ids,jsonData){
 	});		
 }
 
-function getFormatDate(time){  
-    var nowDate = new Date(new Date()-1000*time);   
-    var year = nowDate.getFullYear();  
-    var month = nowDate.getMonth() + 1 < 10 ? "0" + (nowDate.getMonth() + 1) : nowDate.getMonth() + 1;  
-    var date = nowDate.getDate() < 10 ? "0" + nowDate.getDate() : nowDate.getDate();  
-    var hour = nowDate.getHours()< 10 ? "0" + nowDate.getHours() : nowDate.getHours();  
-    var minute = nowDate.getMinutes()< 10 ? "0" + nowDate.getMinutes() : nowDate.getMinutes();  
-    var second = nowDate.getSeconds()< 10 ? "0" + nowDate.getSeconds() : nowDate.getSeconds();  
-    return year + "-" + month + "-" + date+" "+ hour + ":" + minute + ":" + second;  
-}
-
 $(document).ready(function () {
 
-	if ($("#binlog_time").length){
-		var cdate = new Date();
-		var startTime =  getFormatDate(0)
-		var endTime = getFormatDate(3600)
-		$("#binlog_time").val(endTime+' - '+startTime)
-	 	$("#binlog_time").daterangepicker({
-            "timePicker": true,
-            "timePicker24Hour": true,
-            "linkedCalendars": false,
-            "autoUpdateInput": false,
-            "locale": {
-                format: "YYYY-MM-DD hh:mm:ss",
-                applyLabel: "应用",
-                cancelLabel: "取消",
-                resetLabel: "重置",
-            }
-	    });	
-	}	
-	
+	$("input[name='binlog_time']").daterangepicker({
+        timePicker: !0,
+        timePickerIncrement: 30,
+        locale: {
+            format: "YYYY-MM-DD HH:mm:ss"
+        }
+    })		
 	try{
 		var aceEditAdd = setAceEditMode("compile-editor-add","ace/mode/mysql","ace/theme/sqlserver");								 		  
 	}
@@ -296,6 +273,7 @@ $(document).ready(function () {
 			data:{
 				"db":vIds,
 				"model":"parse_sql",
+				"flashback":$("#flashback option:selected").val(),
 				"binlog_time":$("#binlog_time").val(),
 				"binlog_table":$("#binlog_table").val(),
 				"binlog_db_file":$("#binlog_db_file option:selected").val(),
@@ -324,6 +302,88 @@ $(document).ready(function () {
 		});	    
     });		
 	
+    $("#db_binlog_async").on('click', function() {
+		var btnObj = $(this);
+		btnObj.attr('disabled',true);    
+		var vIds = $(this).val();
+		var binlogfile = $("#binlog_db_file option:selected").val()
+        $.confirm({
+            icon: 'fa fa-edit',
+            type: 'blue',
+            title: `解析${binlogfile}数据`,
+            height: 'auto',
+            content: '' +
+                '<div class="form-group">' +
+                '<label>任务名称：</label>' +
+                '<input type="text" placeholder="任务名称" class="form-control" name="task_name" value="'+ `解析${binlogfile}数据 ` +'" required />' +                
+                '</div>',
+            buttons: {
+                "解析": {
+                    btnClass: 'btn-blue',
+                    action: function () {;
+                        let task_name = this.$content.find('[name=task_name]').val().trim();
+                        if (!task_name) {
+                            $.alert("<label>任务名称不能为空</label>")
+                            return false
+                        }                    	
+                        $.ajax({
+                            url: "/db/manage/",
+                            type: "POST",
+                            data: {
+                				"db":vIds,
+                				"model":"parse_sql",
+                				"task_name":task_name,
+                				"async":1,
+                				"flashback":$("#flashback option:selected").val(),
+                				"binlog_time":$("#binlog_time").val(),
+                				"binlog_table":$("#binlog_table").val(),
+                				"binlog_db_file":binlogfile,
+                            },
+                            success: function (response) {
+                                if (response["code"] === 500) {
+                                    new PNotify({
+                                        title: 'Ops Failed!',
+                                        text: response["msg"],
+                                        type: 'error',
+                                        styling: 'bootstrap3'
+                                    });
+                                } else {
+                                    new PNotify({
+                                        title: 'Success!',
+                                        text: "解析任务提交成功",
+                                        type: 'success',
+                                        styling: 'bootstrap3'
+                                    });
+                                }
+                                btnObj.attr('disabled',false); 
+                            },
+                            error: function (response) {
+                                new PNotify({
+                                    title: 'Ops Failed!',
+                                    text: response.responseText,
+                                    type: 'error',
+                                    styling: 'bootstrap3'
+                                });
+                                btnObj.attr('disabled',false); 
+                            }
+                        })
+
+                    },
+                },
+                cancel: function () {
+                	btnObj.attr('disabled',false); 
+                },
+            },
+            onContentReady: function () {
+                // bind to events
+                var jc = this;
+                this.$content.find('form').on('submit', function (e) {
+                    // if the user submits the form by pressing enter in the field.
+                    e.preventDefault();
+                });
+            }
+        });	   
+    });    
 	
     $("#db_schema_btn").on('click', function() {
 		var btnObj = $(this);
@@ -483,7 +543,8 @@ $(document).ready(function () {
 			$("#db_exec_btn").removeClass("disabled").text("执行").val(vIds)
 			///binlog日志
         	$("#dbDmlBinlog").html('<i  class="fa  fa-paper-plane" >数据库  <u class="red">'+ td.eq(1).text() +'</u> DML语句回滚</i>')
-			$("#db_binlog_btn").removeClass("disabled").text("解析").val(vIds)
+			$("#db_binlog_btn").removeClass("disabled").text("运行").val(vIds)
+			$("#db_binlog_async").removeClass("disabled").text("后台").val(vIds)
 			make_database_binlog(vIds,"binlog_db_file")
 			//表结构信息
         	$("#dbTable").html('<i  class="fa  fa-paper-plane" >数据库  <u class="red">'+ td.eq(1).text() +'</u> 表结构查询</i>')
@@ -524,7 +585,8 @@ $(document).ready(function () {
 	                });       
 	            },  
 	            success: function(response) {  
-					if(response["code"]==500){
+	            	console.log(response)
+					if(response["code"]!=200){
 			           	new PNotify({
 			                   title: 'Ops Failed!',
 			                   text: response["msg"],
@@ -751,7 +813,7 @@ function viewTableSchema(obj){
                 });       
             },  
             success: function(response) {  	
-				if(response["code"]==500){
+				if(response["code"]!=200){
 		           	new PNotify({
 		                   title: 'Ops Failed!',
 		                   text: response["msg"],

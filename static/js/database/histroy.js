@@ -29,7 +29,7 @@ function InitSQLHistroyDataTable(tableId,url,buttons,columns,columnDefs){
 	  sqlHistroyDataList = requests('get',url)
 	  oOverviewTable =$('#'+tableId).dataTable(
 			  {
-				  	"dom": "Bfrtip",
+				  	"dom": "Blfrtip",
 				  	"buttons":buttons,
 		    		"bScrollCollapse": false, 				
 		    	    "bRetrieve": true,	
@@ -38,6 +38,7 @@ function InitSQLHistroyDataTable(tableId,url,buttons,columns,columnDefs){
 		    		"columns": columns,
 		    		"columnDefs" :columnDefs,			  
 		    		"language" : language,
+		    		"lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
 		    		"order": [[ 0, "ase" ]],
 		    		"autoWidth": false	    			
 		    	});
@@ -192,13 +193,8 @@ $(document).ready(function() {
     								},
 	    					     }, 
 			    		      ]	
-		    var buttons = [{
-		        text: '<span class="fa fa-plus"></span>',
-		        className: "btn-xs",
-		        action: function ( e, dt, node, config ) {
-		        	return false
-		        }	        
-		    }]
+		    var buttons = [	        
+		    ]
 		    InitSQLHistroyDataTable("databaseSQLExecuteHistroy","/api/logs/sql/",buttons,columns,columnDefs)  
 		    sqlHistroyDataList
 			if(sqlHistroyDataList["results"].length){

@@ -5,7 +5,7 @@ function InitSQLHistroyDataTable(tableId,url,buttons,columns,columnDefs){
 	  sqlHistroyDataList = requests('get',url)
 	  oOverviewTable =$('#'+tableId).dataTable(
 			  {
-				  	"dom": "Bfrtip",
+				  	"dom": "Blfrtip",
 				  	"buttons":buttons,
 		    		"bScrollCollapse": false, 				
 		    	    "bRetrieve": true,	
@@ -14,6 +14,7 @@ function InitSQLHistroyDataTable(tableId,url,buttons,columns,columnDefs){
 		    		"columns": columns,
 		    		"columnDefs" :columnDefs,			  
 		    		"language" : language,
+		    		"lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
 		    		"order": [[ 0, "ase" ]],
 		    		"autoWidth": false	    			
 		    	});
@@ -409,13 +410,13 @@ $(document).ready(function () {
 	            error: function(response) {
 	            	new PNotify({
 	                    title: 'Ops Failed!',
-	                    text: response.responseText,
+	                    text: response.statusText,
 	                    type: 'error',
 	                    styling: 'bootstrap3'
 	                });       
 	            },  
 	            success: function(response) {  
-					if(response["code"]==500){
+					if(response["code"]!=200){
 			           	new PNotify({
 			                   title: 'Ops Failed!',
 			                   text: response["msg"],
@@ -732,7 +733,91 @@ $(document).ready(function () {
 })    
 
 function dumpTabledata(obj){
-	console.log(obj["original"])	
+	if (obj["original"]["db"]){
+        $.confirm({
+            icon: 'fa fa-edit',
+            type: 'blue',
+            title: `导出表${obj.id}数据`,
+            height: 'auto',
+            content: '' +
+                '<div class="form-group">' +
+                '<label>任务名称：</label>' +
+                '<input type="text" placeholder="任务名称" class="form-control" name="task_name" value="'+ `导出表${obj.id}数据 ` +'" required />' +                
+                '<label>where：</label>' +
+                '<input type="text" placeholder="`name`=\'1\' AND `id`>10 #不填就导出全表数据" class="form-control" name="where"/>' +
+                '<label>邮箱：</label>' +
+                '<input type="text" placeholder="303350019@qq.com #不填默认发给自己" class="form-control" name="email"/>' +                
+                '</div>',
+            buttons: {
+                "导出": {
+                    btnClass: 'btn-blue',
+                    action: function () {
+                    	let email = this.$content.find('[name=email]').val().trim();
+                        let task_name = this.$content.find('[name=task_name]').val().trim();
+                        if (!task_name) {
+                            $.alert("<label>任务名称不能为空</label>")
+                            return false
+                        }   
+                        let pattern = /^([A-Za-z0-9_\-.])+@([A-Za-z0-9_\-.])+\.([A-Za-z]{2,4})$/;
+                        if (!pattern.test(email) && email.length > 0) {
+                            $.alert("<label>请输入正确的邮箱地址</label>");
+                            return false
+                        }                        
+                        let where = this.$content.find('[name=where]').val().trim();
+                        $.ajax({
+                            url: "/db/manage/",
+                            type: "POST",
+                            data: {
+                            	db: obj["original"]["db"],
+                            	table_name: obj["original"]["id"],
+                                model: "dump_table",
+                                where: where,
+                                email: email,
+                                task_name: task_name,
+                            },
+                            success: function (response) {
+                                if (response["code"] != 200) {
+                                    new PNotify({
+                                        title: 'Ops Failed!',
+                                        text: response["msg"],
+                                        type: 'error',
+                                        styling: 'bootstrap3'
+                                    });
+                                } else {
+                                    new PNotify({
+                                        title: 'Success!',
+                                        text: "导出任务提交成功",
+                                        type: 'success',
+                                        styling: 'bootstrap3'
+                                    });
+                                }
+                            },
+                            error: function (response) {
+                                new PNotify({
+                                    title: 'Ops Failed!',
+                                    text: response.responseText,
+                                    type: 'error',
+                                    styling: 'bootstrap3'
+                                });
+                            }
+                        })
+
+                    },
+                },
+                cancel: function () {
+                    //close
+                },
+            },
+            onContentReady: function () {
+                // bind to events
+                var jc = this;
+                this.$content.find('form').on('submit', function (e) {
+                    // if the user submits the form by pressing enter in the field.
+                    e.preventDefault();
+                });
+            }
+        });		
+	}
 }
 
 function viewTableSchema(obj){
@@ -756,7 +841,7 @@ function viewTableSchema(obj){
                 });       
             },  
             success: function(response) {  	
-				if(response["code"]==500){
+				if(response["code"]!=200){
 		           	new PNotify({
 		                   title: 'Ops Failed!',
 		                   text: response["msg"],

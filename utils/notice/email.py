@@ -48,3 +48,4 @@ class EmailNotice(NotcieBase):
             smtp.quit()
         except Exception as ex:
             logger.error("发送邮件失败：{ex}".format(ex=str(ex)))
+            return str(ex)
