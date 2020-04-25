@@ -4,7 +4,7 @@
 import uuid, time, hashlib
 from sched.models import Sched_Node,Sched_Job_Config,Sched_Job_Logs
 from utils.logger import logger
-from django.http import QueryDict
+from django.http import QueryDict, Http404
 from .assets import AssetsBase
 from utils.sched.rpc import sched_rpc
 from django.db.models import Q
@@ -47,7 +47,7 @@ class ApschedNodeManage(AssetsBase):
             return sched
         except Exception as ex:
             logger.warn(msg="获取计划任务节点失败: {ex}".format(ex=ex))
-            return False    
+            raise Http404   
     
     def get_node_jobs_by_token(self,request):
         #判断header信息
@@ -108,28 +108,23 @@ class ApschedNodeManage(AssetsBase):
         
     def update_node(self,request):   
         node = self.schedNode(request)
-        if node:
-            try:
-                query_params = dict()
-                for ds in QueryDict(request.body).keys():
-                    query_params[ds] = QueryDict(request.body).get(ds)                
-                return Sched_Node.objects.filter(sched_node=node.sched_node).update(**query_params)
-            except Exception as ex:
-                logger.warn(msg="修改节点信息失败: {ex}".format(ex=ex))
-                return str(ex)   
-        else:
-            return "节点不存在"  
+        try:
+            query_params = dict()
+            for ds in QueryDict(request.body).keys():
+                query_params[ds] = QueryDict(request.body).get(ds)                
+            return Sched_Node.objects.filter(sched_node=node.sched_node).update(**query_params)
+        except Exception as ex:
+            logger.warn(msg="修改节点信息失败: {ex}".format(ex=ex))
+            return str(ex)   
         
     def delete_node(self,request):   
         node = self.schedNode(request)
-        if node:
-            try:          
-                node.delete()
-            except Exception as ex:
-                logger.warn(msg="修改节点信息失败: {ex}".format(ex=ex))
-                return str(ex)   
-        else:
-            return "节点不存在"   
+        try:          
+            node.delete()
+        except Exception as ex:
+            logger.warn(msg="修改节点信息失败: {ex}".format(ex=ex))
+            return str(ex)   
+ 
         
 class ApschedNodeJobsManage(ApschedNodeManage):
     def __init__(self):
@@ -161,7 +156,7 @@ class ApschedNodeJobsManage(ApschedNodeManage):
             return jobs
         except Exception as ex:
             logger.warn(msg="获取计划任务失败: {ex}".format(ex=ex))
-            return False   
+            raise Http404   
     
     def insert_jobs_logs_by_jid(self,data):
         try:
@@ -193,87 +188,82 @@ class ApschedNodeJobsManage(ApschedNodeManage):
                 
     def create_jobs(self,request):   
         node = self.schedNode(request)
-        if node:  
-            if node.enable == 0: return "创建任务失败，节点已下线"
-            try:
-                sched_jobs = Sched_Job_Config.objects.create(
-                                            job_node = node,
-                                            job_id = uuid.uuid4(),
-                                            job_name = request.POST.get('job_name'),
-                                            second = request.POST.get('second'),
-                                            minute = request.POST.get('minute'),
-                                            hour = request.POST.get('hour'),
-                                            week = request.POST.get('week'),
-                                            day = request.POST.get('day'),
-                                            day_of_week = request.POST.get('day_of_week'),
-                                            month = request.POST.get('month'),
-                                            job_command = request.POST.get('job_command'),
-                                            start_date = request.POST.get('start_date'),
-                                            end_date = request.POST.get('end_date'),
-                                            run_date = request.POST.get('run_date'),
-                                            sched_type = request.POST.get('sched_type'),
-                                            status = request.POST.get('status',"remove"),
-                                            is_alert = request.POST.get('is_alert'),
-                                            notice_type =  request.POST.get('notice_type'),
-                                            notice_interval =  request.POST.get('notice_interval',3600),
-                                            notice_trigger = request.POST.get('notice_interval',0),
-                                            notice_number = request.POST.get('notice_number'),
-                                        )
-                return sched_jobs
-            except Exception as ex:
-                logger.error(msg="添加任务失败: {ex}".format(ex=ex)) 
-                return  "添加任务失败: {ex}".format(ex=ex) 
-        else:          
-            return "节点资产不存在，任务添加失败"
+        if node.enable == 0: return "创建任务失败，节点已下线"
+        try:
+            sched_jobs = Sched_Job_Config.objects.create(
+                                        job_node = node,
+                                        job_id = uuid.uuid4(),
+                                        job_name = request.POST.get('job_name'),
+                                        second = request.POST.get('second'),
+                                        minute = request.POST.get('minute'),
+                                        hour = request.POST.get('hour'),
+                                        week = request.POST.get('week'),
+                                        day = request.POST.get('day'),
+                                        day_of_week = request.POST.get('day_of_week'),
+                                        month = request.POST.get('month'),
+                                        job_command = request.POST.get('job_command'),
+                                        start_date = request.POST.get('start_date'),
+                                        end_date = request.POST.get('end_date'),
+                                        run_date = request.POST.get('run_date'),
+                                        sched_type = request.POST.get('sched_type'),
+                                        status = request.POST.get('status',"remove"),
+                                        is_alert = request.POST.get('is_alert'),
+                                        notice_type =  request.POST.get('notice_type'),
+                                        notice_interval =  request.POST.get('notice_interval',3600),
+                                        notice_trigger = request.POST.get('notice_interval',0),
+                                        notice_number = request.POST.get('notice_number'),
+                                    )
+            return sched_jobs
+        except Exception as ex:
+            logger.error(msg="添加任务失败: {ex}".format(ex=ex)) 
+            return  "添加任务失败: {ex}".format(ex=ex) 
+
            
     def update_jobs(self,request):   
         jobs = self.schedJobs(request)
-        if jobs: 
-            if jobs.job_node.enable == 0: return "更新任务失败，节点已下线"       
-            try:
-                query_params = dict()
-                if "status" in QueryDict(request.body).keys():
-                    for ds in QueryDict(request.body).keys():
-                        query_params[ds] = QueryDict(request.body).get(ds) 
-                        
-                elif "is_alert" in QueryDict(request.body).keys():
-                    for ds in QueryDict(request.body).keys():
-                        query_params[ds] = QueryDict(request.body).get(ds)                     
-                else:     
-                    for keys in self.jobs_sched_field:
-                        if keys in QueryDict(request.body).keys():
-                            query_params[keys] = QueryDict(request.body).get(keys) 
-                        else:
-                            query_params[keys] = None
-                Sched_Job_Config.objects.filter(id=jobs.id).update(**query_params)
-            except Exception as ex:
-                logger.error(msg="修改任务失败: {ex}".format(ex=ex)) 
-                return  "修改任务失败: {ex}".format(ex=ex) 
-            
-            jobs = Sched_Job_Config.objects.get(id=jobs.id)
-            
-            if query_params.get("status") == "running": 
-                return self.rpc_update_jobs(jobs,"add")
-            
-            elif query_params.get("status") == "remove": 
-                return self.rpc_update_jobs(jobs,"remove")    
+
+        if jobs.job_node.enable == 0: return "更新任务失败，节点已下线"       
+        try:
+            query_params = dict()
+            if "status" in QueryDict(request.body).keys():
+                for ds in QueryDict(request.body).keys():
+                    query_params[ds] = QueryDict(request.body).get(ds) 
                     
-            if jobs.status == "running" and "is_alert" not in QueryDict(request.body).keys():
-                return self.rpc_update_jobs(jobs,"edit")
-        else:          
-            return "任务不存在，任务修改失败"     
+            elif "is_alert" in QueryDict(request.body).keys():
+                for ds in QueryDict(request.body).keys():
+                    query_params[ds] = QueryDict(request.body).get(ds)                     
+            else:     
+                for keys in self.jobs_sched_field:
+                    if keys in QueryDict(request.body).keys():
+                        query_params[keys] = QueryDict(request.body).get(keys) 
+                    else:
+                        query_params[keys] = None
+            Sched_Job_Config.objects.filter(id=jobs.id).update(**query_params)
+        except Exception as ex:
+            logger.error(msg="修改任务失败: {ex}".format(ex=ex)) 
+            return  "修改任务失败: {ex}".format(ex=ex) 
+        
+        jobs = Sched_Job_Config.objects.get(id=jobs.id)
+        
+        if query_params.get("status") == "running": 
+            return self.rpc_update_jobs(jobs,"add")
+        
+        elif query_params.get("status") == "remove": 
+            return self.rpc_update_jobs(jobs,"remove")    
+                
+        if jobs.status == "running" and "is_alert" not in QueryDict(request.body).keys():
+            return self.rpc_update_jobs(jobs,"edit")
+   
     
     def delete_jobs(self,request):   
         jobs = self.schedJobs(request)
-        if jobs:       
-            try:
-                self.rpc_update_jobs(jobs,"remove")   
-                jobs.delete()
-            except Exception as ex:
-                logger.error(msg="删除任务失败: {ex}".format(ex=ex)) 
-                return  "删除任务失败: {ex}".format(ex=ex)   
-        else:          
-            return "任务不存在，任务删除失败"       
+    
+        try:
+            self.rpc_update_jobs(jobs,"remove")   
+            jobs.delete()
+        except Exception as ex:
+            logger.error(msg="删除任务失败: {ex}".format(ex=ex)) 
+            return  "删除任务失败: {ex}".format(ex=ex)       
     
       
     def rpc_update_jobs(self,jobs,uri):

@@ -10,16 +10,20 @@ from rest_framework.decorators import api_view
 from django.contrib.auth.decorators import permission_required
 
 @api_view(['GET', 'POST' ])
-@permission_required('sched.cron_can_add_cron_config',raise_exception=True)
 def cron_list(request,format=None):
     """
     List all order, or create a server assets order.
     """
-    if request.method == 'GET':      
+    if request.method == 'GET':   
+        if not request.user.has_perm('sched.sched_can_read_cron_config'):
+            return Response(status=status.HTTP_403_FORBIDDEN)            
         snippets = Cron_Config.objects.all()
         serializer = serializers.CronSerializer(snippets, many=True)
-        return Response(serializer.data)     
+        return Response(serializer.data)    
+     
     elif request.method == 'POST':
+        if not request.user.has_perm('sched.sched_can_add_cron_config'):
+            return Response(status=status.HTTP_403_FORBIDDEN)        
         serializer = serializers.CronSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -27,7 +31,6 @@ def cron_list(request,format=None):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET', 'PUT', 'DELETE'])
-@permission_required('sched.cron_can_change_cron_config',raise_exception=True)
 def cron_detail(request, id,format=None):
     """
     Retrieve, update or delete a server assets instance.
@@ -38,10 +41,15 @@ def cron_detail(request, id,format=None):
         return Response(status=status.HTTP_404_NOT_FOUND)
  
     if request.method == 'GET':
+        if not request.user.has_perm('sched.sched_can_read_cron_config'):
+            return Response(status=status.HTTP_403_FORBIDDEN)        
         serializer = serializers.CronSerializer(snippet)
         return Response(serializer.data)
  
     elif request.method == 'PUT':
+        if not request.user.has_perm('sched.sched_can_change_cron_config'):
+            return Response(status=status.HTTP_403_FORBIDDEN)
+                
         serializer = serializers.CronSerializer(snippet, data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -49,7 +57,7 @@ def cron_detail(request, id,format=None):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
      
     elif request.method == 'DELETE':
-        if not request.user.has_perm('OpsManage.can_delete_cron_config'):
+        if not request.user.has_perm('sched.sched_can_delete_cron_config'):
             return Response(status=status.HTTP_403_FORBIDDEN)
         snippet.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)  

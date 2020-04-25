@@ -17,7 +17,7 @@ from django.utils.decorators import method_decorator
 from utils.base import method_decorator_adaptor
 
 @api_view(['GET', 'POST' ])
-@permission_required('sched.cron_can_add_cron_config',raise_exception=True)
+@permission_required('sched.sched_can_read_cron_config',raise_exception=True)
 def node_list(request,format=None):
     """
     List all order, or create a server assets order.
@@ -39,7 +39,7 @@ class ApschedCount(ApschedBase,APIView):
 
 class ApschedNodeJobs(APIView):
     
-    @method_decorator_adaptor(permission_required, "sched.cron_can_read_cron_config","/403/")     
+    @method_decorator_adaptor(permission_required, "sched.sched_can_read_cron_config","/403/")     
     def get(self,request,*args,**kwargs):
         query_params = dict()
         for ds in request.query_params.keys():
@@ -56,7 +56,7 @@ class ApschedNodeJobs(APIView):
 
 class ApschedNodeJobsLogs(APIView):
     
-    @method_decorator_adaptor(permission_required, "sched.cron_can_read_cron_config","/403/")        
+    @method_decorator_adaptor(permission_required, "sched.sched_can_read_cron_config","/403/")        
     def get(self,request,*args,**kwargs):
         try:
             jobs = Sched_Job_Config.objects.get(id=request.query_params.get("id"))
