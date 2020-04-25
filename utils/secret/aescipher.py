@@ -1,5 +1,5 @@
 #!/usr/bin/env python  
-# _#_ coding:utf-8 _*_
+# _#_ coding:utf-8 _*_ 
 # 参考https://pypi.org/project/obscure-api/
 
 import base64
