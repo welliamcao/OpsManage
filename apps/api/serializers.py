@@ -307,12 +307,17 @@ class OrderSerializer(serializers.ModelSerializer):
             return 0             
         
 class DataBaseServerSerializer(serializers.ModelSerializer):
+    db_passwd = serializers.SerializerMethodField(read_only=True,required=False)
     detail = serializers.SerializerMethodField(read_only=True,required=False)
     class Meta:
         model = DataBase_Server_Config
         fields = ('id','db_env','db_version','db_assets_id',
                   'db_user','db_port','db_mark','db_type',
-                  "db_mode","db_business","db_rw","detail")  
+                  "db_mode","db_business","db_rw","db_passwd",
+                  "detail")  
+    
+    def get_db_passwd(self,obj):
+        return obj.db_passwd[:1]+'****'+obj.db_passwd[-1]
     
     def get_detail(self,obj):
         return obj.to_json()

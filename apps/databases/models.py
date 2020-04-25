@@ -70,6 +70,7 @@ class DataBase_Server_Config(models.Model):
         unique_together = (("db_port", "db_assets","db_env","db_business"))
         verbose_name = '数据库管理'  
         verbose_name_plural = '数据库信息表'
+        
 
     def business_paths(self):
         try:

@@ -38,9 +38,13 @@ def db_detail(request, id,format=None):
     elif request.method == 'PUT':
         if not request.user.has_perm('databases.database_can_change_database_server_config'):
             return Response(status=status.HTTP_403_FORBIDDEN) 
+        
         serializer = serializers.DataBaseServerSerializer(snippet, data=request.data)
         if serializer.is_valid():
             serializer.save()
+            if request.data.get("db_passwd"):
+                snippet.db_passwd = request.data.get("db_passwd")
+                snippet.save()            
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
      
