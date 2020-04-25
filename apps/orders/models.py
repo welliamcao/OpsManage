@@ -166,7 +166,7 @@ class SQL_Audit_Order(models.Model):
             "id":self.id,
             "order_type":self.order_type,
             "order_sql":self.order_sql,
-            "order_file":str(self.order_file),
+            "order_file":str(self.order_file).split('/')[-1],
             "order_err":self.order_err if self.order_err else '无',
             "sql_backup":self.sql_backup,           
             "db":{}
@@ -295,7 +295,7 @@ class Service_Audit_Order(models.Model):
 
     def to_json(self):
         
-        file_path = str(self.file_path)
+        file_path = str(self.file_path).split('/')[-1]
         
         json_format = {
             "id":self.id,

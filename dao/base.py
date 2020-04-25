@@ -13,7 +13,8 @@ from utils.logger import logger
 from django.db import connection
 from collections import namedtuple
 from datetime import datetime,date
-
+from utils.secret.aescipher import AESCipher
+from django.db import models
 
 class Struct:
     def __init__(self, **entries): 
@@ -342,31 +343,49 @@ class MySQLPool(APBase):
             for ds in data[1]:
                 dataList.append({"COLUMN_NAME":ds[0],"COLUMN_TYPE":ds[1],"COLUMN_DEFAULT":ds[2],"IS_NULLABLE":ds[3],"EXTRA":ds[4],"COLUMN_KEY":ds[5],"COLUMN_COMMENT":ds[6]})
         return  dataList         
+
+
+class AESCharField(models.CharField):
+
+    def __init__(self, *args, **kwargs):
+        if 'prefix' in kwargs:
+            self.prefix = kwargs['prefix']
+            del kwargs['prefix']
+        else:
+            self.prefix = "aes:::"
+        self.cipher = AESCipher(settings.SECRET_KEY)
+        super(AESCharField, self).__init__(*args, **kwargs)
+
+    def deconstruct(self):
+        name, path, args, kwargs = super(AESCharField, self).deconstruct()
+        if self.prefix != "aes:::":
+            kwargs['prefix'] = self.prefix
+        return name, path, args, kwargs
+
+    def from_db_value(self, value, expression, connection, context):
+        if value is None:
+            return value
+        if value.startswith(self.prefix):
+            value = value[len(self.prefix):]
+            value = self.cipher.decrypt(value)
+        return value
+
+    def to_python(self, value):
+        if value is None:
+            return value
+        elif value.startswith(self.prefix):
+            value = value[len(self.prefix):]
+            value = self.cipher.decrypt(value)
+        return value
+
+    def get_prep_value(self, value):
+        if isinstance(value, str) or isinstance(value, bytes):
+            value = self.cipher.encrypt(value)
+            value = self.prefix + value.decode('utf-8')
+        elif value is not None:
+            raise TypeError(str(value) + " is not a valid value for AESCharField")
+        return value
+
             
 if __name__=='__main__':   
-    import Queue
-    rs = []
-#     mysql234 = MySQLThread('192.168.88.234',3306,'vmanage','root','welliam')
-#     print mysql234.execute(sql='show tables;', num=1000)
-    queue = Queue.Queue(maxsize=100)
-#     mysql234 = MySQLThread('192.168.88.234',3306,'vmanage','root','welliam','show tables;',1000,queue)
-#     mysql230 = MySQLThread('192.168.88.230',3306,'opsmanage','root','welliam','show tables;',1000,queue)
-#     mysql234.start()
-#     mysql230.start()
-#     while True:
-#         while not queue.empty():
-#             rs.append(queue.get())
-#         '''等待结果返回'''
-#         if  0 < len(rs) >= 2:break    
-#     print rs
-
-    mysql234 = MySQLPool('192.168.88.234',3306,'root','welliam','vmanage','show tables;',1000,'queryMany',queue)
-    mysql230 = MySQLPool('192.168.88.230',3306,'root','welliam','opsmanage','show tables;',1000,'queryMany',queue)
-    mysql234.start()
-    mysql230.start()
-    while True:
-        while not queue.empty():
-            rs.append(queue.get())
-        '''等待结果返回'''
-        if  0 < len(rs) >= 2:break    
-    print(rs)    
+    pass

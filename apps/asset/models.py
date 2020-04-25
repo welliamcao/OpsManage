@@ -5,6 +5,7 @@ import django.utils.timezone as timezone
 from account.models import User,Structure
 from datetime import datetime
 from mptt.models import MPTTModel, TreeForeignKey
+from dao.base import AESCharField
 
 
 
@@ -116,8 +117,8 @@ class Server_Assets(models.Model):
     ip = models.CharField(max_length=100,unique=True,blank=True,null=True) 
     hostname = models.CharField(max_length=100,blank=True,null=True)  
     username = models.CharField(max_length=100,blank=True,null=True)  
-    passwd = models.CharField(max_length=100,default='root',blank=True,null=True)  
-    sudo_passwd = models.CharField(max_length=100,blank=True,null=True)
+    passwd = AESCharField(max_length=100,default='root',blank=True,null=True)  
+    sudo_passwd = AESCharField(max_length=100,blank=True,null=True)
     keyfile =  models.SmallIntegerField(blank=True,null=True)#FileField(upload_to = './upload/key/',blank=True,null=True,verbose_name='密钥文件')
     keyfile_path = models.CharField(max_length=100,blank=True,null=True)
     port = models.DecimalField(max_digits=6,decimal_places=0,default=22)
@@ -192,8 +193,8 @@ class Network_Assets(models.Model):
     bandwidth =  models.CharField(max_length=100,blank=True,null=True,verbose_name='背板带宽') 
     ip = models.CharField(unique=True,max_length=100,blank=True,null=True,verbose_name='管理ip')
     username = models.CharField(max_length=100,blank=True,null=True)
-    passwd = models.CharField(max_length=100,blank=True,null=True) 
-    sudo_passwd = models.CharField(max_length=100,blank=True,null=True) 
+    passwd = AESCharField(max_length=100,blank=True,null=True) 
+    sudo_passwd = AESCharField(max_length=100,blank=True,null=True) 
     port = models.DecimalField(max_digits=6,decimal_places=0,default=22)    
     port_number = models.SmallIntegerField(blank=True,null=True,verbose_name='端口个数')
     firmware =  models.CharField(max_length=100,blank=True,null=True,verbose_name='固件版本')
