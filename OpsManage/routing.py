@@ -1,9 +1,9 @@
 #!/usr/bin/env python  
 # _#_ coding:utf-8 _*_ 
 from websocket.consumers import webterminal
-from deploy.comsumers import AnsibleModel,AnsibleScript,AnsiblePlaybook
-from apply.comsumers import IpvsVipStatus
-from cicd.comsumers import AppsDeploy
+from deploy.consumers import AnsibleModel,AnsibleScript,AnsiblePlaybook
+from apply.consumers import IpvsVipStatus
+from cicd.consumers import AppsDeploy
 from django.urls import path, re_path
 from channels.routing import ProtocolTypeRouter, URLRouter
 from channels.auth import AuthMiddlewareStack

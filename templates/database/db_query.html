@@ -6,10 +6,6 @@
     <link href="/static/datatable/datatables.net-bs/css/dataTables.bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="/static/css/bootstrap-select.css"> 
     <link rel="stylesheet" href="/static/css/jquery.orgchart.css">	
-	<script src="/static/ace/js/ace.js" type="text/javascript" charset="utf-8"></script>
-	<script src="/static/ace/js/ext-language_tools.js" type="text/javascript" charset="utf-8"></script>
-	<script src="/static/ace/js/ext-old_ie.js" type="text/javascript" charset="utf-8"></script>
-	<script src="/static/ace/js/theme-monokai.js" type="text/javascript" charset="utf-8"></script>  
     <link href="/static/datatable/datatables.net-buttons-bs/css/buttons.bootstrap.min.css" rel="stylesheet">
     <link href="/static/datatable/datatables.net-fixedheader-bs/css/fixedHeader.bootstrap.min.css" rel="stylesheet">
     <link href="/static/datatable/datatables.net-responsive-bs/css/responsive.bootstrap.min.css" rel="stylesheet">
@@ -100,8 +96,8 @@
 			                  <ul id="myTab" class="nav nav-tabs bar_tabs" role="tablist">
 			                    <li role="presentation" id="li_tab_content1" class="active"><a href="#tab_content1" id="query" role="tab" data-toggle="tab" aria-expanded="true"><i class="fa fa-cubes"></i> SQL Query</a>
 			                    </li>
-			                    <li role="presentation" id="li_tab_content3" class=""><a href="#tab_content3" role="tab" id="tableDDL" data-toggle="tab" aria-expanded="false"><i class="fa fa-bar-chart"></i> 表结构查询</a>
-			                    </li>                                                                 
+			                    <li role="presentation" id="li_tab_content2" class=""><a href="#tab_content2" role="tab" id="tableDDL" data-toggle="tab" aria-expanded="false"><i class="fa fa-bar-chart"></i> 表结构查询</a>
+			                    </li>  		                                                                                   
 			                  </ul>
 			                  <div class="tab-content">
 			                    <div role="tabpanel" class="tab-pane fade active in" id="tab_content1" aria-labelledby="#query">
@@ -183,8 +179,8 @@
 				
 				                  </div>
 				                </div>
-					            
-			                    <div role="tabpanel" class="tab-pane fade" id="tab_content3" aria-labelledby="#tableDDL">
+					              			                    
+			                    <div role="tabpanel" class="tab-pane fade" id="tab_content2" aria-labelledby="#tableDDL">
 									<div class="col-lg-12">
 										<legend>
 											<p id="dbTables"></p>
@@ -200,7 +196,8 @@
 				                        </div>					                      
 				                      </div>			                        						
 									 </div>						 
-			                    </div>                                
+			                    </div>  			                    			                          		                           
+			                                                
 			                </div>                                  
 			              </div>
                         </div>
@@ -211,10 +208,8 @@
                 </div>
               </div>
             </div>        
-
-                   
-		        		                        
-                      
+               
+		        		                                           
 {% endblock %}
 {% block js-content %}
 	<script type="text/javascript" src="/static/js/tagcanvas/jquery.tagcanvas.js"></script>    
@@ -228,11 +223,9 @@
     <script src="/static/datatable/datatables.net-buttons/js/buttons.flash.min.js"></script>
     <script src="/static/datatable/datatables.net-buttons/js/buttons.html5.min.js"></script>
     <script src="/static/datatable/datatables.net-buttons/js/buttons.print.min.js"></script>	
-    <!-- morris.js -->	
-<!--	<script src="/static/js/doublebox/doublebox-bootstrap.js"></script>
-	<script src="/static/xterm/xterm.js"></script>
-  	<script src="/static/xterm/addons/fit/fit.js"></script>
- 	<script src="/static/xterm/addons/fullscreen/fullscreen.js"></script> 
-	<script src="/static/js/dragable/dragable.js"></script>--> 
-	<script src="/static/js/database/query.js"></script>	
+	<script src="/static/js/database/query.js"></script>		
+	<script src="/static/ace/js/ace.js" type="text/javascript" charset="utf-8"></script>
+	<script src="/static/ace/js/ext-language_tools.js" type="text/javascript" charset="utf-8"></script>
+	<script src="/static/ace/js/ext-old_ie.js" type="text/javascript" charset="utf-8"></script>
+	<script src="/static/ace/js/theme-monokai.js" type="text/javascript" charset="utf-8"></script>   	
 {% endblock %}

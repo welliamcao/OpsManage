@@ -45,7 +45,7 @@ class IpvsVipStatus(WebsocketConsumer,IVPSManage):
             request = json.loads(text_data)
             request["is_superuser"] = self.scope["user"].is_superuser
         except Exception as ex:
-            self.send(text_data="Server Connect Faailed: {ex}".format(ex=ex))   
+            self.send(text_data="Wrong format of data: {ex}".format(ex=ex))   
             self.sshRbt.stop() 
             self.close() 
         

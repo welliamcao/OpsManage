@@ -1,5 +1,6 @@
 #!/usr/bin/env python  
 # _#_ coding:utf-8 _*_ 
+import os
 from asgiref.sync import async_to_sync
 from channels.generic.websocket import WebsocketConsumer
 from dao.assets import AssetsBase
@@ -59,9 +60,15 @@ class webterminal(WebsocketConsumer,AssetsBase):
             self.send(text_data="主机连接失败: 您没有登录该资产的权限")   
             self.close()             
         try:
+            pkey = None
+            
             self.ssh = paramiko.SSHClient()
             self.ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-            self.ssh.connect(assets.server_assets.ip, int(assets.server_assets.port), assets.server_assets.username, assets.server_assets.passwd)
+            
+            if assets.server_assets.keyfile_path and os.path.exists(assets.server_assets.keyfile_path):
+                pkey = paramiko.RSAKey.from_private_key_file(assets.server_assets.keyfile_path)            
+            
+            self.ssh.connect(assets.server_assets.ip, int(assets.server_assets.port), assets.server_assets.username, assets.server_assets.passwd, pkey)
         except Exception as ex:
             self.send(text_data="主机连接失败: {ex}".format(ex=ex))   
             self.close()             

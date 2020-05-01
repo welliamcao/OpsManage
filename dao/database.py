@@ -15,7 +15,6 @@ from utils.mysql.const import SQL_PERMISSIONS,SQL_DICT_HTML
 from apps.tasks.celery_sql import record_exec_sql, export_table, parse_binlog
 from django.db.models import Count
 from mptt.templatetags.mptt_tags import cache_tree_children  
-from utils.base import getDayAfter
 from account.models import User_Async_Task
 from django.core.exceptions import PermissionDenied
 
@@ -300,10 +299,10 @@ class DBUser(object):
         
         for dbIds in update_list:
             obj, created = Database_User.objects.update_or_create(db=dbIds, user=user.id,
-                                                                  valid_date = getDayAfter(int(request.POST.get('valid_date',1)),format='%Y-%m-%d %H:%M:%S'))  
+                                                                  valid_date = base.getDayAfter(int(request.POST.get('valid_date',1)),format='%Y-%m-%d %H:%M:%S'))  
         
         #更新已有记录
-        Database_User.objects.filter(db__in=update_user_db_list, user=user.id).update(valid_date = getDayAfter(int(request.POST.get('valid_date',1)),format='%Y-%m-%d %H:%M:%S'), 
+        Database_User.objects.filter(db__in=update_user_db_list, user=user.id).update(valid_date = base.getDayAfter(int(request.POST.get('valid_date',1)),format='%Y-%m-%d %H:%M:%S'), 
                                                                                       is_write = int(request.POST.get('is_write',0))) 
                 
               
@@ -362,10 +361,10 @@ class DBManage(AssetsBase):
             
         return []              
     
-    def __check_sql_parse(self,request, allow_sql, dbname):
+    def __check_sql_parse(self, request, allow_sql, dbname, sql):
         try:
-            sql = request.POST.get('sql').split(' ')
-            sqlCmd,sqlCmds = sql[0].upper(),(sql[0]+'_'+sql[1]).upper().replace(";","")
+            sql = sql.split(' ')
+            sqlCmd, sqlCmds = sql[0].upper(),(sql[0]+'_'+sql[1]).upper().replace(";","")
         except Exception as ex:
             logger.error(msg="解析SQL失败: {ex}".format(ex=ex)) 
             return '解析SQL失败'        
@@ -423,7 +422,7 @@ class DBManage(AssetsBase):
         if not isinstance(sql_parse, str):              
             result = self.__get_db_server(request).execute(request.POST.get('sql'),1000)
             time_consume = int(time.time())-self.stime
-            self.__record_operation(request, dbServer,time_consume ,result)
+            self.__record_operation(request.user.username, request.POST.get('db'), time_consume, result, request.POST.get('sql'))
             return [{"dataList":result,"time":format_time(time_consume)}]            
         else:
             return sql_parse   
@@ -431,16 +430,28 @@ class DBManage(AssetsBase):
     def query_sql(self, request):
         dbServer = self.__check_user_perms(request,'databases.database_query_database_server_config')
         
-        if dbServer.get('db_rw') not in ["read","r/w"]:return "请勿在主库上面执行查询操作"
+        if dbServer.get('db_rw') not in ["read", "r/w"]: return "请勿在主库上面执行查询操作"
         
-        sql_parse = self.__check_sql_parse(request, allow_sql=self.dql_sql,dbname=dbServer.get('db_name'))
-        
-        if not isinstance(sql_parse, str):    
-            result = self.__get_db_server(dbServer).queryMany(request.POST.get('sql'),1000)
-            time_consume = int(time.time())-self.stime
-            self.__record_operation(request, dbServer,time_consume ,result)
-            return [{"dataList":result,"time":format_time(time_consume)}]
-        return sql_parse
+        result_list = []
+        try:
+            sql_list = request.POST.get('sql').lower().split(";")
+        except Exception as ex:
+            logger.error(msg="解析SQL失败: {ex}".format(ex=ex))
+            return '解析SQL失败'
+        for sql in sql_list:
+            sql = sql.strip('\n') + ';'
+            sql_parse = self.__check_sql_parse(request, sql=sql, allow_sql=self.dql_sql,
+                                               dbname=dbServer.get('db_name'))
+
+            if not isinstance(sql_parse, str):
+                result = self.__get_db_server(dbServer).queryMany(sql, 1000)
+                time_consume = int(time.time()) - self.stime
+                result_list += [{"sql": sql, "dataList": result, "time": format_time(time_consume)}]
+                self.__record_operation(request.user.username, request.POST.get('db'), time_consume, result, sql)
+            else:
+                result_list += [{"sql": sql, "msg": sql_parse}]
+                
+        return result_list
             
     
     def binlog_sql(self,request):
@@ -600,11 +611,11 @@ class DBManage(AssetsBase):
             return "有相同任务正在进行，请勿重复提交"        
         
         
-    def __record_operation(self,request,dbServer,time_consume,result):
+    def __record_operation(self, username, db, time_consume, result, sql):
         if isinstance(result, str):
-            record_exec_sql.apply_async((request.user.username,request.POST.get('db'), request.POST.get('sql'), time_consume, 1,result), queue='default')
+            record_exec_sql.apply_async((username, db, sql, time_consume, 1,result), queue='default')
         else:
-            record_exec_sql.apply_async((request.user.username,request.POST.get('db'), request.POST.get('sql'), time_consume, result[0], 0),queue='default')        
+            record_exec_sql.apply_async((username, db, sql, time_consume, result[0], 0),queue='default')        
         
     def __query_user_db_server(self,request=None):
         if request.user.is_superuser:
