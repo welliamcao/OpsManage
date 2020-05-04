@@ -144,7 +144,7 @@ class OrderLog(models.Model):
 class SQL_Audit_Order(models.Model):
     order = models.OneToOneField('Order_System', on_delete=models.CASCADE) 
     order_type = models.CharField(max_length=10,verbose_name='sql类型')
-    order_db = models.ForeignKey('databases.Database_Detail',related_name ='order_db',verbose_name='数据库id', on_delete=models.CASCADE)
+    order_db = models.ForeignKey('databases.Database_MySQL_Detail',related_name ='order_db',verbose_name='数据库id', on_delete=models.CASCADE)
     order_sql =  models.TextField(verbose_name='待审核SQL内容',blank=True,null=True) 
     order_file = models.FileField(upload_to = './sql/',verbose_name='sql脚本路径')
     order_err = models.TextField(blank=True,null=True,verbose_name='失败原因') 

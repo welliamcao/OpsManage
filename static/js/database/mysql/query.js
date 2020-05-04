@@ -1,6 +1,12 @@
 var sqlHistroyResults = {}
 var sqlHistroyDataList = []
 
+var statusLevelHtml = {
+	    "high":'<span class="label label-danger">高</span>',
+	    "mid":'<span class="label label-info">中</span>',
+	    "low":'<span class="label label-success">低</span> '
+	}
+
 function InitSQLHistroyDataTable(tableId,url,buttons,columns,columnDefs){
 	  sqlHistroyDataList = requests('get',url)
 	  oOverviewTable =$('#'+tableId).dataTable(
@@ -125,7 +131,7 @@ function setAceEditMode(ids,model,theme) {
 function InitDataTable(tableId,dataList,buttons,columns,columnDefs){
 	  oOverviewTable =$('#'+tableId).dataTable(
 			  {
-				    "dom": "Bfrtip",
+				    "dom": "Blfrtip",
 				    "buttons":buttons,				  
 		    		"bScrollCollapse": false, 				
 		    	    "bRetrieve": true,			
@@ -134,7 +140,8 @@ function InitDataTable(tableId,dataList,buttons,columns,columnDefs){
 		    		"columns": columns,
 		    		"columnDefs" :columnDefs,			  
 		    		"language" : language,
-		    		"iDisplayLength": 20,
+		    		"iDisplayLength": 10,
+		    		"lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
 		            "select": {
 		                "style":    'multi',
 		                "selector": 'td:first-child'
@@ -196,8 +203,57 @@ function makeDbQueryTableList(dataList){
 }
 
 function customMenu(node) {
-      var items = {}
-      return items
+	if (node["original"]["last_node"]==1){
+	    var items = {
+	            "show_processlist":{  
+	                "label":"当前进程",  
+	                "icon": "fa fa-picture-o",
+	                "action":function(data){
+	                	var inst = $.jstree.reference(data.reference),
+						obj = inst.get_node(data.reference);
+	                	show_processlist(obj, inst)
+	                }  
+	            },	    		
+	            "status":{  
+	                "label":"数据库状态",  
+	                "icon": "fa fa-bar-chart-o",
+	                "action":function(data){
+	                	var inst = $.jstree.reference(data.reference),
+						obj = inst.get_node(data.reference);
+	                	show_status(obj, inst)
+	                }  
+	            },
+	            "innodb_status":{  
+	                "label":"innodb状态",  
+	                "icon": "fa fa-pie-chart",
+	                "action":function(data){
+	                	var inst = $.jstree.reference(data.reference),
+						obj = inst.get_node(data.reference);
+	                	show_innodb_status(obj, inst)
+	                }  
+	            },
+	            "pxc":{  
+	                "label":"pxc集群状态",  
+	                "icon": "fa fa-line-chart",
+	                "action":function(data){
+	                	var inst = $.jstree.reference(data.reference),
+						obj = inst.get_node(data.reference);
+	                	show_pxc_status(obj, inst)
+	                }  
+	            },
+	            "innodb_locked_trx":{  
+	                "label":"innodb事务锁",  
+	                "icon": "fa fa-area-chart",
+	                "action":function(data){
+	                	var inst = $.jstree.reference(data.reference),
+						obj = inst.get_node(data.reference);
+	                	show_innodb_locked_trx(obj, inst)
+	                }  
+	            }   	            
+	        }  
+	    return items		
+	}
+
 }
 
 
@@ -396,7 +452,7 @@ $(document).ready(function () {
         	$.ajax({  
                 cache: true,  
                 type: "POST",  
-                url:"/db/manage/", 
+                url:"/db/mysql/manage/", 
                 data:{
                 	"model": "table_list",
                 	"db":vIds
@@ -442,13 +498,13 @@ $(document).ready(function () {
         	let vIds = $(this).val().split(":");
         	let td = $(this).parent().parent().parent().find("td")
         	downLoadFile({ //调用下载方法
-	        	url:"/api/db/server/"+vIds[1]+"/db/"+vIds[0]+"/dict/"
+	        	url:"/api/db/mysql/server/"+vIds[1]+"/db/"+vIds[0]+"/dict/"
 	        });          	
         });	   
     	   		
     }	
 	
-	drawTree('#dbTree',"/api/db/tree/?db_rw=r/w&db_rw=read")
+	drawTree('#dbTree',"/api/db/mysql/tree/?db_rw=r/w&db_rw=read")
 	
     $("#search-input").keyup(function () {
         var searchString = $(this).val();
@@ -461,7 +517,7 @@ $(document).ready(function () {
 	     if(select_node["last_node"] == 1){
 				$.ajax({
 					  type: 'GET',
-					  url: '/api/db/user/list/?db_server='+select_node["db_server"],
+					  url: '/api/db/mysql/user/list/?db_server='+select_node["db_server"],
 				      success:function(response){	
 				    	  if ($('#UserDatabaseListTable').hasClass('dataTable')) {
 				            dttable = $('#UserDatabaseListTable').dataTable();
@@ -525,7 +581,7 @@ $(document).ready(function () {
                 return false;
             }
             $.ajax({
-                url: '/db/manage/',
+                url: '/db/mysql/manage/',
                 type: "POST",
                 "dateType": "json",
                 data: {
@@ -544,7 +600,7 @@ $(document).ready(function () {
                             let tableId = "query_result_list_" + i;
                             tablesList.push(tableId);
                             let table_i_html = '';
-                            if (response["data"][i]["dataList"]) {
+                            if (response["data"][i]["dataList"] instanceof Array) {
                                 table_i_html = '<table class="table" id="' + tableId + '"><thead><tr>';
                                 let trHtml = '';
                                 for (let x = 0; x < response["data"][i]["dataList"][2].length; x++) {
@@ -563,7 +619,7 @@ $(document).ready(function () {
                             } else {
                                 table_i_html = '<div style="margin-bottom: 20px;margin-left: 20px;">' + response["data"][i]["msg"] + '<div/>'
                             }
-                            tableHtml = tableHtml + '<fieldset><legend style="margin-bottom: 10px;"> SQL: <code>' + response["data"][i]['sql'] + '</code></legend>' + table_i_html + '</fieldset>';
+                            tableHtml = tableHtml + '<fieldset><legend style="margin-bottom: 10px;"> SQL： <code>' + response["data"][i]['sql'] + '</code> <span class="pull-right">耗时：'+ response["data"][i]['time'] +'</span></legend>'  + table_i_html + '</fieldset>';
                         }
                         $("#query_result").html(tableHtml);
                         if (tablesList.length) {
@@ -785,7 +841,7 @@ function dumpTabledata(obj){
                         }                        
                         let where = this.$content.find('[name=where]').val().trim();
                         $.ajax({
-                            url: "/db/manage/",
+                            url: "/db/mysql/manage/",
                             type: "POST",
                             data: {
                             	db: obj["original"]["db"],
@@ -846,7 +902,7 @@ function viewTableSchema(obj){
             cache: true,  
             type: "POST",    
             async: false,
-            url:"/db/manage/",
+            url:"/db/mysql/manage/",
             data:{
             	"model": "table_schema",
             	"db": obj["original"]["db"],
@@ -962,5 +1018,145 @@ function viewTableSchema(obj){
 		});		
 	}
 	
+}
+function drewMysqlStatusTables(ids, dataList){
+    var columns = [
+        {"data": "name"},
+        {
+     	   "data": "value",
+     	   "defaultContent": ""
+        },
+        {
+        	"data": "metric",
+        	"defaultContent": " - ",
+        	"className": "text-center"
+        },
+        {
+        	"data": "level",
+        	"className": "text-center"
+        },
+        {"data": "desc"},	                 
+ ]
+	var columnDefs = [    
+					{
+						targets: [3],
+						render: function(data, type, row, meta) {
+							return statusLevelHtml[row.level]
+						},
+					},		
+			      ]	
+	var buttons = [	
+	] 
+	
+	InitDataTable(ids,dataList,buttons,columns,columnDefs);	
+}
+
+function show_status(obj,inst){
+	let dataList = requests('get','/api/db/mysql/status/'+ obj["original"]["db_server"] +'/?type=status')["data"]
+	if ($('#mysqlStatusTable').hasClass('dataTable')) {
+        dttable = $('#mysqlStatusTable').dataTable();
+        dttable.fnClearTable();
+        dttable.fnDestroy();         
+	}	
+	drewMysqlStatusTables('mysqlStatusTable',dataList)
+	$("#mysqlStatusTable").show()
+}
+
+function show_innodb_status(obj,inst){
+	let dataList = requests('get','/api/db/mysql/status/'+ obj["original"]["db_server"] +'/?type=innodb_status')["data"]
+	if ($('#mysqlInnodbStatusTable').hasClass('dataTable')) {
+        dttable = $('#mysqlInnodbStatusTable').dataTable();
+        dttable.fnClearTable();
+        dttable.fnDestroy();         
+	}	
+	drewMysqlStatusTables('mysqlInnodbStatusTable',dataList)
+	$("#mysqlInnodbStatusTable").show()
+}
+
+function show_pxc_status(obj,inst){
+	let dataList = requests('get','/api/db/mysql/status/'+ obj["original"]["db_server"] +'/?type=pxc_status')["data"]
+	if ($('#mysqlPxcTable').hasClass('dataTable')) {
+        dttable = $('#mysqlPxcTable').dataTable();
+        dttable.fnClearTable();
+        dttable.fnDestroy();         
+	}	
+	drewMysqlStatusTables('mysqlPxcTable',dataList)
+	$("#mysqlPxcTable").show()
+}
+
+function show_innodb_locked_trx(obj,inst){
+	let response = requests('get','/api/db/mysql/status/'+ obj["original"]["db_server"] +'/?type=innodb_locked_trx')
+	if ($('#mysqlInnodbTrxStatusTable').hasClass('dataTable')) {
+        dttable = $('#mysqlInnodbTrxStatusTable').dataTable();
+        dttable.fnClearTable();
+        dttable.fnDestroy();         
+	}	
+	var tableHtml = ''
+	if (response['code'] == "200" && response["data"].length > 0){
+		if (response["data"][0] >= 0){
+			var tableHtml = '<table class="table" id="mysqlInnodbTrxStatusTable"><caption>Innodb锁等待</caption><thead><tr>'
+			var trHtml = '';
+			for (var x=0; x <response["data"][2].length; x++){
+				trHtml = trHtml + '<th>' + response["data"][2][x] +'</th>';
+			}; 	
+			tableHtml = tableHtml + trHtml + '</tr></thead><tbody>';
+			var trsHtml = '';
+			for (var y=0; y <response["data"][1].length; y++){
+				var tdHtml = '<tr>';
+				for (var z=0; z < response["data"][1][y].length; z++){
+					tdHtml = tdHtml + '<td>' + response["data"][1][y][z] +'</td>';
+				} 	
+				trsHtml = trsHtml + tdHtml + '</tr>';
+			}                    	
+			tableHtml = tableHtml + trsHtml +  '</tbody></table>';														
+		}			
+		$("#mysqlInnodbTrxStatusTable").html(tableHtml);
+		var table = $("#mysqlInnodbTrxStatusTable").DataTable( {
+	        dom: 'Blfrtip',
+	        "pageLength": 100,
+	        buttons: [],
+			language : language				            
+		});	
+						
+	}		
+	$("#mysqlInnodbTrxStatusTable").show()
+}
+
+function show_processlist(obj,inst){
+	let response = requests('get','/api/db/mysql/status/'+ obj["original"]["db_server"] +'/?type=processlist')
+	if ($('#mysqlProcesslistTable').hasClass('dataTable')) {
+        dttable = $('#mysqlProcesslistTable').dataTable();
+        dttable.fnClearTable();
+        dttable.fnDestroy();         
+	}	
+	var tableHtml = ''	
+	if (response['code'] == "200" && response["data"].length > 0){
+		if (response["data"][0] >= 0){
+			var tableHtml = '<table class="table" id="mysqlProcesslistTable"><caption>MySQL当前进程</caption><thead><tr>'
+			var trHtml = '';
+			for (var x=0; x <response["data"][2].length; x++){
+				trHtml = trHtml + '<th>' + response["data"][2][x] +'</th>';
+			}; 	
+			tableHtml = tableHtml + trHtml + '</tr></thead><tbody>';
+			var trsHtml = '';
+			for (var y=0; y <response["data"][1].length; y++){
+				var tdHtml = '<tr>';
+				for (var z=0; z < response["data"][1][y].length; z++){
+					tdHtml = tdHtml + '<td>' + response["data"][1][y][z] +'</td>';
+				} 	
+				trsHtml = trsHtml + tdHtml + '</tr>';
+			}                    	
+			tableHtml = tableHtml + trsHtml +  '</tbody></table>';														
+		}			
+		$("#mysqlProcesslistTable").html(tableHtml);
+		var table = $("#mysqlProcesslistTable").DataTable( {
+	        dom: 'Blfrtip',
+	        "pageLength": 100,
+	        buttons: [],
+			language : language				            
+		});	
+						
+	}		
+	$("#mysqlProcesslistTable").show()	
 }
  

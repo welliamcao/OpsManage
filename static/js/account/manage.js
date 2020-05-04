@@ -712,7 +712,6 @@ function delete_nodes(obj,inst){
 }
 
 function customMenu(node) {
-	console.log(node)
     var items = {
             "new":{  
                 "label":"添加部门",  

@@ -122,7 +122,7 @@ $(document).ready(function() {
 	$(function(){
 		$.ajax({
 			dataType: "JSON",
-			url:'/api/db/user/list/', //请求地址
+			url:'/api/db/mysql/user/list/', //请求地址
 			type:"GET",  //提交类似
 			success:function(response){
 				var binlogHtml = '<select required="required" class="selectpicker form-control" data-live-search="true" name="db" id="db"  data-size="10" data-selected-text-format="count > 3"  data-width="100%"  id="db"  autocomplete="off"><option  name="db" value="">请选择一个数据库</option>'

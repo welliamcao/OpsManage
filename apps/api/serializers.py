@@ -310,7 +310,7 @@ class DataBaseServerSerializer(serializers.ModelSerializer):
     db_passwd = serializers.SerializerMethodField(read_only=True,required=False)
     detail = serializers.SerializerMethodField(read_only=True,required=False)
     class Meta:
-        model = DataBase_Server_Config
+        model = DataBase_MySQL_Server_Config
         fields = ('id','db_env','db_version','db_assets_id',
                   'db_user','db_port','db_mark','db_type',
                   "db_mode","db_business","db_rw","db_passwd",
@@ -324,11 +324,11 @@ class DataBaseServerSerializer(serializers.ModelSerializer):
 
 class DatabaseSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Database_Detail
+        model = Database_MySQL_Detail
         fields = ('id','db_name','db_size',"total_table") 
           
     def create(self,  validated_data):
-        return Database_Detail.objects.create(db_server=self.context["db_server"], **validated_data)        
+        return Database_MySQL_Detail.objects.create(db_server=self.context["db_server"], **validated_data)        
 
 class DatabaseTableSerializer(serializers.ModelSerializer):
     class Meta:

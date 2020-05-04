@@ -190,7 +190,7 @@ $(document).ready(function() {
 
 	$(function() {
 		if($('#order_db').length){		
-			let response = requests('get','/api/db/user/list/')
+			let response = requests('get','/api/db/mysql/user/list/')
 			var binlogHtml = '<select required="required" class="selectpicker form-control" data-live-search="true" name="order_db" id="order_db"  data-size="10" data-selected-text-format="count > 10"  data-width="100%"  autocomplete="off"><option  name="order_db" value="">请选择一个数据库</option>'
 			var selectHtml = '';
 			for (var i=0; i <response.length; i++){

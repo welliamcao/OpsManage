@@ -285,88 +285,33 @@ function oBtBusinessSelect(){
 function format ( data ) {
     /* base */
     var trBaseHtml = '';
-	for (var i=0; i <data['base'].length; i++){	
-		if (i%6 == 0){
-			trBaseHtml += '</tr>';
-		}
-		if (data['base'][i]["value"] == 'ON'){
-			trBaseHtml += '<td>'+ data['base'][i]["name"] +':</td>'+ '<td><font color="green">'+ data['base'][i]["value"] +'</font></td>'		
-		}
-		else if (data['base'][i]["value"] == 'OFF'){
-			trBaseHtml += '<td>'+ data['base'][i]["name"] +':</td>'+ '<td><font color="red">'+ data['base'][i]["value"] +'</font></td>'		
-		}
-		else{
-			trBaseHtml += '<td>'+ data['base'][i]["name"] +':</td>'+ '<td>'+ data['base'][i]["value"] +'</td>'			
-		}
-			        
+	for (var i=0; i <data.length; i++){	
+		let trHtml = '<tr>' +
+						 '<td>' + data[i]["name"]  +'</td>' +
+						 '<td>' + data[i]["value"] + '</td>'+ 
+						 '<td>' + data[i]["desc"] + '</td>' + 
+					 '</tr>' 
+		trBaseHtml = trBaseHtml + trHtml
 	};
-    var vBaseHtml = '<div class="row"><div class="col-lg-12"><table class="table table-bordered"><caption>基本信息</caption>'+ 
-							'<tr>' + trBaseHtml  + '</tr>' +
-					'</table></div></div>';	
-	/*  pxc */				
-	var trPxcHtml = '';
-	for (var i=0; i <data['pxc'].length; i++){	
-		if (data['pxc'][i]["value"] == 'ON'){
-			trPxcHtml += '<tr><td>'+ data['pxc'][i]["name"] +':</td>'+ '<td><font color="green">'+ data['pxc'][i]["value"] +'</font></td></tr>'
-		}
-		else if (data['pxc'][i]["value"] == 'OFF'){
-			trPxcHtml += '<tr><td>'+ data['pxc'][i]["name"] +':</td>'+ '<td><font color="red">'+ data['pxc'][i]["value"] +'</font></td></tr>'
-		}
-		else{
-			trPxcHtml += '<tr><td>'+ data['pxc'][i]["name"] +':</td>'+ '<td>'+ data['pxc'][i]["value"] +'</td></tr>'
-		}
-		
-	};	
- 	var vPXCHmtl = '<div class="col-lg-6"><table class="table table-bordered"><caption>PXC集群信息</caption>'+ 
-							trPxcHtml  +
-					'</table></div>'; 
-	/* master */
-	var trMasterHtml = '';
-	for (var i=0; i <data['master'].length; i++){	
-		trMasterHtml += '<tr><td>'+ data['master'][i]["name"] +':</td>'+ '<td>'+ data['master'][i]["value"] +'</td></tr>'
-	}
-    var vMasterHtml = '<div class="col-lg-4"><table class="table table-bordered"><caption>Master信息</caption>'+ 
-							'<tr>' + trMasterHtml  +'</tr>'
-					  '</table></div>';	
-	/* slave */
-	var trSlaveHtml = '';
-	for (var i=0; i <data['slave'].length; i++){	
-		if (i%4 == 0){
-			trSlaveHtml += '</tr>';
-		}	
-		if (data['slave'][i]["value"] == 'Yes'){
-			trSlaveHtml += '<td>'+ data['slave'][i]["name"] +':</td>'+ '<td><font color="green">'+ data['slave'][i]["value"] +'</font></td>'
-		}
-		else if (data['slave'][i]["value"] == 'No'){
-			trSlaveHtml += '<td>'+ data['slave'][i]["name"] +':</td>'+ '<td><font color="red">'+ data['slave'][i]["value"] +'</font></td>'
-		}
-		else{
-			trSlaveHtml += '<td>'+ data['slave'][i]["name"] +':</td>'+ '<td>'+ data['slave'][i]["value"] +'</td>'
-		}
-		
-	}
-    var vSlaveHtml = '<div class="row"><div class="col-lg-12"><table class="table table-bordered"><caption>Slave信息</caption>'+ 
-							'<tr>' + trSlaveHtml  +'</tr>'
-					  '</table></div></div>';	
-	/* 汇总 */				  
-	if (data['pxc'].length > 0 && data['master'].length > 5){
-		return vBaseHtml + '<div class="row">'  + vPXCHmtl  + vMasterHtml + '</div>';
-	} 
-	else if (data['slave'].length > 0){
-		return vBaseHtml  + vSlaveHtml + '</div>';
-	}
-	else if( data['pxc'].length > 0 ){
-		return vBaseHtml + '<div class="row">' + vPXCHmtl + '</div>';
-	}
-	else if ( data['slave'].length > 0 &&  data['master'].length > 5){
-		return vBaseHtml + vSlaveHtml + vMasterHtml + '</div>';
-	}
-	else if(data['master'].length > 5){
-		return vBaseHtml + '<div class="row">' + vMasterHtml + '</div>';
-	}
-	else{
-		return vBaseHtml
-	}
+	 
+    var vBaseHtml = '<div class="row">' +
+    					'<div class="col-lg-12">' +
+    						'<table class="table table-bordered"><caption>基本信息</caption>'+ 
+		                      '<thead>' +
+		                        '<tr>' +
+		                        	'<th class="text-center">名称</th>' +
+					                '<th>当前值</th>' +
+					                '<th>描述</th>' +
+		                        '</tr>' +
+		                      '</thead>' +
+		                      '<tbody>' +
+								 	trBaseHtml +
+							  '</tbody>' +
+							 '</table>' +
+						'</div>' +
+					'</div>';	
+
+	return vBaseHtml
 }
 
 function makeDatabaseSelect(ids,response){
@@ -413,7 +358,7 @@ function makeServerDatabaseTableList(vIds){
 
         }
     }]    
-    InitServerDatabaseDataTable('server_database_list',"/api/db/server/"+vIds+"/list/",buttons,columns,columnDefs);	
+    InitServerDatabaseDataTable('server_database_list',"/api/db/mysql/server/"+vIds+"/list/",buttons,columns,columnDefs);	
 }	
 
 $(document).ready(function() {	
@@ -474,7 +419,7 @@ $(document).ready(function() {
 
 	
     if ($("#DatabaseListTable").length) {
-    	var response = requests('get','/api/db/list/',{})
+    	var response = requests('get','/api/db/mysql/list/',{})
     	makeDatabaseSelect("db_server",response)
 	    var columns = [
     	   	            {
@@ -540,11 +485,9 @@ $(document).ready(function() {
 	        var row = table.row( tr );
 	        dbId = row.data()["id"];
 	        $.ajax({
-	            url : "/api/db/status/"+dbId+"/",
-	            type : "post",
+	            url : "/api/db/mysql/status/"+dbId+"/",
+	            type : "get",
 	            async : false,
-	            data : {"id":dbId},
-	            dataType : "json",
 	            success : function(result) {
 	            	dataList = result.data;
 	            }
@@ -668,7 +611,7 @@ $(document).ready(function() {
 		};	
 		if (vIds > 0){
 			$.ajax({
-				url:'/api/db/config/'+ vIds +'/', //请求地址
+				url:'/api/db/mysql/config/'+ vIds +'/', //请求地址
 				type:"PUT",  //提交类似
 				contentType : "application/json",
 				data:JSON.stringify({
@@ -686,7 +629,7 @@ $(document).ready(function() {
 				}),
 				success:function(response){
 					btnObj.removeAttr('disabled');
-					RefreshTable('#DatabaseListTable', '/api/db/list/') 	                				
+					RefreshTable('#DatabaseListTable', '/api/db/mysql/list/') 	                				
 					
 				},
 		    	error:function(response){
@@ -701,7 +644,7 @@ $(document).ready(function() {
 			})			
 		}else{
 			$.ajax({
-				url:'/api/db/list/', //请求地址
+				url:'/api/db/mysql/list/', //请求地址
 				type:"POST",  //提交类似
 				contentType : "application/json", 
 				data:JSON.stringify({
@@ -719,7 +662,7 @@ $(document).ready(function() {
 				}),
 				success:function(response){
 					btnObj.removeAttr('disabled');
-					RefreshTable('#DatabaseListTable', '/api/db/list/') 	                				
+					RefreshTable('#DatabaseListTable', '/api/db/mysql/list/') 	                				
 					
 				},
 		    	error:function(response){
@@ -740,7 +683,7 @@ $(document).ready(function() {
     	var vIds = $(this).val();
 		$.ajax({
 			dataType: "JSON",
-			url:'/api/db/org/'+ vIds +'/', //请求地址
+			url:'/api/db/mysql/org/'+ vIds +'/', //请求地址
 			type:"POST",  //提交类似
 			success:function(response){
 				$('#chart-container').html("");
@@ -762,7 +705,7 @@ $(document).ready(function() {
 	  	$("#save_database_config").val(vIds);	
 	  	$("#save_database_config").text("修改");
         $.ajax({  
-            url : '/api/db/config/'+ vIds + '/' ,  
+            url : '/api/db/mysql/config/'+ vIds + '/' ,  
             type : 'get', 
             async:false,
             success : function(response){
@@ -798,7 +741,7 @@ $(document).ready(function() {
 		    	$.ajax({  
 		            cache: true,  
 		            type: "DELETE",  
-		            url:'/api/db/config/'+ vIds + '/' ,    
+		            url:'/api/db/mysql/config/'+ vIds + '/' ,    
 		            error: function(response) {  
 		            	new PNotify({
 		                    title: 'Ops Failed!',
@@ -814,7 +757,7 @@ $(document).ready(function() {
 		                    type: 'success',
 		                    styling: 'bootstrap3'
 		                });	
-		            	RefreshTable('#DatabaseListTable', '/api/db/list/')   
+		            	RefreshTable('#DatabaseListTable', '/api/db/mysql/list/')   
 		            }  
 		    	});
 		        },
@@ -848,7 +791,7 @@ $(document).ready(function() {
     	if (vIds > 0){
 	    	$.ajax({  
 	            type: "POST",             
-	            url:"/api/db/server/"+ db_server +"/sync/",  
+	            url:"/api/db/mysql/server/"+ db_server +"/sync/",  
 	            data:{
 	            	"db_id":vIds,
 	            	"db_name": td.eq(0).text() 
@@ -894,7 +837,7 @@ $(document).ready(function() {
 		    	$.ajax({  
 		            cache: true,  
 		            type: "DELETE",  
-		            url:'/api/db/server/'+ db_server +'/db/'+ vIds +'/' ,    
+		            url:'/api/db/mysql/server/'+ db_server +'/db/'+ vIds +'/' ,    
 		            error: function(response) {  
 		            	new PNotify({
 		                    title: 'Ops Failed!',
@@ -1034,7 +977,7 @@ $(document).ready(function() {
     	$("#userTableListSubmit").val(vIds)
     	$("#myUserTablesModalLabel").html('<h4 class="modal-title">用户<code>'+ username +'</code>分配<code>'+ dbname +'</code>数据库表</h4>')
     	$('select[name="user-table-list"]').empty();
-    	var data = GetUserDatabaseData('/api/db/user/'+ vIdsList[0]  +'/db/'+vIdsList[2]+'/table/')
+    	var data = GetUserDatabaseData('/api/db/mysql/user/'+ vIdsList[0]  +'/db/'+vIdsList[2]+'/table/')
 		$('select[name="user-table-list"]').doublebox({
 	        nonSelectedListLabel: '选择表',
 	        selectedListLabel: '已分配表',
@@ -1062,7 +1005,7 @@ $(document).ready(function() {
 		             删除: function () {
 				    	$.ajax({  			            
 								  type: 'DELETE',
-								  url: "/api/db/user/"+vIds[0]+"/server/"+vIds[1]+"/db/",
+								  url: "/api/db/mysql/user/"+vIds[0]+"/server/"+vIds[1]+"/db/",
 								  dataType:"json",
 								  data:{
 									  'user_db_id':vIds[2],
@@ -1115,7 +1058,7 @@ $(document).ready(function() {
     	$("#userDatabaseSqlListSubmit").val(vIds)
     	$("#myUserDatabaseSqlModalLabel").html('<h4 class="modal-title">用户<code>'+ username +'</code>分配<code>'+ dbname +'</code>分配SQL类型</h4>')
     	$('select[name="user-sql-list"]').empty();
-    	var data = GetUserDatabaseData('/api/db/user/'+ vIdsList[0]  +'/db/'+vIdsList[2]+'/sql/')
+    	var data = GetUserDatabaseData('/api/db/mysql/user/'+ vIdsList[0]  +'/db/'+vIdsList[2]+'/sql/')
 		$('select[name="user-sql-list"]').doublebox({
 	        nonSelectedListLabel: '选择权限',
 	        selectedListLabel: '已分配权限',
@@ -1139,7 +1082,7 @@ $(document).ready(function() {
         });	    	    	
     	$.ajax({  
             type: "POST",             
-            url:"/api/db/user/"+ vIds[0] +"/db/"+ vIds[2] +"/table/",
+            url:"/api/db/mysql/user/"+ vIds[0] +"/db/"+ vIds[2] +"/table/",
 			processData: false,
 			contentType: false,		            
             data:formData,
@@ -1173,7 +1116,7 @@ $(document).ready(function() {
         });	    	    	
     	$.ajax({  
             type: "POST",             
-            url:"/api/db/user/"+ vIds[0] +"/db/"+ vIds[2] +"/sql/",
+            url:"/api/db/mysql/user/"+ vIds[0] +"/db/"+ vIds[2] +"/sql/",
 			processData: false,
 			contentType: false,		            
             data:formData,
@@ -1200,7 +1143,7 @@ $(document).ready(function() {
     $("#server_database_submit").on('click', function() {
     	var vIds = $(this).val();
 		let dbname = $("#server_database_input").val()
-		let url = "/api/db/server/"+vIds+"/list/"
+		let url = "/api/db/mysql/server/"+vIds+"/list/"
     	if (vIds.length){
 	    	$.ajax({  
 	            type: "POST",             
@@ -1238,7 +1181,7 @@ $(document).ready(function() {
 		let uid = $('#user :selected').val()   
 		if(uid.length){
 			$("#db_server_db").empty();
-			let dataList = requests('get',"/api/db/user/"+ uid +"/")
+			let dataList = requests('get',"/api/db/mysql/user/"+ uid +"/")
 			if ($('#user_database_list').hasClass('dataTable')) {
 		        dttable = $('#user_database_list').dataTable();
 		        dttable.fnClearTable();
@@ -1260,7 +1203,7 @@ $(document).ready(function() {
 		let uid = $('#user :selected').val()   
 		if(sid.length && uid.length){
 			$("#db_server_db").empty();
-			let dataList = requests('get',"/api/db/user/"+uid+"/server/"+sid+"/db/")
+			let dataList = requests('get',"/api/db/mysql/user/"+uid+"/server/"+sid+"/db/")
 			if ($('#user_database_list').hasClass('dataTable')) {
 		        dttable = $('#user_database_list').dataTable();
 		        dttable.fnClearTable();
@@ -1302,7 +1245,7 @@ $(document).ready(function() {
 		formData.append("valid_date",$('#valid_date :selected').val())
 		formData.append("is_write",$('#is_write :selected').val())
 		if(sid.length && uid.length){
-			let url = "/api/db/user/"+uid+"/server/"+sid+"/db/"
+			let url = "/api/db/mysql/user/"+uid+"/server/"+sid+"/db/"
 			$.ajax({
 				url:url,
 				processData: false,

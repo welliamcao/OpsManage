@@ -22,15 +22,6 @@ class DelolyModel(LoginRequiredMixin,AssetsSource,View):
     def get(self, request, *args, **kwagrs):
         return render(request, 'deploy/deploy_model.html',{"user":request.user})  
     
-    
-
-class DeployRun(LoginRequiredMixin,View):
-    login_url = '/login/'
-    def post(self, request, *args, **kwagrs):
-        redisKey = request.POST.get('ans_uuid')       
-        msg = DsRedis.OpsAnsibleModel.rpop(redisKey)
-        if msg:return JsonResponse({'msg':msg.decode("utf-8") ,"code":200,'data':[]}) 
-        else:return JsonResponse({'msg':None,"code":200,'data':[]})
         
 class DeployInventory(LoginRequiredMixin,AssetsBase,View):        
     login_url = '/login/'

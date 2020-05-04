@@ -6,7 +6,7 @@ from orders.models import Order_Notice_Config,Order_System,ORDER_AUDIT_STATUS_DI
 from account.models import User, Structure
   
 @task
-def  order_notice(order):
+def order_notice(order):
     try:
         order = Order_System.objects.get(id=order)
     except Exception as ex:

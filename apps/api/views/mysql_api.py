@@ -13,25 +13,26 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from django.contrib.auth.decorators import permission_required
 from dao.base import MySQLPool,DataHandle
-from dao.database import MySQLARCH,DBManage,DBConfig, DBUser
+from dao.mysql import MySQLARCH,DBManage,DBConfig, DBUser
 from django.http import JsonResponse
 from utils.logger import logger
 from utils.base import method_decorator_adaptor,file_iterator
 from account.models import User
+from databases.service import  mysql_service
   
     
 @api_view(['GET','PUT', 'DELETE'])
 def db_detail(request, id,format=None):
     try:
-        snippet = DataBase_Server_Config.objects.get(id=id)
-    except DataBase_Server_Config.DoesNotExist:
+        snippet = DataBase_MySQL_Server_Config.objects.get(id=id)
+    except DataBase_MySQL_Server_Config.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
     
     if request.method == 'GET':
         try:  
-            snippet = DataBase_Server_Config.objects.get(id=id)
+            snippet = DataBase_MySQL_Server_Config.objects.get(id=id)
             serializer = serializers.DataBaseServerSerializer(snippet)
-        except  DataBase_Server_Config.DoesNotExist:
+        except  DataBase_MySQL_Server_Config.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND) 
         return Response(serializer.data) 
             
@@ -150,29 +151,28 @@ class DatabaseExecuteHistroyDetail(APIView):
 
     
 @api_view(['POST','GET'])
-@permission_required('databases.database_can_read_database_server_config',raise_exception=True)  
+@permission_required('databases.database_query_database_server_config',raise_exception=True)  
 def db_status(request, id,format=None):
     try:
-        dbServer = DataBase_Server_Config.objects.get(id=id)
-    except DataBase_Server_Config.DoesNotExist:
+        dbServer = DataBase_MySQL_Server_Config.objects.get(id=id)
+    except DataBase_MySQL_Server_Config.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)    
-    if request.method == 'POST':
+    if request.method == 'GET':
         MySQL_STATUS = {}
-        MYSQL = MySQLPool(dbServer=dbServer.to_connect())
-        STATUS = MYSQL.get_status()
-        GLOBAL = MYSQL.get_global_status()
-        MySQL_STATUS['base'] = STATUS[0] + GLOBAL
-        MySQL_STATUS['pxc'] = STATUS[1] 
-        MySQL_STATUS['master'] = MYSQL.get_master_status()
-        MySQL_STATUS['slave'] = MYSQL.get_slave_status()
+        if not request.query_params:
+            MySQL_STATUS =  mysql_service.varibles(dbServer.to_connect())
+        
+        if request.query_params.get("type"):
+            MySQL_STATUS = mysql_service.allowcator(request.query_params.get("type"),dbServer.to_connect())
+        
         return JsonResponse({"code":200,"msg":"success","data":MySQL_STATUS})
     
 @api_view(['POST','GET'])
 @permission_required('databases.database_can_read_database_server_config',raise_exception=True)  
 def db_org(request, id,format=None):
     try:
-        dbServer = DataBase_Server_Config.objects.get(id=id)
-    except DataBase_Server_Config.DoesNotExist:
+        dbServer = DataBase_MySQL_Server_Config.objects.get(id=id)
+    except DataBase_MySQL_Server_Config.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)    
     if request.method == 'POST':
         MYSQL = MySQLPool(dbServer.to_connect())
@@ -194,19 +194,19 @@ def db_tree(request,format=None):
 class DB_SERVER_LIST(APIView,DBConfig):
     @method_decorator_adaptor(permission_required, "databases.database_read_database_server_config","/403/")     
     def get(self,request,format=None):
-        snippets = [ x.to_json() for x in  DataBase_Server_Config.objects.all() ]
+        snippets = [ x.to_json() for x in  DataBase_MySQL_Server_Config.objects.all() ]
         return Response(snippets)
     
     @method_decorator_adaptor(permission_required, "databases.database_can_add_database_server_config","/403/")
     def post(self, request, format=None):
         try:
-            database = DataBase_Server_Config.objects.create(**request.data)
+            database = DataBase_MySQL_Server_Config.objects.create(**request.data)
         except Exception as ex:
             return Response({"msg":str(ex)}, status=status.HTTP_400_BAD_REQUEST)      
         try:  
-            snippet = DataBase_Server_Config.objects.get(id=database.id)
+            snippet = DataBase_MySQL_Server_Config.objects.get(id=database.id)
             serializer = serializers.DataBaseServerSerializer(snippet)
-        except DataBase_Server_Config.DoesNotExist:
+        except DataBase_MySQL_Server_Config.DoesNotExist:
             logger.error(msg="添加数据库失败: {ex}".format(ex=str(ex)))
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)  
         return Response(serializer.data)     
@@ -216,17 +216,17 @@ class DB_SERVER_DETAIL(APIView,DBConfig):
     
     def get_object(self, pk):
         try:
-            return DataBase_Server_Config.objects.get(id=pk)
-        except DataBase_Server_Config.DoesNotExist:
+            return DataBase_MySQL_Server_Config.objects.get(id=pk)
+        except DataBase_MySQL_Server_Config.DoesNotExist:
             raise Http404    
     
     @method_decorator_adaptor(permission_required, "databases.database_read_database_server_config","/403/")     
     def get(self,request,pk,format=None):
         snippet = self.get_object(pk)
         try:  
-            snippets = Database_Detail.objects.filter(db_server=snippet)
+            snippets = Database_MySQL_Detail.objects.filter(db_server=snippet)
             serializer = serializers.DatabaseSerializer(snippets, many=True)
-        except  Database_Detail.DoesNotExist:
+        except  Database_MySQL_Detail.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND) 
         return Response(serializer.data) 
     
@@ -241,8 +241,8 @@ class DB_SERVER_TABLES(APIView,DBConfig):
     
     def get_object(self, pk):
         try:
-            return DataBase_Server_Config.objects.get(id=pk)
-        except DataBase_Server_Config.DoesNotExist:
+            return DataBase_MySQL_Server_Config.objects.get(id=pk)
+        except DataBase_MySQL_Server_Config.DoesNotExist:
             raise Http404    
     
     @method_decorator_adaptor(permission_required, "databases.database_can_add_database_server_config","/403/")
@@ -255,13 +255,13 @@ class DB_SERVER_TABLES(APIView,DBConfig):
 @api_view(['GET','PUT', 'DELETE'])
 def db_server_db_detail(request, sid, id,format=None):
     try:
-        db_server = DataBase_Server_Config.objects.get(id=sid)
-    except DataBase_Server_Config.DoesNotExist:
+        db_server = DataBase_MySQL_Server_Config.objects.get(id=sid)
+    except DataBase_MySQL_Server_Config.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
     
     try:
-        snippet = Database_Detail.objects.get(id=id,db_server=db_server)
-    except Database_Detail.DoesNotExist:
+        snippet = Database_MySQL_Detail.objects.get(id=id,db_server=db_server)
+    except Database_MySQL_Detail.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)    
     
     if request.method == 'GET':
@@ -281,7 +281,7 @@ def db_server_db_detail(request, sid, id,format=None):
         if not request.user.has_perm('databases.database_change_add_database_server_config'):
             return Response(status=status.HTTP_403_FORBIDDEN)
         Database_Table_Detail_Record.objects.filter(db=id).delete() #删除数据库关联表记录
-        Database_User.objects.filter(db=snippet.id).delete() #删除用户关联数据库记录
+        Database_MySQL_User.objects.filter(db=snippet.id).delete() #删除用户关联数据库记录
         snippet.delete()
         return Response(status=status.HTTP_204_NO_CONTENT) 
 
@@ -289,14 +289,14 @@ def db_server_db_detail(request, sid, id,format=None):
 class DB_DATA_DICT(APIView,DBConfig,DataHandle):
     def get_db_server(self, sid):
         try:
-            return DataBase_Server_Config.objects.get(id=sid)
-        except DataBase_Server_Config.DoesNotExist:
+            return DataBase_MySQL_Server_Config.objects.get(id=sid)
+        except DataBase_MySQL_Server_Config.DoesNotExist:
             raise Http404 
         
     def get_db(self, did):
         try:
-            return Database_Detail.objects.get(id=did)
-        except Database_Detail.DoesNotExist:
+            return Database_MySQL_Detail.objects.get(id=did)
+        except Database_MySQL_Detail.DoesNotExist:
             raise Http404              
     
     @method_decorator_adaptor(permission_required, "databases.database_sqldict_database_server_config","/403/")    
@@ -348,8 +348,8 @@ class DB_USER_SERVER_DBLIST(APIView,DBUser):
     
     def get_db_server(self, sid):
         try:
-            return DataBase_Server_Config.objects.get(id=sid)
-        except DataBase_Server_Config.DoesNotExist:
+            return DataBase_MySQL_Server_Config.objects.get(id=sid)
+        except DataBase_MySQL_Server_Config.DoesNotExist:
             raise Http404  
     
     def get_user(self,uid):
@@ -373,14 +373,14 @@ class DB_USER_SERVER_DBLIST(APIView,DBUser):
     
     @method_decorator_adaptor(permission_required, "databases.database_can_delete_database_server_config","/403/")     
     def delete(self, request, uid, sid, format=None):
-        Database_User.objects.filter(id=QueryDict(request.body).get("user_db_id")).delete()
+        Database_MySQL_User.objects.filter(id=QueryDict(request.body).get("user_db_id")).delete()
         return Response(self.get_user_server_db(self.get_db_server(sid), self.get_user(uid)))        
                 
 @api_view(['GET','POST'])
 def db_user_db_table_list(request, uid, did, format=None):
         
     try:
-        user_db = Database_User.objects.get(db=did,user=uid)
+        user_db = Database_MySQL_User.objects.get(db=did,user=uid)
     except User.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND) 
     
@@ -388,8 +388,8 @@ def db_user_db_table_list(request, uid, did, format=None):
         user_table_list = []
 
         try:
-            db_info = Database_Detail.objects.get(id=did)
-        except Database_Detail.DoesNotExist:
+            db_info = Database_MySQL_Detail.objects.get(id=did)
+        except Database_MySQL_Detail.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
                    
         result= MySQLPool(dbServer=db_info.to_connect()).queryMany('show tables',10000) 
@@ -431,8 +431,8 @@ class DB_USER_SERVER_DBSQL(APIView,DBUser):
     
     def get_db(self,uid ,did):
         try:
-            return  Database_User.objects.get(db=did,user=uid)
-        except Database_User.DoesNotExist:
+            return  Database_MySQL_User.objects.get(db=did,user=uid)
+        except Database_MySQL_User.DoesNotExist:
             raise Http404  
     
     def get_user(self,uid):

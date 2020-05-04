@@ -4,7 +4,7 @@ import random, os, json
 from dao.assets import AssetsSource,AssetsBase
 from account.models import User
 from orders.models import *
-from databases.models import Database_Detail
+from databases.models import Database_MySQL_Detail
 from utils.ansible.runner import ANSRunner
 from utils import base
 from utils.mysql import cmds
@@ -225,7 +225,7 @@ class ApplyManage(OrderBase):
         elif request.method == 'POST':cid = request.POST.get('order_db')
         elif request.method in ['PUT','DELETE']:cid = QueryDict(request.body).get('order_db')
         try:
-            db = Database_Detail.objects.get(id=cid)
+            db = Database_MySQL_Detail.objects.get(id=cid)
             config = db.db_server.to_connect()
             config["db_name"] = db.db_name
             return db, config
@@ -460,21 +460,7 @@ class OrderProgres(OrderBase):
                         if ds.sqlsha:return incept.getOscStatus(sqlSHA1=ds.sqlsha) 
 #         return {"status":'success', "data":{"percent":random.randint(1, 120), "timeRemained":"{m}:{s}".format(m=random.randint(1, 60), s=random.randint(10, 60))}} 
         return {"status":'error', "data":{"percent":100, "timeRemained":"00:00"}}
-    
-#     def get_rollback_sql(self,request):
-#         order = self.check_perms(request)  
-#         db, config = self.get_db(order)   
-#         return self.get_rollback_sqls(order, config)
-#     
-#     def sql(self,request):
-#         return self.get_order_sql(self.check_perms(request))
-#     
-#     def fileupload(self,request):
-#         return self.get_order_fileupload(self.check_perms(request))
-#  
-#     def filedownload(self,request):
-#         return self.get_order_filedownload(self.check_perms(request))                
-        
+                       
 class OrderSQLManage(OrderBase): 
     def __init__(self):
         super(OrderSQLManage, self).__init__() 
@@ -553,19 +539,20 @@ class OrderSQLManage(OrderBase):
     
     def __human_sql(self, config, order, request):
         incept = self.inception(config)
-        result = incept.exec_custom_sql(order.sql_audit_order.order_sql)
-        if result.get('status') == 'error':#
-            order.order_execute_status = 5
-            order.sql_audit_order.order_err = result.get('errinfo')
-            order.save() 
-            order.sql_audit_order.save()  
-            self.record_order_operation(order.id, order.order_audit_status, order.order_execute_status, request.user, "执行工单")         
-            return {"status":5,"result":result.get('errinfo'),"type":"human"}        
-        else:
-            order.order_execute_status = 2
-            order.save()    
-            self.record_order_operation(order.id, order.order_audit_status, order.order_execute_status, request.user, "执行工单")
-            return {"status":2,"result":"","type":"human"}              
+        for sql in order.sql_audit_order.order_sql.split('\n'):
+            if sql.isspace():continue
+            result = incept.exec_custom_sql(sql)
+            if result.get('status') == 'error':#
+                order.order_execute_status = 5
+                order.sql_audit_order.order_err = result.get('errinfo')
+                order.save() 
+                order.sql_audit_order.save()  
+                self.record_order_operation(order.id, order.order_audit_status, order.order_execute_status, request.user, result.get('errinfo'))         
+                return {"status":5,"result":result.get('errinfo'),"type":"human"}        
+        order.order_execute_status = 2
+        order.save()    
+        self.record_order_operation(order.id, order.order_audit_status, order.order_execute_status, request.user, "执行工单")
+        return {"status":2,"result":"","type":"human"}              
     
     def __file_sql(self, config, order, request):
         filePath = os.getcwd() + '/upload/' + str(order.sql_audit_order.order_file)

@@ -11,7 +11,7 @@ from orders.models import *
 from django.contrib.auth.models import Group
 from account.models import User,Structure
 from utils.logger import logger
-from dao.base import DjangoCustomCursors,DataHandle
+from dao.base import DataHandle
 from django.http import QueryDict
 from utils.ansible.runner import ANSRunner
 from cicd.models import Project_Config
@@ -410,7 +410,7 @@ class AssetsBase(DataHandle):
                
 
 
-class AssetsCount(DjangoCustomCursors):
+class AssetsCount(object):
     def __init__(self):
         super(AssetsCount, self).__init__()  
         self.dataList = []
@@ -447,7 +447,7 @@ class AssetsCount(DjangoCustomCursors):
     def databasesAssets(self):
         dataList = []
         try:
-            for ds in DataBase_Server_Config.objects.raw("""SELECT id,count(*) as count,db_env from opsmanage_database_server_config GROUP BY db_env;"""):
+            for ds in DataBase_MySQL_Server_Config.objects.raw("""SELECT id,count(*) as count,db_env from opsmanage_database_server_config GROUP BY db_env;"""):
                 if ds.db_env == "beta":dataList.append({"count":ds.count,"db_env":"测试环境"})
                 else:
                     dataList.append({"count":ds.count,"db_env":"生产环境"})           
@@ -492,7 +492,7 @@ class AssetsCount(DjangoCustomCursors):
         return {"name":"代码部署","count":Project_Config.objects.all().count()}
         
     def dbCount(self):
-        return {"name":"数据库","count":DataBase_Server_Config.objects.all().count()}
+        return {"name":"数据库","count":DataBase_MySQL_Server_Config.objects.all().count()}
     
     def scriptCount(self):
         return {"name":"部署脚本","count":Deploy_Script.objects.all().count()}

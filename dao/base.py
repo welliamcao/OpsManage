@@ -139,7 +139,7 @@ class APBase(object):
 
    
 class MySQLPool(APBase): 
-    def __init__(self,dbServer,sql=None,num=1000,model=None,queues=None):
+    def __init__(self,dbServer, sql=None ,num=1000, model=None, queues=None):
         threading.Thread.__init__(self)     
         self.sql = sql
         self.num = num 
@@ -160,7 +160,7 @@ class MySQLPool(APBase):
             logger.error("连接数据库失败: {ex}".format(ex=str(ex)))
             raise pymysql.Error(ex)        
         
-    def queryAll(self,sql,num=1000):  
+    def queryAll(self,sql, num=1000):  
         
         cnx = self.__connect_remote()
         
@@ -169,9 +169,10 @@ class MySQLPool(APBase):
                 count = cursor.execute(sql)   
                 result = cursor.fetchall()   
                 return (count,result) 
-        except pymysql.InterfaceError as ex:
+        except pymysql.Error as ex:
             logger.error("数据库查询失败: {ex}".format(ex=str(ex))) 
-                          
+            return ex.__str__()  
+                    
         finally:
             cnx.close()  
    
@@ -183,14 +184,15 @@ class MySQLPool(APBase):
                 count = cursor.execute(sql)   
                 result = cursor.fetchone()   
                 return (count,result) 
-        except pymysql.InterfaceError as ex:
+        except pymysql.Error as ex:
             logger.error("数据库查询失败: {ex}".format(ex=str(ex)))
-                          
+            return ex.__str__()
+                      
         finally:
             cnx.close()  
   
    
-    def queryMany(self,sql,num,param=None):
+    def queryMany(self,sql, num=1000, param=None):
         
         cnx = self.__connect_remote()
         
@@ -203,8 +205,9 @@ class MySQLPool(APBase):
                     colName.append(i[0])            
                 result = cursor.fetchmany(size=num) 
                 return (count,result,colName)
-        except pymysql.InterfaceError as ex:
+        except pymysql.Error as ex:
             logger.error("数据库查询失败: {ex}".format(ex=str(ex)))  
+            return ex.__str__()
                        
         finally:
             cnx.close()        
@@ -223,9 +226,10 @@ class MySQLPool(APBase):
                         colName.append(i[0]) 
                 result = cursor.fetchmany(size=num)           
                 return (count,result,colName) 
-        except pymysql.OperationalError as ex:
+        except pymysql.Error as ex:
             logger.error("数据库操作失败: {ex}".format(ex=str(ex))) 
-            
+            return ex.__str__()
+        
         finally:
             cnx.close()
        
@@ -245,11 +249,15 @@ class MySQLPool(APBase):
                 result = cursor.fetchmany(size=num)           
                 cnx.commit()
                 return (count,result,colName) 
-        except pymysql.OperationalError as ex:
+        except pymysql.Error as ex:
             logger.error("数据库操作失败: {ex}".format(ex=str(ex))) 
+            return ex.__str__()
                         
         finally:
             cnx.close()
+    
+    def get_value(self):
+        pass
         
     def get_status(self):
         status = self.execute_for_query(sql='show status;')
@@ -310,7 +318,7 @@ class MySQLPool(APBase):
     def get_db_size(self):
         dataList = []
         db_size = self.execute_for_query(sql="""SELECT table_schema, Round(Sum(data_length + index_length) / 1024 / 1024, 1) as size,count(TABLE_NAME) as total_table
-                                            FROM information_schema.tables where table_schema not in ("performance_schema","information_schema","mysql")
+                                            FROM information_schema.tables where table_schema not in ("performance_schema","information_schema","mysql","sys")
                                             GROUP BY table_schema;""") 
         for ds in db_size[1]:
             dataList.append({"db_name":ds[0],"size":ds[1],"total_table":ds[2]})

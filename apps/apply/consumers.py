@@ -53,11 +53,11 @@ class IpvsVipStatus(WebsocketConsumer,IVPSManage):
             
             if request.get("status") == 'open' and request.get("action") == "stats":  
                 self.status = True  
-                self.chan.send("watch -n1 '{rate}'\n".format(rate=self.vips.stats_vip()))
+                self.chan.send("watch -n1 '{rate}' ;exit;exit\n".format(rate=self.vips.stats_vip()))
                 
             elif request.get("status") == 'open' and request.get("action") == "rate":
                 self.status = True  
-                self.chan.send("watch -n1 '{rate}'\n".format(rate=self.vips.rate_vip()))                
+                self.chan.send("watch -n1 '{rate}' ;exit;exit\n".format(rate=self.vips.rate_vip()))                
         
      
     def user_message(self, event):

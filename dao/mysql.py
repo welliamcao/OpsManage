@@ -18,13 +18,8 @@ from mptt.templatetags.mptt_tags import cache_tree_children
 from account.models import User_Async_Task
 from django.core.exceptions import PermissionDenied
 
-def format_time(seconds):
-    m, s = divmod(seconds, 60)
-    h, m = divmod(m, 60)  
-    return "%02d:%02d:%02d" % (h, m, s)
-
 class MySQLARCH(object):
-    def __init__(self,mysql,db_server):
+    def __init__(self, mysql, db_server):
         super(MySQLARCH,self).__init__()  
         self.mysql = mysql
         self.mysql_status = self.mysql.get_status()
@@ -114,11 +109,11 @@ class DBConfig(AssetsBase):
 
     def sync_db(self,dbServer):
         dataList  = self.__get_db_server_connect(dbServer).get_db_size()
-        old_db_list = [ ds.db_name for ds in Database_Detail.objects.filter(db_server=dbServer)]
+        old_db_list = [ ds.db_name for ds in Database_MySQL_Detail.objects.filter(db_server=dbServer)]
         current_db_list = [ ds.get("db_name") for ds in dataList ]
         for ds in dataList:
             try:
-                Database_Detail.objects.get_or_create(
+                Database_MySQL_Detail.objects.get_or_create(
                                               db_server=dbServer,
                                               db_name=ds.get("db_name"),
                                               db_size=ds.get("size"),
@@ -129,13 +124,13 @@ class DBConfig(AssetsBase):
         
         del_db_list = list(set(old_db_list).difference(set(current_db_list)))
         
-        del_db = Database_Detail.objects.filter(db_server=dbServer,db_name__in=del_db_list)
+        del_db = Database_MySQL_Detail.objects.filter(db_server=dbServer,db_name__in=del_db_list)
 
         Database_Table_Detail_Record.objects.filter(db__in= [ ds.id for ds in del_db]).delete() #清除数据库里面表记录
-        Database_User.objects.filter(db__in= [ ds.id for ds in del_db]).delete() #清除用户数据库里面表记录
+        Database_MySQL_User.objects.filter(db__in= [ ds.id for ds in del_db]).delete() #清除用户数据库里面表记录
         
         del_db.delete() 
-        return Database_Detail.objects.filter(db_server=dbServer)
+        return Database_MySQL_Detail.objects.filter(db_server=dbServer)
     
     def sync_table(self,dbServer,db,dbname):
         dataList  = self.__get_db_server_connect(dbServer).get_db_table_info(dbname)
@@ -162,7 +157,7 @@ class DBConfig(AssetsBase):
     def get_user_db_tables(self,db,user):
         dataList = []
         try:
-            return Database_User.objects.get(db=db.id,user=user.id).tables.split(",")
+            return Database_MySQL_User.objects.get(db=db.id,user=user.id).tables.split(",")
         except:
             pass        
         return dataList
@@ -228,9 +223,9 @@ class DBUser(object):
     
     def get_user_db(self, user, s_query_params={}, u_query_params={}):
         dataList = []  
-        for ds in Database_User.objects.filter(user=user.id,**u_query_params):
+        for ds in Database_MySQL_User.objects.filter(user=user.id,**u_query_params):
             try:
-                data = Database_Detail.objects.get(id=ds.db,**s_query_params).to_json()
+                data = Database_MySQL_Detail.objects.get(id=ds.db,**s_query_params).to_json()
                 data["username"] = user.username
                 data["uid"] = ds.user
                 data["user_db_id"] = ds.id
@@ -257,10 +252,10 @@ class DBUser(object):
     
     def get_server_all_db(self, db_server, user):
         dataList = []
-        for ds in Database_Detail.objects.filter(db_server=db_server):
+        for ds in Database_MySQL_Detail.objects.filter(db_server=db_server):
             data = ds.to_json()
             try:
-                user_db = Database_User.objects.get(db=ds.id,user=user.id)
+                user_db = Database_MySQL_User.objects.get(db=ds.id,user=user.id)
                 data["count"] = 1
                 data["user_db_id"] = user_db.id
                 data["uid"] = user_db.user
@@ -274,9 +269,9 @@ class DBUser(object):
     
     def get_user_server_db(self, db_server, user):
         dataList = []
-        for ds in Database_Detail.objects.filter(db_server=db_server):
+        for ds in Database_MySQL_Detail.objects.filter(db_server=db_server):
             try:
-                user_db = Database_User.objects.get(db=ds.id,user=user.id)
+                user_db = Database_MySQL_User.objects.get(db=ds.id,user=user.id)
             except:
                 continue
             data = ds.to_json()
@@ -291,18 +286,18 @@ class DBUser(object):
     
     
     def update_user_server_db(self, request, db_server, user):       
-        all_user_db_list = [ ds.db for ds in Database_User.objects.filter(db__in=[ ds.id for ds in db_server.databases.all()],user=user.id)]
+        all_user_db_list = [ ds.db for ds in Database_MySQL_User.objects.filter(db__in=[ ds.id for ds in db_server.databases.all()],user=user.id)]
 
         update_user_db_list = [ int(ds) for ds in request.data.getlist('dbIds') ]
 
         update_list = list(set(update_user_db_list).difference(set(all_user_db_list)))        
         
         for dbIds in update_list:
-            obj, created = Database_User.objects.update_or_create(db=dbIds, user=user.id,
+            obj, created = Database_MySQL_User.objects.update_or_create(db=dbIds, user=user.id,
                                                                   valid_date = base.getDayAfter(int(request.POST.get('valid_date',1)),format='%Y-%m-%d %H:%M:%S'))  
         
         #更新已有记录
-        Database_User.objects.filter(db__in=update_user_db_list, user=user.id).update(valid_date = base.getDayAfter(int(request.POST.get('valid_date',1)),format='%Y-%m-%d %H:%M:%S'), 
+        Database_MySQL_User.objects.filter(db__in=update_user_db_list, user=user.id).update(valid_date = base.getDayAfter(int(request.POST.get('valid_date',1)),format='%Y-%m-%d %H:%M:%S'), 
                                                                                       is_write = int(request.POST.get('is_write',0))) 
                 
               
@@ -316,7 +311,6 @@ class DBManage(AssetsBase):
     
     def __init__(self):
         super(DBManage,self).__init__() 
-        self.stime = int(time.time()) 
         
     def allowcator(self,sub,request):
         if hasattr(self,sub):
@@ -335,7 +329,7 @@ class DBManage(AssetsBase):
         
         if  dbServer and request.user.has_perm(perms):
             try:
-                user_db = Database_User.objects.get(db=request.POST.get('db'),user=request.user.id) 
+                user_db = Database_MySQL_User.objects.get(db=request.POST.get('db'),user=request.user.id) 
                 if base.changeTotimestamp(str(user_db.valid_date)) - int(time.time()) > 0:#判断用户数据权限是否过期
                     return dbServer
             except Exception as ex:
@@ -345,7 +339,7 @@ class DBManage(AssetsBase):
 
     def __check_user_db_tables(self,request):
         try:     
-            userDbServer = Database_User.objects.get(user=request.user.id,db=request.POST.get('db'))
+            userDbServer = Database_MySQL_User.objects.get(user=request.user.id,db=request.POST.get('db'))
             if userDbServer.tables:return userDbServer.tables.split(",")
         except Exception as ex:
             logger.warn(msg="查询用户数据库表信息失败: {ex}".format(ex=str(ex)))  
@@ -354,7 +348,7 @@ class DBManage(AssetsBase):
     
     def __check_user_db_sql(self,request):
         try:     
-            userDbServer = Database_User.objects.get(user=request.user.id,db=request.POST.get('db'))
+            userDbServer = Database_MySQL_User.objects.get(user=request.user.id,db=request.POST.get('db'))
             if userDbServer.sqls:return userDbServer.sqls.split(",")
         except Exception as ex:
             logger.warn(msg="查询用户数据库权限失败: {ex}".format(ex=str(ex)))  
@@ -373,7 +367,7 @@ class DBManage(AssetsBase):
         grant_tables = self.__check_user_db_tables(request)
         
         #提取SQL中的表名
-        extract_table = base.extract_table_name_from_sql(request.POST.get('sql'))
+        extract_table = base.extract_table_name_from_sql(" ".join(sql))
 
         if extract_table:
             if grant_tables:
@@ -397,7 +391,7 @@ class DBManage(AssetsBase):
     
     def __get_db(self,request):
         try:
-            db_info = Database_Detail.objects.get(id=self.change(request.POST.get('db')))
+            db_info = Database_MySQL_Detail.objects.get(id=self.change(request.POST.get('db')))
             dbServer = db_info.db_server.to_connect()      
             dbServer["db_name"] = db_info.db_name
             return  dbServer
@@ -414,18 +408,34 @@ class DBManage(AssetsBase):
             return ex          
     
     def exec_sql(self, request):
-        
         dbServer = self.__check_user_perms(request,'databases.database_dml_database_server_config')
-     
-        sql_parse = self.__check_sql_parse(request, allow_sql=self.dml_sql + self.ddl_sql + self.dql_sql,dbname=dbServer.get('db_name'))
+        
+        result_list = []
+        try:
+            sql_list = request.POST.get('sql').lower().split(";")
+        except Exception as ex:
+            logger.error(msg="解析SQL失败: {ex}".format(ex=ex))
+            return '解析SQL失败'
+        
+        time_consume = 0
+        for sql in sql_list:
+            stime = int(time.time()) 
+            sql = sql.strip('\n') + ';'
+            sql_parse = self.__check_sql_parse(request, sql=sql, allow_sql=self.dml_sql + self.ddl_sql + self.dql_sql,
+                                               dbname=dbServer.get('db_name'))
 
-        if not isinstance(sql_parse, str):              
-            result = self.__get_db_server(request).execute(request.POST.get('sql'),1000)
-            time_consume = int(time.time())-self.stime
-            self.__record_operation(request.user.username, request.POST.get('db'), time_consume, result, request.POST.get('sql'))
-            return [{"dataList":result,"time":format_time(time_consume)}]            
-        else:
-            return sql_parse   
+            if not isinstance(sql_parse, str):
+                result = self.__get_db_server(dbServer).execute(sql, 1000)
+                if not isinstance(result, str):
+                    time_consume = int(time.time()) - stime
+                    result_list += [{"sql": sql, "dataList": result, "time": base.format_time(time_consume)}]
+                else:
+                    result_list += [{"sql": sql, "msg": result, "time": 0}]
+                self.__record_operation(request.user.username, request.POST.get('db'), time_consume, result, sql)
+            else:
+                result_list += [{"sql": sql, "msg": sql_parse}]
+                
+        return result_list        
         
     def query_sql(self, request):
         dbServer = self.__check_user_perms(request,'databases.database_query_database_server_config')
@@ -438,18 +448,22 @@ class DBManage(AssetsBase):
         except Exception as ex:
             logger.error(msg="解析SQL失败: {ex}".format(ex=ex))
             return '解析SQL失败'
+        
+        time_consume = 0
         for sql in sql_list:
+            stime = int(time.time()) 
             sql = sql.strip('\n') + ';'
-            sql_parse = self.__check_sql_parse(request, sql=sql, allow_sql=self.dql_sql,
-                                               dbname=dbServer.get('db_name'))
-
+            sql_parse = self.__check_sql_parse(request, sql=sql, allow_sql=self.dql_sql, dbname=dbServer.get('db_name'))
             if not isinstance(sql_parse, str):
                 result = self.__get_db_server(dbServer).queryMany(sql, 1000)
-                time_consume = int(time.time()) - self.stime
-                result_list += [{"sql": sql, "dataList": result, "time": format_time(time_consume)}]
-                self.__record_operation(request.user.username, request.POST.get('db'), time_consume, result, sql)
+                if not isinstance(result, str):
+                    time_consume = int(time.time()) - stime
+                    result_list += [{"sql": sql, "dataList": result, "time": base.format_time(time_consume)}]
+                else:
+                    result_list += [{"sql": sql, "msg": result, "time": 0}]
+                self.__record_operation(request.user.username, request.POST.get('db'), time_consume, result, sql)    
             else:
-                result_list += [{"sql": sql, "msg": sql_parse}]
+                result_list += [{"sql": sql, "msg": sql_parse, "time": 0}]
                 
         return result_list
             
@@ -613,17 +627,17 @@ class DBManage(AssetsBase):
         
     def __record_operation(self, username, db, time_consume, result, sql):
         if isinstance(result, str):
-            record_exec_sql.apply_async((username, db, sql, time_consume, 1,result), queue='default')
+            record_exec_sql.apply_async((username, db, sql, time_consume, 0, 1, result), queue='default')
         else:
             record_exec_sql.apply_async((username, db, sql, time_consume, result[0], 0),queue='default')        
         
     def __query_user_db_server(self,request=None):
         if request.user.is_superuser:
-            dbList = DataBase_Server_Config.objects.all()      
+            dbList = DataBase_MySQL_Server_Config.objects.all()      
         else: 
-            user_db_list = [ ud.db for ud in Database_User.objects.filter(user=request.user.id) ]
+            user_db_list = [ ud.db for ud in Database_MySQL_User.objects.filter(user=request.user.id) ]
 
-            dbLists = [ ds.db_server for ds in Database_Detail.objects.filter(id__in=user_db_list) ]
+            dbLists = [ ds.db_server for ds in Database_MySQL_Detail.objects.filter(id__in=user_db_list) ]
 
             dbList = list(dict.fromkeys(dbLists)) #去除重复
             
@@ -640,7 +654,7 @@ class DBManage(AssetsBase):
         #获取业务树下面的数据库服务器    
         if json_format["last_node"] == 1: 
             db_children = []    
-            for ds in DataBase_Server_Config.objects.filter(id__in=user_db_server_list, db_business=json_format["id"], db_rw__in=request.query_params.getlist('db_rw')):  
+            for ds in DataBase_MySQL_Server_Config.objects.filter(id__in=user_db_server_list, db_business=json_format["id"], db_rw__in=request.query_params.getlist('db_rw')):  
                 data = ds.to_tree()
                 data["user_id"] = request.user.id
                 db_children.append(data)
@@ -667,10 +681,10 @@ class DBManage(AssetsBase):
         user_db_server_list =  [ ds.id for ds in self.__query_user_db_server(request) ] 
         
         if request.user.is_superuser:
-            user_business = [ ds.get("db_business") for ds in DataBase_Server_Config.objects.values('db_business').annotate(dcount=Count('db_business')) ] 
+            user_business = [ ds.get("db_business") for ds in DataBase_MySQL_Server_Config.objects.values('db_business').annotate(dcount=Count('db_business')) ] 
                      
         else:    
-            user_business = [ ds.get("db_business") for ds in DataBase_Server_Config.objects.filter(id__in=user_db_server_list).values('db_business').annotate(dcount=Count('db_business')) ]
+            user_business = [ ds.get("db_business") for ds in DataBase_MySQL_Server_Config.objects.filter(id__in=user_db_server_list).values('db_business').annotate(dcount=Count('db_business')) ]
 
         business_list = []
 

@@ -56,6 +56,13 @@ def file_iterator(file_name, chunk_size=512):
             break 
     f.close()
 
+def format_time(seconds):
+    m, s = divmod(seconds, 60)
+    h, m = divmod(m, 60)  
+    d, m = divmod(h, 24) 
+    if d > 1:
+        return "%02d 天" % d
+    return "%02d:%02d:%02d" % (h, m, s)
   
 def radString(length=8,chars=string.ascii_letters+string.digits):
     return ''.join([choice(chars) for i in range(length)])

@@ -32,7 +32,7 @@ class webTerminalThread(threading.Thread):
         self.chan.ssh.close()
         self.stop()
  
-    def send_msg(self, msg):  
+    def send_msg(self, msg): 
         async_to_sync(self.chan.channel_layer.group_send)(
             self.chan.group_name,
             {

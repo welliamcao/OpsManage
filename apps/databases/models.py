@@ -4,7 +4,7 @@ from django.db import models
 from asset.models import Business_Tree_Assets    
 from dao.base import AESCharField
 
-class DataBase_Server_Config(models.Model):
+class DataBase_MySQL_Server_Config(models.Model):
     env_type = (
                 ('alpha',u'开发环境'),
                 ('beta',u'测试环境'),
@@ -41,7 +41,6 @@ class DataBase_Server_Config(models.Model):
                }  
     db_env = models.CharField(choices=env_type,max_length=10,verbose_name='环境类型',default=None)
     db_type = models.CharField(max_length=10,verbose_name='数据库类型',blank=True,null=True)
-#     db_name = models.CharField(max_length=100,verbose_name='数据库名',blank=True,null=True)
     db_assets = models.ForeignKey('asset.Assets',related_name='database_total', on_delete=models.CASCADE,verbose_name='assets_id')
     db_business = models.IntegerField(verbose_name='业务关联')
     db_mode = models.CharField(max_length=10,choices=mode,verbose_name='架构类型',default='single')
@@ -68,8 +67,8 @@ class DataBase_Server_Config(models.Model):
             ("database_sqlfavorite_database_server_config", "数据库用户自定SQL权限"),
         )
         unique_together = (("db_port", "db_assets","db_env","db_business"))
-        verbose_name = '数据库管理'  
-        verbose_name_plural = '数据库信息表'
+        verbose_name = 'MySQL数据库管理'  
+        verbose_name_plural = 'MySQL数据库信息表'
         
 
     def business_paths(self):
@@ -130,8 +129,8 @@ class DataBase_Server_Config(models.Model):
         }
         return  json_format
 
-class Database_Detail(models.Model):
-    db_server = models.ForeignKey('DataBase_Server_Config',related_name='databases', on_delete=models.CASCADE,verbose_name='db_server_id')
+class Database_MySQL_Detail(models.Model):
+    db_server = models.ForeignKey('DataBase_MySQL_Server_Config',related_name='databases', on_delete=models.CASCADE,verbose_name='db_server_id')
     db_name = models.CharField(max_length=50,verbose_name='数据库名字')   
     total_table = models.IntegerField(verbose_name='表数量',blank=True,null=True) 
     db_size = models.IntegerField(verbose_name='数据库大小',blank=True,null=True)
@@ -139,8 +138,8 @@ class Database_Detail(models.Model):
         db_table = 'opsmanage_database_detail'
         default_permissions = ()
         unique_together = (("db_server", "db_name"))
-        verbose_name = '数据库管理'   
-        verbose_name_plural = '服务器数据库信息'
+        verbose_name = 'MySQL数据库管理'   
+        verbose_name_plural = 'MySQL服务器数据库信息'
         
     def to_json(self):      
         json_format = {
@@ -182,7 +181,7 @@ class Database_Table_Detail_Record(models.Model):
         verbose_name = '数据库管理'   
         verbose_name_plural = '服务器数据库表记录信息'
     
-class Database_User(models.Model):
+class Database_MySQL_User(models.Model):
     db = models.SmallIntegerField(verbose_name='db_id')
     user = models.SmallIntegerField(verbose_name='用户id') 
     is_write = models.SmallIntegerField(verbose_name='是否可写', default=0) 
@@ -194,8 +193,8 @@ class Database_User(models.Model):
         db_table = 'opsmanage_database_user'
         default_permissions = ()
         unique_together = (("db", "user"))
-        verbose_name = '数据库管理'   
-        verbose_name_plural = '用户数据库分配表'        
+        verbose_name = 'MySQL数据库管理'   
+        verbose_name_plural = 'MySQL用户数据库分配表'        
 
     def to_json(self):                    
         json_format = {
@@ -217,13 +216,13 @@ class Database_Group(models.Model):
         db_table = 'opsmanage_database_group'
         default_permissions = ()
         unique_together = (("db", "group"))
-        verbose_name = '数据库管理'  
-        verbose_name_plural = '用户组数据库分配表'
+        verbose_name = 'MySQL数据库管理'  
+        verbose_name_plural = 'MySQL用户组数据库分配表'
 
 
 class SQL_Execute_Histroy(models.Model):
     exe_user = models.CharField(max_length= 100,verbose_name='执行人',db_index=True)
-    exe_db = models.ForeignKey('Database_Detail',verbose_name='数据库id', on_delete=models.CASCADE)
+    exe_db = models.ForeignKey('Database_MySQL_Detail',verbose_name='数据库id', on_delete=models.CASCADE)
     exe_sql =  models.TextField(verbose_name='执行的SQL内容') 
     exec_status = models.SmallIntegerField(blank=True,null=True,verbose_name='执行状态')
     exe_result = models.TextField(blank=True,null=True,verbose_name='执行结果') 
@@ -241,7 +240,7 @@ class SQL_Execute_Histroy(models.Model):
             ("database_add_sql_execute_histroy", "添加SQL执行历史表权限"),
             ("database_delete_sql_execute_histroy", "删除SQL执行历史表权限"),              
         )
-        verbose_name = '数据库管理'  
+        verbose_name = 'MySQL数据库管理'  
         verbose_name_plural = 'SQL执行历史记录表'     
         
                 
@@ -256,7 +255,7 @@ class Custom_High_Risk_SQL(models.Model):
             ("database_add_custom_high_risk_sql", "添加高危SQL表权限"),
             ("database_delete_custom_high_risk_sql", "删除高危SQL表权限"),              
         )
-        verbose_name = '数据库管理'   
+        verbose_name = 'MySQL数据库管理'   
         verbose_name_plural = '自定义高危SQL表' 
         
         

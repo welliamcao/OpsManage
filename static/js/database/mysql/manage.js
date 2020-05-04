@@ -1,3 +1,54 @@
+var webssh = false
+function make_terminal(element, size, ws_url) { 
+	var message = {'status': 0, 'data': null, 'cols': null, 'rows': null};
+    var term = new Terminal({
+        cols: size.cols,
+        rows: size.rows,
+        screenKeys: true,
+        useStyle: true,
+        cursorBlink: true,  // Blink the terminal's cursor
+    });         	
+    if (webssh) {
+        return;
+    }        
+    webssh = true;        	
+    term.open(element, false);
+    term.write('正在连接...')
+/*             term.fit(); */
+    var ws = new WebSocket(ws_url);
+    ws.onopen = function (event) {
+        term.resize(term.cols, term.rows);
+
+        term.on('data', function (data) {
+            ws.send(data); 
+        });
+
+        term.on('title', function (title) {
+            document.title = title;
+        });
+        
+        ws.onmessage = function (event) {
+        	term.write(event.data);
+        };  
+
+/*        term.on('key', function(key, ev) {
+            console.log(key, ev, ev.keyCode)
+            if (ev.keyCode==38){
+            	return false
+            }
+        }) */       
+           
+    };
+    ws.onerror = function (e) {
+    	term.write('\r\n连接失败')
+    	ws = false
+    };
+/*    ws.onclose = function () {
+        term.destroy();
+    }; */     
+    return {socket: ws, term: term};
+}
+
 var language =  {
 		"sProcessing" : "处理中...",
 		"sLengthMenu" : "显示 _MENU_ 项结果",
@@ -36,7 +87,7 @@ function make_database_binlog(vIds,select_name){
 	       break;
 	}	
 	$.ajax({
-		url:'/db/manage/', //请求地址
+		url:'/db/mysql/manage/', //请求地址
 		type:"POST",  //提交类似			
 		data:{
 			"db":vIds,
@@ -171,7 +222,9 @@ function makeDbManageTableList(dataList){
    	    				render: function(data, type, row, meta) {
    	                        return '<div class="btn-group  btn-group-xs">' +	
 	    	                           '<button type="button" name="btn-database-query" value="'+ row.id +'" class="btn btn-default"  aria-label="Justify"><span class="fa fa-search-plus" aria-hidden="true"></span>' +	
-	    	                           '</button>' +			    	                           			                            
+	    	                           '</button>' +	
+	    	                           '<button type="button" name="btn-database-terminal" value="'+ row.id +'" class="btn btn-default"  aria-label="Justify"><span class="fa fa-terminal" aria-hidden="true"></span>' +	
+	    	                           '</button>' +  	    	                           
 	    	                           '</div>';
    	    				},
    	    				"className": "text-center",
@@ -246,8 +299,12 @@ function drawTableTree(ids,jsonData){
 	});		
 }
 
+
 $(document).ready(function () {
 
+	
+	var randromChat = makeRandomId()
+	
 	$("input[name='binlog_time']").daterangepicker({
         timePicker: !0,
         timePickerIncrement: 30,
@@ -268,7 +325,7 @@ $(document).ready(function () {
 		btnObj.attr('disabled',true);    
 		let vIds = $(this).val();
 		$.ajax({
-			url:'/db/manage/',
+			url:'/db/mysql/manage/',
 			type:"POST",			
 			data:{
 				"db":vIds,
@@ -327,7 +384,7 @@ $(document).ready(function () {
                             return false
                         }                    	
                         $.ajax({
-                            url: "/db/manage/",
+                            url: "/db/mysql/manage/",
                             type: "POST",
                             data: {
                 				"db":vIds,
@@ -390,7 +447,7 @@ $(document).ready(function () {
 		btnObj.attr('disabled',true);  
 		let vIds = $(this).val();
 		$.ajax({
-			url:'/db/manage/',
+			url:'/db/mysql/manage/',
 			type:"POST",			
 			data:{
 				"db":vIds,
@@ -500,7 +557,7 @@ $(document).ready(function () {
 		btnObj.attr('disabled',true);    
 		let vIds = $(this).val();
 		$.ajax({
-			url:'/db/manage/',
+			url:'/db/mysql/manage/',
 			type:"POST",			
 			data:{
 				"db":vIds,
@@ -570,7 +627,7 @@ $(document).ready(function () {
         	$.ajax({  
                 cache: true,  
                 type: "POST",  
-                url:"/db/manage/", 
+                url:"/db/mysql/manage/", 
                 data:{
                 	"model": "table_list",
                 	"db":vIds
@@ -615,7 +672,7 @@ $(document).ready(function () {
     	
     }	
 	
-	drawTree('#dbTree',"/api/db/tree/?db_rw=r/w&db_rw=read&db_rw=write")
+	drawTree('#dbTree',"/api/db/mysql/tree/?db_rw=r/w&db_rw=read&db_rw=write")
 	
     $("#search-input").keyup(function () {
         var searchString = $(this).val();
@@ -628,7 +685,7 @@ $(document).ready(function () {
 	     if(select_node["last_node"] == 1){
 				$.ajax({
 					  type: 'GET',
-					  url: '/api/db/user/list/?db_server='+ select_node["db_server"] + '&is_write=1',
+					  url: '/api/db/mysql/user/list/?db_server='+ select_node["db_server"] + '&is_write=1',
 				      success:function(response){	
 				    	  if ($('#UserDatabaseListTable').hasClass('dataTable')) {
 				            dttable = $('#UserDatabaseListTable').dataTable();
@@ -648,8 +705,164 @@ $(document).ready(function () {
 				});
 	     }
     });	
+
+    $("#db_exec_btn").on('click', function () {
+        let btnObj = $(this);
+        btnObj.attr('disabled', true);
+        let db = $(this).val()
+        if (db > 0) {
+            $('#show_sql_result').show();
+            let sql = aceEditAdd.getSession().getValue();
+            if (sql.length == 0 || db == 0) {
+                new PNotify({
+                    title: 'Warning!',
+                    text: 'SQL内容与数据库不能为空',
+                    type: 'warning',
+                    styling: 'bootstrap3'
+                });
+                btnObj.removeAttr('disabled');
+                return false;
+            }
+            //删除最后一个;符号
+            while (sql[sql.length - 1] === ';')
+               sql = sql.substr(0, sql.length - 1);   
+ 
+            //SQL过滤
+            let sql_list = sql.split(/\n/)
+            for (let i = 0; i < sql_list.length; i++) {
+            	//以#开头的SQL就替换掉
+            	if(/^#/.test(sql_list[i])){
+            		sql = sql.replace(sql_list[i],'');
+            	}
+            	//删除sql两边的空格字符串
+            	sql = sql.replace(/^\s*|\s*$/g,"");
+            }
+          
+            if (sql.split(";").length > 10) {
+                new PNotify({
+                    title: 'Warning!',
+                    text: '查询最多支持10条query',
+                    type: 'warning',
+                    styling: 'bootstrap3'
+                });
+                btnObj.removeAttr('disabled');
+                return false;
+            }
+            $.ajax({
+                url: '/db/mysql/manage/',
+                type: "POST",
+                "dateType": "json",
+                data: {
+                    "db": db,
+                    "model": 'exec_sql',
+                    "sql": sql
+                },  //提交参数
+                success: function (response) {
+                    btnObj.removeAttr('disabled');
+                    let ulTags = '<ul class="list-unstyled timeline widget">';
+                    let tableHtml = '';
+                    let liTags = '';
+                    let tablesList = [];
+                    if (response['code'] == "200" && response["data"].length > 0) {
+                        for (let i = 0; i < response["data"].length; i++) {
+                            let tableId = "query_result_list_" + i;
+                            tablesList.push(tableId);
+                            let table_i_html = '';
+                            if (response["data"][i]["dataList"]) {
+                                table_i_html = '<table class="table" id="' + tableId + '"><thead><tr>';
+                                let trHtml = '';
+                                for (let x = 0; x < response["data"][i]["dataList"][2].length; x++) {
+                                    trHtml = trHtml + '<th>' + response["data"][i]["dataList"][2][x] + '</th>';
+                                }
+                                table_i_html = table_i_html + trHtml + '</tr></thead><tbody>';
+                                let trsHtml = '';
+                                for (let y = 0; y < response["data"][i]["dataList"][1].length; y++) {
+                                    let tdHtml = '<tr>';
+                                    for (let z = 0; z < response["data"][i]["dataList"][1][y].length; z++) {
+                                        tdHtml = tdHtml + '<td>' + response["data"][i]["dataList"][1][y][z] + '</td>';
+                                    }
+                                    trsHtml = trsHtml + tdHtml + '</tr>';
+                                }
+                                table_i_html += trsHtml + '</tbody></table>'
+                            } else {
+                                table_i_html = '<div style="margin-bottom: 20px;margin-left: 20px;">' + response["data"][i]["msg"] + '<div/>'
+                            }
+                            tableHtml = tableHtml + '<fieldset><legend style="margin-bottom: 10px;"> SQL： <code>' + response["data"][i]['sql'] + '</code> <span class="pull-right">耗时：'+ response["data"][i]['time'] +'</span></legend>' + table_i_html + '</fieldset>';
+                        }
+                        $("#exec_result").html(tableHtml);
+                        if (tablesList.length) {
+                            for (var i = 0; i < tablesList.length; i++) {
+                                var table = $("#" + tablesList[i]).DataTable({
+                                    dom: 'Bfrtip',
+                                    "lengthMenu": [[50, 150, 450, -1], [50, 150, 450, "All"]],
+                                    buttons: [{
+                                        extend: "copy",
+                                        className: "btn-sm"
+                                    },
+                                        {
+                                            extend: "csv",
+                                            className: "btn-sm"
+                                        },
+                                        {
+                                            extend: "excel",
+                                            className: "btn-sm"
+                                        },
+                                        {
+                                            extend: "pdfHtml5",
+                                            className: "btn-sm"
+                                        },
+                                        {
+                                            extend: "print",
+                                            className: "btn-sm"
+                                        }],
+                                    language: {
+                                        "sProcessing": "处理中...",
+                                        "sLengthMenu": "显示 _MENU_ 项结果",
+                                        "sZeroRecords": "没有匹配结果",
+                                        "sInfo": "显示第 _START_ 至 _END_ 项结果，共 _TOTAL_ 项",
+                                        "sInfoEmpty": "显示第 0 至 0 项结果，共 0 项",
+                                        "sInfoFiltered": "(由 _MAX_ 项结果过滤)",
+                                        "sInfoPostFix": "",
+                                        "sSearch": "搜索:",
+                                        "sUrl": "",
+                                        "sEmptyTable": "表中数据为空",
+                                        "sLoadingRecords": "载入中...",
+                                        "sInfoThousands": ",",
+                                        "oPaginate": {
+                                            "sFirst": "首页",
+                                            "sPrevious": "上页",
+                                            "sNext": "下页",
+                                            "sLast": "末页"
+                                        },
+                                        "oAria": {
+                                            "sSortAscending": ": 以升序排列此列",
+                                            "sSortDescending": ": 以降序排列此列"
+                                        }
+                                    },
+                                });
+                            }
+                        }
+
+                    } else {
+                        var selectHtml = '<div id="result">' + response["msg"] + '</div>';
+                        $("#exec_result").html(selectHtml);
+                    }
+                },
+                error: function (response) {
+                    btnObj.removeAttr('disabled');
+                    new PNotify({
+                        title: 'Ops Failed!',
+                        text: response.responseText,
+                        type: 'error',
+                        styling: 'bootstrap3'
+                    });
+                }
+            });
+        }
+    }); 
     
-	$("#db_exec_btn").on('click', function() {
+    
+/*	$("#db_exec_btn").on('click', function() {
 		var btnObj = $(this);
 		btnObj.attr('disabled',true); 
 		var db = $(this).val()
@@ -667,7 +880,7 @@ $(document).ready(function () {
 		    	return false;
 		    };			
 			$.ajax({
-				url:'/db/manage/', 
+				url:'/db/mysql/manage/', 
 				type:"POST",  			
 				data:{
 					"db":db,
@@ -788,7 +1001,38 @@ $(document).ready(function () {
 		    	}
 			});		
 		}
-	});    
+	});  */
+	
+	$('#UserDatabaseListTable tbody').on('click',"button[name='btn-database-terminal']",function(){   
+    	let vIds = $(this).val();
+    	let td = $(this).parent().parent().parent().find("td")
+		$("#myModfMysqlTerminalModalLabel").html('<p class="text-blank">MySQL <code>'+td.eq(2).text()+ ':'+td.eq(1).text() + '</code> Web Terminal</p>')
+		$("#mysqlTerminal").html("")
+		$('#mysqlTerminalBtn').val(vIds)
+		$('#myModfMysqlTerminalModal').modal({show:true});	        	
+    });	  
+
+	$("#mysqlTerminalBtn").on("click", function(){
+		let vIds = $(this).val();
+		let ws_scheme = window.location.protocol === "https:" ? "wss" : "ws";
+		var ws_path = ws_scheme + '://' + window.location.host + '/ws/mysql/terminal/'+ vIds + '/' + randromChat + '/';   
+		websocket = make_terminal(document.getElementById('mysqlTerminal'), {rows: 30, cols: 140}, ws_path);
+	    $(this).attr("disabled",true);
+	 }); 	
+	
+    $('.bs-example-modal-mysql-terminal').on('hidden.bs.modal', function () {
+		try {
+			websocket["socket"].close()
+		}
+		catch(err) {
+			console.log(err)
+		} 
+		finally {
+			webssh = false
+		}    	
+    	$("#mysqlTerminalBtn").attr("disabled",false);
+    }); 	
+	
 })    
 
 
@@ -798,7 +1042,7 @@ function viewTableSchema(obj){
             cache: true,  
             type: "POST",    
             async: false,
-            url:"/db/manage/",
+            url:"/db/mysql/manage/",
             data:{
             	"model": "table_schema",
             	"db": obj["original"]["db"],
