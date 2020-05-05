@@ -14,7 +14,7 @@ class MySQLVariables(MySQLPool):
             row = self.queryOne(sql)
             return row[1][1]
         except Exception as ex:
-            logger.exor(ex.__str__())
+            logger.error(ex.__str__())
             return -1
 
 class MySQLUptime(MySQLStatus):
@@ -29,7 +29,7 @@ class MySQLUptime(MySQLStatus):
             row = self.queryOne(sql)
             return base.format_time(int(row[1][1]))
         except Exception as ex:
-            logger.exor(ex.__str__())
+            logger.error(ex.__str__())
             return -1
 
 class MySQLDiskUsed(MySQLPool):
@@ -49,7 +49,7 @@ class MySQLDiskUsed(MySQLPool):
             disk_used_percent = disk_size
             return int(disk_used_percent)
         except Exception as ex:
-            logger.exor(ex.__str__())
+            logger.error(ex.__str__())
             return -1
 
 class MySQLMemUsed(MySQLPool):
@@ -65,7 +65,7 @@ class MySQLMemUsed(MySQLPool):
             mem_used_GB = float(row[1][0])
             return round(mem_used_GB,2)
         except Exception as ex:
-            logger.exor(ex.__str__())
+            logger.error(ex.__str__())
             return -1
 
 class MySQLBasedir(MySQLVariables):
@@ -114,7 +114,7 @@ class MySQLInnodbBufferPoolSize(MySQLVariables):
             poolSize = int(row[1][1]) / 1024/ 1024 /1024
             return poolSize
         except Exception as ex:
-            logger.exor(ex.__str__())
+            logger.error(ex.__str__())
             return -1
 
 class MySQLMaxConnections(MySQLVariables):

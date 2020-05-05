@@ -12,8 +12,9 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from django.contrib.auth.decorators import permission_required
-from dao.base import MySQLPool,DataHandle
-from dao.mysql import MySQLARCH,DBManage,DBConfig, DBUser
+from dao.base import DataHandle
+from databases.service.mysql_base import MySQLBase,MySQLARCH
+from dao.mysql import DBManage,DBConfig, DBUser
 from django.http import JsonResponse
 from utils.logger import logger
 from utils.base import method_decorator_adaptor,file_iterator
@@ -59,7 +60,7 @@ def db_detail(request, id,format=None):
     
 class DB_CUSTOM_SQL(APIView,DBConfig):
     @method_decorator_adaptor(permission_required, "databases.database_can_read_sql_custom_high_risk_sql","/403/")     
-    def get(self,request,format=None):
+    def get(self, request, format=None):
         snippets = Custom_High_Risk_SQL.objects.all()
         serializer = serializers.CustomSQLSerializer(snippets, many=True)
         return Response(serializer.data) 
@@ -175,8 +176,8 @@ def db_org(request, id,format=None):
     except DataBase_MySQL_Server_Config.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)    
     if request.method == 'POST':
-        MYSQL = MySQLPool(dbServer.to_connect())
-        ARCH_INFO = MySQLARCH(MYSQL,dbServer.to_connect())
+        MYSQL = MySQLBase(dbServer.to_connect())
+        ARCH_INFO = MySQLARCH(MYSQL, dbServer.to_connect())
         if dbServer.db_mode == 'pxc':data = ARCH_INFO.pxc()
         elif dbServer.db_mode == 'slave':data = ARCH_INFO.master_slave()
         else:
@@ -286,7 +287,7 @@ def db_server_db_detail(request, sid, id,format=None):
         return Response(status=status.HTTP_204_NO_CONTENT) 
 
 
-class DB_DATA_DICT(APIView,DBConfig,DataHandle):
+class DB_DATA_DICT(APIView, DBConfig, DataHandle):
     def get_db_server(self, sid):
         try:
             return DataBase_MySQL_Server_Config.objects.get(id=sid)
@@ -392,7 +393,7 @@ def db_user_db_table_list(request, uid, did, format=None):
         except Database_MySQL_Detail.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
                    
-        result= MySQLPool(dbServer=db_info.to_connect()).queryMany('show tables',10000) 
+        result= MySQLBase(dbServer=db_info.to_connect()).get_tables()
         
         if not isinstance(result, str):
             count,tableList,colName = result[0],result[1],result[2]

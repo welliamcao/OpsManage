@@ -12,7 +12,7 @@ class MySQLStatus(MySQLPool):
             row = self.queryOne(sql)
             return row[1][1]
         except Exception as ex:
-            logger.exor(self.key_name + ': ' + ex.__str__())
+            logger.error(self.key_name + ': ' + ex.__str__())
             return -1
         
 class MySQLCurrentClient(MySQLStatus):
@@ -37,7 +37,7 @@ class MySQLTableOpenCacheHitRate(MySQLStatus):
             miss = float(row[1][1])
             return round((hit/(hit + miss)) * 100,2)
         except Exception as ex:
-            logger.exor(ex.__str__())
+            logger.error(ex.__str__())
             return -1
 
 
@@ -145,7 +145,7 @@ class MySQLQueryCacheHitRate(MySQLStatus):
                 return 0
             return round((qcache_hits / total_qcache) * 100,2)
         except Exception as ex:
-            logger.exor(ex.__str__())
+            logger.error(ex.__str__())
             return -1
 
 class MySQLThreadCacheHitRate(MySQLStatus):
@@ -164,7 +164,7 @@ class MySQLThreadCacheHitRate(MySQLStatus):
             connections = float(row[1][1])
             return round((1 - threads_created / connections ) * 100,2)
         except Exception as ex:
-            logger.exor(ex.__str__())
+            logger.error(ex.__str__())
             return -1
 
 
@@ -184,7 +184,7 @@ class MySQLTableLocksPercent(MySQLStatus):
             table_locks_immediate = float(row[1][1])
             return round((table_locks_waited / table_locks_immediate) * 100,2)
         except Exception as ex:
-            logger.exor(ex.__str__())
+            logger.error(ex.__str__())
             return -1
 
 class MySQLTmpDiskTablesPercent(MySQLStatus):
@@ -202,7 +202,7 @@ class MySQLTmpDiskTablesPercent(MySQLStatus):
             created_tmp_tables = float(row[1][1])
             return round((created_tmp_disk_tables / created_tmp_tables) * 100,2)
         except Exception as ex:
-            logger.exor(ex.__str__())
+            logger.error(ex.__str__())
             return -1
 
 class MySQLConnectionsPercent(MySQLStatus):
@@ -221,7 +221,7 @@ class MySQLConnectionsPercent(MySQLStatus):
             max_connections = float(row[1][1])
             return round((max_used_connections / max_connections) * 100,2)
         except Exception as ex:
-            logger.exor(ex.__str__())
+            logger.error(ex.__str__())
             return -1
 
 class MySQLHandlexeadRnd(MySQLStatus):
@@ -299,9 +299,9 @@ class MySQLkeyReadRequests(MySQLStatus):
             sql = """show global status like 'key_read_requests';"""
             row = self.queryOne(sql)
             key_read_requests = float(row[1][1])
-            return round((key_reads / key_read_requests) * 100,2)
+            return round((key_reads / key_read_requests) * 100, 2)
         except Exception as ex:
-            logger.exor(ex.__str__())
+            logger.error(ex.__str__())
             return -1    
 
 class MySQLkeyWriteRequests(MySQLStatus):
@@ -320,7 +320,7 @@ class MySQLkeyWriteRequests(MySQLStatus):
             key_write_requests = float(row[1][1])
             return round((key_writes / key_write_requests) * 100,2)
         except Exception as ex:
-            logger.exor(ex.__str__())
+            logger.error(ex.__str__())
             return -1  
 
 class MySQLBinlogCacheDiskUse(MySQLStatus):

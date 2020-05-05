@@ -1,7 +1,6 @@
 #!/usr/bin/env python  
 # _#_ coding:utf-8 _*_ 
 #coding: utf8
-from dao.base import MySQLPool
 from databases.service.mysql_status import MySQLStatus
 
 

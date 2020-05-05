@@ -8,7 +8,7 @@ from utils.logger import logger
 from .assets import AssetsBase 
 from asset.models import *
 from datetime import datetime
-from dao.base import MySQLPool
+from databases.service.mysql_base import MySQLBase
 from utils import base
 from utils.mysql.binlog2sql import Binlog2sql
 from utils.mysql.const import SQL_PERMISSIONS,SQL_DICT_HTML
@@ -17,76 +17,6 @@ from django.db.models import Count
 from mptt.templatetags.mptt_tags import cache_tree_children  
 from account.models import User_Async_Task
 from django.core.exceptions import PermissionDenied
-
-class MySQLARCH(object):
-    def __init__(self, mysql, db_server):
-        super(MySQLARCH,self).__init__()  
-        self.mysql = mysql
-        self.mysql_status = self.mysql.get_status()
-        self.db_server = db_server
-        self.arch_info = {
-                    'title': self.db_server.get("db_mark"),
-                    'className': 'product-dept',
-                    'children': []                   
-                }
-    
-    def slave(self):
-        slave_data = {}
-        for ds in self.mysql.get_master_status():
-            if ds.get('name') == 'Slave':slave_data[self.db_server.self.db_server.get("ip")+':'+str(self.db_server.get("db_port"))] = ds.get('value')  
-        return slave_data
-        
-    def pxc(self):
-        self.arch_info["name"] = 'PXC模式'
-        pxc_server_list =  []
-        for ds in self.mysql_status[1]:
-            if ds.get('name') == 'Wsrep_incoming_addresses':pxc_server_list = ds.get('value').split(',')
-        for s in pxc_server_list:
-            data = {}
-            host = s.split(':')[0]
-            port = s.split(':')[1]
-            data['name'] = host
-            data['title'] = port
-            data['children'] = []
-            if s in self.slave().keys():
-                data['name'] = 'master'
-                data['title'] = host+':'+port
-                count = 1
-                for d in self.slave().get(s):
-                    x = {}
-                    host = d.split(':')[0]
-                    port = d.split(':')[1]
-                    x['name'] = 'slave-' + str(count)
-                    x['title'] =  host+':'+port
-                    count = count + 1
-                    data['children'].append(x)                                                             
-            self.arch_info['children'].append(data) 
-        return  self.arch_info  
-    
-    def master_slave(self):
-        count = 1
-        self.arch_info["name"] = '主从模式'
-        for m in self.mysql.get_slave_status():
-            if m.get('name') == 'Master_Host':
-                self.arch_info['children'].append({"name":'Master-' + str(count),"title":m.get('value')})
-                count = count + 1
-        for ds in self.mysql.get_master_status():
-            if ds.get('name') == 'Slave':
-                count = 1
-                for s in ds.get('value'):
-                    x = {}
-                    host = s.split(':')[0]
-                    port = s.split(':')[1]
-                    x['name'] = 'slave-' + str(count)
-                    x['title'] =  host+':'+port 
-                    count = count + 1  
-                    self.arch_info['children'].append(x)   
-        return  self.arch_info  
-    
-    def single(self):
-        self.arch_info["name"] = '单例模式'
-        return  self.arch_info 
-
 
 class DBConfig(AssetsBase):
     def __init__(self):
@@ -102,7 +32,7 @@ class DBConfig(AssetsBase):
 
     def __get_db_server_connect(self,dbServer):
         try:
-            return MySQLPool(dbServer=dbServer.to_connect())
+            return MySQLBase(dbServer=dbServer.to_connect())
         except Exception as ex:
             logger.error(msg="数据库不存在: {ex}".format(ex=ex)) 
             return ex 
@@ -402,7 +332,7 @@ class DBManage(AssetsBase):
     
     def __get_db_server(self,dbServer):
         try:
-            return MySQLPool(dbServer=dbServer)
+            return MySQLBase(dbServer=dbServer)
         except Exception as ex:
             logger.error(msg="数据库不存在: {ex}".format(ex=ex)) 
             return ex          
@@ -495,16 +425,12 @@ class DBManage(AssetsBase):
     def table_schema(self,request):
         dbServer = self.__check_user_perms(request,'databases.database_schema_database_server_config')
         table_data = {}
-        dbRbt  = self.__get_db_server(dbServer)
+        database  = self.__get_db_server(dbServer)
         grant_tables = self.__check_user_db_tables(request)
         if grant_tables and request.POST.get('table_name') not in grant_tables:return "操作的表未授权"
-        table_data["schema"] = dbRbt.queryMany(sql="""SELECT TABLE_SCHEMA,TABLE_NAME,TABLE_TYPE,ENGINE,VERSION,ROW_FORMAT,
-                                                    TABLE_ROWS,concat(round(sum(DATA_LENGTH/1024/1024),2),'MB') AS DATA_LENGTH,
-                                                    MAX_DATA_LENGTH,concat(round(sum(INDEX_LENGTH/1024/1024),2),'MB') AS INDEX_LENGTH,
-                                                    DATA_FREE,AUTO_INCREMENT,CREATE_TIME,TABLE_COLLATION,TABLE_COMMENT FROM information_schema.TABLES 
-                                                    WHERE  TABLE_SCHEMA='{db}' AND TABLE_NAME='{table}';""".format(db=dbServer.get("db_name"),table=request.POST.get('table_name')),num=1000)
-        table_data["index"] = dbRbt.queryMany(sql="""SHOW index FROM `{table}`;""".format(db=dbServer.get("db_name"),table=request.POST.get('table_name')),num=1000)
-        table_data["desc"] = dbRbt.queryOne(sql="""show create table `{table}`;""".format(db=dbServer.get("db_name"),table=request.POST.get('table_name')),num=1)[1][1]
+        table_data["schema"] = database.get_table_schema( dbServer.get("db_name"), request.POST.get('table_name'))
+        table_data["index"] = database.get_table_index(request.POST.get('table_name'))
+        table_data["desc"] = database.get_table_desc(request.POST.get('table_name'))[1]
         return table_data
             
     def parse_sql(self,request):

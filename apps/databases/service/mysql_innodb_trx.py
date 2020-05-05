@@ -11,7 +11,7 @@ class MySQLInnodbTrx(MySQLPool):
             sql = """select trx_id,trx_state,trx_started,trx_query,trx_tables_in_use,trx_tables_locked,trx_concurrency_tickets from information_schema.innodb_trx where trx_id in (select blocking_trx_id  from `information_schema`.`innodb_lock_waits`);"""
             return self.queryMany(sql)
         except Exception as ex:
-            logger.exor(ex.__str__())
+            logger.error(ex.__str__())
             return []
     
     def get_block_trx(self, second=10):
@@ -25,6 +25,6 @@ class MySQLInnodbTrx(MySQLPool):
                         where (UNIX_TIMESTAMP() - UNIX_TIMESTAMP(c.trx_started))>{second};""".format(second=second)
             return self.queryMany(sql)
         except Exception as ex:
-            logger.exor(ex.__str__())
+            logger.error(ex.__str__())
             return []           
         

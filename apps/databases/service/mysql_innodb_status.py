@@ -153,7 +153,7 @@ class MySQLInnodbDoubleWriteLoader(MySQLStatus):
                 return 0
             return round(pages/requests,2)
         except Exception as ex:
-            logger.exor(ex.__str__())
+            logger.error(ex.__str__())
             return -1
 
 class MySQLInnodbBufferPoolHitRate(MySQLStatus):
@@ -174,7 +174,7 @@ class MySQLInnodbBufferPoolHitRate(MySQLStatus):
                 return 0
             return round((hit_read / total_read) * 100,2)
         except Exception as ex:
-            logger.exor(ex.__str__())
+            logger.error(ex.__str__())
             return -1
         
 class MySQLInnodbBufferPoolFreePagePercent(MySQLStatus):
@@ -192,7 +192,7 @@ class MySQLInnodbBufferPoolFreePagePercent(MySQLStatus):
             free_page = float(row[1][1])
             return round((free_page / total_page) * 100,2)
         except Exception as ex:
-            logger.exor(ex.__str__())
+            logger.error(ex.__str__())
             return -1
 
 class MySQLInnodbBufferPoolDirtyPercent(MySQLStatus):
@@ -210,7 +210,7 @@ class MySQLInnodbBufferPoolDirtyPercent(MySQLStatus):
             dirty_page = float(row[1][1])
             return round((dirty_page / total_page) * 100,2)
         except Exception as ex:
-            logger.exor(ex.__str__())
+            logger.error(ex.__str__())
             return -1    
         
         
@@ -223,7 +223,7 @@ class MySQLInnodbMemUsed(MySQLStatus):
         try:
             sql = """SELECT ((@@key_buffer_size+@@innodb_buffer_pool_size+@@innodb_log_buffer_size)/1024/1024)+((@@read_rnd_buffer_size+@@read_buffer_size+@@myisam_sort_buffer_size+@@sort_buffer_size+@@join_buffer_size)/1024/1024*@@max_connections) as usedMem;"""
             row = self.queryOne(sql)
-            return row[1][1]
+            return round(row[1][0],2)
         except Exception as ex:
-            logger.exor(ex.__str__())
+            logger.error(ex.__str__())
             return -1            
