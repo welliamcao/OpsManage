@@ -4,12 +4,13 @@
 import time, json
 from jinja2 import Template
 from databases.models import *
+from utils import base
 from utils.logger import logger
 from .assets import AssetsBase 
 from asset.models import *
 from datetime import datetime
 from databases.service.mysql_base import MySQLBase
-from utils import base
+from utils.sqlparse import sql_parse
 from utils.mysql.binlog2sql import Binlog2sql
 from utils.mysql.const import SQL_PERMISSIONS,SQL_DICT_HTML
 from apps.tasks.celery_sql import record_exec_sql, export_table, parse_binlog
@@ -236,7 +237,7 @@ class DBUser(object):
 
 class DBManage(AssetsBase):  
     dml_sql = ["INSERT","UPDATE","DELETE"]
-    dql_sql = ["SELECT","SHOW","DESC","EXPLAIN"]
+    dql_sql = ["SELECT","DESC","EXPLAIN"]
     ddl_sql = ["CREATE","DROP","ALTER","TRUNCATE"]
     
     def __init__(self):
@@ -285,35 +286,56 @@ class DBManage(AssetsBase):
             
         return []              
     
-    def __check_sql_parse(self, request, allow_sql, dbname, sql):
-        try:
-            sql = sql.split(' ')
-            sqlCmd, sqlCmds = sql[0].upper(),(sql[0]+'_'+sql[1]).upper().replace(";","")
-        except Exception as ex:
-            logger.error(msg="解析SQL失败: {ex}".format(ex=ex)) 
-            return '解析SQL失败'        
+    def __extract_keyword_from_sql(self, sql):
+        return sql_parse.extract_sql_keyword(sql)
+    
+    def __extract_table_name_from_sql(self ,sql):
+        schema = []
+        tables = []
+        for ds in sql_parse.extract_tables(sql):
+
+            if ds.schema and ds.schema not in schema: 
+                schema.append(ds.schema)
+                
+            if ds.name and ds.name not in tables: 
+                tables.append(ds.name)
+                
+        if len(schema) > 0:
+            return "不支持跨数据库类型SQL" 
         
+        return tables
+    
+    def __check_sql_parse(self, request, allow_sql, sql, read_only=True):                
         #查询用户是不是有授权表
         grant_tables = self.__check_user_db_tables(request)
         
         #提取SQL中的表名
-        extract_table = base.extract_table_name_from_sql(" ".join(sql))
+        extract_table = self.__extract_table_name_from_sql(sql)
+        
+        if isinstance(extract_table, list) and grant_tables:
 
-        if extract_table:
-            if grant_tables:
-                for tb in extract_table:
-                    if tb.find('.') >= 0:
-                        db,tb = tb.split('.')[0],tb.split('.')[1]                        
-                        if db != dbname:return "不支持跨库查询" 
-                    if tb not in grant_tables:return "操作的表未授权"  
+            for tb in extract_table:
+                if tb not in grant_tables:
+                    return "操作的表未授权" 
+                    
+        elif isinstance(extract_table, str):
+            return extract_table
+                
         else:#如果提交的SQL里面没有包含授权的表，就检查SQL类型是否授权
             #查询用户授权的SQL类型
             grant_sql = self.__check_user_db_sql(request)
             
-            if sqlCmd.upper() in grant_sql or sqlCmds in grant_sql:return True
+            sql_type, _first_token , keywords = self.__extract_keyword_from_sql(sql)
+
+            if len(keywords) > 1:
+                if keywords[0] + '_'  + keywords[1] in grant_sql:
+                    return True
+#             print(_first_token, keywords, grant_sql, allow_sql)
             
-            if sqlCmd not in allow_sql: return 'SQL类型不支持'            
+            if read_only and _first_token == 'SELECT' and 'INTO' in keywords:return "当前操作，不允许写入"
             
+            if _first_token in allow_sql: return True
+                     
             return "SQL未授权, 联系管理员授权"
             
         return True 
@@ -351,8 +373,7 @@ class DBManage(AssetsBase):
         for sql in sql_list:
             stime = int(time.time()) 
             sql = sql.strip('\n') + ';'
-            sql_parse = self.__check_sql_parse(request, sql=sql, allow_sql=self.dml_sql + self.ddl_sql + self.dql_sql,
-                                               dbname=dbServer.get('db_name'))
+            sql_parse = self.__check_sql_parse(request, sql=sql, allow_sql=self.dml_sql + self.ddl_sql + self.dql_sql, read_only=False)
 
             if not isinstance(sql_parse, str):
                 result = self.__get_db_server(dbServer).execute(sql, 1000)
@@ -383,7 +404,7 @@ class DBManage(AssetsBase):
         for sql in sql_list:
             stime = int(time.time()) 
             sql = sql.strip('\n') + ';'
-            sql_parse = self.__check_sql_parse(request, sql=sql, allow_sql=self.dql_sql, dbname=dbServer.get('db_name'))
+            sql_parse = self.__check_sql_parse(request, sql=sql, allow_sql=self.dql_sql, read_only=True)
             if not isinstance(sql_parse, str):
                 result = self.__get_db_server(dbServer).queryMany(sql, 1000)
                 if not isinstance(result, str):

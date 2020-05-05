@@ -14,26 +14,6 @@ from .logger import logger
 from functools import wraps
 import ply.lex as lex, re
 
-def extract_table_name_from_sql(sql_str):
-    q = re.sub(r"/\*[^*]*\*+(?:[^*/][^*]*\*+)*/", "", sql_str)
-
-    lines = [line for line in q.splitlines() if not re.match("^\s*(--|#)", line)]
-
-    q = " ".join([re.split("--|#", line)[0] for line in lines])
-
-    tokens = re.split(r"[\s)(;]+", q)
-
-    result = []
-    get_next = False
-    for token in tokens:
-        if get_next:
-            if token.lower() not in ["", "select"]:
-                result.append(token)
-            get_next = False
-        get_next = token.lower() in ["from", "join","into","table","update","desc"]
-
-    return result
-
 def method_decorator_adaptor(adapt_to, *decorator_args, **decorator_kwargs):
     def decorator_outer(func):
         @wraps(func)

@@ -6,6 +6,7 @@ from utils.logger import logger
 from OpsManage.settings import config
 from databases.models import *
 from utils import base
+from utils.sqlparse import sql_parse
 # from threading import Thread
 import threading
 
@@ -106,34 +107,54 @@ class MySQLWebTerminal(WebsocketConsumer):
             pass  
         return []  
 
-    def __check_sql_parse(self, sql, allow_sql, dbname):
-        try:
-            sql = sql.split(' ')
-            sqlCmd, sqlCmds = sql[0].upper().strip(),(sql[0]+'_'+sql[1]).upper().replace(";","").strip()
-        except Exception as ex:
-            return "解析SQL失败: {ex}".format(ex=ex)      
+    def _extract_keyword_from_sql(self, sql):
+        return sql_parse.extract_sql_keyword(sql)
+    
+    def _extract_table_name_from_sql(self ,sql):
+        schema = []
+        tables = []
+        for ds in sql_parse.extract_tables(sql):
+
+            if ds.schema and ds.schema not in schema: 
+                schema.append(ds.schema)
+                
+            if ds.name and ds.name not in tables: 
+                tables.append(ds.name)
+                
+        if len(schema) > 0:
+            return "不支持跨数据库类型SQL" 
         
+        return tables
+
+    def __check_sql_parse(self, sql,  allow_sql):                
         #查询用户是不是有授权表
         grant_tables = self._check_user_db_tables(self.scope['url_route']['kwargs']['id'])
         
         #提取SQL中的表名
-        extract_table = base.extract_table_name_from_sql(" ".join(sql))
+        extract_table = self._extract_table_name_from_sql(sql)
+        
+        if isinstance(extract_table, list) and grant_tables:
 
-        if extract_table:
-            if grant_tables:
-                for tb in extract_table:
-                    if tb.find('.') >= 0:
-                        db,tb = tb.split('.')[0],tb.split('.')[1]                        
-                        if db != dbname:return "不支持跨库查询" 
-                    if tb not in grant_tables:return "操作的表未授权"  
+            for tb in extract_table:
+                if tb not in grant_tables:
+                    return "操作的表未授权" 
+                    
+        elif isinstance(extract_table, str):
+            return extract_table
+                
         else:#如果提交的SQL里面没有包含授权的表，就检查SQL类型是否授权
             #查询用户授权的SQL类型
             grant_sql = self._check_user_db_sql(self.scope['url_route']['kwargs']['id'])
-
-            if sqlCmd.upper() in grant_sql or sqlCmds in grant_sql:return True
-
-            if sqlCmd not in allow_sql: return 'SQL类型不支持'            
             
+            sql_type, _first_token , keywords = self._extract_keyword_from_sql(sql)
+
+            if len(keywords) > 1:
+                if keywords[0] + '_'  + keywords[1] in grant_sql:
+                    return True
+#             print(_first_token, keywords, grant_sql, allow_sql)
+        
+            if _first_token in allow_sql: return True
+                     
             return "SQL未授权, 联系管理员授权"
             
         return True 
@@ -199,7 +220,7 @@ class MySQLWebTerminal(WebsocketConsumer):
     def _check_sql(self, text_data):
         if len(self.sql) >= 2:
             if text_data == '\r' and (self.sql[-1]==';' or self.sql[-2:]=='\G'):              
-                sql_parse = self.__check_sql_parse(self.sql, self.dml_sql + self.ddl_sql + self.dql_sql, self.db.get("db_name"))  
+                sql_parse = self.__check_sql_parse(self.sql, self.dml_sql + self.ddl_sql + self.dql_sql)  
                 try:
                     if isinstance(sql_parse, str):
                         self.status = False
