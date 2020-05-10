@@ -212,7 +212,7 @@ class AssetsBatch(LoginRequiredMixin,AssetsSource,View):
     
     @method_decorator_adaptor(permission_required, "asset.assets_delete_assets","/403/")     
     def delete(self, request, *args, **kwagrs):
-        for ast in QueryDict(request.body).getlist('assetsIds[]'):
+        for ast in QueryDict(request.body).getlist('ids[]'):
             try:
                 assets = Assets.objects.get(id=int(ast))
             except Exception as ex:

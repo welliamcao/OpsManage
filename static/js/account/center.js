@@ -147,26 +147,24 @@ function RefreshAssetsTable(tableId, urlData){
 	});
 }
 
-function RefreshChoiceAssets(){
-	var btnObj = $(this);
-	btnObj.attr('disabled',true);
+function batchManageChoiceAssets(dataList, title, content, type){
 	var serverId = [];
-	var ips = ''
-    $.each($('input[type=checkbox]input[name="ckbox"]:checked'),function(){
-    	ips += '<strong><code>' + $(this).parent().parent().find("td").eq(5).text() + '</code></strong>&nbsp;'
-    	serverId.push($(this).val())
-    }); 
+	let ips = '' 
+	for (var i=0; i <dataList.length; i++){
+		serverId.push(dataList[i]["id"])
+		ips = ips + dataList[i]["detail"]['ip'] + ' '
+	}
   	if (serverId.length > 0){
 	    $.confirm({
-	        type: 'blue',
-	        title: '更新资产',
-	        content: '确认更新这些资产:<br>' + ips,
+	        type: 'red',
+	        title: title,
+	        content: content + ips,
 	        buttons: {
-	            '更新': {
+	            '确定': {
 	                btnClass: 'btn-blue',
 	                action: function() {
 						$.ajax({
-							  type: 'POST',
+							  type: type,
 							  url: '/assets/batch/',
 							  dataType:"json",
 							  data:{
@@ -202,14 +200,12 @@ function RefreshChoiceAssets(){
 										styling: 'bootstrap3',
 										delay: 18000
 									}); 
-								}
-								btnObj.removeAttr('disabled');		            
+								}	            
 							  },
 							  error:function(response){
-								btnObj.removeAttr('disabled');
 								new PNotify({
 									title: 'Ops Failed!',
-									text: '资产修改失败',
+									text: '批量操作失败',
 									type: 'error',
 									styling: 'bootstrap3'
 								}); 
@@ -223,95 +219,12 @@ function RefreshChoiceAssets(){
   	}
   	else{
 		$.alert({
-		    title: '批量更新资产',
+		    title: '批量操作资产',
 		    content: '请至少选择一个资产!',
 		    type: 'red',
 		});	 
-  		btnObj.removeAttr('disabled');
   	}	
 }
-
-function DeleteChoiceAssets(){
-	var btnObj = $(this);
-	btnObj.attr('disabled',true);
-	var serverId = [];
-	var ips = ''
-    $.each($('input[type=checkbox]input[name="ckbox"]:checked'),function(){
-    	ips += '<strong><code>' + $(this).parent().parent().find("td").eq(5).text() + '</code></strong>&nbsp;'
-    	serverId.push($(this).val())
-    });  
-  	if (serverId.length > 0){
-	    $.confirm({
-	        type: 'red',
-	        title: '删除资产',
-	        content: '确认删除这些资产:<br>' + ips,
-	        buttons: {
-	            '删除': {
-	                btnClass: 'btn-blue',
-	                action: function() {
-  		         		 $.ajax({
-	   		      			  type: 'DELETE',
-	   		      			  url: '/assets/batch/',
-	   		      			  dataType:"json",
-	   		      			  data:{
-	   		      				  'assetsIds':serverId,
-	   		      			  },
-	   		      		      success:function(response){	
-	   		      		    	var sip = '';
-	   		      		    	var fip = '';
-	   		      		    	var modal = '';
-	   		      	    		for  (var i = 0; i < response['data']['success'].length; i++){
-	   		      	    			 sip += response['data']['success'][i] + '<br>'
-	   		      	    		}
-	   		      	    		for  (var i = 0; i < response['data']['failed'].length; i++){
-	   		      	    			 fip += response['data']['failed'][i] + '<br>'
-	   		      	    		}	
-	   		      	    		msg = '成功：'+ '<br>' + sip + '<br>' + '失败：'+ '<br>' + fip;	
-	   		      			    	if (response['code']==200){
-	   		      		            	new PNotify({
-	   		      		                    title: 'Success!',
-	   		      		                    text: msg,
-	   		      		                    type: 'success',
-	   		      		                    styling: 'bootstrap3',
-	   		      		                    delay: 18000
-	   		      		                }); 	
-	   		      		    	}
-	   		      		    	else{
-	   		      	            	new PNotify({
-	   		      	                    title: 'Ops Failed!',
-	   		      	                    text: response["msg"],
-	   		      	                    type: 'error',
-	   		      	                    styling: 'bootstrap3',
-	   		      	                    delay: 18000
-	   		      	                }); 
-	   		      		    	}
-	   		      			    btnObj.removeAttr('disabled');		            
-	   		      		      },
-	   		                    error:function(response){
-	   		                  	btnObj.removeAttr('disabled');
-	   		                  	new PNotify({
-	   		                          title: 'Ops Failed!',
-	   		                          text: '资产修改失败',
-	   		                          type: 'error',
-	   		                          styling: 'bootstrap3'
-	   		                      }); 
-	   		                    }
-	   		      			});	
-	                }
-	            },
-        	'取消': function() {},
-	        }
-	    }); 		
-  	}
-  	else{
-		$.alert({
-		    title: '批量删除资产',
-		    content: '请至少选择一个资产!',
-		    type: 'red',
-		});	 
-  		btnObj.removeAttr('disabled');
-  	}
-};
 
 $(document).ready(function() {
 	
@@ -398,8 +311,17 @@ $(document).ready(function() {
 						    {
 						        text: '<span class="fa fa-trash-o"></span>',
 						        className: "btn-sm",
-						        action: function ( e, dt, node, config ) {        	
-						        	DeleteChoiceAssets()
+						        action: function ( e, dt, node, config ) {  
+					            	let dataList = dt.rows('.selected').data()
+					            	if (dataList.length==0){
+					            		$.alert({
+					            		    title: '操作失败',
+					            		    content: '批量删除资产失败，请先选择资产',
+					            		    type: 'red',		    
+					            		});	            		
+					            	}else{ 
+					            		batchManageChoiceAssets(dataList, '批量删除', '批量删除资产：' ,'DELETE')
+					            	} 						        	
 						        }
 						    },	
 						    {
@@ -407,7 +329,6 @@ $(document).ready(function() {
 						        className: "btn-sm",
 						        action: function ( e, dt, node, config ) {        	
 						            	let dataList = dt.rows('.selected').data()
-						            	var vips = ''
 						            	if (dataList.length==0){
 						            		$.alert({
 						            		    title: '操作失败',
@@ -415,7 +336,7 @@ $(document).ready(function() {
 						            		    type: 'red',		    
 						            		});	            		
 						            	}else{ 
-						            		updateAssetsByAnsible(dataList)
+						            		batchManageChoiceAssets(dataList, '批量更新', '批量更新资产：' ,'POST')
 						            	} 
 						        	} 
 						    	},      

@@ -151,9 +151,10 @@ class MySQLWebTerminal(WebsocketConsumer):
             if len(keywords) > 1:
                 if keywords[0] + '_'  + keywords[1] in grant_sql:
                     return True
-#             print(_first_token, keywords, grant_sql, allow_sql)
+                
+#             print(sql_type, _first_token , keywords)
         
-            if _first_token in allow_sql: return True
+            if _first_token in allow_sql and sql_type in ["dml", "ddl"]: return True
                      
             return "SQL未授权, 联系管理员授权"
             
