@@ -283,36 +283,10 @@ function oBtBusinessSelect(){
 
 
 function format ( data ) {
-    /* base */
-    var trBaseHtml = '';
-	for (var i=0; i <data.length; i++){	
-		let trHtml = '<tr>' +
-						 '<td>' + data[i]["name"]  +'</td>' +
-						 '<td>' + data[i]["value"] + '</td>'+ 
-						 '<td>' + data[i]["desc"] + '</td>' + 
-					 '</tr>' 
-		trBaseHtml = trBaseHtml + trHtml
-	};
-	 
-    var vBaseHtml = '<div class="row">' +
-    					'<div class="col-lg-12">' +
-    						'<table class="table table-bordered"><caption>基本信息</caption>'+ 
-		                      '<thead>' +
-		                        '<tr>' +
-		                        	'<th class="text-center">名称</th>' +
-					                '<th>当前值</th>' +
-					                '<th>描述</th>' +
-		                        '</tr>' +
-		                      '</thead>' +
-		                      '<tbody>' +
-								 	trBaseHtml +
-							  '</tbody>' +
-							 '</table>' +
-						'</div>' +
-					'</div>';	
-
-	return vBaseHtml
-}
+	var serHtml = '';
+	serHtml = "<pre>" + JSON.stringify(data,null,4) + "</pre>";			
+    return serHtml;
+}	
 
 function makeDatabaseSelect(ids,response){
 	var binlogHtml = '<select required="required" class="selectpicker form-control" data-live-search="true" name="db_server" id="db_server"  data-size="10" data-selected-text-format="count > 3"  data-width="100%"   autocomplete="off"><option  name="db_server" value="">请选择一个数据库</option>'
@@ -329,11 +303,11 @@ function makeServerDatabaseTableList(vIds){
     var columns = [
                    {"data": "db_name"},
                    {
-                	   "data": "db_size",        
+                	   "data": "total_keys",        
                 	   "defaultContent": ""
                    },  
                    {
-                	   "data": "total_table",        
+                	   "data": "expires",        
                 	   "defaultContent": ""
                    },                    
 	               ]
@@ -341,9 +315,7 @@ function makeServerDatabaseTableList(vIds){
 	    		        {
    	    				targets: [3],
    	    				render: function(data, type, row, meta) {  	    					
-   	                        return '<div class="btn-group  btn-group-xs">' +	
-			                           '<button type="button" name="btn-server-database-sync" value="'+ row.id +'" class="btn btn-default" aria-label="Justify"><span class="fa fa-refresh" aria-hidden="true"></span>' +	
-			                           '</button>' +	   	                        
+   	                        return '<div class="btn-group  btn-group-xs">' +	   	                        
 	    	                           '<button type="button" name="btn-server-database-delete" value="'+ row.id +'" class="btn btn-default" aria-label="Justify"><span class="fa fa-trash" aria-hidden="true"></span>' +	
 	    	                           '</button>' +			                            
 	    	                           '</div>';
@@ -358,7 +330,7 @@ function makeServerDatabaseTableList(vIds){
 
         }
     }]    
-    InitServerDatabaseDataTable('server_database_list',"/api/db/mysql/server/"+vIds+"/list/",buttons,columns,columnDefs);	
+    InitServerDatabaseDataTable('server_database_list',"/api/db/redis/server/"+vIds+"/list/",buttons,columns,columnDefs);	
 }	
 
 $(document).ready(function() {	
@@ -416,10 +388,9 @@ $(document).ready(function() {
 			console.log(err)
 		}
 	
-
 	
     if ($("#DatabaseListTable").length) {
-    	var response = requests('get','/api/db/mysql/list/',{})
+    	var response = requests('get','/api/db/redis/list/',{})
     	makeDatabaseSelect("db_server",response)
 	    var columns = [
     	   	            {
@@ -432,17 +403,14 @@ $(document).ready(function() {
     		            { "data": "db_env" },
     		            { "data": "db_mode" },
     		            { "data": "db_business_paths" },
-    		            { "data": "db_type"},
     		            { "data": "db_version"},
     		            { "data": "ip"},
-    		            { "data": "db_user"},
     		            { "data": "db_port"},
     		            { "data": "db_mark"},
-    		            { "data": "db_rw"},     
 		        ]
 	   var columnDefs = [     		    		        
 		    		        {
-	   	    				targets: [12],
+	   	    				targets: [9],
 	   	    				render: function(data, type, row, meta) {
 	   	                        return '<div class="btn-group  btn-group-xs">' +	
 		    	                           '<button type="button" name="btn-database-link" value="'+ row.id +'" class="btn btn-default"  aria-label="Justify"><span class="fa fa-search-plus" aria-hidden="true"></span>' +	
@@ -485,7 +453,7 @@ $(document).ready(function() {
 	        var row = table.row( tr );
 	        dbId = row.data()["id"];
 	        $.ajax({
-	            url : "/api/db/mysql/status/"+dbId+"/",
+	            url : "/api/db/redis/status/"+dbId+"/",
 	            type : "get",
 	            async : false,
 	            success : function(result) {
@@ -503,35 +471,7 @@ $(document).ready(function() {
 	    });	    
     }
     
-    if ($("#customSQLList").length) {
-    	function makeCustomSqlTableList(){
-    	    var columns = [
-    	                   {"data": "id","className": "text-center"},
-    		               {"data": "sql","className": "text-center"},
-    		               ]
-    	   var columnDefs = [    		    		        
-    		    		        {
-    	   	    				targets: [2],
-    	   	    				render: function(data, type, row, meta) {
-    	   	                        return '<div class="btn-group  btn-group-xs">' +	
-    		    	                           '<button type="button" name="btn-sql-edit" value="'+ row.id +'" class="btn btn-default"  aria-label="Justify"><span class="fa fa-edit" aria-hidden="true"></span>' +	
-    		    	                           '</button>' +		                				                            		                            			                          
-    		    	                           '<button type="button" name="btn-sql-delete" value="'+ row.id +'" class="btn btn-default" aria-label="Justify"><span class="fa fa-trash" aria-hidden="true"></span>' +	
-    		    	                           '</button>' +			                            
-    		    	                           '</div>';
-    	   	    				},
-    	   	    				"className": "text-center",
-    		    		        },
-    		    		      ]	
-    	    var buttons = [{
-    	        text: '<span class="fa fa-plus"></span>',
-    	        className: "btn-xs",
-    	    }]
-    		InitDataTable('customSQLList','/api/sql/custom/',buttons,columns,columnDefs);	
-    	}	
-    	makeCustomSqlTableList()  	    
-    }      
-    
+       
     if ($("#user_database_list").length) {
     	function makeUserDatabaseTableList(dataList){
     	    var columns = [
@@ -565,8 +505,6 @@ $(document).ready(function() {
     	   	                        return '<div class="btn-group  btn-group-xs">' +	
 			    	                           '<button type="button" name="btn-userdb-sqls" value="'+ row.uid + ':' + row.sid + ':' + row.id +'" class="btn btn-default"  aria-label="Justify" data-toggle="modal" data-target=".bs-example-modal-user-sql"><span class="fa fa-eye" aria-hidden="true"></span>' +	
 			    	                           '</button>' +     	   	                        
-    		    	                           '<button type="button" name="btn-userdb-table" value="'+ row.uid + ':' + row.sid + ':' + row.id +'" class="btn btn-default"  aria-label="Justify" data-toggle="modal" data-target=".bs-example-modal-user-table"><span class="fa fa-ban" aria-hidden="true"></span>' +	
-    		    	                           '</button>' +   
     		    	                           '<button type="button" name="btn-userdb-delete" value="'+ row.uid + ':' + row.sid + ':' + row.user_db_id +'" class="btn btn-default"  aria-label="Justify"><span class="fa fa-trash-o" aria-hidden="true"></span>' +	
     		    	                           '</button>' +     		    	                           
     		    	                           '</div>';
@@ -611,7 +549,7 @@ $(document).ready(function() {
 		};	
 		if (vIds > 0){
 			$.ajax({
-				url:'/api/db/mysql/config/'+ vIds +'/', //请求地址
+				url:'/api/db/redis/config/'+ vIds +'/', //请求地址
 				type:"PUT",  //提交类似
 				contentType : "application/json",
 				data:JSON.stringify({
@@ -620,7 +558,6 @@ $(document).ready(function() {
 					"db_version":$("#db_version").val(),
 					"db_business":$("#db_business option:selected").val(),
 					"db_assets_id":$("#db_assets_id option:selected").val(),
-					"db_user":$("#db_user").val(),
 					"db_passwd":$("#db_passwd").val(),
 					"db_port":$("#db_port").val(),
 					"db_mark":$("#db_mark").val(),
@@ -629,7 +566,7 @@ $(document).ready(function() {
 				}),
 				success:function(response){
 					btnObj.removeAttr('disabled');
-					RefreshTable('#DatabaseListTable', '/api/db/mysql/list/') 	                				
+					RefreshTable('#DatabaseListTable', '/api/db/redis/list/') 	                				
 					
 				},
 		    	error:function(response){
@@ -644,7 +581,7 @@ $(document).ready(function() {
 			})			
 		}else{
 			$.ajax({
-				url:'/api/db/mysql/list/', //请求地址
+				url:'/api/db/redis/list/', //请求地址
 				type:"POST",  //提交类似
 				contentType : "application/json", 
 				data:JSON.stringify({
@@ -653,7 +590,6 @@ $(document).ready(function() {
 					"db_version":$("#db_version").val(),
 					"db_business":$("#db_business option:selected").val(),
 					"db_assets_id":$("#db_assets_id option:selected").val(),
-					"db_user":$("#db_user").val(),
 					"db_passwd":$("#db_passwd").val(),
 					"db_port":$("#db_port").val(),
 					"db_mark":$("#db_mark").val(),
@@ -662,7 +598,7 @@ $(document).ready(function() {
 				}),
 				success:function(response){
 					btnObj.removeAttr('disabled');
-					RefreshTable('#DatabaseListTable', '/api/db/mysql/list/') 	                				
+					RefreshTable('#DatabaseListTable', '/api/db/redis/list/') 	                				
 					
 				},
 		    	error:function(response){
@@ -683,7 +619,7 @@ $(document).ready(function() {
     	var vIds = $(this).val();
 		$.ajax({
 			dataType: "JSON",
-			url:'/api/db/mysql/org/'+ vIds +'/', //请求地址
+			url:'/api/db/redis/org/'+ vIds +'/', //请求地址
 			type:"POST",  //提交类似
 			success:function(response){
 				$('#chart-container').html("");
@@ -705,7 +641,7 @@ $(document).ready(function() {
 	  	$("#save_database_config").val(vIds);	
 	  	$("#save_database_config").text("修改");
         $.ajax({  
-            url : '/api/db/mysql/config/'+ vIds + '/' ,  
+            url : '/api/db/redis/config/'+ vIds + '/' ,  
             type : 'get', 
             async:false,
             success : function(response){
@@ -741,7 +677,7 @@ $(document).ready(function() {
 		    	$.ajax({  
 		            cache: true,  
 		            type: "DELETE",  
-		            url:'/api/db/mysql/config/'+ vIds + '/' ,    
+		            url:'/api/db/redis/config/'+ vIds + '/' ,    
 		            error: function(response) {  
 		            	new PNotify({
 		                    title: 'Ops Failed!',
@@ -757,7 +693,7 @@ $(document).ready(function() {
 		                    type: 'success',
 		                    styling: 'bootstrap3'
 		                });	
-		            	RefreshTable('#DatabaseListTable', '/api/db/mysql/list/')   
+		            	RefreshTable('#DatabaseListTable', '/api/db/redis/list/')   
 		            }  
 		    	});
 		        },
@@ -771,8 +707,8 @@ $(document).ready(function() {
     $('#DatabaseListTable tbody').on('click',"button[name='btn-database-import']",function(){   
 	  	var vIds = $(this).val(); 
 	  	var td = $(this).parent().parent().parent().find("td")
-    	let server = td.eq(7).text()
-    	let port = td.eq(9).text()
+    	let server = td.eq(6).text()
+    	let port = td.eq(7).text()
     	$("#databaseImportModalLabel").html('<h4 class="modal-title" id="databaseImportModalLabel"><u class="red">'+ server + ':' + port +'</u> 导入数据库</h4>')
     	$("#server_database_submit").val(vIds)
 		if ($('#server_database_list').hasClass('dataTable')) {
@@ -782,47 +718,7 @@ $(document).ready(function() {
 		}	    	
 	  	makeServerDatabaseTableList(vIds)
 	  });    
-    	
-
-    $('#server_database_list tbody').on('click',"button[name='btn-server-database-sync']",function(){   
-	  	var vIds = $(this).val(); 
-	  	let db_server = $("#server_database_submit").val()
-	  	var td = $(this).parent().parent().parent().find("td")
-    	if (vIds > 0){
-	    	$.ajax({  
-	            type: "POST",             
-	            url:"/api/db/mysql/server/"+ db_server +"/sync/",  
-	            data:{
-	            	"db_id":vIds,
-	            	"db_name": td.eq(0).text() 
-	            },
-	            error: function(response) {  
-	            	new PNotify({
-	                    title: 'Ops Failed!',
-	                    text: response.responseText,
-	                    type: 'error',
-	                    styling: 'bootstrap3'
-	                });       
-	            },  
-	            success: function(response) {  
-	            	new PNotify({
-	                    title: 'Success!',
-	                    text: '同步表结构成功',
-	                    type: 'success',
-	                    styling: 'bootstrap3'
-	                }); 
-	            	//RefreshServerDatabaseTable('#server_database_list', url) 
-	            }  
-	    	}); 
-    	}else{
-	    	$.confirm({
-	    		title: '<strong>警告</strong>',
-	    		typeAnimated: true,
-	    	    content: "没有选择数据库服务器，或者数据库不存在",
-	    	    type: 'red'		    	    
-	    	});		    		
-    	}	  	
-	  });    
+    	  
     
     $('#server_database_list tbody').on('click',"button[name='btn-server-database-delete']",function(){   
 	  	var vIds = $(this).val(); 
@@ -837,7 +733,7 @@ $(document).ready(function() {
 		    	$.ajax({  
 		            cache: true,  
 		            type: "DELETE",  
-		            url:'/api/db/mysql/server/'+ db_server +'/db/'+ vIds +'/' ,    
+		            url:'/api/db/redis/server/'+ db_server +'/db/'+ vIds +'/' ,    
 		            error: function(response) {  
 		            	new PNotify({
 		                    title: 'Ops Failed!',
@@ -869,105 +765,6 @@ $(document).ready(function() {
 		});		  	
 	  });
     
-    
-    $("#save_custom_btn").on('click', function() {
-		var btnObj = $(this);
-		var vIds = $(this).val();
-		btnObj.attr('disabled',true);  
-		if (vIds > 0){
-			$.ajax({
-				url:'/api/sql/custom/'+ vIds +'/', //请求地址
-				type:"PUT",  //提交类似			
-				data:$("#add_custom_sql").serializeObject(),  //提交参数
-				success:function(response){
-					btnObj.removeAttr('disabled');
-					RefreshTable('#customSQLList', '/api/sql/custom/') 	               								
-				},
-		    	error:function(response){
-		    		btnObj.removeAttr('disabled');
-		           	new PNotify({
-		                   title: 'Ops Failed!',
-		                   text: response.responseText,
-		                   type: 'error',
-		                   styling: 'bootstrap3'
-		            }); 
-		    	}
-			});				
-		}else{
-			$.ajax({
-				url:'/api/sql/custom/', //请求地址
-				type:"POST",  //提交类似			
-				data:$("#add_custom_sql").serializeObject(),  //提交参数
-				success:function(response){
-					btnObj.removeAttr('disabled');
-					RefreshTable('#customSQLList', '/api/sql/custom/')              								
-				},
-		    	error:function(response){
-		    		btnObj.removeAttr('disabled');
-		           	new PNotify({
-		                   title: 'Ops Failed!',
-		                   text: response.responseText,
-		                   type: 'error',
-		                   styling: 'bootstrap3'
-		            }); 
-		    	}
-			});			
-		}  		 	
-    });	
-    //new
-    $('#customSQLList tbody').on('click',"button[name='btn-sql-edit']",function(){ 
-    	var vIds = $(this).val();
-    	$("#save_custom_btn").val(vIds)
-		$.ajax({
-			dataType: "JSON",
-			url:'/api/sql/custom/'+ vIds +'/', //请求地址
-			type:"GET",  //提交类似
-			success:function(response){
-				$("#sql").val(response["sql"]);	
-				RefreshTable('#customSQLList', '/api/sql/custom/') 
-			}					
-		});	 	
-    });	 
-    //new
-    $('#customSQLList tbody').on('click',"button[name='btn-sql-delete']",function(){  
-	  	var vIds = $(this).val(); 		  	
-    	var text = $(this).parent().parent().parent().find("td").eq(1).text()
-		$.confirm({
-		    title: '删除确认',
-		    content: text,
-		    type: 'red',
-		    buttons: {
-		             删除: function () {
-		    	$.ajax({  
-		            cache: true,  
-		            type: "DELETE",  
-		            url:'/api/sql/custom/'+ vIds + '/' ,    
-		            error: function(response) {  
-		            	new PNotify({
-		                    title: 'Ops Failed!',
-		                    text: response.responseText,
-		                    type: 'error',
-		                    styling: 'bootstrap3'
-		                });       
-		            },  
-		            success: function(response) {  
-		            	new PNotify({
-		                    title: 'Success!',
-		                    text: "删除成功",
-		                    type: 'success',
-		                    styling: 'bootstrap3'
-		                });	
-		            	RefreshTable('#customSQLList', '/api/sql/custom/') 
-		            }  
-		    	});
-		        },
-		        取消: function () {
-		            return true;			            
-		        },			        
-		    }
-		});			
-	  });  
-	 //new 
 	$('#user_database_list tbody').on('click',"button[name='btn-userdb-table']",function(){
 		let vIds = $(this).val();
 		let vIdsList = vIds.split(":")
@@ -977,7 +774,7 @@ $(document).ready(function() {
     	$("#userTableListSubmit").val(vIds)
     	$("#myUserTablesModalLabel").html('<h4 class="modal-title">用户<code>'+ username +'</code>分配<code>'+ dbname +'</code>数据库表</h4>')
     	$('select[name="user-table-list"]').empty();
-    	var data = GetUserDatabaseData('/api/db/mysql/user/'+ vIdsList[0]  +'/db/'+vIdsList[2]+'/table/')
+    	var data = GetUserDatabaseData('/api/db/redis/user/'+ vIdsList[0]  +'/db/'+vIdsList[2]+'/table/')
 		$('select[name="user-table-list"]').doublebox({
 	        nonSelectedListLabel: '选择表',
 	        selectedListLabel: '已分配表',
@@ -1005,7 +802,7 @@ $(document).ready(function() {
 		             删除: function () {
 				    	$.ajax({  			            
 								  type: 'DELETE',
-								  url: "/api/db/mysql/user/"+vIds[0]+"/server/"+vIds[1]+"/db/",
+								  url: "/api/db/redis/user/"+vIds[0]+"/server/"+vIds[1]+"/db/",
 								  dataType:"json",
 								  data:{
 									  'user_db_id':vIds[2],
@@ -1058,7 +855,7 @@ $(document).ready(function() {
     	$("#userDatabaseSqlListSubmit").val(vIds)
     	$("#myUserDatabaseSqlModalLabel").html('<h4 class="modal-title">用户<code>'+ username +'</code>分配<code>'+ dbname +'</code>分配SQL类型</h4>')
     	$('select[name="user-sql-list"]').empty();
-    	var data = GetUserDatabaseData('/api/db/mysql/user/'+ vIdsList[0]  +'/db/'+vIdsList[2]+'/sql/')
+    	var data = GetUserDatabaseData('/api/db/redis/user/'+ vIdsList[0]  +'/db/'+vIdsList[2]+'/cmds/')
 		$('select[name="user-sql-list"]').doublebox({
 	        nonSelectedListLabel: '选择权限',
 	        selectedListLabel: '已分配权限',
@@ -1082,7 +879,7 @@ $(document).ready(function() {
         });	    	    	
     	$.ajax({  
             type: "POST",             
-            url:"/api/db/mysql/user/"+ vIds[0] +"/db/"+ vIds[2] +"/table/",
+            url:"/api/db/redis/user/"+ vIds[0] +"/db/"+ vIds[2] +"/table/",
 			processData: false,
 			contentType: false,		            
             data:formData,
@@ -1112,11 +909,11 @@ $(document).ready(function() {
     	let tbList = new Array;
 		$('select[name="user-sql-list"] option:selected').each(function(){
 			tbList.push($(this).val())
-			formData.append("sqls",$(this).val())
+			formData.append("cmds",$(this).val())
         });	    	    	
     	$.ajax({  
             type: "POST",             
-            url:"/api/db/mysql/user/"+ vIds[0] +"/db/"+ vIds[2] +"/sql/",
+            url:"/api/db/redis/user/"+ vIds[0] +"/db/"+ vIds[2] +"/cmds/",
 			processData: false,
 			contentType: false,		            
             data:formData,
@@ -1143,7 +940,7 @@ $(document).ready(function() {
     $("#server_database_submit").on('click', function() {
     	var vIds = $(this).val();
 		let dbname = $("#server_database_input").val()
-		let url = "/api/db/mysql/server/"+vIds+"/list/"
+		let url = "/api/db/redis/server/"+vIds+"/list/"
     	if (vIds.length){
 	    	$.ajax({  
 	            type: "POST",             
@@ -1181,7 +978,7 @@ $(document).ready(function() {
 		let uid = $('#user :selected').val()   
 		if(uid.length){
 			$("#db_server_db").empty();
-			let dataList = requests('get',"/api/db/mysql/user/"+ uid +"/")
+			let dataList = requests('get',"/api/db/redis/user/"+ uid +"/")
 			if ($('#user_database_list').hasClass('dataTable')) {
 		        dttable = $('#user_database_list').dataTable();
 		        dttable.fnClearTable();
@@ -1203,7 +1000,7 @@ $(document).ready(function() {
 		let uid = $('#user :selected').val()   
 		if(sid.length && uid.length){
 			$("#db_server_db").empty();
-			let dataList = requests('get',"/api/db/mysql/user/"+uid+"/server/"+sid+"/db/")
+			let dataList = requests('get',"/api/db/redis/user/"+uid+"/server/"+sid+"/db/")
 			if ($('#user_database_list').hasClass('dataTable')) {
 		        dttable = $('#user_database_list').dataTable();
 		        dttable.fnClearTable();
@@ -1245,7 +1042,7 @@ $(document).ready(function() {
 		formData.append("valid_date",$('#valid_date :selected').val())
 		formData.append("is_write",$('#is_write :selected').val())
 		if(sid.length && uid.length){
-			let url = "/api/db/mysql/user/"+uid+"/server/"+sid+"/db/"
+			let url = "/api/db/redis/user/"+uid+"/server/"+sid+"/db/"
 			$.ajax({
 				url:url,
 				processData: false,

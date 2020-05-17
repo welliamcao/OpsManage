@@ -2,7 +2,7 @@
 # _#_ coding:utf-8 _*_ 
 import json, os, gzip
 from celery import task
-from databases.models import (SQL_Execute_Histroy,Database_MySQL_Detail)
+from databases.models import (SQL_Execute_History,Database_MySQL_Detail)
 from account.models import User_Async_Task, User
 from utils.logger import logger
 from django.utils import timezone
@@ -18,7 +18,7 @@ def record_exec_sql(exe_user,exe_db,exe_sql,exe_time,
     except Exception as ex:
         return {"status":"failed","msg":str(ex)} 
     try:
-        SQL_Execute_Histroy.objects.create(
+        SQL_Execute_History.objects.create(
                                   exe_user = exe_user,
                                   exe_db = exe_db,
                                   exe_sql = exe_sql,

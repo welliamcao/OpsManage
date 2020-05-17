@@ -4,11 +4,10 @@
 @author: welliam.cao<303350019@qq.com> 
 @version:1.0 2017年4月12日
 '''
-import redis,os,threading
+import redis, os
+from redis.exceptions import  ConnectionError, RedisError
 from django.conf import settings
-import pymysql  
-from pymysql.cursors import DictCursor  
-from DBUtils.PooledDB import PooledDB  
+import pymysql
 from utils.logger import logger
 from django.db import connection
 from collections import namedtuple
@@ -121,9 +120,8 @@ class APBase(object):
         return connection
 
    
-class MySQLPool(APBase): 
-    def __init__(self,dbServer, sql=None ,num=1000, model=None, queues=None):
-        threading.Thread.__init__(self)     
+class MySQLPool: 
+    def __init__(self,dbServer, sql=None ,num=1000, model=None, queues=None):    
         self.sql = sql
         self.num = num 
         self.model = model   
@@ -140,8 +138,8 @@ class MySQLPool(APBase):
                                    max_allowed_packet=1024 * 1024 * 1024,
                                    charset='utf8')   
         except pymysql.Error as ex:
-            logger.error("连接数据库失败: {ex}".format(ex=str(ex)))
-            raise pymysql.Error(ex)        
+            logger.error("连接数据库失败: {ex}".format(ex=ex.__str__()))
+            raise pymysql.Error(ex.__str__())        
         
     def queryAll(self,sql, num=1000):  
         
@@ -243,6 +241,59 @@ class MySQLPool(APBase):
         pass
                 
 
+class RedisPool: 
+    def __init__(self, dbServer): 
+        self.dbServer = dbServer
+        print(dbServer)
+          
+    def _connect_remote(self):
+        try:
+            return redis.StrictRedis(host=self.dbServer["ip"], port=self.dbServer["db_port"],db=self.dbServer["db_name"].replace("db",""), password=self.dbServer["db_passwd"])   
+        except redis.ConnectionError as ex:
+            logger.error("连接数据库失败: {ex}".format(ex=ex.__str__()))
+            raise redis.ConnectionError(ex)        
+        
+
+    def execute(self, cmd):
+        cnx = self._connect_remote()       
+        try:
+            return cnx.execute_command(cmd)
+        except redis.RedisError as ex:
+            logger.error("数据库操作失败: {ex}".format(ex=ex.__str__())) 
+            return ex.__str__()
+        #会自动释放，不需要再显示关闭连接                
+#         finally:
+#             cnx.close()
+    
+    def format_result(self, result):
+                
+        if isinstance(result, bytes):
+            return result.decode('utf-8').replace('\n','\n\r')
+            
+        elif isinstance(result, list):
+            results, count = '', 1
+            for rs in result:
+                rresults, rcount = '', 1
+                if isinstance(rs, list):
+                    s = ' '
+                    for rr in rs:  
+                        if isinstance(rr, bytes):
+                            rr = rr.decode('utf-8')
+                        else:
+                            rr = str(rr)
+                        if rcount > 1: s = '    '
+                        rresults =  rresults + s + str(rcount) +") \""  + rr  + '"\n\r'
+                        rcount = rcount + 1
+                    if len(rresults) > 0:
+                        results = results  + str(count) +") " + rresults
+                else:
+                    results = results + str(count) +") \"" + rs.decode('utf-8')  + '"\n\r'
+                count = count + 1
+                
+            return results 
+                
+        else:            
+            return str(result) 
 
 class AESCharField(models.CharField):
 

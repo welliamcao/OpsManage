@@ -1,11 +1,11 @@
 import inspect, time
 from . import mysql_base, mysql_pxc, mysql_status, mysql_variables, mysql_innodb_status, mysql_replication, mysql_innodb_trx
+from . import redis_base, redis_memory, redis_commandstats
        
 class MySQLMgrApi:
     def __init__(self):
         super(MySQLMgrApi,self).__init__() 
         
-    
     def __get_module_classes(self, module):
         classes = []
         clsmembers = inspect.getmembers(module, inspect.isclass)
@@ -13,14 +13,21 @@ class MySQLMgrApi:
             classes.append(cls)
         return classes
     
-    
+    def __format_to_json(self, data):
+        format_data = dict()
+        if data[0] > 0: 
+            for i in data[1]:
+                format_data[i[0].lower()] = i[1]
+        return format_data
+        
     def status(self, dbServer):
         dataList = []
+        json_data = self.__format_to_json(mysql_base.MySQLBase(dbServer).execute("show global status"))
         for cls in self.__get_module_classes(mysql_status):
             if hasattr(cls,'key_name'):
                 data = {}
                 data["name"] = cls.key_name
-                data["value"] = cls(dbServer).get_value() 
+                data["value"] = cls(dbServer).get_value(json_data) 
                 data["metric"] = cls.metric
                 data["desc"] = cls.__doc__
                 data["level"] = cls.level
@@ -29,11 +36,12 @@ class MySQLMgrApi:
     
     def pxc(self, dbServer):
         dataList = []
+        json_data = self.__format_to_json(mysql_base.MySQLBase(dbServer).execute("show global status"))
         for cls in self.__get_module_classes(mysql_pxc):
             if hasattr(cls,'key_name'):
                 data = {}
                 data["name"] = cls.key_name
-                data["value"] = cls(dbServer).get_value() 
+                data["value"] = cls(dbServer).get_value(json_data) 
                 data["metric"] = cls.metric
                 data["desc"] = cls.__doc__
                 data["level"] = cls.level
@@ -42,22 +50,24 @@ class MySQLMgrApi:
 
     def varibles(self, dbServer):
         dataList = []
+        json_data = self.__format_to_json(mysql_base.MySQLBase(dbServer).execute("show global variables"))
         for cls in self.__get_module_classes(mysql_variables):
             if hasattr(cls,'key_name'):
                 data = {}
                 data["name"] = cls.key_name
-                data["value"] = cls(dbServer).get_value() 
+                data["value"] = cls(dbServer).get_value(json_data) 
                 data["desc"] = cls.__doc__
                 dataList.append(data)
         return dataList 
     
     def innodb_status(self, dbServer):
         dataList = []
+        json_data = self.__format_to_json(mysql_base.MySQLBase(dbServer).execute("show global status"))
         for cls in self.__get_module_classes(mysql_innodb_status):
             if hasattr(cls,'key_name') and cls.key_name:
                 data = {}
                 data["name"] = cls.key_name
-                data["value"] = cls(dbServer).get_value() 
+                data["value"] = cls(dbServer).get_value(json_data) 
                 data["metric"] = cls.metric
                 data["desc"] = cls.__doc__
                 data["level"] = cls.level
@@ -111,4 +121,53 @@ class MySQLMgrApi:
         else:
             return {}
 
+class RedisMgrApi:
+    def __init__(self):
+        super(RedisMgrApi,self).__init__() 
+        
+    
+    def __get_module_classes(self, module):
+        classes = []
+        clsmembers = inspect.getmembers(module, inspect.isclass)
+        for (name, cls) in clsmembers:
+            classes.append(cls)
+        return classes
+
+    def allowcator(self, sub, args):
+        if hasattr(self,sub):
+            func= getattr(self,sub)
+            return func(args)
+        else:
+            return {}
+        
+    def memory(self, dbServer):    
+        dataList = []
+        info_data = redis_base.RedisBase(dbServer).get_info(section='Memory')
+        for cls in self.__get_module_classes(redis_memory):
+            if hasattr(cls,'key_name') and cls.key_name:
+                data = {}
+                data["name"] = cls.key_name
+                data["value"] = cls(dbServer).get_value(info_data) 
+                data["metric"] = cls.metric
+                data["desc"] = cls.__doc__
+                data["level"] = cls.level
+                dataList.append(data)
+        return dataList     
+
+    def cmd(self, dbServer):    
+        dataList = []
+        info_data = redis_base.RedisBase(dbServer).get_info(section='Commandstats')
+        for cls in self.__get_module_classes(redis_commandstats):
+            if hasattr(cls,'key_name') and cls.key_name:
+                data = {}
+                data["name"] = cls.key_name
+                data["value"] = cls(dbServer).get_value(info_data) 
+                data["metric"] = cls.metric
+                data["desc"] = cls.__doc__
+                data["level"] = cls.level
+                dataList.append(data)
+        return dataList  
+    
+
 mysql_service = MySQLMgrApi()
+redis_service = RedisMgrApi()

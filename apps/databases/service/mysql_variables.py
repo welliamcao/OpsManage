@@ -8,11 +8,12 @@ from utils import base
 
 class MySQLVariables(MySQLPool):
         
-    def get_value(self):
+    def get_value(self, variables):
         try:
-            sql = """show global variables like '{0}';""".format(self.key_name)
-            row = self.queryOne(sql)
-            return row[1][1]
+#             sql = """show global variables like '{0}';""".format(self.key_name)
+#             row = self.queryOne(sql)
+#             return row[1][1]
+            return variables.get(self.key_name.lower())
         except Exception as ex:
             logger.error(ex.__str__())
             return -1
@@ -23,7 +24,7 @@ class MySQLUptime(MySQLStatus):
     metric = None
     key_name = "Uptime"
 
-    def get_value(self):
+    def get_value(self, variables=None):
         try:
             sql = """show global status like 'Uptime';"""
             row = self.queryOne(sql)
@@ -38,7 +39,7 @@ class MySQLDiskUsed(MySQLPool):
     metric = None
     key_name = "disk_used"
     
-    def get_value(self):
+    def get_value(self, variables=None):
         try:
             sql = "select TABLE_SCHEMA, concat(truncate(sum(data_length)/1024/1024,2)) as data_size,concat(truncate(sum(index_length)/1024/1024,2)) as index_size from information_schema.tables group by TABLE_SCHEMA order by data_length desc;" #单位MB
             row = self.queryAll(sql)
@@ -57,7 +58,7 @@ class MySQLMemUsed(MySQLPool):
     level = 'mid'
     metric = None
     key_name = "mem_used"
-    def get_value(self):
+    def get_value(self, variables=None):
         try:
             sql = "select (@@key_buffer_size + @@query_cache_size + @@tmp_table_size +@@innodb_buffer_pool_size +@@innodb_additional_mem_pool_size +@@innodb_log_buffer_size +@@max_connections * (@@read_buffer_size +@@read_rnd_buffer_size +@@sort_buffer_size + @@join_buffer_size +@@binlog_cache_size +@@thread_stack)) /1024/1024/1024 AS MAX_MEMORY_GB;"
             row = self.queryOne(sql)
@@ -107,7 +108,7 @@ class MySQLInnodbBufferPoolSize(MySQLVariables):
     metric = None
     key_name = "innodb_buffer_pool_size"
     
-    def get_value(self):
+    def get_value(self, variables=None):
         try:
             sql = "show global variables like 'innodb_buffer_pool_size';"
             row = self.queryOne(sql)

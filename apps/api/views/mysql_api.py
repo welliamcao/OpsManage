@@ -103,9 +103,9 @@ def sql_custom_detail(request, id,format=None):
         return Response(status=status.HTTP_204_NO_CONTENT) 
     
     
-class DatabaseExecuteHistroy(APIView):
+class DatabaseExecuteHistory(APIView):
     
-    @method_decorator_adaptor(permission_required, "databases.database_read_sql_execute_histroy","/403/")        
+    @method_decorator_adaptor(permission_required, "databases.database_read_sql_execute_history","/403/")        
     def get(self,request,*args,**kwargs):
         query_params = dict()
         for k in request.query_params.keys():
@@ -113,31 +113,31 @@ class DatabaseExecuteHistroy(APIView):
                 query_params[k] = request.query_params.get(k)
             
         if request.user.is_superuser and query_params:
-            logs_list = SQL_Execute_Histroy.objects.filter(**query_params)
+            logs_list = SQL_Execute_History.objects.filter(**query_params)
             
         elif not request.user.is_superuser and query_params:
             query_params["exe_user"] = request.user.username
-            logs_list = SQL_Execute_Histroy.objects.filter(**query_params)
+            logs_list = SQL_Execute_History.objects.filter(**query_params)
             
         elif request.user.is_superuser:   
-            logs_list = SQL_Execute_Histroy.objects.all()
+            logs_list = SQL_Execute_History.objects.all()
             
         else:    
             query_params["exe_user"] = request.user.username
-            logs_list = SQL_Execute_Histroy.objects.filter(**query_params)
+            logs_list = SQL_Execute_History.objects.filter(**query_params)
         
         page = serializers.PageConfig()  # 注册分页
         page_user_list = page.paginate_queryset(queryset=logs_list, request=request, view=self)
-        ser = serializers.HistroySQLSerializer(instance=page_user_list, many=True)
+        ser = serializers.HistorySQLSerializer(instance=page_user_list, many=True)
         return page.get_paginated_response(ser.data)    
 
-class DatabaseExecuteHistroyDetail(APIView):  
+class DatabaseExecuteHistoryDetail(APIView):  
     
-    @method_decorator_adaptor(permission_required, "databases.database_change_sql_execute_histroy","/403/")  
+    @method_decorator_adaptor(permission_required, "databases.database_change_sql_execute_history","/403/")  
     def put(self,request, id, *args, **kwargs):
         try:
-            snippet = SQL_Execute_Histroy.objects.get(id=id)
-        except SQL_Execute_Histroy.DoesNotExist:
+            snippet = SQL_Execute_History.objects.get(id=id)
+        except SQL_Execute_History.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)  
         
         try:
@@ -147,7 +147,7 @@ class DatabaseExecuteHistroyDetail(APIView):
         except Exception as ex:
             return Response(str(ex), status=status.HTTP_400_BAD_REQUEST)  
                   
-        serializer = serializers.HistroySQLSerializer(snippet)
+        serializer = serializers.HistorySQLSerializer(snippet)
         return Response(serializer.data)   
 
     

@@ -72,7 +72,7 @@ class MySQLWebTerminal(WebsocketConsumer):
         if self.scope["user"].is_superuser and dbServer:
             return dbServer
         
-        if  dbServer and self.scope["user"].has_perm(perms):
+        if dbServer and self.scope["user"].has_perm(perms):
             try:
                 user_db = Database_MySQL_User.objects.get(db=db, user=self.scope["user"].id) 
                 if base.changeTotimestamp(str(user_db.valid_date)) - int(time.time()) > 0:#判断用户数据权限是否过期

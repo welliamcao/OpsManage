@@ -33,7 +33,12 @@ class UserSerializer(serializers.ModelSerializer):
                   'first_name','last_name','email','is_staff',
                   'is_active','date_joined',"mobile","name","department",
                   'post','superior','roles','superior_name'
-                  )           
+                  )   
+        extra_kwargs = {
+                        'department': {'required': False,"read_only":True},
+                        'roles':{'required': False,"read_only":True},
+                        }  
+                        
     def get_superior_name(self,obj):
         return obj.superior_name()
               
@@ -335,19 +340,47 @@ class DatabaseTableSerializer(serializers.ModelSerializer):
         model = Database_Table_Detail_Record
         fields = ('id','table_size','table_row','table_name','last_time')        
              
+
+class RedisServerSerializer(serializers.ModelSerializer):
+    db_passwd = serializers.SerializerMethodField(read_only=True,required=False)
+    detail = serializers.SerializerMethodField(read_only=True,required=False)
+    class Meta:
+        model = DataBase_Redis_Server_Config
+        fields = ('id','db_env','db_version','db_assets_id',
+                  'db_port','db_mark','db_type',"db_mode",
+                  "db_business","db_rw","db_passwd","detail")  
+    
+    def get_db_passwd(self,obj):
+        print(len(obj.db_passwd))
+        if len(obj.db_passwd) > 0:
+            return obj.db_passwd[:1]+'****'+obj.db_passwd[-1]
+        else:
+            return obj.db_passwd
+        
+    def get_detail(self,obj):
+        return obj.to_json()
+
+class RedisSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Database_Redis_Detail
+        fields = ('id','db_name','expires',"total_keys") 
+          
+    def create(self,  validated_data):
+        return Database_Redis_Detail.objects.create(db_server=self.context["db_server"], **validated_data) 
+
         
 class CustomSQLSerializer(serializers.ModelSerializer):
     class Meta:
         model = Custom_High_Risk_SQL
         fields = ('id','sql')
         
-class HistroySQLSerializer(serializers.ModelSerializer):
+class HistorySQLSerializer(serializers.ModelSerializer):
     create_time = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S")
     db_host = serializers.SerializerMethodField(read_only=True,required=False)
     db_name = serializers.SerializerMethodField(read_only=True,required=False)
     db_env = serializers.SerializerMethodField(read_only=True,required=False)
     class Meta:
-        model = SQL_Execute_Histroy
+        model = SQL_Execute_History
         fields = ('id','exe_sql','exe_user','exec_status','exe_result','db_host','db_name','create_time','db_env','exe_db',"exe_time","exe_effect_row","favorite","mark")        
     
     def get_db_env(self,obj):

@@ -50,7 +50,7 @@
               <div class="col-md-12 col-sm-12 col-xs-12">
                 <div class="x_panel">
                   <div class="x_title">
-                    <h2>数据库列表 <small>Database Assets List</small></h2>
+                    <h2>Redis列表 <small>Redis Assets List</small></h2>
                     <ul class="nav navbar-right panel_toolbox">
                       <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
                       </li>
@@ -72,13 +72,10 @@
 					                <th>环境类型</th>
 					                <th>架构类型</th>
 					                <th>业务归属</th>
-					                <th>数据库类型</th>
-					                <th>数据版本</th>
+					                <th>版本</th>
 					                <th>数据库地址</th>
-					                <th>账户</th>
 					                <th>端口</th>
 									<th>标签</th>
-									<th>读写类型</th>
 									<th class="text-center">操作</th>
 		                        </tr>
 		                      </thead>
@@ -92,7 +89,7 @@
               <div class="col-md-12 col-sm-12 col-xs-12">
                 <div class="x_panel">
                   <div class="x_title">
-                    <h2>数据库配置 <small>Database Config</small></h2>
+                    <h2>Redis配置 <small>Redis Config</small></h2>
                     <ul class="nav navbar-right panel_toolbox">
                       <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
                       </li>
@@ -110,10 +107,6 @@
                       <ul id="myTab" class="nav nav-tabs bar_tabs" role="tablist">
                         <li role="presentation" class="active"><a href="#tab_content1" id="#database" role="tab" data-toggle="tab" aria-expanded="true"><i class="fa fa-cubes"></i> Database</a>
                         </li>
-<!--                         <li role="presentation" class=""><a href="#tab_content2" role="tab" id="#Inception" data-toggle="tab" aria-expanded="false"><i class="fa fa-tasks"></i> Inception</a>
-                        </li>  -->
-                        <li role="presentation" class=""><a href="#tab_content3" role="tab" id="#CustomSql" data-toggle="tab" aria-expanded="false"><i class="fa fa-paint-brush"></i> 自定义SQL</a>
-                        </li>   
                         <li role="presentation" class=""><a href="#tab_content4" role="tab" id="#allot" data-toggle="tab" aria-expanded="false"><i class="fa fa-cogs"></i> DB分配</a>
                         </li>                                                                       
                       </ul>
@@ -137,10 +130,10 @@
 										 <label class="col-sm-2 control-label" >架构类型<span class="required">*</span></label> 
 										 <div class="col-sm-10">
 										     <select required="required" class="selectpicker form-control" data-live-search="true"  data-size="10" data-width="100%" name="db_mode" id="db_mode" autocomplete="off">
-										   		<option value="single" name="db_mode" >单例</option>
-												<option value="ms" name="db_mode" >主从</option>
-												<option value="pxc" name="db_mode" >PXC</option>	
-												<option value="master" name="db_mode" >主库</option>			
+										   		<option value="single">单例</option>
+												<option value="slave">从库</option>
+												<option value="cluster">集群</option>	
+												<option value="master">主库</option>			
 											 </select>	
 										 </div>					 	
 									</div>
@@ -170,30 +163,13 @@
 												<option  value="r/w">读写</option>						   		
 											 </select>
 										 </div>
-									</div>	
-									<div class="item form-group" >
-										 <label  class="col-sm-2 control-label" > 数据库类型<span class="required">*</span></label>
-										 <div class="col-sm-10">
-<!-- 										 	<input class="form-control" type="text" value="MySQL" placeholder="不能为空" name="db_type" id="db_type"  required/> -->
-											 <select class="selectpicker form-control" data-live-search="true"  data-size="10" data-width="100%" name="db_type"  id="db_type" autocomplete="off">
-											   	<option selected="selected" value="MySQL">MySQL</option>
-												<option  value="TiDB">TiDB</option>							   		
-											 </select>										 	
-										 </div>
 									</div>																								
 									<div class="item form-group" >
 										 <label  class="col-sm-2 control-label" > 数据库版本<span class="required">*</span></label>
 										 <div class="col-sm-10">
 										 	<input class="form-control" type="text" value="" placeholder="不能为空" name="db_name" id="db_version"  required/>
 										 </div>
-									</div>						
-									<div class="item form-group" >
-										 <label  class="col-sm-2 control-label" > 账户<span class="required">*</span></label>
-										 <div class="col-sm-10">
-										 	<input class="form-control" type="text" value="" placeholder="不能为空" name="db_user" id="db_user" required/>
-										 </div>
-									</div>
-									
+									</div>												
 									<div class="item form-group" >
 										 <label  class="col-sm-2 control-label" > 端口<span class="required">*</span></label>		
 										 <div class="col-sm-10">								 
@@ -229,81 +205,6 @@
 								<div class="" id="chart-container" style="height:600px;overflow:auto; "></div>
 							</div>
 						</div>
-                        <div role="tabpanel" class="tab-pane fade" id="tab_content2" aria-labelledby="#Inception">
-							<div class="col-lg-6">
-								<legend>
-									<i class="fa  fa-paper-plane"></i> 配置Inception信息
-								</legend>
-								<form role="form" method="post" id="add_inception">
-										
-									<div class="item form-group" >
-										 <label>地址</label>
-										 <input class="form-control" type="text" value="{{incept.db_host|default:"" }}" placeholder="不能为空" name="db_host" required/>
-									</div>									
-									<div class="item form-group" >
-										 <label>端口</label>
-										 <input class="form-control" type="text" value="{{incept.db_port|default:"" }}" placeholder="不能为空" name="db_port" required/>
-									</div>	
-									<div class="item form-group" >
-										 <label>备份地址</label>
-										 <input class="form-control" type="text" value="{{incept.db_backup_host|default:"" }}" placeholder="不能为空" name="db_backup_host" required/>
-									</div>
-									<div class="item form-group" >
-										 <label>备份账户</label>
-										 <input class="form-control" type="text" value="{{incept.db_backup_user|default:"" }}" placeholder="不能为空" name="db_backup_user" required/>
-									</div>	
-									<div class="item form-group" >
-										 <label>备份密码</label>
-										 <input class="form-control" type="password" value="{{incept.db_backup_passwd|default:"" }}" placeholder="不能为空" name="db_backup_passwd" required/>
-									</div>
-									<div class="item form-group" >
-										 <label>备份端口</label>
-										 <input class="form-control" type="password" value="{{incept.db_backup_port|default:"" }}" placeholder="不能为空" name="db_backup_port" required/>
-									</div>																																																									
-									<lable><button type="button" class="btn btn-default" id="add_inception_btn">添加</button></lable>
-									<button type="reset" class="btn btn-default">撤销</button>
-								</form>
-							 </div>
-                        </div> 
-                         <!-- CustomSql -->
-                        <div role="tabpanel" class="tab-pane fade" id="tab_content3" aria-labelledby="#CustomSql">
-							<div class="col-lg-4">
-								<legend>
-									<i class="fa  fa-paper-plane"></i> 添加自定义高危SQL
-								</legend>
-								<form role="form" method="post" id="add_custom_sql">
-									{% csrf_token %}	
-									<div class="form-group" >
-										 <label> SQL内容<i class="fa fa-info-circle" data-toggle="tooltip" title="填写SQL"></i></label>
-										 <textarea class="form-control" rows="10" name="sql" id="sql"></textarea>												
-									</div>																					
-									<lable><button type="button" value="" class="btn btn-default" id="save_custom_btn">保存</button></lable>
-									<button type="reset" class="btn btn-default">撤销</button>
-								</form>
-							 </div>
-							 <div class="col-lg-8">
-								<legend>
-									<i class="fa  fa-paper-plane-o"></i> SQL列表
-								</legend>
-								<table  width="100%" class="table table-striped table-bordered" id="customSQLList">						
-		                                <thead>
-												<tr>
-													<th class="text-center">
-														<label>
-															<span class="lbl"></span>
-														</label>
-														ID
-													</th>
-													<th class="text-center">SQL内容</th>				
-													<th class="text-center">操作</th>
-												</tr>											    
-		                                </thead>
-		                                <tbody>
-		                                </tbody>
-		                       	</table>															 	
-							 </div>
-                        </div>
-                         <!-- CustomSql -->
                         <div role="tabpanel" class="tab-pane fade" id="tab_content4" aria-labelledby="#allot">
 							<div class="col-lg-4">
 								<legend>
@@ -472,8 +373,8 @@
                                <thead>
 									<tr>
 										<th>名称</th>
-										<th>大小(MB)</th>		
-										<th>表数量(张)</th>	
+										<th>key数量(个)</th>		
+										<th>过期KEY(个)</th>	
 										<th class="text-center">操作</th>
 									</tr>											    
                                </thead>
@@ -502,7 +403,7 @@
     <script src="/static/datatable/datatables.net-buttons/js/buttons.print.min.js"></script>	
     <script src="/static/js/doublebox/doublebox-bootstrap.js"></script>
     <script src="/static/js/dragable/dragable.js"></script> 
-	<script src="/static/js/database/mysql/db.js"></script>
+	<script src="/static/js/database/redis/db.js"></script>
 	<script src="/static/validator/validator.js"></script>
 	<script type="text/javascript" src="/static/js/orgchart/jquery.orgchart.js"></script>
 {% endblock %}

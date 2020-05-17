@@ -6,11 +6,9 @@ from utils.logger import logger
 
 class MySQLStatus(MySQLPool):
         
-    def get_value(self):
+    def get_value(self, status):
         try:
-            sql = """show global status like '{0}';""".format(self.key_name)
-            row = self.queryOne(sql)
-            return row[1][1]
+            return status.get(self.key_name.lower())
         except Exception as ex:
             logger.error(self.key_name + ': ' + ex.__str__())
             return -1
@@ -27,7 +25,7 @@ class MySQLTableOpenCacheHitRate(MySQLStatus):
     metric = 90
     key_name = "table_open_cache_hits"
     
-    def get_value(self):
+    def get_value(self, status=None):
         try:
             sql = """show global status like 'table_open_cache_hits';"""
             row = self.queryOne(sql)
@@ -132,7 +130,7 @@ class MySQLQueryCacheHitRate(MySQLStatus):
     level = 'low'
     metric = 90
     key_name = 'Query_cache_hits'
-    def get_value(self):
+    def get_value(self, status=None):
         try:
             sql = """show global status like 'Qcache_hits';"""
             row = self.queryOne(sql)
@@ -154,7 +152,7 @@ class MySQLThreadCacheHitRate(MySQLStatus):
     metric = 90
     key_name = 'Thread_cache_hits'
     
-    def get_value(self):
+    def get_value(self, status=None):
         try:
             sql = """show global status like 'Threads_created';"""
             row = self.queryOne(sql)
@@ -174,7 +172,7 @@ class MySQLTableLocksPercent(MySQLStatus):
     metric = 20
     key_name = 'Table_locks_waited'
     
-    def get_value(self):
+    def get_value(self, status=None):
         try:
             sql = """show global status like 'Table_locks_waited';"""
             row = self.queryOne(sql)
@@ -192,7 +190,7 @@ class MySQLTmpDiskTablesPercent(MySQLStatus):
     level = 'high'
     metric = 10
     key_name = 'created_tmp_tables_percent'
-    def get_value(self):
+    def get_value(self, status=None):
         try:
             sql = """show global status like 'Created_tmp_disk_tables';"""
             row = self.queryOne(sql)
@@ -211,7 +209,7 @@ class MySQLConnectionsPercent(MySQLStatus):
     metric = 85
     key_name = 'connections_status'
     
-    def get_value(self):
+    def get_value(self, status=None):
         try:
             sql = """show global status like 'max_used_connections';"""
             row = self.queryOne(sql)
@@ -291,7 +289,7 @@ class MySQLkeyReadRequests(MySQLStatus):
     metric = 90
     key_name = "key_read_requests"    
     
-    def get_value(self):
+    def get_value(self, status=None):
         try:
             sql = """show global status like 'key_reads';"""
             row = self.queryOne(sql)
@@ -310,7 +308,7 @@ class MySQLkeyWriteRequests(MySQLStatus):
     metric = 90
     key_name = "key_write_requests"
 
-    def get_value(self):
+    def get_value(self, status=None):
         try:
             sql = """show global status like 'key_writes';"""
             row = self.queryOne(sql)

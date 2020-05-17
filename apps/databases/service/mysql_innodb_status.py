@@ -141,7 +141,7 @@ class MySQLInnodbDoubleWriteLoader(MySQLStatus):
     level = 'mid'
     metric = 32
     key_name = 'innodb_double_writes'
-    def get_value(self):
+    def get_value(self, status=None):
         try:
             sql = """show global status like 'innodb_dblwr_pages_written';"""
             row = self.queryOne(sql)
@@ -161,7 +161,7 @@ class MySQLInnodbBufferPoolHitRate(MySQLStatus):
     level = 'high'
     metric = 90
     key_name = 'innodb_buffer_read_hits'
-    def get_value(self):
+    def get_value(self, status=None):
         try:
             sql = """show global status like 'innodb_buffer_pool_read_requests';"""
             row = self.queryOne(sql)
@@ -182,7 +182,7 @@ class MySQLInnodbBufferPoolFreePagePercent(MySQLStatus):
     level = 'high'
     metric = 10
     key_name = 'innodb_buffer_pool_dirty_free_percent'
-    def get_value(self):
+    def get_value(self, status=None):
         try:
             sql = """show global status like 'innodb_buffer_pool_pages_total';"""
             row = self.queryOne(sql)
@@ -200,7 +200,7 @@ class MySQLInnodbBufferPoolDirtyPercent(MySQLStatus):
     level = 'high'
     metric = 10
     key_name = 'innodb_buffer_pool_dirty_page_percent'
-    def get_value(self):
+    def get_value(self, status=None):
         try:
             sql = """show global status like 'innodb_buffer_pool_pages_total';"""
             row = self.queryOne(sql)
@@ -219,7 +219,7 @@ class MySQLInnodbMemUsed(MySQLStatus):
     level = 'mid'
     metric = None
     key_name = 'innodb_args_config_mem_used'
-    def get_value(self):
+    def get_value(self, status=None):
         try:
             sql = """SELECT ((@@key_buffer_size+@@innodb_buffer_pool_size+@@innodb_log_buffer_size)/1024/1024)+((@@read_rnd_buffer_size+@@read_buffer_size+@@myisam_sort_buffer_size+@@sort_buffer_size+@@join_buffer_size)/1024/1024*@@max_connections) as usedMem;"""
             row = self.queryOne(sql)
