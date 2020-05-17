@@ -244,7 +244,6 @@ class MySQLPool:
 class RedisPool: 
     def __init__(self, dbServer): 
         self.dbServer = dbServer
-        print(dbServer)
           
     def _connect_remote(self):
         try:
