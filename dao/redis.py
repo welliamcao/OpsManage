@@ -153,7 +153,7 @@ class RedisUser(object):
              
 
 class RedisManage:  
-    get_cmd = ["INFO","GET","GETBIT","GETRANGE","GETSET","HGET","HGETALL","HMGET","MGET"]
+    get_cmd = ["SCAN","INFO","GET","GETBIT","GETRANGE","GETSET","HGET","HGETALL","HMGET","MGET","EXISTS","HEXISTS","DEBUG"]
     
     def __init__(self):
         super(RedisManage,self).__init__() 

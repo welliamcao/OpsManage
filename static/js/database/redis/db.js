@@ -853,7 +853,7 @@ $(document).ready(function() {
 	  	let dbname = colname.eq(1).text()
 	  	let username =  colname.eq(0).text()
     	$("#userDatabaseSqlListSubmit").val(vIds)
-    	$("#myUserDatabaseSqlModalLabel").html('<h4 class="modal-title">用户<code>'+ username +'</code>分配<code>'+ dbname +'</code>分配SQL类型</h4>')
+    	$("#myUserDatabaseSqlModalLabel").html('<h4 class="modal-title">用户<code>'+ username +'</code>分配<code>'+ dbname +'</code>分配命令类型</h4>')
     	$('select[name="user-sql-list"]').empty();
     	var data = GetUserDatabaseData('/api/db/redis/user/'+ vIdsList[0]  +'/db/'+vIdsList[2]+'/cmds/')
 		$('select[name="user-sql-list"]').doublebox({

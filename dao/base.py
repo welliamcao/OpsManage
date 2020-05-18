@@ -263,6 +263,30 @@ class RedisPool:
         #会自动释放，不需要再显示关闭连接                
 #         finally:
 #             cnx.close()
+
+    def find_big_keys(self, key_length):
+        cnx = self._connect_remote()
+        dataList = []
+        i = 0
+        scan_val = cnx.scan(cursor=i,count=1000)
+        while scan_val[0] > 0 :
+            i = scan_val[0]
+            try:
+                pipe = cnx.pipeline(transaction=False)
+                for k in scan_val[1]:
+                    pipe.debug_object(k)
+                exec_val = pipe.execute()
+                x = 0
+                for keys in exec_val:    
+                    key = scan_val[1][x]        
+                    length = keys.get("serializedlength")
+                    if length > key_length:
+                        dataList.append({"name":key,"length":length})
+                    x = x + 1
+            except Exception as ex:
+                logger.error(ex.__str__()) 
+            scan_val = cnx.scan(cursor=i,count=1000)
+#             time.sleep(0.05)
     
     def format_result(self, result):
                 

@@ -54,17 +54,17 @@ class RedisWebTerminal(WebsocketConsumer,RedisManage):
             
         return []      
 
-    def _check_sql_parse(self, cmd, allow_cmd):                
+    def _check_sql_parse(self, cmd, allow_cmd):   
+        #提取SQL中的表名
+        extract_cmds = self._extract_cmds_from_cmd(cmd)   
+        
+        if extract_cmds in allow_cmd:
+            return True        
+                          
         #查询用户是不是有授权命令
         grant_cmds = self._check_user_db_cmds()
         
-        #提取SQL中的表名
-        extract_cmds = self._extract_cmds_from_cmd(cmd)
-        
         if extract_cmds in grant_cmds:
-            return True
-        
-        if extract_cmds in allow_cmd:
             return True
         
         self.send("命令未授权, 联系管理员授权\r\n") 
