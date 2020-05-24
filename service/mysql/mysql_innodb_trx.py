@@ -1,7 +1,7 @@
 #!/usr/bin/env python  
 # _#_ coding:utf-8 _*_ 
 #coding: utf8
-from dao.base import MySQLPool
+from libs.sqlpool import MySQLPool
 from utils.logger import logger
 
 class MySQLInnodbTrx(MySQLPool):

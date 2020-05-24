@@ -7,7 +7,7 @@ from account.models import User_Async_Task, User
 from utils.logger import logger
 from django.utils import timezone
 from utils import base
-from utils.notice import Notice
+from libs.notice import Notice
 from utils.mysql.binlog2sql import Binlog2sql
 
 @task

@@ -7,13 +7,13 @@
 import redis, os
 from redis.exceptions import  ConnectionError, RedisError
 from django.conf import settings
-import pymysql
-from utils.logger import logger
 from django.db import connection
 from collections import namedtuple
 from datetime import datetime,date
-from utils.secret.aescipher import AESCipher
+from libs.secret.aescipher import AESCipher
 from django.db import models
+from mptt.templatetags.mptt_tags import cache_tree_children
+from django.db.models import Count
 
 class Struct:
     def __init__(self, **entries): 
@@ -120,203 +120,7 @@ class APBase(object):
         return connection
 
    
-class MySQLPool: 
-    def __init__(self,dbServer, sql=None ,num=1000, model=None, queues=None):    
-        self.sql = sql
-        self.num = num 
-        self.model = model   
-        self.dbServer = dbServer
 
-    def __connect_remote(self):
-        try:
-            return pymysql.connect(
-                                   host=self.dbServer["ip"],
-                                   user=self.dbServer["db_user"],
-                                   password=self.dbServer["db_passwd"],
-                                   port=self.dbServer["db_port"],
-                                   db=self.dbServer["db_name"],
-                                   max_allowed_packet=1024 * 1024 * 1024,
-                                   charset='utf8')   
-        except pymysql.Error as ex:
-            logger.error("连接数据库失败: {ex}".format(ex=ex.__str__()))
-            raise pymysql.Error(ex.__str__())        
-        
-    def queryAll(self,sql, num=1000):  
-        
-        cnx = self.__connect_remote()
-        
-        try:
-            with cnx.cursor() as cursor:
-                count = cursor.execute(sql)   
-                result = cursor.fetchall()   
-                return (count,result) 
-        except pymysql.Error as ex:
-            logger.error("数据库查询失败: {ex}".format(ex=str(ex))) 
-            return ex.__str__()  
-                    
-        finally:
-            cnx.close()  
-   
-    def queryOne(self,sql,num=1000):  
-        cnx = self.__connect_remote()
-        
-        try:
-            with cnx.cursor() as cursor:
-                count = cursor.execute(sql)   
-                result = cursor.fetchone()   
-                return (count,result) 
-        except pymysql.Error as ex:
-            logger.error("数据库查询失败: {ex}".format(ex=str(ex)))
-            return ex.__str__()
-                      
-        finally:
-            cnx.close()  
-  
-   
-    def queryMany(self,sql, num=1000, param=None):
-        
-        cnx = self.__connect_remote()
-        
-        try:
-            with cnx.cursor() as cursor:
-                count = cursor.execute(sql)
-                index = cursor.description
-                colName = []
-                for i in index:
-                    colName.append(i[0])            
-                result = cursor.fetchmany(size=num) 
-                return (count,result,colName)
-        except pymysql.Error as ex:
-            logger.error("数据库查询失败: {ex}".format(ex=str(ex)))  
-            return ex.__str__()
-                       
-        finally:
-            cnx.close()        
-    
-    def execute_for_query(self,sql,num=1000):
-        
-        cnx = self.__connect_remote()
-        
-        try:
-            with cnx.cursor() as cursor:
-                count = cursor.execute(sql)
-                index = cursor.description
-                colName = []
-                if index:
-                    for i in index:
-                        colName.append(i[0]) 
-                result = cursor.fetchmany(size=num)           
-                return (count,result,colName) 
-        except pymysql.Error as ex:
-            logger.error("数据库操作失败: {ex}".format(ex=str(ex))) 
-            return ex.__str__()
-        
-        finally:
-            cnx.close()
-       
-         
-    def execute(self,sql,num=1000):
-               
-        cnx = self.__connect_remote()
-        
-        try:
-            with cnx.cursor() as cursor:
-                count = cursor.execute(sql)
-                index = cursor.description
-                colName = []
-                if index:
-                    for i in index:
-                        colName.append(i[0]) 
-                result = cursor.fetchmany(size=num)           
-                cnx.commit()
-                return (count,result,colName) 
-        except pymysql.Error as ex:
-            logger.error("数据库操作失败: {ex}".format(ex=str(ex))) 
-            return ex.__str__()
-                        
-        finally:
-            cnx.close()
-    
-    def get_value(self):
-        pass
-                
-
-class RedisPool: 
-    def __init__(self, dbServer): 
-        self.dbServer = dbServer
-          
-    def _connect_remote(self):
-        try:
-            return redis.StrictRedis(host=self.dbServer["ip"], port=self.dbServer["db_port"],db=self.dbServer["db_name"].replace("db",""), password=self.dbServer["db_passwd"])   
-        except redis.ConnectionError as ex:
-            logger.error("连接数据库失败: {ex}".format(ex=ex.__str__()))
-            raise redis.ConnectionError(ex)        
-        
-
-    def execute(self, cmd):
-        cnx = self._connect_remote()       
-        try:
-            return cnx.execute_command(cmd)
-        except redis.RedisError as ex:
-            logger.error("数据库操作失败: {ex}".format(ex=ex.__str__())) 
-            return ex.__str__()
-        #会自动释放，不需要再显示关闭连接                
-#         finally:
-#             cnx.close()
-
-    def find_big_keys(self, key_length):
-        cnx = self._connect_remote()
-        dataList = []
-        i = 0
-        scan_val = cnx.scan(cursor=i,count=1000)
-        while scan_val[0] > 0 :
-            i = scan_val[0]
-            try:
-                pipe = cnx.pipeline(transaction=False)
-                for k in scan_val[1]:
-                    pipe.debug_object(k)
-                exec_val = pipe.execute()
-                x = 0
-                for keys in exec_val:    
-                    key = scan_val[1][x]        
-                    length = keys.get("serializedlength")
-                    if length > key_length:
-                        dataList.append({"name":key,"length":length})
-                    x = x + 1
-            except Exception as ex:
-                logger.error(ex.__str__()) 
-            scan_val = cnx.scan(cursor=i,count=1000)
-#             time.sleep(0.05)
-    
-    def format_result(self, result):
-                
-        if isinstance(result, bytes):
-            return result.decode('utf-8').replace('\n','\n\r')
-            
-        elif isinstance(result, list):
-            results, count = '', 1
-            for rs in result:
-                rresults, rcount = '', 1
-                if isinstance(rs, list):
-                    s = ' '
-                    for rr in rs:  
-                        if isinstance(rr, bytes):
-                            rr = rr.decode('utf-8')
-                        else:
-                            rr = str(rr)
-                        if rcount > 1: s = '    '
-                        rresults =  rresults + s + str(rcount) +") \""  + rr  + '"\n\r'
-                        rcount = rcount + 1
-                    if len(rresults) > 0:
-                        results = results  + str(count) +") " + rresults
-                else:
-                    results = results + str(count) +") \"" + rs.decode('utf-8')  + '"\n\r'
-                count = count + 1
-                
-            return results 
-                
-        else:            
-            return str(result) 
 
 class AESCharField(models.CharField):
 
@@ -359,6 +163,123 @@ class AESCharField(models.CharField):
             raise TypeError(str(value) + " is not a valid value for AESCharField")
         return value
 
+class AppsTree:
+    def __init__(self,business_tree, apps, apps_user=None, apps_db=None, request=None):
+        self.business_tree = business_tree
+        self.apps = apps
+        self.apps_user = apps_user
+        self.apps_db = apps_db
+        self.request = request
+        
+    def _query_user_db_server(self):
+        if self.request.user.is_superuser:
+            dbList = self.apps.objects.all()      
+        else: 
+            user_db_list = [ ud.db for ud in self.apps_user.objects.filter(user=self.request.user.id) ]
+
+            dbLists = [ ds.db_server for ds in self.apps_db.objects.filter(id__in=user_db_list) ]
+
+            dbList = list(dict.fromkeys(dbLists)) #去除重复
+            
+        return dbList
+
+    def _recursive_node_to_dict(self, node, request, user_db_server_list):
+        json_format = node.to_json()
+        children = [self._recursive_node_to_dict(c, request, user_db_server_list) for c in node.get_children()]
+        if children:
+            json_format['children'] = children
+        else:
+            json_format['icon'] = 'fa fa-minus-square-o'
+        
+        #获取业务树下面的数据库服务器    
+        if json_format["last_node"] == 1: 
+            db_children = []    
+            for ds in self.apps.objects.filter(id__in=user_db_server_list, db_business=json_format["id"], db_rw__in=self.request.query_params.getlist('db_rw')):  
+                data = ds.to_tree()
+                data["user_id"] = self.request.user.id
+                db_children.append(data)
+            json_format['children'] = db_children
+            json_format["icon"] = "fa fa-plus-square"
+            json_format["last_node"] = 0
+            
+        return json_format
+
+    def recursive_node_to_dict(self,node):
+        json_format = node.to_json()
+        children = [self.recursive_node_to_dict(c) for c in node.get_children()]
+        if children:
+            json_format['children'] = children
+        else:
+            json_format['icon'] = 'fa fa-minus-square-o'        
+        return json_format
+    
+    def _business_paths_id_list(self,business):
+        tree_list = []
+        
+        dataList = self.business_tree.objects.raw("""SELECT id FROM opsmanage_business_assets WHERE tree_id = {tree_id} AND  lft < {lft} AND  rght > {rght} ORDER BY lft ASC;""".format(tree_id=business.tree_id,lft=business.lft,rght=business.rght))
+        
+        for ds in dataList:
+            tree_list.append(ds.id)
+            
+        tree_list.append(business.id)
+        
+        return tree_list
+       
+    def db_tree(self):
+        
+        user_db_server_list =  [ ds.id for ds in self._query_user_db_server() ] 
+        
+        if self.request.user.is_superuser:
+            user_business = [ ds.get("db_business") for ds in self.apps.objects.values('db_business').annotate(dcount=Count('db_business')) ] 
+                     
+        else:    
+            user_business = [ ds.get("db_business") for ds in self.apps.objects.filter(id__in=user_db_server_list).values('db_business').annotate(dcount=Count('db_business')) ]
+
+        business_list = []
+
+        for business in self.business_tree.objects.filter(id__in=user_business):
+            
+            business_list += self._business_paths_id_list(business)
+            
+        business_list = list(set(business_list))
+        
+        business_node = self.business_tree.objects.filter(id__in=business_list)
+        
+        root_nodes = cache_tree_children(business_node)
+        
+        dataList = []
+        
+        for n in root_nodes:
+            
+            dataList.append(self._recursive_node_to_dict(n, self.request, user_db_server_list))   
+                  
+        return dataList    
+    
+    def tree_business(self,business):
+        dataList = []
+        for ds in self.apps.objects.filter(business=business):
+            dataList.append(ds.to_json())
+        return dataList
+    
+    def apply_tree(self):
+        apply_business = [ ds.get("business") for ds in self.apps.objects.values('business').annotate(dcount=Count('business')) ]
+        
+        business_list = []
+        
+        for business in self.business_tree.objects.filter(id__in=apply_business):
+            business_list += self._business_paths_id_list(business)
+            
+        business_list = list(set(business_list))
+        
+        business_node = self.business_tree.objects.filter(id__in=business_list)
+        
+        root_nodes = cache_tree_children(business_node)
+        
+        dataList = []
+        for n in root_nodes:
+            dataList.append(self.recursive_node_to_dict(n))         
+        return dataList      
+          
             
 if __name__=='__main__':   
     pass

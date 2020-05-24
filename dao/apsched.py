@@ -6,7 +6,7 @@ from sched.models import Sched_Node,Sched_Job_Config,Sched_Job_Logs
 from utils.logger import logger
 from django.http import QueryDict, Http404
 from .assets import AssetsBase
-from utils.sched.rpc import sched_rpc
+from libs.request import http_request
 from django.db.models import Q
 from apps.tasks.celery_notice import apsched_notice
 
@@ -268,7 +268,7 @@ class ApschedNodeJobsManage(ApschedNodeManage):
       
     def rpc_update_jobs(self,jobs,uri):
         data = self.queryJobs(jobs) #要修改这里               
-        result = sched_rpc.request(method="post", endpoint="{ip}:{port}".format(ip=jobs.job_node.sched_server.server_assets.ip,port=jobs.job_node.port),uri=uri, body=data,node=jobs.job_node)
+        result = http_request._sig_auth(method="post", endpoint="{ip}:{port}".format(ip=jobs.job_node.sched_server.server_assets.ip,port=jobs.job_node.port),uri=uri, body=data,node=jobs.job_node)
         jobs.status = "stopped"
         if isinstance(result, str):
             jobs.save()                     

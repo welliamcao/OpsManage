@@ -9,15 +9,14 @@ from utils.logger import logger
 from .assets import AssetsBase 
 from asset.models import *
 from datetime import datetime
-from databases.service.mysql_base import MySQLBase
-from utils.sqlparse import sql_parse
+from service.mysql.mysql_base import MySQLBase
+from libs.sqlparse import sql_parse
 from utils.mysql.binlog2sql import Binlog2sql
 from utils.mysql.const import SQL_PERMISSIONS,SQL_DICT_HTML
-from apps.tasks.celery_sql import record_exec_sql, export_table, parse_binlog
-from django.db.models import Count
-from mptt.templatetags.mptt_tags import cache_tree_children  
+from apps.tasks.celery_sql import record_exec_sql, export_table, parse_binlog 
 from account.models import User_Async_Task
 from django.core.exceptions import PermissionDenied
+from dao.base import AppsTree
 
 class DBConfig(AssetsBase):
     def __init__(self):
@@ -577,78 +576,10 @@ class DBManage(AssetsBase):
             record_exec_sql.apply_async((username, db, sql, time_consume, 0, 1, result), queue='default')
         else:
             record_exec_sql.apply_async((username, db, sql, time_consume, result[0], 0),queue='default')        
-        
-    def __query_user_db_server(self,request=None):
-        if request.user.is_superuser:
-            dbList = DataBase_MySQL_Server_Config.objects.all()      
-        else: 
-            user_db_list = [ ud.db for ud in Database_MySQL_User.objects.filter(user=request.user.id) ]
-
-            dbLists = [ ds.db_server for ds in Database_MySQL_Detail.objects.filter(id__in=user_db_list) ]
-
-            dbList = list(dict.fromkeys(dbLists)) #去除重复
-            
-        return dbList
-
-    def __recursive_node_to_dict(self, node, request, user_db_server_list):
-        json_format = node.to_json()
-        children = [self.__recursive_node_to_dict(c, request, user_db_server_list) for c in node.get_children()]
-        if children:
-            json_format['children'] = children
-        else:
-            json_format['icon'] = 'fa fa-minus-square-o'
-        
-        #获取业务树下面的数据库服务器    
-        if json_format["last_node"] == 1: 
-            db_children = []    
-            for ds in DataBase_MySQL_Server_Config.objects.filter(id__in=user_db_server_list, db_business=json_format["id"], db_rw__in=request.query_params.getlist('db_rw')):  
-                data = ds.to_tree()
-                data["user_id"] = request.user.id
-                db_children.append(data)
-            json_format['children'] = db_children
-            json_format["icon"] = "fa fa-plus-square"
-            json_format["last_node"] = 0
-            
-        return json_format
-    
-    def __business_paths_id_list(self,business):
-        tree_list = []
-        
-        dataList = Business_Tree_Assets.objects.raw("""SELECT id FROM opsmanage_business_assets WHERE tree_id = {tree_id} AND  lft < {lft} AND  rght > {rght} ORDER BY lft ASC;""".format(tree_id=business.tree_id,lft=business.lft,rght=business.rght))
-        
-        for ds in dataList:
-            tree_list.append(ds.id)
-            
-        tree_list.append(business.id)
-        
-        return tree_list
-       
+                
     def tree(self,request):
-        
-        user_db_server_list =  [ ds.id for ds in self.__query_user_db_server(request) ] 
-        
-        if request.user.is_superuser:
-            user_business = [ ds.get("db_business") for ds in DataBase_MySQL_Server_Config.objects.values('db_business').annotate(dcount=Count('db_business')) ] 
-                     
-        else:    
-            user_business = [ ds.get("db_business") for ds in DataBase_MySQL_Server_Config.objects.filter(id__in=user_db_server_list).values('db_business').annotate(dcount=Count('db_business')) ]
-
-        business_list = []
-
-        for business in Business_Tree_Assets.objects.filter(id__in=user_business):
-            
-            business_list += self.__business_paths_id_list(business)
-            
-        business_list = list(set(business_list))
-        
-        business_node = Business_Tree_Assets.objects.filter(id__in=business_list)
-        
-        root_nodes = cache_tree_children(business_node)
-        
-        dataList = []
-        
-        for n in root_nodes:
-            
-            dataList.append(self.__recursive_node_to_dict(n, request, user_db_server_list))   
-                  
-        return dataList          
+        return AppsTree(Business_Tree_Assets,
+                        DataBase_MySQL_Server_Config, 
+                        Database_MySQL_User, 
+                        Database_MySQL_Detail,
+                        request).db_tree()         

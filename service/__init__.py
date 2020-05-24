@@ -1,6 +1,6 @@
 import inspect, time
-from . import mysql_base, mysql_pxc, mysql_status, mysql_variables, mysql_innodb_status, mysql_replication, mysql_innodb_trx
-from . import redis_base, redis_memory, redis_commandstats
+from service.mysql import mysql_base, mysql_pxc, mysql_status, mysql_variables, mysql_innodb_status, mysql_replication, mysql_innodb_trx
+from service.redis import redis_base, redis_memory, redis_commandstats
        
 class MySQLMgrApi:
     def __init__(self):

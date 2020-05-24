@@ -1,7 +1,7 @@
 #!/usr/bin/env python  
 # _#_ coding:utf-8 _*_ 
 #coding: utf8
-from dao.base import RedisPool
+from libs.redispool import RedisPool
 from utils.logger import logger
 
 class RedisBase(RedisPool):

@@ -1,51 +1,158 @@
+//var webssh = false
+//function make_terminal(element, size, ws_url) { 
+//	var message = {'status': 0, 'data': null, 'cols': null, 'rows': null};
+//    var term = new Terminal({
+//        cols: size.cols,
+//        rows: size.rows,
+//        screenKeys: true,
+//        useStyle: true,
+//        cursorBlink: true,  // Blink the terminal's cursor
+//    });         	
+//    if (webssh) {
+//        return;
+//    }        
+//    webssh = true;        	
+//    term.open(element, false);
+//    term.write('正在连接...')
+///*             term.fit(); */
+//    var ws = new WebSocket(ws_url);
+//    ws.onopen = function (event) {
+//        term.resize(term.cols, term.rows);
+//
+//        term.on('data', function (data) {
+//            ws.send(data); 
+//        });
+//
+//        term.on('title', function (title) {
+//            document.title = title;
+//        });
+//        
+//        ws.onmessage = function (event) {
+//        	term.write(event.data);
+//        };  
+//
+///*        term.on('key', function(key, ev) {
+//            console.log(key, ev, ev.keyCode)
+//            if (ev.keyCode==38){
+//            	return false
+//            }
+//        }) */       
+//           
+//    };
+//    ws.onerror = function (e) {
+//    	term.write('\r\n连接失败')
+//    	ws = false
+//    };
+///*    ws.onclose = function () {
+//        term.destroy();
+//    }; */     
+//    return {socket: ws, term: term};
+//}
+
 var webssh = false
-function make_terminal(element, size, ws_url) { 
-	var message = {'status': 0, 'data': null, 'cols': null, 'rows': null};
+var curr_line = '';
+var local_cli = ''
+function make_terminal(element, size, ws_url, local_cli) { 
     var term = new Terminal({
         cols: size.cols,
         rows: size.rows,
         screenKeys: true,
         useStyle: true,
         cursorBlink: true,  // Blink the terminal's cursor
-    });         	
+    });    
+    
     if (webssh) {
         return;
-    }        
+    }     
+    
     webssh = true;        	
     term.open(element, false);
-    term.write('正在连接...')
-/*             term.fit(); */
+    term.writeln('\033[33m \r\nWelcome to MySQL web terminal.\033[0m');
+	term.prompt = () => {
+	    term.write("\r\n" + local_cli);
+	};
+	
     var ws = new WebSocket(ws_url);
+    
     ws.onopen = function (event) {
-        term.resize(term.cols, term.rows);
 
-        term.on('data', function (data) {
-            ws.send(data); 
+    	term.prompt();	
+    	
+        term.resize(term.cols, term.rows);
+        
+        term.on('key', function(key, ev) {
+            const printable = !ev.altKey && !ev.altGraphKey && !ev.ctrlKey && !ev.metaKey;
+            //console.log(key.charCodeAt(0))
+            
+            let delimiter = curr_line.charAt(curr_line.length - 1)
+            
+            if (key.charCodeAt(0) == 3) {
+	        	//捕获ctrl+c
+            	curr_line = ''
+            	term.prompt()
+	        }            
+            
+            if (key.charCodeAt(0) == 27) {
+	        	//跳过方向键
+	        	return false
+	        }
+            
+            if (ev.keyCode == 13) {                
+                if(curr_line.length && delimiter==';'){
+                	ws.send(curr_line)
+                }else{
+                	term.writeln('\r\n sql请以;结尾');
+                	term.prompt()
+                }           
+                curr_line = '';
+            } else if (ev.keyCode == 8) {
+                if (term.x > 2) {
+                    curr_line = curr_line.slice(0, -1);
+                    term.write('\b \b');
+                }
+            } else if (printable) {
+                curr_line += ev.key;
+                term.write(key);
+            } 
+                              
         });
 
+        term.on('paste', function(data) {
+            term.write(data);            
+        	if (curr_line.length){
+                ws.send(curr_line + data)        		
+        	}else{
+        		ws.send(data)
+        	}            
+            
+        });       
+        
         term.on('title', function (title) {
             document.title = title;
         });
         
         ws.onmessage = function (event) {
-        	term.write(event.data);
+        	term.write("\r\n" + event.data);
+        	term.prompt();
         };  
-
-/*        term.on('key', function(key, ev) {
-            console.log(key, ev, ev.keyCode)
-            if (ev.keyCode==38){
-            	return false
-            }
-        }) */       
-           
+                 
     };
+    
     ws.onerror = function (e) {
     	term.write('\r\n连接失败')
     	ws = false
-    };
-/*    ws.onclose = function () {
-        term.destroy();
-    }; */     
+    };   
+
+    ws.onclose = function(e) {
+       	new PNotify({
+            title: 'Ops Failed!',
+            text: "连接断开",
+            type: 'error',
+            styling: 'bootstrap3'
+    	}); 
+       	term.writeln('\033[31m \r\n连接已断开，请重新连接 \033[0m');
+    };    
+    
     return {socket: ws, term: term};
 }
 
@@ -864,6 +971,7 @@ $(document).ready(function () {
 	$('#UserDatabaseListTable tbody').on('click',"button[name='btn-database-terminal']",function(){   
     	let vIds = $(this).val();
     	let td = $(this).parent().parent().parent().find("td")
+    	local_cli = td.eq(2).text() + ' [' +td.eq(1).text() + '] > '; 
 		$("#myModfMysqlTerminalModalLabel").html('<p class="text-blank">MySQL <code>'+td.eq(2).text()+ ':'+td.eq(1).text() + '</code> Web Terminal</p>')
 		$("#mysqlTerminal").html("")
 		$('#mysqlTerminalBtn').val(vIds)
@@ -873,8 +981,8 @@ $(document).ready(function () {
 	$("#mysqlTerminalBtn").on("click", function(){
 		let vIds = $(this).val();
 		let ws_scheme = window.location.protocol === "https:" ? "wss" : "ws";
-		var ws_path = ws_scheme + '://' + window.location.host + '/ws/mysql/terminal/'+ vIds + '/' + randromChat + '/';   
-		websocket = make_terminal(document.getElementById('mysqlTerminal'), {rows: 30, cols: 140}, ws_path);
+		var ws_path = ws_scheme + '://' + window.location.host + '/ws/mysql/terminal/'+ vIds + '/' + randromChat + '/'; 
+		websocket = make_terminal(document.getElementById('mysqlTerminal'), {rows: 30, cols: 140}, ws_path, local_cli);
 	    $(this).attr("disabled",true);
 	 }); 	
 	

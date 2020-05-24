@@ -1,48 +1,12 @@
 # -*- coding:utf-8 -*-
-import time, paramiko, os
+import time
 from asgiref.sync import async_to_sync
 from channels.generic.websocket import WebsocketConsumer
-from utils.logger import logger
-from OpsManage.settings import config
 from databases.models import *
 from utils import base
-from utils.sqlparse import sql_parse
+from libs.sqlparse import sql_parse
+from libs.sqlpool import SQLExecute
 # from threading import Thread
-import threading
-
-class WebTerminalBridge(threading.Thread):
-    def __init__(self, websocket, filter_chars=None):
-        super(WebTerminalBridge, self).__init__()
-        self.websocket = websocket
-        self._stop_event = threading.Event()
-        self.filter_chars = filter_chars
- 
-    def stop(self):
-        self._stop_event.set()
- 
-    def run(self):
-        while not self._stop_event.is_set():
-            try:
-                data = self.websocket.chan.recv(1024)
-                if data:
-                    str_data = bytes.decode(data)
-                    self.send_msg(str_data)
-            except Exception as ex:
-                pass
-        self.websocket.ssh.close()
-        self.stop()
- 
-    def send_msg(self, msg): 
-        if self.filter_chars in msg:
-            return 
-               
-        async_to_sync(self.websocket.channel_layer.group_send)(
-            self.websocket.group_name,
-            {
-                "type": "user.message",
-                "text": msg
-            },
-        )
    
 class MySQLWebTerminal(WebsocketConsumer):
     dml_sql = ["INSERT","UPDATE","DELETE"]
@@ -53,7 +17,7 @@ class MySQLWebTerminal(WebsocketConsumer):
     def __init__(self, *args, **kwargs):
         super(MySQLWebTerminal, self).__init__(*args, **kwargs)         
         self.status = True
-        self.sql = ''
+        self.sql = None
         
     def _get_db(self,db):
         try:
@@ -83,13 +47,6 @@ class MySQLWebTerminal(WebsocketConsumer):
         self.send(text_data="403。。。。数据库未授权!")             
         self.close()       
     
-    def _build_mysql_conn_cmd(self,dbServer):
-        return """clear;/usr/bin/mysql --prompt="\\u@\\h : [\\d] \\r:\\m:\\s> " -A -D {database} -h {host} -u{user} -p{password} -P {port} ;exit;exit\r""".format(host = dbServer.get('ip'), 
-                                                                                                 user = dbServer.get('db_user'),
-                                                                                                 password = dbServer.get('db_passwd'), 
-                                                                                                 database = dbServer.get('db_name'),
-                                                                                                 port = dbServer.get('db_port'))
-
 
     def _check_user_db_sql(self, db):
         try:     
@@ -152,8 +109,6 @@ class MySQLWebTerminal(WebsocketConsumer):
                 if keywords[0] + '_'  + keywords[1] in grant_sql:
                     return True
                 
-#             print(sql_type, _first_token , keywords)
-        
             if _first_token in allow_sql and sql_type in ["dml", "ddl"]: return True
                      
             return "SQL未授权, 联系管理员授权"
@@ -171,73 +126,24 @@ class MySQLWebTerminal(WebsocketConsumer):
         if not self.db:
             self.send(text_data="403。。。。数据库未授权!")   
             self.close()        
-         
-        mysql_login_command = self._build_mysql_conn_cmd(self.db)     
-    
         try:
-            pkey = None
-            self.ssh = paramiko.SSHClient()
-            self.ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy()) # 允许连接不在know_hosts文件中的主机
-             
-            if os.path.exists(config.get('ssh_proxy', 'public_key')):
-                pkey = paramiko.RSAKey.from_private_key_file(config.get('ssh_proxy', 'public_key'))
-                 
-            self.ssh.connect(
-                             hostname = config.get('ssh_proxy', 'host'), 
-                             port=int(config.get('ssh_proxy', 'port')), 
-                             username=config.get('ssh_proxy', 'username'),
-                             password=config.get('ssh_proxy', 'password'),
-                             pkey = pkey,
-                             )
-        except Exception as ex:
-            self.send(text_data="MySQL代理服务器连接失败: {ex}".format(ex=ex))   
-            self.close()                         
+            self.sql = SQLExecute(self.db, self) 
+        except Exception as ex:    
+            self.send(ex.__str__())
+            self.close()
+                           
         # 创建channels group
         async_to_sync(self.channel_layer.group_add)(self.group_name, self.channel_name)
         
-        # 打开一个ssh通道并建立连接
-        self.chan = self.ssh.invoke_shell(term='xterm', width=150, height=30)
-        self.chan.settimeout(0)            
-        self.ssh_bridge = WebTerminalBridge(self, mysql_login_command)
-        self.ssh_bridge.setDaemon(True)
-        self.ssh_bridge.start()
-        
-        #发送MySQL登陆命令
-        self.chan.send(mysql_login_command)
-        time.sleep(0.5)
-        self.send("\033[33m \r\nWelcome to MySQL web terminal. Input exit or quit to close terminal. \r\n \033[0m") 
              
            
     def receive(self, text_data=None, bytes_data=None):   
-        if  text_data != '\r':
-            self.sql += text_data 
+        sql_parse = self.__check_sql_parse(text_data, allow_sql=self.dml_sql + self.ddl_sql + self.dql_sql)
+        if isinstance(sql_parse, str):
+            self.send(sql_parse)
         else:
-            self._check_sql(text_data)
-
-        if self.status:  
-            self.chan.send(text_data)          
-    
-    
-    def _check_sql(self, text_data):
-        if len(self.sql) >= 2:
-            if text_data == '\r' and (self.sql[-1]==';' or self.sql[-2:]=='\G'):              
-                sql_parse = self.__check_sql_parse(self.sql, self.dml_sql + self.ddl_sql + self.dql_sql)  
-                try:
-                    if isinstance(sql_parse, str):
-                        self.status = False
-                        self.send('\r\n\033[31m ' + sql_parse +"") 
-                        self.send('\r\n\033[31m 终端关闭......\033[0m') 
-                        self.disconnect(1000)
-                    #else:
-                        #记录通过的SQL
-                        #print('sql: ',self.sql) 
-                except Exception as ex:
-                    pass
-                finally:
-                    self.sql = ''
-            elif text_data == '\r':         
-                self.sql = self.sql + ' ' 
-
+            rs = self.sql.execute(statement=text_data)
+            self.sql.pretty_result(rs) 
 
                        
         
@@ -245,7 +151,7 @@ class MySQLWebTerminal(WebsocketConsumer):
         self.send(text_data=event["text"])      
 
     def disconnect(self, close_code):
-        self.ssh_bridge.stop()       
+        self.sql.close()
         async_to_sync(self.channel_layer.group_discard)(self.group_name, self.channel_name)
         self.close()
         

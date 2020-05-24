@@ -1,7 +1,7 @@
 #!/usr/bin/env python  
 # _#_ coding:utf-8 _*_ 
 from celery import task
-from utils.notice import Notice
+from libs.notice import Notice
 from orders.models import Order_Notice_Config,Order_System,ORDER_AUDIT_STATUS_DICT,ORDER_EXECUTE_STATUS_DICT
 from account.models import User, Structure
   

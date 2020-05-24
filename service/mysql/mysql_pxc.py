@@ -1,7 +1,7 @@
 #!/usr/bin/env python  
 # _#_ coding:utf-8 _*_ 
 #coding: utf8
-from databases.service.mysql_status import MySQLStatus
+from service.mysql.mysql_status import MySQLStatus
 
 
 class PXCWsrepUUID(MySQLStatus):

@@ -1,28 +1,16 @@
 #!/usr/bin/env python  
 # _#_ coding:utf-8 _*_ 
-import uuid,xlrd
 from asset.models import *
 from apply.models import *
 from utils.logger import logger
-from dao.base import DataHandle
 from django.http import QueryDict
 from apply.service.ipvs import IPVSRunner 
-from django.db.models import Count
-from mptt.templatetags.mptt_tags import cache_tree_children  
+from dao.base import AppsTree
 
-class AssetsIpvs(DataHandle):
+class AssetsIpvs:
     def __init__(self):
         super(AssetsIpvs, self).__init__()        
 
-    def recursive_node_to_dict(self,node):
-        json_format = node.to_json()
-        children = [self.recursive_node_to_dict(c) for c in node.get_children()]
-        if children:
-            json_format['children'] = children
-        else:
-            json_format['icon'] = 'fa fa-minus-square-o'        
-        return json_format
-        
     def assets(self):
         dataList,aList = [],[]
         for ds in IPVS_RS_CONFIG.objects.all():
@@ -43,38 +31,12 @@ class AssetsIpvs(DataHandle):
             logger.error(msg="AssetsIpvs没有{sub}方法".format(sub=sub))       
             return []         
     
-    def business_paths_id_list(self,business):
-        tree_list = []
-        dataList = Business_Tree_Assets.objects.raw("""SELECT id FROM opsmanage_business_assets WHERE tree_id = {tree_id} AND  lft < {lft} AND  rght > {rght} ORDER BY lft ASC;""".format(tree_id=business.tree_id,lft=business.lft,rght=business.rght))
-        for ds in dataList:
-            tree_list.append(ds.id)
-        tree_list.append(business.id)
-        return tree_list
-    
     def tree_business(self,business):
-        dataList = []
-        for ds in IPVS_CONFIG.objects.filter(business=business):
-            dataList.append(ds.to_json())
-        return dataList
+        return AppsTree(Business_Tree_Assets, IPVS_CONFIG).tree_business(business)
     
     def tree(self):
-        ipvs_business = [ ds.get("business") for ds in IPVS_CONFIG.objects.values('business').annotate(dcount=Count('business')) ]
-        
-        business_list = []
-        
-        for business in Business_Tree_Assets.objects.filter(id__in=ipvs_business):
-            business_list += self.business_paths_id_list(business)
-            
-        business_list = list(set(business_list))
-        
-        business_node = Business_Tree_Assets.objects.filter(id__in=business_list)
-        
-        root_nodes = cache_tree_children(business_node)
-        
-        dataList = []
-        for n in root_nodes:
-            dataList.append(self.recursive_node_to_dict(n))         
-        return dataList      
+        return AppsTree(Business_Tree_Assets, IPVS_CONFIG).apply_tree()
+             
           
 
 class IVPSManage():

@@ -1,7 +1,7 @@
 #!/usr/bin/env python  
 # _#_ coding:utf-8 _*_ 
 from celery import task
-from utils.notice import Notice
+from libs.notice import Notice
 
 @task
 def apsched_notice(jobs, jobLogs):

@@ -5,7 +5,7 @@ from channels.generic.websocket import WebsocketConsumer
 from databases.models import *
 from utils import base
 from utils.logger import logger
-from dao.base import RedisPool
+from libs.redispool import RedisPool
 from dao.redis import RedisManage
 
 

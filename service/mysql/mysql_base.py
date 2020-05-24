@@ -1,7 +1,7 @@
 #!/usr/bin/env python  
 # _#_ coding:utf-8 _*_ 
 #coding: utf8
-from dao.base import MySQLPool
+from libs.sqlpool import MySQLPool
 from utils.logger import logger
 
 class MySQLBase(MySQLPool):
@@ -195,4 +195,4 @@ class MySQLARCH(object):
     
     def single(self):
         self.arch_info["name"] = '单例模式'
-        return  self.arch_info         
+        return  self.arch_info    
