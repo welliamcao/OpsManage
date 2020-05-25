@@ -238,7 +238,7 @@ class SQLExecute(object):
                 self.websocket.send(table.get_string().replace('\n','\n\r')+'\r\n'+status)              
         except Exception as ex:
             logger.error(ex.__str__())
-            self.websocket.send(ex.__str__())
+            self.websocket.send("\033[31m " + ex.__str__() + "\033[0m")
                     
     def close(self):
         try:

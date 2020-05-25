@@ -3,11 +3,11 @@ import json, time, ast, uuid
 from asgiref.sync import async_to_sync
 from channels.generic.websocket import WebsocketConsumer
 from dao.cicd import AppsManage
-from utils.ansible.runner import ANSRunner
+from libs.ansible.runner import ANSRunner
 from utils.logger import logger
 from cicd.models import *
 from dao.redisdb import DsRedis
-from cicd.service.deploy import DeployRunner
+from service.cicd.deploy import DeployRunner
 
 def format_time(seconds):
     m, s = divmod(seconds, 60)

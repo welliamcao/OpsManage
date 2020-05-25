@@ -6,9 +6,9 @@ from cicd.models import Project_Config
 from OpsManage.settings import WORKSPACES
 from utils.logger import logger
 from utils import base
-from cicd.service.utils import tar_excludes_format,tar_includes_format
+from service.cicd.utils import tar_excludes_format,tar_includes_format
 from dao.assets import AssetsSource
-from utils.ansible.runner import ANSRunner
+from libs.ansible.runner import ANSRunner
 
 
 

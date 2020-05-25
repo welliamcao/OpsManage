@@ -7,7 +7,7 @@ from django.http import JsonResponse
 from django.shortcuts import render
 from asset.models import Assets
 from deploy.models import *
-from utils.ansible.runner import ANSRunner
+from libs.ansible.runner import ANSRunner
 from dao.dispos import DeployScript,DeployPlaybook
 from dao.redisdb import DsRedis
 from django.contrib.auth.decorators import permission_required

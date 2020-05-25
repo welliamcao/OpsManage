@@ -4,7 +4,7 @@ from asset.models import *
 from apply.models import *
 from utils.logger import logger
 from django.http import QueryDict
-from apply.service.ipvs import IPVSRunner 
+from service.apply.ipvs import IPVSRunner 
 from dao.base import AppsTree
 
 class AssetsIpvs:

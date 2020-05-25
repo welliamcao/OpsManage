@@ -11,7 +11,7 @@ from utils.deploy.svn import SvnTools
 from account.models import User
 from utils import base
 import uuid,random,json
-from cicd.service.deploy import DeployRunner
+from service.cicd.deploy import DeployRunner
 from django.http import Http404
 
 class AppsCount:

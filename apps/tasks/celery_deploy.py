@@ -3,7 +3,7 @@
 import os,json
 from celery import task
 from dao.dispos import DeployRecord
-from utils.ansible.runner import ANSRunner
+from libs.ansible.runner import ANSRunner
 from dao.assets import AssetsAnsible 
 from deploy.models import Deploy_Script,Deploy_Playbook
   

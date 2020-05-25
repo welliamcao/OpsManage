@@ -9,11 +9,11 @@ from django.http import HttpResponseRedirect,JsonResponse,StreamingHttpResponse
 from OpsManage import settings
 from utils import base
 from dao.assets import AssetsSource
-from utils.ansible.runner import ANSRunner
+from libs.ansible.runner import ANSRunner
 from utils.base import method_decorator_adaptor
 from utils.logger import logger
 from django.contrib.auth.decorators import permission_required      
-from .service.deploy import DeployRunner
+from service.cicd.deploy import DeployRunner
         
 class Config(LoginRequiredMixin,AppsManage,View):
     login_url = '/login/'

@@ -1,54 +1,3 @@
-//var webssh = false
-//function make_terminal(element, size, ws_url) { 
-//	var message = {'status': 0, 'data': null, 'cols': null, 'rows': null};
-//    var term = new Terminal({
-//        cols: size.cols,
-//        rows: size.rows,
-//        screenKeys: true,
-//        useStyle: true,
-//        cursorBlink: true,  // Blink the terminal's cursor
-//    });         	
-//    if (webssh) {
-//        return;
-//    }        
-//    webssh = true;        	
-//    term.open(element, false);
-//    term.write('正在连接...')
-///*             term.fit(); */
-//    var ws = new WebSocket(ws_url);
-//    ws.onopen = function (event) {
-//        term.resize(term.cols, term.rows);
-//
-//        term.on('data', function (data) {
-//            ws.send(data); 
-//        });
-//
-//        term.on('title', function (title) {
-//            document.title = title;
-//        });
-//        
-//        ws.onmessage = function (event) {
-//        	term.write(event.data);
-//        };  
-//
-///*        term.on('key', function(key, ev) {
-//            console.log(key, ev, ev.keyCode)
-//            if (ev.keyCode==38){
-//            	return false
-//            }
-//        }) */       
-//           
-//    };
-//    ws.onerror = function (e) {
-//    	term.write('\r\n连接失败')
-//    	ws = false
-//    };
-///*    ws.onclose = function () {
-//        term.destroy();
-//    }; */     
-//    return {socket: ws, term: term};
-//}
-
 var webssh = false
 var curr_line = '';
 var local_cli = ''
@@ -96,15 +45,16 @@ function make_terminal(element, size, ws_url, local_cli) {
 	        	//跳过方向键
 	        	return false
 	        }
-            
+            console.log(delimiter)
             if (ev.keyCode == 13) {                
                 if(curr_line.length && delimiter==';'){
                 	ws.send(curr_line)
+                	curr_line = '';
                 }else{
-                	term.writeln('\r\n sql请以;结尾');
-                	term.prompt()
+                	term.write('\r\n    -> ');
+                	curr_line = curr_line + ' '
                 }           
-                curr_line = '';
+                
             } else if (ev.keyCode == 8) {
                 if (term.x > 2) {
                     curr_line = curr_line.slice(0, -1);

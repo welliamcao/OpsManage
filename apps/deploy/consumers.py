@@ -3,7 +3,7 @@ import json, time, os, uuid
 from asgiref.sync import async_to_sync
 from channels.generic.websocket import WebsocketConsumer
 from dao.assets import AssetsAnsible
-from utils.ansible.runner import ANSRunner
+from libs.ansible.runner import ANSRunner
 from utils.logger import logger
 from deploy.models import *
 
