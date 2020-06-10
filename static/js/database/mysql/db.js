@@ -527,7 +527,7 @@ $(document).ready(function() {
     	        text: '<span class="fa fa-plus"></span>',
     	        className: "btn-xs",
     	    }]
-    		InitDataTable('customSQLList','/api/sql/custom/',buttons,columns,columnDefs);	
+    		InitDataTable('customSQLList','/api/db/mysql/custom/sql/',buttons,columns,columnDefs);	
     	}	
     	makeCustomSqlTableList()  	    
     }      
@@ -791,7 +791,7 @@ $(document).ready(function() {
     	if (vIds > 0){
 	    	$.ajax({  
 	            type: "POST",             
-	            url:"/api/db/mysql/server/"+ db_server +"/sync/",  
+	            url:"/api/db/mysql/server/"+ db_server +"/tables/",  
 	            data:{
 	            	"db_id":vIds,
 	            	"db_name": td.eq(0).text() 
@@ -876,12 +876,12 @@ $(document).ready(function() {
 		btnObj.attr('disabled',true);  
 		if (vIds > 0){
 			$.ajax({
-				url:'/api/sql/custom/'+ vIds +'/', //请求地址
+				url:'/api/mysql/sql/custom/'+ vIds +'/', //请求地址
 				type:"PUT",  //提交类似			
 				data:$("#add_custom_sql").serializeObject(),  //提交参数
 				success:function(response){
 					btnObj.removeAttr('disabled');
-					RefreshTable('#customSQLList', '/api/sql/custom/') 	               								
+					RefreshTable('#customSQLList', '/api/mysql/sql/custom/') 	               								
 				},
 		    	error:function(response){
 		    		btnObj.removeAttr('disabled');
@@ -895,12 +895,12 @@ $(document).ready(function() {
 			});				
 		}else{
 			$.ajax({
-				url:'/api/sql/custom/', //请求地址
+				url:'/api/mysql/sql/custom/', //请求地址
 				type:"POST",  //提交类似			
 				data:$("#add_custom_sql").serializeObject(),  //提交参数
 				success:function(response){
 					btnObj.removeAttr('disabled');
-					RefreshTable('#customSQLList', '/api/sql/custom/')              								
+					RefreshTable('#customSQLList', '/api/db/mysql/custom/sql/')              								
 				},
 		    	error:function(response){
 		    		btnObj.removeAttr('disabled');
@@ -920,11 +920,11 @@ $(document).ready(function() {
     	$("#save_custom_btn").val(vIds)
 		$.ajax({
 			dataType: "JSON",
-			url:'/api/sql/custom/'+ vIds +'/', //请求地址
+			url:'/api/db/mysql/custom/sql/'+ vIds +'/', //请求地址
 			type:"GET",  //提交类似
 			success:function(response){
 				$("#sql").val(response["sql"]);	
-				RefreshTable('#customSQLList', '/api/sql/custom/') 
+				RefreshTable('#customSQLList', '/api/db/mysql/custom/sql/') 
 			}					
 		});	 	
     });	 
@@ -941,7 +941,7 @@ $(document).ready(function() {
 		    	$.ajax({  
 		            cache: true,  
 		            type: "DELETE",  
-		            url:'/api/sql/custom/'+ vIds + '/' ,    
+		            url:'/api/db/mysql/custom/sql/'+ vIds + '/' ,    
 		            error: function(response) {  
 		            	new PNotify({
 		                    title: 'Ops Failed!',
@@ -957,7 +957,7 @@ $(document).ready(function() {
 		                    type: 'success',
 		                    styling: 'bootstrap3'
 		                });	
-		            	RefreshTable('#customSQLList', '/api/sql/custom/') 
+		            	RefreshTable('#customSQLList', '/api/db/mysql/custom/sql/') 
 		            }  
 		    	});
 		        },

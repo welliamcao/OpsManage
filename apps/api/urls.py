@@ -87,13 +87,13 @@ urlpatterns = [
                        
             #MySQL管理模块API接口
             url(r'db/mysql/list/$', mysql_api.DB_SERVER_LIST.as_view()),
-            url(r'db/mysql/custom/sql/$', mysql_api.DB_SERVER_LIST.as_view()),
+            url(r'db/mysql/custom/sql/$', mysql_api.DB_CUSTOM_SQL.as_view()),
             url(r'db/mysql/tree/$', mysql_api.db_tree),
             url(r'db/mysql/config/(?P<id>[0-9]+)/$', mysql_api.db_detail),
             url(r'db/mysql/status/(?P<id>[0-9]+)/$', mysql_api.db_status),
             url(r'db/mysql/org/(?P<id>[0-9]+)/$', mysql_api.db_org),
             url(r'db/mysql/server/(?P<pk>[0-9]+)/list/$', mysql_api.DB_SERVER_DETAIL.as_view()),
-            url(r'db/mysql/server/(?P<pk>[0-9]+)/sync/$', mysql_api.DB_SERVER_TABLES.as_view()),
+            url(r'db/mysql/server/(?P<pk>[0-9]+)/tables/$', mysql_api.DB_SERVER_TABLES.as_view()),
             url(r'db/mysql/server/(?P<sid>[0-9]+)/db/(?P<id>[0-9]+)/$', mysql_api.db_server_db_detail),
             url(r'db/mysql/server/(?P<sid>[0-9]+)/db/(?P<did>[0-9]+)/dict/$', mysql_api.DB_DATA_DICT.as_view()),
             url(r'db/mysql/user/list/$', mysql_api.DB_USER_DB_LIST.as_view()),

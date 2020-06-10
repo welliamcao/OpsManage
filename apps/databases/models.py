@@ -172,6 +172,9 @@ class Database_Table_Detail_Record(models.Model):
     table_name = models.CharField(max_length=100,verbose_name='数据库表名',blank=True,null=True)    
     table_size = models.IntegerField(verbose_name='表大小',blank=True,null=True)
     table_row = models.IntegerField(verbose_name='行数大小',blank=True,null=True)
+    table_engine = models.CharField(max_length=50,verbose_name='表存储引擎类型',blank=True,null=True)
+    collation = models.CharField(max_length=50,verbose_name='表字符集',blank=True,null=True)
+    format = models.CharField(max_length=50,verbose_name='行记录格式',blank=True,null=True)
     last_time = models.IntegerField(verbose_name='记录时间',blank=True,null=True)
     class Meta:
         db_table = 'opsmanage_database_table_detail'

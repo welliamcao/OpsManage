@@ -41,8 +41,10 @@ class RedisConfig(AssetsBase):
                 detail, created = Database_Redis_Detail.objects.get_or_create(
                                               db_server = dbServer,
                                               db_name = k,
-                                              total_keys = v.get("keys"),
-                                              expires = v.get("expires")
+                                              defaults = {
+                                                  "total_keys": v.get("keys"),
+                                                  "expires": v.get("expires")                                                  
+                                                  }
                                               )
             except Exception as ex:
                 logger.error(msg="同步数据库失败: {ex}".format(ex=ex))

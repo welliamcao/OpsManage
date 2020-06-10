@@ -240,15 +240,28 @@ class DB_SERVER_DETAIL(APIView,DBConfig):
 
 class DB_SERVER_TABLES(APIView,DBConfig):
     
-    def get_object(self, pk):
+    def get_db_server(self, pk):
         try:
             return DataBase_MySQL_Server_Config.objects.get(id=pk)
         except DataBase_MySQL_Server_Config.DoesNotExist:
             raise Http404    
     
+    def get_db(self, pk):
+        try:
+            return Database_MySQL_Detail.objects.get(id=pk)
+        except Database_MySQL_Detail.DoesNotExist:
+            raise Http404         
+    
+    @method_decorator_adaptor(permission_required, "databases.database_query_database_server_config","/403/")
+    def get(self, request, pk, format=None):
+        db = self.get_db(pk)
+        snippets = Database_Table_Detail_Record.objects.filter(db=db.id)
+        serializer = serializers.DatabaseTableSerializer(snippets, many=True)
+        return Response(serializer.data)        
+    
     @method_decorator_adaptor(permission_required, "databases.database_can_add_database_server_config","/403/")
     def post(self, request, pk, format=None):
-        dbServer = self.get_object(pk)
+        dbServer = self.get_db_server(pk)
         snippets = self.sync_table(dbServer, request.POST.get("db_id",0), request.POST.get("db_name"))
         serializer = serializers.DatabaseTableSerializer(snippets, many=True)
         return Response(serializer.data)

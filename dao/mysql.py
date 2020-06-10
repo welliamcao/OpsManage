@@ -46,8 +46,10 @@ class DBConfig(AssetsBase):
                 Database_MySQL_Detail.objects.get_or_create(
                                               db_server=dbServer,
                                               db_name=ds.get("db_name"),
-                                              db_size=ds.get("size"),
-                                              total_table = ds.get("total_table")
+                                              defaults = {
+                                                  "db_size": ds.get("size"),
+                                                  "total_table": ds.get("total_table")
+                                                  }
                                               )
             except Exception as ex:
                 logger.error(msg="同步数据库失败: {ex}".format(ex=ex))
@@ -65,18 +67,35 @@ class DBConfig(AssetsBase):
     def sync_table(self,dbServer,db,dbname):
         dataList  = self.__get_db_server_connect(dbServer).get_db_table_info(dbname)
         current_db_table_list = [ ds.get("table_name") for ds in dataList ]
-        old_db_table_list = [ ds.table_name for ds in Database_Table_Detail_Record.objects.filter(db=db)]
+        old_db_table_list = [ ds.table_name for ds in Database_Table_Detail_Record.objects.filter(db=db) ]
         for ds in dataList:
             try:
-                Database_Table_Detail_Record.objects.get_or_create(
-                                              db=db,
-                                              table_name=ds.get("table_name"),
-                                              table_size=ds.get("table_size"),
-                                              table_row = ds.get("table_rows"),
-                                              last_time = int(time.time())
+                table, created = Database_Table_Detail_Record.objects.get_or_create(
+                                              db = db,
+                                              table_name = ds.get("table_name"),
+                                              defaults = {
+                                                  "table_size": ds.get("table_size"),
+                                                  "table_row": ds.get("table_rows"),
+                                                  "table_engine": ds.get("engine"),
+                                                  "collation": ds.get('table_collation'),
+                                                  "format": ds.get('row_format'),
+                                                  "last_time": int(time.time())
+                                              }
                                               )
             except Exception as ex:
-                logger.error(msg="同步数据库失败: {ex}".format(ex=ex))
+                logger.error(msg="写入数据库表信息失败: {ex}".format(ex=ex))
+
+            if created is False:
+                try:
+                    table.table_size = ds.get("table_size")
+                    table.table_row = ds.get("table_rows")
+                    table.table_engine = ds.get("engine")
+                    table.collation = ds.get('table_collation')
+                    table.format = ds.get('row_format')
+                    table.last_time = int(time.time())
+                    table.save()
+                except Exception as ex:
+                    logger.error(msg="更新数据库表信息失败: {ex}".format(ex=ex))                
         
         del_db_table_list = list(set(old_db_table_list).difference(set(current_db_table_list))) 
                
@@ -512,6 +531,7 @@ class DBManage(AssetsBase):
                                            passwd=dbServer.get("db_passwd"), dbname=dbServer.get("db_name"), 
                                            sql=request.POST.get('sql'),port=dbServer.get("db_port"))
         return [result]        
+            
     
     def dump_table(self,request):
         dbServer = self.__check_user_perms(request,'databases.database_dumptable_database_server_config')

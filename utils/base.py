@@ -56,7 +56,7 @@ def exec_command(cmd, timeout=None):
         result.kill()
         return (256, str(ex).replace(cmd,""))
     code = result.returncode
-    if code != 0:
+    if code != 0 and stderr:
         return code, stderr.decode('utf-8')
     return code, stdout.decode('utf-8')
 

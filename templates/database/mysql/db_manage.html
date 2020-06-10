@@ -100,7 +100,9 @@
 			                    <li role="presentation" class=""><a href="#tab_content2" role="tab" id="#Binglog" data-toggle="tab" aria-expanded="false"><i class="fa fa-tasks"></i> BinLog解析</a>
 			                    </li> 
 			                    <li role="presentation" class=""><a href="#tab_content3" role="tab" id="#tableDDL" data-toggle="tab" aria-expanded="false"><i class="fa fa-bar-chart"></i> 表结构查询</a>
-			                    </li>                     
+			                    </li>
+			                    <li role="presentation" class=""><a href="#tab_content5" role="tab" id="#tableSize" data-toggle="tab" aria-expanded="false"><i class="fa fa-pie-chart"></i> 表结构查询</a>
+			                    </li>  			                                         
 			                    <li role="presentation" class=""><a href="#tab_content4" role="tab" id="#optimize" data-toggle="tab" aria-expanded="false"><i class="fa fa-paint-brush"></i> SQL优化建议</a>
 			                    </li>                                               
 			                  </ul>
@@ -211,7 +213,28 @@
 				                        <div id="schema_result">		                        
 				                        </div>							
 									 </div>						 
-			                    </div>                     
+			                    </div>   
+			                    <div role="tabpanel" class="tab-pane fade" id="tab_content5" aria-labelledby="#tableSize">
+									<div class="col-md-12 col-xs-12">
+										<legend>
+											<p id="dbSize"></p>
+										</legend>
+					                    <table id="DatabaseListTableSize" class="table table-striped table-bordered">
+					                      <thead>
+					                        <tr>
+					                        	<th>表名</th>	
+												<th>记录数</th>	
+												<th>存储空间(MB)</th>	
+												<th>存储引擎类型</th>	
+												<th>字符集</th>	
+												<th>行记录格式</th>
+					                        </tr>
+					                      </thead>
+					                      <tbody>
+					                      </tbody>
+					                    </table> 																				
+									</div>															 
+			                    </div> 			                                      
 			                     <!-- CustomSql -->
 			                    <div role="tabpanel" class="tab-pane fade" id="tab_content4" aria-labelledby="#optimize">
 									<div class="col-lg-4">

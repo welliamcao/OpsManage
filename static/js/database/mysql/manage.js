@@ -45,7 +45,6 @@ function make_terminal(element, size, ws_url, local_cli) {
 	        	//跳过方向键
 	        	return false
 	        }
-            console.log(delimiter)
             if (ev.keyCode == 13) {                
                 if(curr_line.length && delimiter==';'){
                 	ws.send(curr_line)
@@ -131,7 +130,7 @@ var language =  {
 		}
 	}
 
-function make_database_binlog(vIds,select_name){
+function database_manage_funciton(vIds,select_name){
 	switch(select_name) {
 	    case "binlog_db_file":
 	       var model = "binlog_sql"
@@ -261,6 +260,22 @@ function RefreshTable(tableId, urlData){
 	  });
 }
 
+function makeDbTableSizeList(dataList){
+    var columns = [
+                   {"data": "table_name"},
+	               {
+	            	   "data": "table_row",
+	            	   "defaultContent": ""
+	               },
+	               {"data": "table_size"},
+	               {"data": "table_engine"},
+	               {"data": "collation"},
+	               {"data": "format"},
+	        ]
+   var columnDefs = []	
+    var buttons = []  
+    InitDataTable('DatabaseListTableSize',dataList,buttons,columns,columnDefs);	
+}
 
 function makeDbManageTableList(dataList){
     var columns = [
@@ -278,8 +293,16 @@ function makeDbManageTableList(dataList){
    	    				targets: [5],
    	    				render: function(data, type, row, meta) {
    	                        return '<div class="btn-group  btn-group-xs">' +	
-	    	                           '<button type="button" name="btn-database-query" value="'+ row.id +'" class="btn btn-default"  aria-label="Justify"><span class="fa fa-search-plus" aria-hidden="true"></span>' +	
-	    	                           '</button>' +	
+	    	                           '<button type="button" name="btn-database-query" value="'+ row.id +'" class="btn btn-default"  aria-label="Justify"><span class="fa fa-cubes" aria-hidden="true"></span>' +	
+	    	                           '</button>' +
+	    	                           '<button type="button" name="btn-database-binlog" value="'+ row.id +'" class="btn btn-default"  aria-label="Justify"><span class="fa fa-tasks" aria-hidden="true"></span>' +	
+	    	                           '</button>' +
+	    	                           '<button type="button" name="btn-database-table" value="'+ row.id +'" class="btn btn-default"  aria-label="Justify"><span class="fa fa-bar-chart" aria-hidden="true"></span>' +	
+	    	                           '</button>' +
+	    	                           '<button type="button" name="btn-database-size" value="'+ row.id +'" class="btn btn-default"  aria-label="Justify"><span class="fa fa-pie-chart" aria-hidden="true"></span>' +	
+	    	                           '</button>' +	    	                           
+	    	                           '<button type="button" name="btn-database-optimize" value="'+ row.id +'" class="btn btn-default"  aria-label="Justify"><span class="fa fa-paint-brush" aria-hidden="true"></span>' +	
+	    	                           '</button>' +	    	                           
 	    	                           '<button type="button" name="btn-database-terminal" value="'+ row.id +'" class="btn btn-default"  aria-label="Justify"><span class="fa fa-terminal" aria-hidden="true"></span>' +	
 	    	                           '</button>' +  	    	                           
 	    	                           '</div>';
@@ -655,19 +678,50 @@ $(document).ready(function () {
         	let td = $(this).parent().parent().parent().find("td")
         	$("#dbChoice").html('<i  class="fa  fa-paper-plane" >数据库  <u class="red">'+ td.eq(1).text() +'</u> 操作入口</i>')
 			$("#db_exec_btn").removeClass("disabled").text("执行").val(vIds)
+		});	     	
+
+    	$('#UserDatabaseListTable tbody').on('click',"button[name='btn-database-binlog']",function(){   
+        	let vIds = $(this).val();
+        	let td = $(this).parent().parent().parent().find("td")
 			///binlog日志
         	$("#dbDmlBinlog").html('<i  class="fa  fa-paper-plane" >数据库  <u class="red">'+ td.eq(1).text() +'</u> DML语句回滚</i>')
 			$("#db_binlog_btn").removeClass("disabled").text("运行").val(vIds)
 			$("#db_binlog_async").removeClass("disabled").text("后台").val(vIds)
-			make_database_binlog(vIds,"binlog_db_file")
+			database_manage_funciton(vIds,"binlog_db_file")
+        });	    	
+    	
+    	$('#UserDatabaseListTable tbody').on('click',"button[name='btn-database-table']",function(){   
+        	let vIds = $(this).val();
+        	let td = $(this).parent().parent().parent().find("td")
 			//表结构信息
         	$("#dbTable").html('<i  class="fa  fa-paper-plane" >数据库  <u class="red">'+ td.eq(1).text() +'</u> 表结构查询</i>')
 			$("#db_schema_btn").removeClass("disabled").text("查看").val(vIds)	
-			make_database_binlog(vIds,"table_name")
+			database_manage_funciton(vIds,"table_name")        	
+        });	    	
+ 
+    	$('#UserDatabaseListTable tbody').on('click',"button[name='btn-database-optimize']",function(){   
+        	let vIds = $(this).val();
+        	let td = $(this).parent().parent().parent().find("td")
 			//优化建议
         	$("#dbOptimize").html('<i  class="fa  fa-paper-plane" >数据库  <u class="red">'+ td.eq(1).text() +'</u> SQL优化建议</i>')
 			$("#db_optimize_btn").removeClass("disabled").text("执行").val(vIds)		
-			//make_database_binlog(vIds,"optimize_db")
+			//database_manage_funciton(vIds,"optimize_db")      	
+        });	     	
+
+    	$('#UserDatabaseListTable tbody').on('click',"button[name='btn-database-size']",function(){   
+        	let vIds = $(this).val();
+        	let td = $(this).parent().parent().parent().find("td")
+			//数据库大小
+        	$("#dbSize").html('<i  class="fa  fa-paper-plane" >数据库  <u class="red">'+ td.eq(1).text() +'</u> 表空间大小</i>')	
+        	let datalist = requests("get","/api/db/mysql/server/"+ vIds +"/tables/")
+        	if (datalist.length){
+        		if ($('#DatabaseListTableSize').hasClass('dataTable')) {
+        	        dttable = $('#DatabaseListTableSize').dataTable();
+        	        dttable.fnClearTable();
+        	        dttable.fnDestroy();         
+        		}	    	     		
+        		makeDbTableSizeList(datalist)
+        	}
         });	     	
     	
     	$('#UserDatabaseListTable tbody').on('click',"button[name='btn-database-table']",function(){   
@@ -699,7 +753,6 @@ $(document).ready(function () {
 	                });       
 	            },  
 	            success: function(response) {  
-	            	console.log(response)
 					if(response["code"]!=200){
 			           	new PNotify({
 			                   title: 'Ops Failed!',

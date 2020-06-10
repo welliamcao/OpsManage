@@ -338,7 +338,7 @@ class DatabaseSerializer(serializers.ModelSerializer):
 class DatabaseTableSerializer(serializers.ModelSerializer):
     class Meta:
         model = Database_Table_Detail_Record
-        fields = ('id','table_size','table_row','table_name','last_time')        
+        fields = ('id','table_size','table_row','table_name','table_engine','collation','format','last_time')       
              
 
 class RedisServerSerializer(serializers.ModelSerializer):

@@ -39,10 +39,10 @@ class MySQLBase(MySQLPool):
     
     def get_db_table_info(self,dbname):
         dataList = []
-        data = self.execute_for_query(sql="""select table_schema,table_name,table_rows,round((DATA_LENGTH+INDEX_LENGTH)/1024/1024,2) as size 
+        data = self.execute_for_query(sql="""select table_schema,table_name,table_rows,round((DATA_LENGTH+INDEX_LENGTH)/1024/1024,2) as size,engine,row_format,table_collation  
                                             from information_schema.tables where table_schema = '{dbname}' order by table_rows desc;""".format(dbname=dbname))
         for ds in data[1]:
-            dataList.append({"db_name":ds[0],"table_name":ds[1],"table_rows":ds[2],"table_size":ds[3]})
+            dataList.append({"db_name":ds[0],"table_name":ds[1],"table_rows":ds[2],"table_size":ds[3],"engine":ds[4],"row_format":ds[5],"table_collation":ds[6]})
         return dataList  
     
     def get_db_table_columns(self,dbname, table_name):
