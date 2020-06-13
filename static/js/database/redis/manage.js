@@ -1,3 +1,8 @@
+var statusLevelHtml = {
+	    "high":'<span class="label label-danger">高</span>',
+	    "mid":'<span class="label label-info">中</span>',
+	    "low":'<span class="label label-success">低</span> '
+	}
 var webssh = false
 var curr_line = '';
 function make_terminal(element, size, ws_url, local_cli) { 
@@ -128,56 +133,6 @@ var language =  {
 		}
 	}
 
-function make_database_binlog(vIds,select_name){
-	switch(select_name) {
-	    case "binlog_db_file":
-	       var model = "binlog_sql"
-	       break;
-	    case "table_name":
-	    	var model = "table_list"
-	       break;
-	    case "optimize_db":
-	    	var model = "optimize_sql"
-	       break;
-	}	
-	$.ajax({
-		url:'/db/redis/manage/', //请求地址
-		type:"POST",  //提交类似			
-		data:{
-			"db":vIds,
-			"model":model,
-		},  //提交参数
-		success:function(response){
-            if (response["code"] == 200){
-	            if (response["data"].length) {
-	    			var selectHtml = '<select required="required" class="selectpicker form-control" data-live-search="true" name="'+select_name+'" id="'+select_name+'"  data-size="10" data-selected-text-format="count > 3"  data-width="100%"  autocomplete="off">' 
-	    			var option = '';
-	    			for (var i=0; i <response["data"].length; i++){
-	    				option = option + '<option value="'+ response["data"][i] +'">'+ response["data"][i] +'</option>'
-	    			}													
-	    			var selectHtml = selectHtml + option + '</select>';
-	    			$("#"+select_name).html(selectHtml);
-	    			$('.selectpicker').selectpicker('refresh');	
-				}		            
-            }else{
-	           	new PNotify({
-	                   title: 'Ops Failed!',
-	                   text: response["msg"],
-	                   type: 'error',
-	                   styling: 'bootstrap3'
-	            }); 	            	
-            }                            								
-		},
-    	error:function(response){
-           	new PNotify({
-                   title: 'Ops Failed!',
-                   text: response.responseText,
-                   type: 'error',
-                   styling: 'bootstrap3'
-            }); 
-    	}
-	});                           								
-}
 
 function requests(method,url,data){
 	var ret = '';
@@ -193,28 +148,6 @@ function requests(method,url,data){
         }
 	});	
 	return 	ret
-}
-function setAceEditMode(ids,model,theme) {
-	try
-	  {
-		var editor = ace.edit(ids);
-		require("ace/ext/old_ie");
-		var langTools = ace.require("ace/ext/language_tools");
-		editor.removeLines();
-		editor.setTheme(theme);
-		editor.getSession().setMode(model);
-		editor.setShowPrintMargin(false);
-		editor.setOptions({
-		    enableBasicAutocompletion: true,
-		    enableSnippets: true,
-		    enableLiveAutocompletion: true
-		}); 
-	 	return editor
-	  }
-	catch(err)
-	  {
-		console.log(err)
-	  }		 
 }
 
 function InitDataTable(tableId,dataList,buttons,columns,columnDefs){
@@ -289,8 +222,39 @@ function makeDbManageTableList(dataList){
 }
 
 function customMenu(node) {
-      var items = {}
-      return items
+	if (node["original"]["last_node"]==1){
+	    var items = {
+	            "show_memory":{  
+	                "label":"当前内存情况",  
+	                "icon": "fa fa-picture-o",
+	                "action":function(data){
+	                	var inst = $.jstree.reference(data.reference),
+						obj = inst.get_node(data.reference);
+	                	show_memory(obj, inst)
+	                }  
+	            },	    		
+	            "show_commands":{  
+	                "label":"命令执行情况",  
+	                "icon": "fa fa-bar-chart-o",
+	                "action":function(data){
+	                	var inst = $.jstree.reference(data.reference),
+						obj = inst.get_node(data.reference);
+	                	show_commands(obj, inst)
+	                }  
+	            },	    		
+	            "show_stats":{  
+	                "label":"Redis当前状态",  
+	                "icon": "fa fa-pie-chart",
+	                "action":function(data){
+	                	var inst = $.jstree.reference(data.reference),
+						obj = inst.get_node(data.reference);
+	                	show_stats(obj, inst)
+	                }  
+	            }		            
+	        }  
+	    return items		
+	}
+
 }
 
 
@@ -314,41 +278,6 @@ function drawTree(ids,url){
 		    	select_node:false,
 		    	show_at_node:true,
 		    	'items': customMenu
-		      }	    
-	});		
-}
-
-function drawTableTree(ids,jsonData){
-	$(ids).jstree('destroy');
-    $(ids).jstree({	
-	    "core" : {
-	      "check_callback": function (op, node, par, pos, more) {  	  
-	    	    if (op === "move_node" || op === "copy_node") {	    	    	
-	    	        return false;
-	    	    }
-	    	    return true;
-	    	},
-	      'data' : jsonData
-	    },	    
-	    "plugins": ["contextmenu", "dnd", "search","themes","state", "types", "wholerow","json_data","unique"],    
-	    "contextmenu":{
-		    	select_node:false,
-		    	show_at_node:true,
-		    	'items': {
-		            "view":{
-	              		"separator_before"	: false,
-						"separator_after"	: false,
-						"_disabled"			: false, 
-						"label"				: "查看表结构",
-						"shortcut_label"	: 'F2',
-						"icon"				: "fa fa-search-plus",
-						"action"			: function (data) {
-							var inst = $.jstree.reference(data.reference),
-							obj = inst.get_node(data.reference);
-							viewTableSchema(obj)
-						}
-	            }		    		
-		    	}
 		      }	    
 	});		
 }
@@ -433,126 +362,78 @@ $(document).ready(function () {
 })    
 
 
-function viewTableSchema(obj){
-	if (obj["original"]["db"]){
-    	$.ajax({  
-            cache: true,  
-            type: "POST",    
-            async: false,
-            url:"/db/redis/manage/",
-            data:{
-            	"model": "table_schema",
-            	"db": obj["original"]["db"],
-            	"table_name":obj["original"]["text"]
-            }, 
-            error: function(response) {
-            	new PNotify({
-                    title: 'Ops Failed!',
-                    text: response.responseText,
-                    type: 'error',
-                    styling: 'bootstrap3'
-                });       
-            },  
-            success: function(response) {  	
-				if(response["code"]!=200){
-		           	new PNotify({
-		                   title: 'Ops Failed!',
-		                   text: response["msg"],
-		                   type: 'error',
-		                   styling: 'bootstrap3'
-		            }); 					
-				}else{
-				var schemaTableHtml = '<table class="table table-striped">' +		                
-							              '<tbody>' +
-							                '<tr>' +
-							                  '<td>数据库: </td>' + '<td>'+ response["data"]["schema"][1][0][0] +'</td>' +
-							                  '<td>表名: </td>' +	'<td>'+ response["data"]["schema"][1][0][1] +'</td>' +
-							                  '<td>表类型: </td>' + '<td>'+ response["data"]["schema"][1][0][2] +'</td>' +	
-							                '</tr>' +
-							                '<tr>' +  
-							                  '<td>存储引擎: </td>' + '<td>'+ response["data"]["schema"][1][0][3] +'</td>' +	
-							                  '<td>版本: </td>' + '<td>'+ response["data"]["schema"][1][0][4] +'</td>' +						
-							                  '<td>行格式: </td>' + '<td>'+ response["data"]["schema"][1][0][5] +'</td>' +		
-							                '</tr>' +  
-							                '<tr>' +  
-							                  '<td>行记录数: </td>' + '<td>'+ response["data"]["schema"][1][0][6] +'</td>' +	
-							                  '<td>数据长度: </td>' + '<td>'+ response["data"]["schema"][1][0][7] +'</td>' +		
-							                  '<td>最大数据长度: </td>' + '<td>'+ response["data"]["schema"][1][0][8] +'</td>' +	
-								            '</tr>' +	
-								            '<tr>' + 
-							                  '<td>索引长度: </td>' + '<td>'+ response["data"]["schema"][1][0][9] +'</td>' +	
-							                  '<td>数据空闲: </td>' + '<td>'+ response["data"]["schema"][1][0][10] +'</td>' +	
-							                  '<td>自动递增值: </td>' + '<td>'+ response["data"]["schema"][1][0][11] +'</td>' +	
-									        '</tr>' +	
-									        '<tr>' + 							                  
-							                  '<td>创建日期: </td>' + '<td>'+ response["data"]["schema"][1][0][12] +'</td>' +	
-							                  '<td>字符集类型: </td>' + '<td>'+ response["data"]["schema"][1][0][13] +'</td>' +	
-							                  '<td>注释</td>' + '<td>'+ response["data"]["schema"][1][0][14] +'</td>' +	
-							                '</tr>'	 +                       
-							              '</tbody>' +
-							           '</table>'                    					
-				var indexTableHtml = '<table class="table table-striped"><thead><tr>'     	
-				    var indexTrHtml = '';
-					for (var i=0; i <response["data"]["index"][2].length; i++){
-						indexTrHtml = indexTrHtml + '<th>' + response["data"]["index"][2][i] +'</th>';
-					}; 
-					indexTableHtml = indexTableHtml + indexTrHtml + '</tr></thead><tbody>';
-					var indexHtml = '';
-					for (var i=0; i <response["data"]["index"][1].length; i++){
-						var indexTdHtml = '<tr>';
-						for (var x=0; x < response["data"]["index"][1][i].length; x++){
-							indexTdHtml = indexTdHtml + '<td>' + response["data"]["index"][1][i][x] +'</td>';
-						} 	
-						indexHtml = indexHtml + indexTdHtml + '</tr>';
-					}                    	
-				indexTableHtml = indexTableHtml + indexHtml +  '</tbody></table>';						
-				var descHtml = '<pre><code class="sql hljs">' + response["data"]["desc"] + '<br></code></pre>';	
-                var schemaHtml = '<div id="schema_result"><ul class="list-unstyled timeline widget">' +
-					               '<li>' +
-					                '<div class="block">' +
-					                  '<div class="block_content">' +
-					                    '<h2 class="title">' +
-					                       '<a>表结构信息</a>' +
-					                    '</h2><br>' +
-					                    schemaTableHtml +
-					                  '</div>' +
-					                '</div>' +
-					              '</li>' +
-					              '<li>' +
-					               '<li>' +
-					                '<div class="block">' +
-					                  '<div class="block_content">' +
-					                    '<h2 class="title">' +
-					                       '<a>表索引信息</a>' +
-					                    '</h2><br>' +
-					                    indexTableHtml +
-					                  '</div>' +					                  
-					                '</div>' +
-					              '</li>' +
-					               '<li>' +
-					                '<div class="block">' +
-					                  '<div class="block_content">' +
-					                    '<h2 class="title">' +
-					                       '<a>DDL信息</a>' +
-					                    '</h2><br>' +					                    
-					                    descHtml +
-					                  '</div>' +
-					                '</div>' +
-					              '</li>' +					              
-					            '</ul>'				
-				$("#schema_result").html(schemaHtml); 
-			    $('pre code').each(function(i, block) {
-			    	hljs.highlightBlock(block);
-			  	});	
-					}                    	
-            }
-        });	
-	}else{
-		$.alert({
-		    title: '警告!',
-		    type: 'red',
-		    content: '暂无更多信息',
-		});		
+function drewRedisStatusTables(ids, dataList){
+    var columns = [
+        {"data": "name"},
+        {
+     	   "data": "value",
+     	   "defaultContent": ""
+        },
+        {
+        	"data": "metric",
+        	"defaultContent": " - ",
+        	"className": "text-center"
+        },
+        {
+        	"data": "level",
+        	"className": "text-center"
+        },
+        {"data": "desc"},	                 
+ ]
+	var columnDefs = [  
+					{
+						targets: [1],
+						render: function(data, type, row, meta) {
+							if(row.value instanceof Object){
+								console.log(row.value.calls)
+								return JSON.stringify(row.value)
+							}
+							return row.value
+						},
+					},		
+					{
+						targets: [3],
+						render: function(data, type, row, meta) {
+							return statusLevelHtml[row.level]
+						},
+					},		
+			      ]	
+	var buttons = [	
+	] 
+	
+	InitDataTable(ids,dataList,buttons,columns,columnDefs);	
+}
+
+function show_memory(obj, inst){
+	let dataList = requests('get','/api/db/redis/status/'+ obj["original"]["db_server"] +'/?type=memory')["data"]
+	if ($('#redisMemoryTable').hasClass('dataTable')) {
+        dttable = $('#redisMemoryTable').dataTable();
+        dttable.fnClearTable();
+        dttable.fnDestroy();         
 	}	
+	drewRedisStatusTables('redisMemoryTable',dataList)
+	$("#redisMemoryTable").show()	
+}
+
+function show_commands(obj, inst){
+	let dataList = requests('get','/api/db/redis/status/'+ obj["original"]["db_server"] +'/?type=cmd')["data"]
+	if ($('#redisCommandTable').hasClass('dataTable')) {
+        dttable = $('#redisCommandTable').dataTable();
+        dttable.fnClearTable();
+        dttable.fnDestroy();         
+	}	
+	drewRedisStatusTables('redisCommandTable',dataList)
+	$("#redisCommandTable").show()	
+}
+
+function show_stats(obj, inst){
+	let dataList = requests('get','/api/db/redis/status/'+ obj["original"]["db_server"] +'/?type=stats')["data"]
+	if ($('#redisStatsTable').hasClass('dataTable')) {
+        dttable = $('#redisStatsTable').dataTable();
+        dttable.fnClearTable();
+        dttable.fnDestroy();         
+	}	
+	drewRedisStatusTables('redisStatsTable',dataList)
+	$("#redisStatsTable").show()	
 }
  

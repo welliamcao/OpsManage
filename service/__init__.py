@@ -1,6 +1,6 @@
 import inspect, time
 from service.mysql import mysql_base, mysql_pxc, mysql_status, mysql_variables, mysql_innodb_status, mysql_replication, mysql_innodb_trx
-from service.redis import redis_base, redis_memory, redis_commandstats
+from service.redis import redis_base, redis_memory, redis_commandstats, redis_status
        
 class MySQLMgrApi:
     def __init__(self):
@@ -161,13 +161,26 @@ class RedisMgrApi:
             if hasattr(cls,'key_name') and cls.key_name:
                 data = {}
                 data["name"] = cls.key_name
-                data["value"] = cls(dbServer).get_value(info_data) 
+                data["value"] = cls(dbServer).get_value(info_data)
                 data["metric"] = cls.metric
                 data["desc"] = cls.__doc__
                 data["level"] = cls.level
                 dataList.append(data)
         return dataList  
-    
+
+    def stats(self, dbServer):    
+        dataList = []
+        info_data = redis_base.RedisBase(dbServer).get_info(section='Stats')
+        for cls in self.__get_module_classes(redis_status):
+            if hasattr(cls,'key_name') and cls.key_name:
+                data = {}
+                data["name"] = cls.key_name
+                data["value"] = cls(dbServer).get_value(info_data)
+                data["metric"] = cls.metric
+                data["desc"] = cls.__doc__
+                data["level"] = cls.level
+                dataList.append(data)
+        return dataList     
 
 mysql_service = MySQLMgrApi()
 redis_service = RedisMgrApi()
