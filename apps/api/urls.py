@@ -108,6 +108,7 @@ urlpatterns = [
             url(r'db/redis/list/$', redis_api.REDIS_SERVER_LIST.as_view()),
             url(r'db/redis/custom/sql/$', redis_api.REDIS_SERVER_LIST.as_view()),
             url(r'db/redis/tree/$', redis_api.db_tree),
+            url(r'db/redis/org/(?P<id>[0-9]+)/$', redis_api.db_org),
             url(r'db/redis/config/(?P<id>[0-9]+)/$', redis_api.db_detail),
             url(r'db/redis/status/(?P<id>[0-9]+)/$', redis_api.db_status),
             url(r'db/redis/server/(?P<pk>[0-9]+)/list/$', redis_api.REDIS_SERVER_DETAIL.as_view()),

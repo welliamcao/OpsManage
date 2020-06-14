@@ -181,6 +181,7 @@ class RedisMgrApi:
                 data["level"] = cls.level
                 dataList.append(data)
         return dataList     
-
+          
+    
 mysql_service = MySQLMgrApi()
 redis_service = RedisMgrApi()

@@ -5,16 +5,16 @@ from databases.models import *
 from asset.models import Assets
 from django.http import QueryDict
 from rest_framework import status
-from django.http import Http404,StreamingHttpResponse
+from django.http import Http404
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from django.contrib.auth.decorators import permission_required
-from service.redis.redis_base import RedisBase
+from service.redis.redis_base import RedisBase, RedisArch
 from dao.redis import RedisManage, RedisConfig, RedisUser
 from django.http import JsonResponse
 from utils.logger import logger
-from utils.base import method_decorator_adaptor,file_iterator
+from utils.base import method_decorator_adaptor
 from account.models import User
 from service import  redis_service
   
@@ -73,6 +73,23 @@ def db_status(request, id,format=None):
         
         return JsonResponse({"code":200,"msg":"success","data":REDIS_STATUS})
     
+
+@api_view(['POST','GET'])
+@permission_required('databases.database_read_redis_server_config',raise_exception=True)  
+def db_org(request, id,format=None):
+    try:
+        dbServer = DataBase_Redis_Server_Config.objects.get(id=id)
+    except DataBase_Redis_Server_Config.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)    
+    if request.method == 'POST':
+        Redis = RedisBase(dbServer.to_connect())
+        ARCH_INFO = RedisArch(Redis, dbServer.to_connect())
+        if dbServer.db_mode == 'cluster':data = ARCH_INFO.cluster()
+        elif dbServer.db_mode == 'ms':data = ARCH_INFO.master_slave()
+        elif dbServer.db_mode == 'slave':data = ARCH_INFO.slave()
+        else:
+            data = ARCH_INFO.single()
+        return JsonResponse({"code":200,"msg":"success","data":data})    
         
         
 @api_view(['POST','GET'])

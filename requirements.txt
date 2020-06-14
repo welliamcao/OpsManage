@@ -71,6 +71,7 @@ python-magic==0.4.15
 pytz==2018.7
 PyYAML==3.13
 redis==2.10.6
+redis-py-cluster==2.0.0
 requests==2.20.0
 six==1.11.0
 smmap2==2.0.5

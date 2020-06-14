@@ -351,7 +351,6 @@ class RedisServerSerializer(serializers.ModelSerializer):
                   "db_business","db_rw","db_passwd","detail")  
     
     def get_db_passwd(self,obj):
-        print(len(obj.db_passwd))
         if len(obj.db_passwd) > 0:
             return obj.db_passwd[:1]+'****'+obj.db_passwd[-1]
         else:

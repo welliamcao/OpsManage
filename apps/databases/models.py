@@ -271,6 +271,7 @@ class DataBase_Redis_Server_Config(models.Model):
             ('single',u'单例'),
             ('ms',u'主从'),
             ('master',u'主库'),
+            ('cluster',u'集群'),
             ) 
     rw_type = (
                 ('read',u'只读'),
@@ -286,7 +287,8 @@ class DataBase_Redis_Server_Config(models.Model):
                'mode':{
                     'single':'单例',
                     'ms':'主从',
-                    'master':'主库',                    
+                    'master':'主库',  
+                    'cluster':"集群"                  
                 },
                "rw":{
                     'read':'只读',
@@ -367,7 +369,8 @@ class DataBase_Redis_Server_Config(models.Model):
     def to_connect(self, db=None):
         json_format = {
             "id":self.id,          
-            "ip":self.db_assets.server_assets.ip ,
+            "ip":self.db_assets.server_assets.ip,
+            "db_type":self.db_mode, 
             "db_port":self.db_port,
             "db_name":"db0",
             "db_passwd":self.db_passwd,  
