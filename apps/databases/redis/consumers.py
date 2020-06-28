@@ -68,6 +68,7 @@ class RedisWebTerminal(WebsocketConsumer,RedisManage):
             return True
         
         self.send("命令未授权, 联系管理员授权\r\n") 
+        self.send(self.redis_pool.prompt())
         return False                                     
     
     def connect(self):
