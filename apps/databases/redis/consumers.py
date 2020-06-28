@@ -5,7 +5,7 @@ from channels.generic.websocket import WebsocketConsumer
 from databases.models import *
 from utils import base
 from utils.logger import logger
-from libs.redispool import RedisPool
+from libs.redispool import RedisPool, RedisClusterPool
 from dao.redis import RedisManage
 
 
@@ -77,13 +77,19 @@ class RedisWebTerminal(WebsocketConsumer,RedisManage):
         self.accept()
 
         dbServer = self._check_user_perms(self.scope['url_route']['kwargs']['id'])
-        
+
         if not dbServer:
             self.send(text_data="403。。。。数据库未授权!")   
             self.close()        
         
+        
         #创建Redis连接
-        self.redis_pool = RedisPool(dbServer)
+        if dbServer.get('db_mode','ms') == 'cluster':
+            self.redis_pool = RedisClusterPool(dbServer)
+        else:
+            self.redis_pool = RedisPool(dbServer)
+        
+        self.send(self.redis_pool.prompt())
     
            
     def receive(self, text_data=None, bytes_data=None):
@@ -91,6 +97,7 @@ class RedisWebTerminal(WebsocketConsumer,RedisManage):
             result = self.redis_pool.execute(text_data)
             #这里记录用户执行的命令
             self.send(self.redis_pool.format_result(result))
+            self.send(self.redis_pool.prompt())
 
            
         
@@ -99,5 +106,6 @@ class RedisWebTerminal(WebsocketConsumer,RedisManage):
 
     def disconnect(self, close_code):    
         async_to_sync(self.channel_layer.group_discard)(self.group_name, self.channel_name)
+        self.redis_pool.close()
         self.close()
         

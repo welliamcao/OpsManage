@@ -21,15 +21,15 @@ function make_terminal(element, size, ws_url, local_cli) {
     webssh = true;        	
     term.open(element, false);
     term.writeln('\033[33m \r\nWelcome to Redis web terminal.\033[0m');
-	term.prompt = () => {
-	    term.write("\r\n"+local_cli);
-	};
+//	term.prompt = () => {
+//	    term.write("\r\n"+local_cli);
+//	};
 	
     var ws = new WebSocket(ws_url);
     
     ws.onopen = function (event) {
 
-    	term.prompt();	
+    	//term.prompt();	
     	
         term.resize(term.cols, term.rows);
         
@@ -40,7 +40,7 @@ function make_terminal(element, size, ws_url, local_cli) {
             if (key.charCodeAt(0) == 3) {
 	        	//捕获ctrl+c
             	curr_line = ''
-            	term.prompt()
+            	//term.prompt()
 	        }            
             
             if (key.charCodeAt(0) == 27) {
@@ -52,7 +52,7 @@ function make_terminal(element, size, ws_url, local_cli) {
                 if(curr_line.length){
                 	ws.send(curr_line)
                 }else{
-                	term.prompt()
+                	//term.prompt()
                 }           
                 curr_line = '';
             } else if (ev.keyCode == 8) {
@@ -70,7 +70,6 @@ function make_terminal(element, size, ws_url, local_cli) {
         term.on('paste', function(data) {
             term.write(data);            
         	if (curr_line.length){
-        		console.log(curr_line)
                 ws.send(curr_line + data)        		
         	}else{
         		ws.send(data)
@@ -84,7 +83,7 @@ function make_terminal(element, size, ws_url, local_cli) {
         
         ws.onmessage = function (event) {
         	term.write("\r\n" + event.data);
-        	term.prompt();
+        	//term.prompt();
         };  
                  
     };

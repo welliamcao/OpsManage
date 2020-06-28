@@ -370,7 +370,7 @@ class DataBase_Redis_Server_Config(models.Model):
         json_format = {
             "id":self.id,          
             "ip":self.db_assets.server_assets.ip,
-            "db_type":self.db_mode, 
+            "db_mode":self.db_mode, 
             "db_port":self.db_port,
             "db_name":"db0",
             "db_passwd":self.db_passwd,  
@@ -414,7 +414,7 @@ class Database_Redis_Detail(models.Model):
             "db_name":self.db_name,
             "ip":self.db_server.db_assets.server_assets.ip ,
             "db_port":self.db_server.db_port,
-            "db_passwd":self.db_server.db_passwd,  
+            "db_passwd":self.db_server.db_passwd
         }
         return  json_format 
                  
