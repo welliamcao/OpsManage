@@ -1,5 +1,5 @@
 # -*- coding=utf-8 -*-
-import time
+import time, operator
 import redis, rediscluster
 from utils.logger import logger
 from rediscluster import RedisCluster
@@ -10,13 +10,47 @@ from rediscluster.exceptions import (
 
 from redis.exceptions import RedisError, ResponseError, TimeoutError, DataError, ConnectionError, BusyLoadingError
 
-class RedisTools:
+class RedisPoolBase:
     def __init__(self, dbServer): 
         self.dbServer = dbServer
         self.host = dbServer["ip"]
         self.db = dbServer.get("db_name").replace("db","")
         self.password = dbServer["db_passwd"]
         self.port = dbServer["db_port"] 
+
+    def _connect_remote(self, host=None, port=None, password=None, db=None):
+        host = (host or self.host)
+        port = (port or self.port)          
+        db = (db or self.db)
+        password = (password or self.password)
+        try:
+            return redis.StrictRedis(host=host, port=port,db=db, password=password)   
+        except redis.ConnectionError as ex:
+            logger.error("连接数据库失败: {ex}".format(ex=ex.__str__()))
+            raise redis.ConnectionError(ex)  
+
+    def find_big_keys(self, key_length):
+        cnx = self._connect_remote()
+        dataList = []
+        i = 0
+        scan_val = cnx.scan(cursor=i,count=1000)
+        while scan_val[0] > 0 :
+            i = scan_val[0]
+            try:
+                pipe = cnx.pipeline(transaction=False)
+                for k in scan_val[1]:
+                    pipe.debug_object(k)
+                exec_val = pipe.execute()
+                x = 0
+                for keys in exec_val:    
+                    key = scan_val[1][x]        
+                    length = keys.get("serializedlength")
+                    if length > key_length:
+                        dataList.append({"name":key,"length":length})
+                    x = x + 1
+            except Exception as ex:
+                logger.error(ex.__str__()) 
+            scan_val = cnx.scan(cursor=i,count=1000)
 
     def prompt(self, host=None, port=None, db=None):
         host = (host or self.host)
@@ -56,30 +90,54 @@ class RedisTools:
         else:            
             return str(result)        
 
-class RedisPool(RedisTools): 
+class RedisStandalonePool(RedisPoolBase): 
     def __init__(self, dbServer): 
         self.dbServer = dbServer
         self.host = dbServer["ip"]
         self.db = dbServer["db_name"].replace("db","")
         self.password = dbServer["db_passwd"]
         self.port = dbServer["db_port"]  
-        
-    def cluster_connect(self, host=None, port=None, password=None):
-        password = (password or self.password)
-        host = (host or self.host)
-        port = (port or self.port)
-        startup_nodes = [{"host": host, "port": port}]
+             
+
+    def execute(self, cmd):    
+        cnx = self._connect_remote()  
         try:
-            conn = RedisCluster(startup_nodes=startup_nodes, decode_responses=True, password=password)
-            return conn
-        except Exception as ex:
-            logger.error("连接数据库失败: {ex}".format(ex=ex.__str__()))
-            raise ex.__str__()
+            return cnx.execute_command(cmd)
+        except redis.RedisError as ex:
+            logger.error("数据库操作失败: {ex}".format(ex=ex.__str__())) 
+            return ex.__str__()
+        #会自动释放，不需要再显示关闭连接                
+#         finally:
+#             cnx.close()
+
+    def close(self):
+        pass
+
     
-    def cluster_nodes(self):
+ 
+        
+                
+class RedisClusterPool(rediscluster.RedisCluster,RedisPoolBase):
+    def __init__(self, dbServer):
+        
+        self.dbServer = dbServer
+        self.host = dbServer["ip"]
+        self.password = dbServer["db_passwd"]
+        self.db = None
+        self.port = dbServer["db_port"]          
+        self.node = {'host': self.host, 'port': self.port, 'name': self.host + ':' + str(self.port)}
+        
+        try:
+            super().__init__(host=self.host, port=self.port, decode_responses=True, password=self.password)
+        except rediscluster.exceptions.RedisClusterException:
+            return '(error) ERR could not connect to redis at {}:{}'.format(self.host, self.port)
+    
+    def get_command_keys(self):
+        return list(self.RESULT_CALLBACKS.keys()) + list(self.NODES_FLAGS.keys()) + list(self.CLUSTER_COMMANDS_RESPONSE_CALLBACKS.keys())
+    
+    def cluster_node(self):
         dataList = []
-        cnx = self.cluster_connect()
-        nodes = cnx.cluster_nodes()
+        nodes = self.cluster_nodes()
         ms = {}
         for r in nodes: 
             nid = r.get('id')
@@ -106,79 +164,7 @@ class RedisPool(RedisTools):
                 dataList.append(data)    
         return  dataList
 
-    def _connect_remote(self, host=None, port=None, password=None, db=None):
-        host = (host or self.host)
-        port = (port or self.port)          
-        db = (db or self.db)
-        password = (password or self.password)
-        try:
-            return redis.StrictRedis(host=host, port=port,db=db, password=password)   
-        except redis.ConnectionError as ex:
-            logger.error("连接数据库失败: {ex}".format(ex=ex.__str__()))
-            raise redis.ConnectionError(ex)        
-        
-
-    def execute(self, cmd):
-#         if self.dbServer.get('db_type') == 'cluster':
-#             cnx = self.cluster_connect()
-#         else:
-#             cnx = self._connect_remote()     
-        cnx = self._connect_remote()  
-        try:
-            return cnx.execute_command(cmd)
-        except redis.RedisError as ex:
-            logger.error("数据库操作失败: {ex}".format(ex=ex.__str__())) 
-            return ex.__str__()
-        #会自动释放，不需要再显示关闭连接                
-#         finally:
-#             cnx.close()
-
-    def find_big_keys(self, key_length):
-        cnx = self._connect_remote()
-        dataList = []
-        i = 0
-        scan_val = cnx.scan(cursor=i,count=1000)
-        while scan_val[0] > 0 :
-            i = scan_val[0]
-            try:
-                pipe = cnx.pipeline(transaction=False)
-                for k in scan_val[1]:
-                    pipe.debug_object(k)
-                exec_val = pipe.execute()
-                x = 0
-                for keys in exec_val:    
-                    key = scan_val[1][x]        
-                    length = keys.get("serializedlength")
-                    if length > key_length:
-                        dataList.append({"name":key,"length":length})
-                    x = x + 1
-            except Exception as ex:
-                logger.error(ex.__str__()) 
-            scan_val = cnx.scan(cursor=i,count=1000)
-    
- 
-        
-                
-class RedisClusterPool(rediscluster.RedisCluster,RedisTools):
-    def __init__(self, dbServer):
-        
-        self.dbServer = dbServer
-        self.host = dbServer["ip"]
-        self.password = dbServer["db_passwd"]
-        self.db = None
-        self.port = dbServer["db_port"]          
-        self.node = {'host': self.host, 'port': self.port, 'name': self.host + ':' + str(self.port)}
-        
-        try:
-            super().__init__(host=self.host, port=self.port, decode_responses=True, password=self.password)
-        except rediscluster.exceptions.RedisClusterException:
-            return '(error) ERR could not connect to redis at {}:{}'.format(self.host, self.port)
-    
-    def get_command_keys(self):
-        return list(self.RESULT_CALLBACKS.keys()) + list(self.NODES_FLAGS.keys()) + list(self.CLUSTER_COMMANDS_RESPONSE_CALLBACKS.keys())
-    
-
-    def execute_command(self, node=None, slot=False ,*args, **kwargs):
+    def execute_commands(self, node=None, slot=False ,*args, **kwargs):
         """
         Send a command to a node in the cluster
         """
@@ -257,6 +243,8 @@ class RedisClusterPool(rediscluster.RedisCluster,RedisTools):
 
     def execute(self, payload):
         
+        past_node = self.node
+        
         payload = payload.split()
         
         cmd, *args =  payload
@@ -283,13 +271,12 @@ class RedisClusterPool(rediscluster.RedisCluster,RedisTools):
             slot = False    
                 
         try:
-            ret = self.execute_command(self.node, slot, cmd, *args)
+            ret = self.execute_commands(self.node, slot, cmd, *args)
 
             if not ret:
                 return '(empty list or set)'
             else:
-                
-                if move_str: 
+                if move_str and operator.ne(past_node, self.node): 
                     return  move_str + '\r\n' + self.format_result(ret)
                 else:
                     return self.format_result(ret)
@@ -298,5 +285,18 @@ class RedisClusterPool(rediscluster.RedisCluster,RedisTools):
             
     def close(self):
         pass
-#         self.connection_pool.close()                
+#         self.connection_pool.close()   
+
+class RedisPool:
+    def __init__(self,dbServer):
+        self.dbServer = dbServer
+        super(RedisPool, self).__init__() 
+    
+    def start_up(self, dbServer=None):
+        dbServer = (dbServer or self.dbServer)        
+        if dbServer.get('db_mode','ms') == 'cluster':
+            return RedisClusterPool(dbServer)
+        else:
+            return RedisStandalonePool(dbServer)
+             
         

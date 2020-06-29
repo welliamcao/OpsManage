@@ -5,7 +5,7 @@ from channels.generic.websocket import WebsocketConsumer
 from databases.models import *
 from utils import base
 from utils.logger import logger
-from libs.redispool import RedisPool, RedisClusterPool
+from libs.redispool import RedisPool
 from dao.redis import RedisManage
 
 
@@ -85,10 +85,7 @@ class RedisWebTerminal(WebsocketConsumer,RedisManage):
         
         
         #创建Redis连接
-        if dbServer.get('db_mode','ms') == 'cluster':
-            self.redis_pool = RedisClusterPool(dbServer)
-        else:
-            self.redis_pool = RedisPool(dbServer)
+        self.redis_pool = RedisPool(dbServer).start_up()
         
         self.send(self.redis_pool.prompt())
     

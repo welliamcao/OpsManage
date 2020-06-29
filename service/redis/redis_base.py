@@ -5,20 +5,22 @@ from libs.redispool import RedisPool
 from utils.logger import logger
 
 class RedisBase(RedisPool):
-
+    def __init__(self,dbServer):
+        self.redis = self.start_up(dbServer)
+    
     def get_db_size(self):
-        cnx = self._connect_remote()
+        cnx = self.redis._connect_remote()
         return cnx.info('keyspace')
 
     def get_info(self, section=None):
-        cnx = self._connect_remote()
+        cnx = self.redis._connect_remote()
         return cnx.info(section)
     
     def get_repl(self):
         return self.get_info(section='Replication')       
     
     def get_cluster_nodes(self):
-        return self.cluster_nodes()
+        return self.redis.cluster_node()
     
 class RedisInfo(RedisPool):
         
@@ -65,7 +67,7 @@ class RedisArch(object):
     
     def cluster(self):
         self.arch_info["name"] = '集群模式'
-        for ds in self.redis.cluster_nodes():
+        for ds in self.redis.get_cluster_nodes():
             data = {"name":'Master / {slot}'.format(slot=ds.get('slot')),"title":ds.get("host") + ':' + str(ds.get("port")),'children':[]}
             if len(ds.get('slave')) > 0:
                 for ds in ds.get('slave'):
