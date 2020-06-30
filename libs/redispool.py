@@ -61,26 +61,34 @@ class RedisPoolBase:
             return '{}:{}> '.format(host, port)
     
     def format_result(self, result):
+               
+        def format_list(results, ss):
+            rresults, rcount = '', 1
+            for rr in results: 
+                if isinstance(rr, bytes):
+                    rr = rr.decode('utf-8')
+                elif isinstance(rr, int):
+                    rr = '(integer) {}'.format(rr) 
+                elif isinstance(rr, list):      
+                    rr = format_list(rr, ss + ' '*3)
+                else:
+                    rr = '"{}"'.format(rr)
+                if rcount > 1: 
+                    rresults =  rresults + ss + str(rcount) + ') ' +  rr  + '\n\r'
+                else:
+                    rresults =  str(rcount) + ') ' +  rr  + '\n\r'
+                rcount = rcount + 1
+            return rresults                
                 
         if isinstance(result, bytes):
             return result.decode('utf-8').replace('\n','\n\r')
-            
+                       
         elif isinstance(result, list):
             results, count = '', 1
             for rs in result:
-                rresults, rcount = '', 1
                 if isinstance(rs, list):
-                    s = ' '
-                    for rr in rs:  
-                        if isinstance(rr, bytes):
-                            rr = rr.decode('utf-8')
-                        else:
-                            rr = str(rr)
-                        if rcount > 1: s = '    '
-                        rresults =  rresults + s + str(rcount) +") \""  + rr  + '"\n\r'
-                        rcount = rcount + 1
-                    if len(rresults) > 0:
-                        results = results  + str(count) +") " + rresults
+                    rresults = format_list(rs,' '*3)[:-2].replace('\n\r\n\r','\n\r')    
+                    results = results  + str(count) +") " + rresults
                 else:
                     results = results + str(count) +") \"" + rs  + '"\n\r'
                 count = count + 1
