@@ -40,7 +40,7 @@ SECRET_KEY = 'i)&2z^y%0w1o-%h3da1*$!9@5hx^dzp-_w&rx&4k6ml)l24&ev'
 DEBUG = True
 ALLOWED_HOSTS = ['*']
 
-REDSI_KWARGS_LPUSH = {"host":config.get('redis', 'host'),'port':config.get('redis', 'port'),'db':config.get('redis', 'ansible_db')}
+REDSI_KWARGS_LPUSH = {"host":config.get('redis', 'host'),'port':config.get('redis', 'port'),'db':config.get('redis', 'ansible_db'),'password':config.get('redis', 'password')}
 REDSI_LPUSH_POOL = None
 
 
@@ -48,7 +48,7 @@ CHANNEL_LAYERS = {
     "default": {
        "BACKEND": "channels_redis.core.RedisChannelLayer",  # use redis backend
        "CONFIG": {
-            "hosts": [(config.get('redis', 'host'), config.get('redis', 'port'))],  #无密码方式         
+            "hosts": [("redis://:" + config.get('redis', 'password') + "@"+ config.get('redis', 'host') + ":"+ config.get('redis', 'port') + "/0")]
            },
        },
 }

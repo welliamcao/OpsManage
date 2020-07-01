@@ -114,7 +114,7 @@ class APBase(object):
         if db==APBase.REDSI_POOL:
             args = settings.REDSI_KWARGS_LPUSH
             if settings.REDSI_LPUSH_POOL == None:
-                settings.REDSI_LPUSH_POOL = redis.ConnectionPool(host=args.get('host'), port=args.get('port'), db=args.get('db'))
+                settings.REDSI_LPUSH_POOL = redis.ConnectionPool(host=args.get('host'), port=args.get('port'), db=args.get('db'),password=args.get('password'))
             pools = settings.REDSI_LPUSH_POOL  
         connection = redis.Redis(connection_pool=pools)
         return connection

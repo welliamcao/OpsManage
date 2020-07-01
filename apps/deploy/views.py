@@ -9,7 +9,6 @@ from asset.models import Assets
 from deploy.models import *
 from libs.ansible.runner import ANSRunner
 from dao.dispos import DeployScript,DeployPlaybook
-from dao.redisdb import DsRedis
 from django.contrib.auth.decorators import permission_required
 from utils.logger import logger
 from dao.assets import AssetsBase,AssetsSource
