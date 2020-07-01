@@ -39,7 +39,6 @@ class DsRedis(object):
         @staticmethod
         def set(redisKey,value):
             try:
-                print(redisKey,value)
                 redisConn = APBase.getRedisConnection(APBase.REDSI_POOL)
                 redisConn.set(redisKey, value)
                 redisConn.expire(redisKey, 300)
