@@ -211,7 +211,7 @@ if config.get('ldap', 'enable') == 'true':
           
     AUTHENTICATION_BACKENDS = (
         'django_auth_ldap.backend.LDAPBackend',
-        'django.contrib.auth.backends.ModelBackend',
+        'apps.account.backends.ModelBackend',
     )
     
     AUTH_LDAP_SERVER_URI = "ldap://{server}:{port}".format(server=config.get('ldap', 'server'),port=config.get('ldap', 'port')) #配置ldap的服务地址
