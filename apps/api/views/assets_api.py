@@ -18,17 +18,20 @@ from mptt.templatetags.mptt_tags import cache_tree_children
  
 
 @api_view(['GET', 'POST' ])
-@permission_required('asset.assets_add_zone_assets',raise_exception=True)
 def zone_list(request,format=None):
     """
     List all order, or create a server assets order.
     """
-   
-    if request.method == 'GET':      
+    if request.method == 'GET':    
+        if not request.user.has_perm('asset.assets_read_zone'):
+            return Response(status=status.HTTP_403_FORBIDDEN)          
         snippets = Zone_Assets.objects.all()
         serializer = serializers.ZoneSerializer(snippets, many=True)
         return Response(serializer.data)     
-    elif request.method == 'POST':        
+    
+    elif request.method == 'POST': 
+        if not request.user.has_perm('asset.assets_read_zone'):
+            return Response(status=status.HTTP_403_FORBIDDEN)                
         serializer = serializers.ZoneSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save() 
@@ -36,7 +39,6 @@ def zone_list(request,format=None):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET', 'PUT', 'DELETE'])
-@permission_required('asset.assets_change_zone_assets',raise_exception=True)
 def zone_detail(request, id,format=None):
     """
     Retrieve, update or delete a server assets instance.
@@ -47,10 +49,14 @@ def zone_detail(request, id,format=None):
         return Response(status=status.HTTP_404_NOT_FOUND)
  
     if request.method == 'GET':
+        if not request.user.has_perm('asset.assets_read_zone'):
+            return Response(status=status.HTTP_403_FORBIDDEN)         
         serializer = serializers.ZoneSerializer(snippet)
         return Response(serializer.data)
  
     elif request.method == 'PUT':
+        if not request.user.has_perm('asset.assets_change_zone'):
+            return Response(status=status.HTTP_403_FORBIDDEN)         
         serializer = serializers.ZoneSerializer(snippet, data=request.data)
         if serializer.is_valid():
             serializer.save() 
@@ -58,7 +64,7 @@ def zone_detail(request, id,format=None):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
      
     elif request.method == 'DELETE':
-        if not request.user.has_perm('asset.assets_delete_zone_assets'):
+        if not request.user.has_perm('asset.assets_delete_zone'):
             return Response(status=status.HTTP_403_FORBIDDEN)
         snippet.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)   
@@ -70,7 +76,9 @@ def idc_list(request,format=None):
     List all order, or create a server assets order.
     """
    
-    if request.method == 'GET':      
+    if request.method == 'GET':  
+        if not request.user.has_perm('asset.assets_read_zone'):
+            return Response(status=status.HTTP_403_FORBIDDEN)             
         snippets = Idc_Assets.objects.all()
         serializer = serializers.IdcSerializer(snippets, many=True)
         return Response(serializer.data) 
@@ -102,6 +110,8 @@ def idc_detail(request, id,format=None):
         return Response(status=status.HTTP_404_NOT_FOUND)
  
     if request.method == 'GET':
+        if not request.user.has_perm('asset.assets_read_zone'):
+            return Response(status=status.HTTP_403_FORBIDDEN)         
         serializer = serializers.IdcSerializer(snippet)
         return Response(serializer.data)
  
@@ -126,19 +136,22 @@ def idle_list(request,format=None):
     List all order, or create a server assets order.
     """
    
-    if request.method == 'GET':      
+    if request.method == 'GET':    
+        if not request.user.has_perm('asset.assets_read_zone'):
+            return Response(status=status.HTTP_403_FORBIDDEN)           
         snippets = Idle_Assets.objects.all()
         serializer = serializers.IdleAssetsSerializer(snippets, many=True)
         return Response(serializer.data) 
         
     elif request.method == 'POST':  
-        
+        if not request.user.has_perm('asset.assets_add_zone'):
+            return Response(status=status.HTTP_403_FORBIDDEN)         
         try:
             idc = Idc_Assets.objects.get(id=request.data.get('idc'))
         except Exception as ex:
             return Response(ex, status=status.HTTP_400_BAD_REQUEST)         
         
-        if not request.user.has_perm('asset.assets_add_zone_assets'):
+        if not request.user.has_perm('asset.assets_add_zone'):
             return Response(status=status.HTTP_403_FORBIDDEN)  
 
         data = request.data.copy()
@@ -162,11 +175,13 @@ def idle_detail(request, id,format=None):
         return Response(status=status.HTTP_404_NOT_FOUND)
  
     if request.method == 'GET':
+        if not request.user.has_perm('asset.assets_read_zone'):
+            return Response(status=status.HTTP_403_FORBIDDEN)         
         serializer = serializers.IdleAssetsSerializer(snippet)
         return Response(serializer.data)
  
     elif request.method == 'PUT':
-        if not request.user.has_perm('asset.assets_change_zone_assets'):
+        if not request.user.has_perm('asset.assets_change_zone'):
             return Response(status=status.HTTP_403_FORBIDDEN)   
         
         data = request.data.copy()
@@ -179,22 +194,26 @@ def idle_detail(request, id,format=None):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
      
     elif request.method == 'DELETE':
-        if not request.user.has_perm('asset.assets_delete_zone_assets'):
+        if not request.user.has_perm('asset.assets_delete_zone'):
             return Response(status=status.HTTP_403_FORBIDDEN)
         snippet.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)   
     
 @api_view(['GET', 'POST' ])
-@permission_required('asset.assets_add_raid_assets',raise_exception=True)
 def raid_list(request,format=None):
     """
     List all order, or create a server assets order.
     """
-    if request.method == 'GET':      
+    if request.method == 'GET':     
+        if not request.user.has_perm('asset.assets_add_raid'):
+            return Response(status=status.HTTP_403_FORBIDDEN)          
         snippets = Raid_Assets.objects.all()
         serializer = serializers.RaidSerializer(snippets, many=True)
-        return Response(serializer.data)     
+        return Response(serializer.data)   
+      
     elif request.method == 'POST':
+        if not request.user.has_perm('asset.assets_add_raid'):
+            return Response(status=status.HTTP_403_FORBIDDEN)         
         serializer = serializers.RaidSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -203,7 +222,6 @@ def raid_list(request,format=None):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET', 'PUT', 'DELETE'])
-@permission_required('asset.assets_change_raid_assets',raise_exception=True)
 def raid_detail(request, id,format=None):
     """
     Retrieve, update or delete a server assets instance.
@@ -214,22 +232,24 @@ def raid_detail(request, id,format=None):
         return Response(status=status.HTTP_404_NOT_FOUND)
  
     if request.method == 'GET':
+        if not request.user.has_perm('asset.assets_read_raid'):
+            return Response(status=status.HTTP_403_FORBIDDEN)         
         serializer = serializers.RaidSerializer(snippet)
         return Response(serializer.data)
  
     elif request.method == 'PUT':
+        if not request.user.has_perm('asset.assets_change_raid'):
+            return Response(status=status.HTTP_403_FORBIDDEN)         
         serializer = serializers.RaidSerializer(snippet, data=request.data)
         if serializer.is_valid():
             serializer.save()
-            #recordAssets.delay(user=str(request.user),content="修改Raid类型：{old_name} -> {raid_name}".format(old_name=old_name,raid_name=request.data.get("raid_name")),type="raid",id=id) 
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
      
     elif request.method == 'DELETE':
-        if not request.user.has_perm('asset.assets_delete_raid_assets'):
+        if not request.user.has_perm('asset.assets_delete_raid'):
             return Response(status=status.HTTP_403_FORBIDDEN)
         snippet.delete()
-#         #recordAssets.delay(user=str(request.user),content="删除Raid类型：{raid_name}".format(raid_name=snippet.raid_name),type="raid",id=id) 
         return Response(status=status.HTTP_204_NO_CONTENT)  
                    
 
@@ -280,7 +300,6 @@ def asset_detail(request, id,format=None):
         serializer = serializers.AssetsSerializer(snippet, data=request.data)
         if serializer.is_valid():
             serializer.save()
-            #recordAssets.delay(user=str(request.user),content="更新资产：{name}".format(name=snippet.name),type="assets",id=id) 
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
      
@@ -288,17 +307,17 @@ def asset_detail(request, id,format=None):
         if not request.user.has_perm('asset.delete_asset_assets'):
             return Response(status=status.HTTP_403_FORBIDDEN)
         snippet.delete()
-        #recordAssets.delay(user=str(request.user),content="删除资产：{name}".format(name=snippet.name),type="assets",id=id) 
         return Response(status=status.HTTP_204_NO_CONTENT) 
 
 
 @api_view(['GET', 'POST' ])
-@permission_required('asset.assets_read_server',raise_exception=True)
 def asset_server_list(request,format=None):
     """
     List all order, or create a server assets order.
     """
     if request.method == 'GET':
+        if not request.user.has_perm('asset.assets_read_server'):
+            return Response(status=status.HTTP_403_FORBIDDEN)         
         snippets = Server_Assets.objects.all()
         serializer = serializers.ServerSerializer(snippets, many=True)
         return Response(serializer.data) 
@@ -313,12 +332,10 @@ def asset_server_list(request,format=None):
         serializer = serializers.ServerSerializer(data=data)
         if serializer.is_valid():
             serializer.save()
-            #recordAssets.delay(user=str(request.user),content="添加服务器资产：{ip}".format(ip=data.get("ip")),type="server",id=serializer.data.get('id'))  
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST) 
     
 @api_view(['GET', 'PUT', 'DELETE'])
-@permission_required('asset.assets_change_server',raise_exception=True)
 def asset_server_detail(request, id,format=None):
     """
     Retrieve, update or delete a server assets instance.
@@ -329,10 +346,14 @@ def asset_server_detail(request, id,format=None):
         return Response(status=status.HTTP_404_NOT_FOUND)
  
     if request.method == 'GET':
+        if not request.user.has_perm('asset.assets_read_server'):
+            return Response(status=status.HTTP_403_FORBIDDEN)          
         serializer = serializers.ServerSerializer(snippet)
         return Response(serializer.data)
  
     elif request.method == 'PUT':
+        if not request.user.has_perm('asset.assets_change_server'):
+            return Response(status=status.HTTP_403_FORBIDDEN)          
         '''如果更新字段包含assets则先更新总资产表'''
         if(request.data.get('data')):
             data =  request.data.get('data')
@@ -347,7 +368,6 @@ def asset_server_detail(request, id,format=None):
                 return Response(status=status.HTTP_404_NOT_FOUND)
             if assets.is_valid():
                 assets.save()
-#                 #recordAssets.delay(user=str(request.user),content="修改服务器资产：{ip}".format(ip=snippet.ip),type="server",id=id)
         serializer = serializers.ServerSerializer(snippet, data=data)
         if serializer.is_valid():
             serializer.save()
@@ -356,29 +376,32 @@ def asset_server_detail(request, id,format=None):
         
      
     elif request.method == 'DELETE':
-        if not request.user.has_perm('asset.assets_delete_server_assets'):
+        if not request.user.has_perm('asset.assets_delete_server'):
             return Response(status=status.HTTP_403_FORBIDDEN)
         snippet.delete()
         try:
             assets_snippet = Assets.objects.get(id=snippet.assets.id)
             assets_snippet.delete()
-            #recordAssets.delay(user=str(request.user),content="删除服务器资产：{ip}".format(ip=snippet.ip),type="server",id=id)
         except Assets.DoesNotExist:
             pass       
         return Response(status=status.HTTP_204_NO_CONTENT)         
    
     
 @api_view(['GET', 'POST' ])
-@permission_required('asset.assets_add_network',raise_exception=True)
 def asset_net_list(request,format=None):
     """
     List all order, or create a new net assets.
     """
-    if request.method == 'GET':      
+    if request.method == 'GET':    
+        if not request.user.has_perm('asset.assets_read_network'):
+            return Response(status=status.HTTP_403_FORBIDDEN)           
         snippets = Network_Assets.objects.all()
         serializer = serializers.NetworkSerializer(snippets, many=True)
         return Response(serializer.data)     
+    
     elif request.method == 'POST':
+        if not request.user.has_perm('asset.assets_add_network'):
+            return Response(status=status.HTTP_403_FORBIDDEN)         
         if(request.data.get('data')):
             data =  request.data.get('data')
         else:
@@ -386,13 +409,11 @@ def asset_net_list(request,format=None):
         serializer = serializers.NetworkSerializer(data=data)
         if serializer.is_valid():
             serializer.save()
-            #recordAssets.delay(user=str(request.user),content="添加网络设备资产：{ip}".format(ip=data.get("ip")),type="net",id=serializer.data.get('id')) 
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST) 
     
     
 @api_view(['GET', 'PUT', 'DELETE'])
-@permission_required('asset.assets_change_network',raise_exception=True)
 def asset_net_detail(request, id,format=None):
     """
     Retrieve, update or delete a net assets instance.
@@ -403,10 +424,14 @@ def asset_net_detail(request, id,format=None):
         return Response(status=status.HTTP_404_NOT_FOUND)
     
     if request.method == 'GET':
+        if not request.user.has_perm('asset.assets_read_network'):
+            return Response(status=status.HTTP_403_FORBIDDEN)         
         serializer = serializers.NetworkSerializer(snippet)
         return Response(serializer.data)
     
     elif request.method == 'PUT':
+        if not request.user.has_perm('asset.assets_change_network'):
+            return Response(status=status.HTTP_403_FORBIDDEN)         
         '''如果更新字段包含assets则先更新总资产表'''
         if(request.data.get('data')):
             data =  request.data.get('data')
@@ -424,18 +449,16 @@ def asset_net_detail(request, id,format=None):
         serializer = serializers.NetworkSerializer(snippet, data=data)
         if serializer.is_valid():
             serializer.save()
-            #recordAssets.delay(user=str(request.user),content="更新网络设备资产：{ip}".format(ip=snippet.ip),type="net",id=id)
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
      
     elif request.method == 'DELETE':
-        if not request.user.has_perm('asset.assets_delete_net_assets'):
+        if not request.user.has_perm('asset.assets_delete_network'):
             return Response(status=status.HTTP_403_FORBIDDEN)
         snippet.delete()
         try:
             assets_snippet = Assets.objects.get(id=snippet.assets.id)
             assets_snippet.delete()
-            #recordAssets.delay(user=str(request.user),content="删除网络设备资产：{ip}".format(ip=snippet.ip),type="net",id=id)
         except Assets.DoesNotExist:
             pass       
         return Response(status=status.HTTP_204_NO_CONTENT) 
@@ -501,7 +524,7 @@ def cabinet_list(request,format=None):
         return Response(serializer.data)     
     
     elif request.method == 'POST':
-        if not request.user.has_perm('asset.assets_add_cabinet_assets'):
+        if not request.user.has_perm('asset.assets_add_zone'):
             return Response(status=status.HTTP_403_FORBIDDEN)
                 
         try:
@@ -532,42 +555,44 @@ def cabinet_detail(request, id,format=None):
         return Response(serializer.data)
  
     elif request.method == 'PUT':
-        if not request.user.has_perm('asset.assets_change_cabinet_assets'):
+        if not request.user.has_perm('asset.assets_change_zone'):
             return Response(status=status.HTTP_403_FORBIDDEN)               
         serializer = serializers.CabinetSerializer(snippet, data=request.data)
         if serializer.is_valid():
-            serializer.save()
-            #recordAssets.delay(user=str(request.user),content="修改机柜名称为：{old_name} -> {cabinet_name}".format(old_name=old_name,cabinet_name=request.data.get("cabinet_name")),type="cabinet",id=id) 
+            serializer.save() 
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
      
     elif request.method == 'DELETE':
-        if not request.user.has_perm('asset.assets_delete_cabinet_assets'):
+        if not request.user.has_perm('asset.assets_delete_zone'):
             return Response(status=status.HTTP_403_FORBIDDEN)
         snippet.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)     
     
     
 @api_view(['GET', 'POST' ])
-@permission_required('asset.assets_add_line',raise_exception=True)
 def line_list(request,format=None):
     """
     List all order, or create a server assets order.
     """
-    if request.method == 'GET':      
+    if request.method == 'GET':   
+        if not request.user.has_perm('asset.assets_read_line'):
+            return Response(status=status.HTTP_403_FORBIDDEN) 
+                   
         snippets = Line_Assets.objects.all()
         serializer = serializers.LineSerializer(snippets, many=True)
-        return Response(serializer.data)     
+        return Response(serializer.data)    
+     
     elif request.method == 'POST':
+        if not request.user.has_perm('asset.assets_add_line'):
+            return Response(status=status.HTTP_403_FORBIDDEN)         
         serializer = serializers.LineSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            #recordAssets.delay(user=str(request.user),content="添加出口线路：{line_name}".format(line_name=request.data.get("line_name")),type="line",id=serializer.data.get('id'))  
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)    
     
 @api_view(['GET', 'PUT', 'DELETE'])
-@permission_required('asset.can_change_line_assets',raise_exception=True)
 def line_detail(request, id,format=None):
     """
     Retrieve, update or delete a server assets instance.
@@ -578,27 +603,29 @@ def line_detail(request, id,format=None):
         return Response(status=status.HTTP_404_NOT_FOUND)
  
     if request.method == 'GET':
+        if not request.user.has_perm('asset.assets_read_line'):
+            return Response(status=status.HTTP_403_FORBIDDEN)         
         serializer = serializers.LineSerializer(snippet)
         return Response(serializer.data)
  
     elif request.method == 'PUT':
+
+        if not request.user.has_perm('asset.assets_change_line'):            
+            return Response(status=status.HTTP_403_FORBIDDEN)        
+        
         serializer = serializers.LineSerializer(snippet, data=request.data)
-        old_name = snippet.line_name
         if serializer.is_valid():
             serializer.save()
-            #recordAssets.delay(user=str(request.user),content="修改出口线路类型：{old_name} -> {line_name}".format(old_name=old_name,line_name=request.data.get("line_name")),type="line",id=id) 
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
      
     elif request.method == 'DELETE':
-        if not request.user.has_perm('OpsManage.can_delete_line_assets'):            
+        if not request.user.has_perm('asset.assets_delete_line'):            
             return Response(status=status.HTTP_403_FORBIDDEN)
         snippet.delete()
-        #recordAssets.delay(user=str(request.user),content="删除出口线路：{line_name}".format(line_name=snippet.line_name),type="line",id=id) 
         return Response(status=status.HTTP_204_NO_CONTENT)    
     
 @api_view(['GET', 'POST' ])
-# @permission_required('asset.assets_read_tags',raise_exception=True)
 def tags_list(request,format=None):
     """
     List all order, or create a server assets order.
@@ -606,19 +633,18 @@ def tags_list(request,format=None):
     if request.method == 'GET':      
         snippets = Tags_Assets.objects.all()
         serializer = serializers.TagsSerializer(snippets, many=True)
-        return Response(serializer.data)     
+        return Response(serializer.data)    
+     
     elif request.method == 'POST':
         if not  request.user.has_perm('asset.assets_add_tags'):
             return Response(status=status.HTTP_403_FORBIDDEN)         
         serializer = serializers.TagsSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save()
-            #recordAssets.delay(user=str(request.user),content="添加用户组：{group_name}".format(group_name=request.data.get("name")),type="group",id=serializer.data.get('id'))  
+            serializer.save() 
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET', 'PUT', 'DELETE'])
-@permission_required('asset.assets_read_tags',raise_exception=True)
 def tags_detail(request, id,format=None):
     """
     Retrieve, update or delete a server assets instance.
@@ -629,6 +655,8 @@ def tags_detail(request, id,format=None):
         return Response(status=status.HTTP_404_NOT_FOUND)
  
     if request.method == 'GET':
+        if not request.user.has_perm('asset.assets_read_tags'):
+            return Response(status=status.HTTP_403_FORBIDDEN)         
         serializer = serializers.TagsSerializer(snippet)
         return Response(serializer.data)
  
@@ -636,18 +664,15 @@ def tags_detail(request, id,format=None):
         if not request.user.has_perm('asset.assets_change_tags'):  
             return Response(status=status.HTTP_403_FORBIDDEN)        
         serializer = serializers.TagsSerializer(snippet, data=request.data)
-#         old_name = snippet.name
         if serializer.is_valid():
             serializer.save()
-            #recordAssets.delay(user=str(request.user),content="修改用户组名称：{old_name} -> {group_name}".format(old_name=old_name,group_name=request.data.get("name")),type="group",id=id) 
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
      
     elif request.method == 'DELETE':
         if not request.user.has_perm('asset.assets_delete_tags'):  
             return Response(status=status.HTTP_403_FORBIDDEN)
-        snippet.delete()
-        #recordAssets.delay(user=str(request.user),content="删除用户组：{group_name}".format(group_name=snippet.name),type="group",id=id)       
+        snippet.delete()      
         return Response(status=status.HTTP_204_NO_CONTENT)  
     
 @api_view(['POST' ])
@@ -720,11 +745,6 @@ def business_list(request,format=None):
         dataList = []
         for ds in Business_Tree_Assets.objects.all():
             if ds.is_leaf_node():
-                # try:
-                #     topParent = Business_Tree_Assets.objects.get(tree_id=ds.tree_id,parent__isnull=True)
-                # except Exception as ex:
-                #     logger.error(msg="查询根节点业务失败: {ex}".format(ex=str(ex)))
-                #     continue
                 data = ds.to_json()
                 data["paths"] = ds.business_env() + '/' + data["paths"]
                 dataList.append(data)               
@@ -819,8 +839,7 @@ class BUSINESS_TREE_LIST(APIView):
         root_nodes = cache_tree_children(tree_list)
         dicts = []
         for n in root_nodes:
-            dicts.append(self.recursive_node_to_dict(n))
-#         print(json.dumps(dicts, indent=4))          
+            dicts.append(self.recursive_node_to_dict(n))       
         return Response(dicts)                
 
 #业务节点列表
