@@ -88,14 +88,28 @@ mysql> create database opsmanage DEFAULT CHARACTER SET utf8 COLLATE utf8_general
 mysql> grant all privileges on opsmanage.* to root@'%' identified by 'password';
 mysql>\q
 ```
-五、配置OpsManage
+五、配置RabbitMQ
+
+```
+# systemctl start rabbitmq-server.service    #启动RabbitMQ
+# systemctl enable rabbitmq-server.service   #设置开机自启动RabbitMQ
+# rabbitmqctl add_user admin admin           #添加RabbitMQ账户
+# rabbitmqctl set_user_tags admin administrator
+# rabbitmqctl set_permissions  -p  '/'  admin '.' '.' '.'
+# rabbitmqctl list_users   
+# rabbitmqctl delete_user guest 			 #删除guest账户（可以不删除）
+# rabbitmq-plugins enable rabbitmq_management   #开启Web UI，可以通过http://server_IP:15672/访问
+```
+
+六、配置OpsManage
+
 ```
 # cd /mnt/OpsManage/conf
 # vim opsmanage.ini
 根据自己的情况修改配置
 
 ```
-六、生成数据表与管理员账户
+七、生成数据表与管理员账户
 ```
 # cd /mnt/OpsManage/
 # /usr/local/python3/bin/python3 manage.py makemigrations account
@@ -116,7 +130,7 @@ mysql>\q
 pip3 uninstall python-ldap
 pip3 install --upgrade python-ldap
 ```
-九、启动部署平台
+八、启动部署平台
 ```
 # echo_supervisord_conf > /etc/supervisord.conf
 # export PYTHONOPTIMIZE=1
@@ -202,7 +216,7 @@ server {
 ```
 
 
-十、使用OpsManage分布式任务调度功能，不使用的话可以不进行下面的步骤
+九、使用OpsManage分布式任务调度功能，不使用的话可以不进行下面的步骤
 ```
 # mkdir -p /usr/local/opsched
 # cp /mnt/OpsManage/opsched/* /usr/local/opsched/
