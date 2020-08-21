@@ -13,13 +13,13 @@ from django.contrib.auth.decorators import permission_required
 from utils.logger import logger
 from dao.assets import AssetsBase,AssetsSource
 from django.contrib.auth.mixins import LoginRequiredMixin
-from utils.base import method_decorator_adaptor,cmds
+from utils.base import method_decorator_adaptor
 
 
-class DelolyModel(LoginRequiredMixin,AssetsSource,View):
+class DelolyModel(LoginRequiredMixin,View):
     login_url = '/login/'
     def get(self, request, *args, **kwagrs):
-        return render(request, 'deploy/deploy_model.html',{"user":request.user})  
+        return render(request, 'deploy/deploy_model.html',{"user":request.user}) 
     
         
 class DeployInventory(LoginRequiredMixin,AssetsBase,View):        
