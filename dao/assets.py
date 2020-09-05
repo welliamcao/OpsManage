@@ -605,7 +605,7 @@ class AssetsSource(object):
             self.resource.append(data)
         return  self.sList, self.resource           
 
-    def allowcator(self,sub,request):
+    def allowcator(self, sub, request):
         if hasattr(self,sub):
             func= getattr(self,sub)
             return func(request)
@@ -808,12 +808,14 @@ class AssetsSource(object):
             sList,resource = self.idSourceList(ids=request.POST.getlist('ids[]'))
             ANS = ANSRunner(resource)  
             ANS.run_model(host_list=sList,module_name='setup',module_args="") 
-            data = ANS.handle_cmdb_data(ANS.get_model_result())            
-        elif request.POST.get('model')=='setup':
+            data = ANS.handle_cmdb_data(ANS.get_model_result())    
+                    
+        elif request.POST.get('model')=='collector':
             sList,resource = self.idSource(ids=request.POST.get('ids'))
             ANS = ANSRunner(resource)  
             ANS.run_model(host_list=sList,module_name='setup',module_args="")  
-            data = ANS.handle_cmdb_data(ANS.get_model_result())           
+            data = ANS.handle_cmdb_data(ANS.get_model_result())    
+                   
         else:
             sList,resource = self.idSource(ids=request.POST.get('ids'))
             ANS = ANSRunner(resource)  
@@ -821,12 +823,12 @@ class AssetsSource(object):
             data = ANS.handle_cmdb_crawHw_data(ANS.get_model_result())                          
         return data,ANS.get_model_result()
     
-    def batch(self,request):  
-        return self.setup(request)
+    def batch(self, request):  
+        return self.collector(request)
     
-    def setup(self,request):  
-        sList,fList = [],[]
-        data,result = self.get_data(request) 
+    def collector(self, request):  
+        sList,fList = [], []
+        data, result = self.get_data(request) 
         if data:                  
             for ds in data:
                 status = ds.get('status')

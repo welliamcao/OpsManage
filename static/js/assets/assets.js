@@ -500,7 +500,7 @@
 				            cache: true,  
 				            type: "POST",  
 				            url:"/assets/modf/" + vIds + '/', 
-				            data:{"model":'setup',"ids":vIds},
+				            data:{"model":'collector',"ids":vIds},
 				            error: function(request) {  
 				            	new PNotify({
 				                    title: 'Ops Failed!',
