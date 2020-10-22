@@ -1343,7 +1343,8 @@ $(document).ready(function() {
             	btnObj.removeAttr('disabled');
             	if(response["code"] == "200"){
             		var script = JSON.parse(response["data"])         		
-            		$("#script_name").val(script["script_name"]).attr('disabled',true);	 
+            		$("#script_name").val(script["script_name"]).attr('disabled',true);
+			$("#script_desc").val(script["script_desc"]);
 					aceEditAdd.setValue(script["script_contents"]);
 					//修改动态主机
 					DynamicSelect("server_model",script["script_type"])	
@@ -1359,6 +1360,7 @@ $(document).ready(function() {
 					}
 					else if(script["script_type"]=="custom"){
 						controlServerSelectHide(script["script_type"]);
+						script["script_server"]=JSON.parse(script["script_server"]);
 						for (var i = 0; i < script["script_server"].length; ++i) {
 							$("select[name='custom'] option[value='" + script["script_server"][i] +"']").attr("selected",true);
 						}			
