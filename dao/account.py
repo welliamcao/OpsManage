@@ -205,16 +205,17 @@ class UsersManage(PermsManage,AssetsBase):
                 return "资产不存在"       
     
     def get_user_superior(self,user):
+        #获取直属上级以及部门上级
         dataList, uidList = [], []
         if user.superior and user.superior.id != user.id:
             uidList.append(user.superior.id)
-            dataList.append(user.superior.to_json())
-            
+            dataList.append(user.superior.to_json()) 
         for ds in user.department.values():
-            manage_user = User.objects.get(id=ds.get("manage"))
-            if manage_user.id not in uidList and manage_user.id != user.id:
-                uidList.append(manage_user.id)
-                dataList.append(manage_user.to_json()) 
+            if ds.get("manage"):
+                manage_user = User.objects.get(id=ds.get("manage"))
+                if manage_user.id not in uidList and manage_user.id != user.id:
+                    uidList.append(manage_user.id)
+                    dataList.append(manage_user.to_json()) 
         return dataList
     
         
