@@ -35,18 +35,18 @@
 
 7. 初始化数据库
     $ docker run -it --rm opsmanage-app bash
-    python manage.py makemigrations wiki
-    python manage.py makemigrations orders
-    python manage.py makemigrations filemanage
-    python manage.py makemigrations navbar
-    python manage.py makemigrations databases
-    python manage.py makemigrations asset
-    python manage.py makemigrations deploy
-    python manage.py makemigrations cicd
-    python manage.py makemigrations sched
-    python manage.py makemigrations apply
-    python manage.py migrate
-    python manage.py createsuperuser
+    python3 manage.py makemigrations account
+    python3 manage.py makemigrations wiki
+    python3 manage.py makemigrations orders
+    python3 manage.py makemigrations navbar
+    python3 manage.py makemigrations databases
+    python3 manage.py makemigrations asset
+    python3 manage.py makemigrations deploy
+    python3 manage.py makemigrations cicd
+    python3 manage.py makemigrations sched
+    python3 manage.py makemigrations apply
+    python3 manage.py migrate
+    python3 manage.py createsuperuser  #创建管理员账户与密码
     (按Ctrl+P Ctrl+Q退出)
 
 8. 访问页面

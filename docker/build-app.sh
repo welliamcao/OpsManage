@@ -1,4 +1,4 @@
-
+#!/bin/bash
 SHPATH=$(cd `dirname $0`; pwd)
 BASEPATH=`dirname "$SHPATH"`
 if [ ! -f "${BASEPATH}/requirements.txt" ]; then
