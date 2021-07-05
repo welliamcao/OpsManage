@@ -15,7 +15,7 @@
  * 操作系统：CentOS 6+
  * Ansible版本：2.0 + 
  * 部署平台及节点服务器：Rsync 3+
- * MySQL版本：5.1-5.6
+ * MySQL版本：5.1-5.6  #如果用5.7[请查看](https://github.com/welliamcao/OpsManage/issues/18#issuecomment-360701544)
 
 ## OpsManage功能说明
 ![image](https://github.com/welliamcao/OpsManage/blob/master/demo_imgs/opsmanage.png)
@@ -28,6 +28,7 @@
 ```
 用户:demo 密码：demo
 正在开发v3.0，demo环境暂时关闭.
+v3地址：https://github.com/welliamcao/OpsManage/tree/v3
 ```
 ## QQ交流群
 ![image](https://github.com/welliamcao/OpsManage/blob/master/demo_imgs/qq_group.png)
@@ -36,8 +37,8 @@
 一、安装Python
 ```
 # yum install zlib zlib-devel readline-devel sqlite-devel bzip2-devel openssl-devel gdbm-devel libdbi-devel ncurses-libs kernel-devel libxslt-devel libffi-devel python-devel zlib-devel  sshpass gcc git -y
-# yum install http://www.percona.com/downloads/percona-release/redhat/0.1-6/percona-release-0.1-6.noarch.rpm
-# yum install Percona-Server-server-56 install Percona-Server-devel-56
+# yum install https://repo.percona.com/yum/percona-release-latest.noarch.rpm
+# yum install Percona-Server-server-56 Percona-Server-devel-56 -y
 # wget http://mirrors.sohu.com/python/2.7.12/Python-2.7.12.tgz  #CentOS 7不用安装python2.7
 # tar -xzvf Python-2.7.12.tgz
 # cd Python-2.7.12
