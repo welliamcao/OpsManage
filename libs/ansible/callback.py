@@ -108,7 +108,7 @@ class ModelResultsCollectorToWebSocket(CallbackBase):
 class PlayBookResultsCollectorWebSocket(CallbackBase):  
     CALLBACK_VERSION = 2.0   
      
-    def __init__(self,websocket,*args, **kwargs):  
+    def __init__(self,websocket,total_tasks,*args, **kwargs):  
         super(PlayBookResultsCollectorWebSocket, self).__init__(*args, **kwargs)  
         self.task_ok = {}  
         self.task_skipped = {}  
@@ -117,6 +117,8 @@ class PlayBookResultsCollectorWebSocket(CallbackBase):
         self.task_unreachable = {}
         self.task_changed = {}
         self.websocket = websocket
+        self.total_tasks = total_tasks
+        self.count = 0
         self.taks_check = {}
      
     def save_msg(self,msg):
@@ -211,8 +213,13 @@ class PlayBookResultsCollectorWebSocket(CallbackBase):
 
         
     def _print_task_banner(self, task):
-        msg = "<font color='#FFFFFF'>\nTASK [%s]" % (task.get_name().strip())
+        task_detail = ''
+        if task.get_name().strip() not in ['Gathering Facts']:
+            task_progress = int((self.count/self.total_tasks)*100)
+            task_detail = "Progress: {count}/{total_tasks} Percentage: {task_progress}%".format(count=self.count,total_tasks=self.total_tasks,task_progress=str(task_progress))     
+        msg = "<font color='#FFFFFF'>\nTASK [%s]  %s " % (task.get_name().strip(),task_detail)
         if len(msg) < 80:msg = msg + '*'*(80-len(msg)) + '</font>'
+        self.count = self.count + 1
         self.save_msg(msg)
 
 
@@ -555,9 +562,9 @@ def AdHoccallback(websocket,background=None):
     else:
         return ModelResultsCollector()
     
-def Playbookcallback(websocket,background=None):
+def Playbookcallback(websocket,background=None,total_tasks=None):
     if websocket:
-        return PlayBookResultsCollectorWebSocket(websocket) 
+        return PlayBookResultsCollectorWebSocket(websocket,total_tasks) 
     
     elif background:
         return PlayBookResultsCollectorBackground(background)    

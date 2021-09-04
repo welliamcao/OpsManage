@@ -11,6 +11,8 @@ from ansible.parsing.dataloader import DataLoader
 from ansible.executor.playbook_executor import PlaybookExecutor
 from ansible.utils.vars import load_extra_vars
 from ansible.utils.vars import load_options_vars
+from ansible.playbook.block import Block
+from ansible.playbook.play_context import PlayContext
 from .callback import *
 from .inventory import get_inventory
 
@@ -50,14 +52,16 @@ class ANSRunner(object):
         verbosity=None,
         syntax=False,        
         websocket=None,
-        background=None
+        background=None,
+        skip_tags = [],
+        tags = []
     ):
         self.Options = namedtuple("Options", [
                                                 'listtags', 'listtasks', 'listhosts', 'syntax', 'connection',
                                                 'module_path', 'forks', 'remote_user', 'private_key_file', 'timeout',
                                                 'ssh_common_args', 'ssh_extra_args', 'sftp_extra_args', 'scp_extra_args',
                                                 'become', 'become_method', 'become_user', 'verbosity', 'check',
-                                                'extra_vars', 'diff'
+                                                'extra_vars', 'diff','skip_tags','tags'
                                                 ]
                                             )
         self.results_raw = {}
@@ -86,6 +90,8 @@ class ANSRunner(object):
             verbosity=verbosity,
             extra_vars=extra_vars or [],
             check=check,
+            skip_tags=skip_tags,
+            tags=tags,
             diff=False
         )
         self.websocket = websocket      
@@ -129,13 +135,47 @@ class ANSRunner(object):
                 tqm.cleanup()  
             if self.loader:
                 self.loader.cleanup_all_tmp_files()  
+
+    def get_playbook_total_tasks(self,host_list ,playbook_path,extra_vars):
+        count = 0
+        extra_vars['host'] = ','.join(host_list)
+        self.variable_manager.extra_vars = extra_vars 
+        ops =  namedtuple("Options", ['listtags', 'listtasks','listhosts','syntax','become','become_method','become_user','check','diff'])
+        options = ops(listtasks=True,listtags=True,listhosts=False,syntax=False, become=True,become_method='sudo',become_user='root',check=False,diff=False)
+        executor = PlaybookExecutor(  
+            playbooks=[playbook_path], inventory=self.inventory, variable_manager=self.variable_manager, loader=self.loader,  
+            options=options, passwords=self.passwords,  
+        )         
+        results = executor.run()
+        if isinstance(results, list):
+            for p in results:
+             
+                for idx, play in enumerate(p['plays']):                        
+                    def _process_block(b):
+                        count = 0
+                        for task in b.block:
+                            if isinstance(task, Block):
+                                count += _process_block(task)
+                            else:
+                                if task.action == 'meta':continue
+                                count = count +1
+ 
+                        return count
+ 
+                    play_context = PlayContext(play=play, options=options)
+                    for block in play.compile():
+                        block = block.filter_tagged_tasks(play_context, {})
+                        if not block.has_tasks():continue
+                        count = count + _process_block(block)  
+        return count
   
     def run_playbook(self, host_list, playbook_path,extra_vars=dict()): 
         """ 
         run ansible palybook 
         """   
+        total_tasks = self.get_playbook_total_tasks(host_list,playbook_path,extra_vars)
         try: 
-            self.callback = Playbookcallback(self.websocket,self.background) 
+            self.callback = Playbookcallback(self.websocket,self.background,total_tasks) 
             extra_vars['host'] = ','.join(host_list)
             self.variable_manager.extra_vars = extra_vars            
             executor = PlaybookExecutor(  
@@ -146,11 +186,16 @@ class ANSRunner(object):
             constants.HOST_KEY_CHECKING = False #关闭第一次使用ansible连接客户端是输入命令
             constants.DEPRECATION_WARNINGS = False
             constants.RETRY_FILES_ENABLED = False  
+            if extra_vars.get('roles_path'):
+                constants.DEFAULT_ROLES_PATH.append(extra_vars.get('roles_path'))
+            if extra_vars.get('module_path'):
+                constants.DEFAULT_MODULE_PATH.append(extra_vars.get('module_path'))            
             executor.run()  
         except Exception as err: 
             logger.error(msg="run playbook failed: {err}".format(err=str(err)))
             if self.websocket:self.websocket.send(str(err))       
             return False
+        return True
             
     def get_model_result(self):  
         self.results_raw = {'success':{}, 'failed':{}, 'unreachable':{}}  
