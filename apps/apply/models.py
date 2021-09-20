@@ -178,7 +178,7 @@ class APPLY_CENTER_CONFIG(models.Model):
     apply_name = models.CharField(max_length=100,verbose_name='图标',unique=True) 
     apply_desc = models.CharField(max_length=200,verbose_name='描述')
     apply_icon = models.FileField(upload_to = 'apply/icon/',verbose_name='应用图标',null=True, blank=True)
-    apply_type = models.CharField(max_length=10,verbose_name='类型')
+    apply_type = models.CharField(max_length=50,verbose_name='类型')
     apply_playbook = models.CharField(max_length=200,verbose_name='应用剧本')
     apply_payload = models.TextField(verbose_name='参数变量',blank=True,null=True)
     class Meta:
