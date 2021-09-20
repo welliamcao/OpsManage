@@ -43,7 +43,11 @@
             <!-- menu profile quick info -->
             <div class="profile clearfix">
               <div class="profile_pic">
-                <img src="/static/images/img.jpg" alt="..." class="img-circle profile_img">
+                  	{% if user.avatar %}
+                  		<img src="/media/{{user.avatar}}" alt="..." class="img-circle profile_img">
+                  	{% else %}
+                  		<img src="/static/images/img.jpg" alt="..." class="img-circle profile_img">
+                  	{% endif %}              
               </div>
               <div class="profile_info">
                 <span>Welcome,</span>
@@ -78,18 +82,20 @@
                   </li>
                   <li><a><i class="fa fa-gear"></i> 应用管理 <span class="fa fa-chevron-down"></span></a>
                     <ul class="nav child_menu">
+                        <li><a href="/apply/center/">应用中心</a></li>
                         <li><a>负载均衡<span class="fa fa-chevron-down"></span></a>
                           <ul class="nav child_menu">
                             <li class="sub_menu"><a href="/apply/ipvs/list/">IPVS</a>
                             </li>
 <!--                             <li><a href="#level2_1">Nginx</a>
-                            </li> -->
+                            </li>
 <!--                             <li><a href="#level2_2">Level Two</a>
                             </li> -->
                           </ul>
                         </li>
+                        <li><a href="/apply/tasks/">应用任务</a></li>
                     </ul>
-                  </li>                  
+                  </li>                                   
                   <li><a><i class="fa fa-edit"></i> DB管理 <span class="fa fa-chevron-down"></span></a>
                     <ul class="nav child_menu">
                       <li><a>MySQL<span class="fa fa-chevron-down"></span></a>
@@ -198,7 +204,12 @@
               <ul class="nav navbar-nav navbar-right">
                 <li class="">
                   <a href="javascript:;" class="user-profile dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-                    <img src="/static/images/img.jpg"  alt="">{{user.name}}
+                  	{% if user.avatar %}
+                  		<img src="/media/{{user.avatar|default:"/static/images/img.jpg"}}"  alt="">{{user.name}}
+                  	{% else %}
+                  		<img src="/static/images/img.jpg"  alt="">{{user.name}}
+                  	{% endif %}
+                    
                     <span class=" fa fa-angle-down"></span>
                   </a>
                   <ul class="dropdown-menu dropdown-usermenu pull-right">

@@ -32,7 +32,7 @@
 								 <label class="control-label col-md-3 col-sm-3 col-xs-12">设备类型</label>
 								 <div class="col-md-6 col-sm-6 col-xs-12">
 									{% if assets.assets_type == "server" %}
-										 <input type="text" class="form-control"  value="服务器" class="input-xlarge"  disabled/>
+										 <input type="text" class="form-control"  value="物理机" class="input-xlarge"  disabled/>
 									{% elif assets.assets_type == "switch" %}
 										 <input type="text" class="form-control"  value="交换机" class="input-xlarge"  disabled/>		
 									{% elif assets.assets_type == "vmser" %}
@@ -222,7 +222,7 @@
 								 <div class="col-md-6 col-sm-6 col-xs-12">
 								   <select class="form-control" name="asset_group"  >
 										{% for g in assetsBase.groupList %}
-											{% if g.id == assets.groupList %}
+											{% if g.id == assets.group %}
 												<option value="{{g.id}}" name="asset_group" selected="selected" >{{g.paths|default:""}}</option>
 											{% else %}
 												<option value="{{g.id}}" name="asset_group">{{g.paths|default:""}}</option>
@@ -439,7 +439,7 @@
 								 <div class="col-md-6 col-sm-6 col-xs-12">		
 									 <select class="form-control" name="server_line"  >
 											{% for l in assetsBase.lineList %}
-												{% if l.line_name == assets.server_assets.line %}
+												{% if l.id == assets.server_assets.line %}
 													<option value="{{l.id}}" name="server_line" selected="selected" >{{l.line_name}}</option>
 												{% else %}											
 													<option value="{{l.id}}" name="server_line">{{l.line_name}}</option>

@@ -202,6 +202,20 @@ function makeUserManageTableList(){
 	               ]
    var columnDefs = [
 	    		        {
+	   	    				targets: [1],
+	   	    				render: function(data, type, row, meta) {
+	   	    					if(typeof row.avatar == "undefined" || row.avatar == null || row.avatar == ""){
+	   	    						return   '<a href="javascript:;" class="user-profile" data-toggle="dropdown" aria-expanded="false">' +
+					                      		'<img src="/static/images/img.jpg"  alt="">'+ row.username + '</a>'
+	   	    					}
+	   	    					else{
+	   	    						return   '<a href="javascript:;" class="user-profile" data-toggle="dropdown" aria-expanded="false">' +
+					                      		'<img src="'+ row.avatar  +'"  alt="">'+ row.username + '</a>'	   	    						
+	   	    					}
+
+	   	    				}
+	    		        },   
+	    		        {
 	   	    				targets: [5],
 	   	    				render: function(data, type, row, meta) {
 	   	    					if(row.is_superuser==true){
@@ -580,7 +594,6 @@ function modf_nodes(obj,inst){
 		 						 
 	};  
 	userHtml =  userHtml + userSelectHtml + '</select>';
-	console.log(obj.original)
     $.confirm({
         icon: 'fa fa-plus',
         type: 'blue',
@@ -946,6 +959,12 @@ function abolishUserBind(select_node,dataList){
 
 $(document).ready(function() {	
 	
+	$("input[name='avatar']").fileinput({
+	 	 maxFileCount: 1,
+	     previewFileType: "image",   
+	     allowedFileExtensions: ["png", "jpg", "jpeg", "gif"],  //允许的文件后缀
+	     previewClass: "bg-warning"
+	});		
 	
 	makeUserManageTableList()
 	
@@ -963,15 +982,12 @@ $(document).ready(function() {
     	let superuser =  td.eq(5).text()
     	let post =  td.eq(6).text()  
     	let superior = td.eq(7).text()
-    	let is_active =  td.eq(9).text()
-    	
-    	
+    	let is_active =  td.eq(10).text()
 		let selectHtmls = '<select class="form-control"  name="superior" title="上级"><option value="">无</option>'
     	let optionHtml = ''
     	let dataList = requests("get","/api/account/user/?post=manage")
 		for (var i=0; i <dataList.length; i++){
-			console.log(superuser)
-			if (superuser==dataList[i]['name']){
+			if (superior==dataList[i]['name']){
 				optionHtml += '<option selected="selected" value="'+ dataList[i]["id"] +'">'+ dataList[i]['name'] +'</option>' 	
 			}else{
 				optionHtml += '<option value="'+ dataList[i]["id"] +'">'+ dataList[i]['name'] +'</option>' 	
@@ -980,13 +996,12 @@ $(document).ready(function() {
 		}; 
 		
 		selectHtmls = selectHtmls + optionHtml + '</select>';    	
-    	
     	if(superuser=="否"){
     		var superUserSelect = '<select class="form-control" name="is_superuser"><option selected="selected"  value="0">否</option><option value="1">是</option></select>'
     	}else{
     		var superUserSelect = '<select class="form-control" name="is_superuser"><option  value="0">否</option><option selected="selected" value="1">是</option></select>'
     	}
-    	if(is_active=="否"){
+    	if(is_active=="未激活"){
     		var isActiveSelect = '<select class="form-control" name="is_active"><option selected="selected"  value="0">否</option><option value="1">是</option></select>'
     	}else{
     		var isActiveSelect = '<select class="form-control" name="is_active"><option  value="0">否</option><option selected="selected" value="1">是</option></select>'
@@ -1000,7 +1015,7 @@ $(document).ready(function() {
 	        icon: 'fa fa-edit',
 	        type: 'blue',
 	        title: '修改<strong>'+ username +'</strong>资料',
-	        content: '<form  data-parsley-validate class="form-horizontal form-label-left">' +
+	        content: '<form  data-parsley-validate class="form-horizontal form-label-left" id="modf_user_info">' +
 			            '<div class="form-group">' +
 			              '<label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">用户名<span class="required">*</span>' +
 			              '</label>' +
@@ -1015,6 +1030,13 @@ $(document).ready(function() {
 			                '<input type="text"  name="name" value="'+ name +'" required="required" placeholder="OpsManage" class="form-control col-md-7 col-xs-12">' +
 			              '</div>' +
 			            '</div>' +	
+			            '<div class="form-group">' +
+			              '<label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">头像<span class="required">*</span>' +
+			              '</label>' +
+			              '<div class="col-md-6 col-sm-6 col-xs-12">' +
+			                '<input type="file"  name="avatar" value="" required="required" placeholder="修改头像" class="form-control col-md-7 col-xs-12">' +
+			              '</div>' +
+			            '</div>' +			            
 			            '<div class="form-group">' +
 			              '<label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">电话号码<span class="required">*</span>' +
 			              '</label>' +
@@ -1063,16 +1085,32 @@ $(document).ready(function() {
 	            '修改': {
 	                btnClass: 'btn-blue',
 	                action: function() {
-	                	var formData = {};	
-	            		var vipForm = this.$content.find('input,select');                	
-	            		for (var i = 0; i < vipForm.length; ++i) {
-	            			var name =  vipForm[i].name
-	            			var value = vipForm[i].value 
-	            			if (name.length >0 && value.length > 0){
-	            				formData[name] = value	
-	            			};		            						
-	            		};	
+	                	formData = new FormData();
+	                    username = this.$content.find("[name='username']").val();
+	                    name = this.$content.find("[name='name']").val();
+	                    avatar = this.$content.find("[name='avatar']")[0].files;
+	                    mobile = this.$content.find("[name='mobile']").val();
+	                    email = this.$content.find("[name='email']").val();	  
+	                    post = this.$content.find("select[name='post'] option:selected").val();
+	                    is_active = this.$content.find("select[name='is_active'] option:selected").val();
+	                    is_superuser = this.$content.find("select[name='is_superuser'] option:selected").val();
+	                    superior = this.$content.find("select[name='superior'] option:selected").val();
+						if (avatar.length > 0){
+							formData.append('avatar',avatar[0]);
+						}	
+						if (superior.length > 0){
+							formData.append('superior',superior);
+						}						
+					    formData.append('username',username);
+					    formData.append('name',name);
+					    formData.append('mobile',mobile);	
+					    formData.append('email',email);	
+					    formData.append('post',post);	
+					    formData.append('is_active',is_active);
+					    formData.append('is_superuser',is_superuser);
 				    	$.ajax({  
+						    processData: false,
+						    contentType: false,					    		
 				            type: "PUT",  
 				            url:"/api/account/user/"+vIds+"/",  
 							data:formData,
@@ -1418,10 +1456,13 @@ $(document).ready(function() {
     });		
 
     $("#addUsersubmit").on('click', function() {
+		var formdata = new FormData(document.getElementById('addUserForm')); 
     	$.ajax({  
             type: "POST",             
             url:"/api/account/user/",  
-            data:$("#addUserForm").serialize(),
+            data:formdata,
+		    processData: false,
+		    contentType: false,	
             error: function(response) {  
             	new PNotify({
                     title: 'Ops Failed!',

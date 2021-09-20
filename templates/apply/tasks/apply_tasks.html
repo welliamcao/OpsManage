@@ -1,0 +1,179 @@
+{% extends 'base.html' %}
+{% block css-content %}
+    <link rel="stylesheet" href="/static/css/bootstrap-select.css">
+    <link rel="stylesheet" href="/static/jquery-confirm/jquery-confirm.min.css">
+    <link href="/static/datatable/datatables.net-buttons-bs/css/buttons.bootstrap.min.css" rel="stylesheet">
+    <link href="/static/datatable/datatables.net-fixedheader-bs/css/fixedHeader.bootstrap.min.css" rel="stylesheet">
+    <link href="/static/datatable/datatables.net-responsive-bs/css/responsive.bootstrap.min.css" rel="stylesheet">
+    <link href="/static/datatable/datatables.net-scroller-bs/css/scroller.bootstrap.min.css" rel="stylesheet"> 
+	<style type="text/css"> 
+
+	.sidebar-wrapper { position: relative; height: 100%; overflow: auto;}
+	#simplerSidebar { background-color: #F5F5F5;}
+	#simplerSidebar .nav { margin-top: 50px; line-height: 40px; list-style-type: none;}
+	#simplerSidebar .nav a { display: block; padding: 0 20px; color: #fff; text-decoration: none;}
+	#simplerSidebar .nav a:hover { background-color: #e62828;}
+	[data-simplersidebar='active'] { box-shadow: -3px 0 3px 0 rgba(0, 0, 0, 0.5);}
+		
+		pre {
+			overflow: auto;
+			white-space: normal;
+			white-space: pre-wrap; /* css-3 */
+			white-space: -moz-pre-wrap; /* Mozilla, since 1999 */
+			white-space: -pre-wrap; /* Opera 4-6 */
+			white-space: -o-pre-wrap; /* Opera 7 */
+			word-wrap: break-word; /* Internet Explorer 5.5+ */
+			font-family: Consolas, monospace;
+			color: #ADFF2F;
+			background-color: #000000;
+		}		
+	
+			
+    .modal-select{
+         -moz-user-select:none;/*火狐*/
+         -webkit-user-select:none;/*webkit浏览器*/
+         -ms-user-select:none;/*IE10*/
+         -khtml-user-select:none;/*早期浏览器*/
+         user-select:none;
+    }
+    .modal-header{
+         cursor:move;
+    }	
+	td.details-control {
+	    background: url('/static/images/details_open.png') no-repeat center center; */
+	    cursor: pointer;
+	}
+	tr.shown td.details-control {
+	    background: url('/static/images/details_close.png') no-repeat center center;
+	}           		
+	</style>   	
+	
+{% endblock %}
+{% block page-content %}
+          <!-- top tiles -->
+          <div class="row tile_count">
+            <div class="col-md-2 col-sm-4 col-xs-6 tile_stats_count">
+              <span class="count_top"><i class="fa fa-user"></i> 总计</span>
+              <div class="count" id="total_count">0</div>
+              <span class="count_bottom"><i class="green">4% </i> From last Week</span>
+            </div>
+            <div class="col-md-2 col-sm-4 col-xs-6 tile_stats_count">
+              <span class="count_top"><i class="fa fa-spinner"></i> 运行中</span>
+              <div class="count green" id="running_count">0</div>
+              <span class="count_bottom"><i class="green"><i class="fa fa-sort-asc"></i>3% </i> From last Week</span>
+            </div>
+            <div class="col-md-2 col-sm-4 col-xs-6 tile_stats_count">
+              <span class="count_top"><i class="fa fa-check"></i> 已完成</span>
+              <div class="count" id="finished_count">0</div>
+              <span class="count_bottom"><i class="green"><i class="fa fa-sort-asc"></i>34% </i> From last Week</span>
+            </div>
+            <div class="col-md-2 col-sm-4 col-xs-6 tile_stats_count">
+              <span class="count_top"><i class="fa fa-times"></i> 已失败</span>
+              <div class="count red" id="failed_count">0</div>
+              <span class="count_bottom"><i class="red"><i class="fa fa-sort-desc"></i>12% </i> From last Week</span>
+            </div>
+            <div class="col-md-2 col-sm-4 col-xs-6 tile_stats_count">
+              <span class="count_top"><i class="fa fa-stop"></i> 已终止</span>
+              <div class="count yellow" id="stop_count">0</div>
+              <span class="count_bottom"><i class="green"><i class="fa fa-sort-asc"></i>34% </i> From last Week</span>
+            </div>
+            <div class="col-md-2 col-sm-4 col-xs-6 tile_stats_count">
+              <span class="count_top"><i class="fa fa-circle-o"></i> 已过期</span>
+              <div class="count" id="expired_count">0</div>
+              <span class="count_bottom"><i class="green"><i class="fa fa-sort-asc"></i>34% </i> From last Week</span>
+            </div>
+          </div>
+		<div class="clearfix"></div>     
+        <div class="row"> 
+              <div class="col-md-12 col-sm-12 col-xs-12">
+                <div class="x_panel">
+                  <div class="x_title">
+                    <h2><i class="fa fa-bars"></i> 应用任务<small>Application Tasks</small></h2>
+                    <div class="clearfix"></div>
+                  </div>
+                  <div class="x_content">
+		            <div class="row">	
+						<div class="btn-group  btn-group-sm pull-right">
+				             <button class="btn btn-default" name="tasks_page_previous" type="button" value="">上一页</button>
+				             <button class="btn btn-default" name="tasks_page_next" type="button" value="">下一页</button>
+			            </div>
+		            </div>
+		            <br>
+		            <div class="row">
+	                    <table class="table table-striped projects" id="apply_tasks_table_list">
+	                      <thead>
+	                        <tr>
+	                          <th class="text-center">详情</th>
+	                          <th>ID</th>
+	                          <th>应用名称</th>
+	                          <th>提交人</th>
+					          <th>处理时间</th>
+					          <th>更新时间</th>                          
+	                          <th>处理进度</th>
+	                          <th>状态</th>
+	                          <th style="width: 20%">操作</th>
+	                        </tr>
+	                      </thead>
+	                    </table>
+					</div>
+					<div class="row">	
+						<div class="row" id="simplerSidebar" style="overflow:auto;background:#EEEEEE;overflow-x: hidden;">
+							<div class="row" id="sidebar-wrapper">
+					           <div class="col-md-12 col-sm-12  ">
+					              <div class="x_panel">
+					                <div class="x_title">
+					                  <h2 id="apply_task_view_h2">应用任务运行日志 <small>Apply Run Task Log</small></h2>
+					                  <ul class="nav navbar-right panel_toolbox">
+					                  </ul>
+					                  <div class="clearfix"></div>
+					                </div>
+					                <div class="x_content">
+					                  <ul class="list-unstyled timeline" id="apply_task_view_li">					                    
+					                    <li>
+					                      <div class="block">
+					                        <div class="tags">
+					                          <a href="" class="tag">
+					                            <span>任务汇总</span>
+					                          </a>
+					                        </div>
+					                        <div class="block_content">
+					                          <h2 class="title">
+					                                          <a>等待任务运行完成</a>
+					                                      </h2>
+					                          <div class="byline">
+					                            <span>13 hours ago</span> by <a>root</a>
+					                          </div>
+					                          <p class="excerpt">喝杯<a class="fa fa-coffee"></a>...
+					                          </p>
+					                        </div>
+					                      </div>
+					                    </li>					                    
+					                                      					                    
+					                  </ul>
+					
+					                </div>
+					              </div>
+					            </div>							
+							</div>
+						</div>					
+					</div>
+                  </div>
+                </div>
+              </div>        
+        </div>   
+                      
+                           
+{% endblock %}
+{% block js-content %}
+	<script src="/static/jquery-confirm/jquery-confirm.min.js"></script>
+    <script src="/static/datatable/datatables.net/js/jquery.dataTables.min.js"></script>
+	<script src="/static/datatable/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>	
+    <script src="/static/datatable/datatables.net-buttons/js/dataTables.buttons.min.js"></script>
+    <script src="/static/datatable/datatables.net-buttons-bs/js/buttons.bootstrap.min.js"></script>
+    <script src="/static/datatable/datatables.net-buttons/js/buttons.flash.min.js"></script>
+    <script src="/static/datatable/datatables.net-buttons/js/buttons.html5.min.js"></script>
+    <script src="/static/datatable/datatables.net-buttons/js/buttons.print.min.js"></script>
+    <script src="/static/simpler-sidebar/simpler-sidebar.min.js"></script>
+    <script src="/static/js/apply/tasks.js"></script>
+ 	
+{% endblock %}

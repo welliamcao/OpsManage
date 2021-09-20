@@ -126,6 +126,7 @@ class User(AbstractUser):
     name = models.CharField(max_length=20, default="", verbose_name="中文名字")
     mobile = models.CharField(max_length=11, default="", verbose_name="手机号码",null=True, blank=True)
     email = models.EmailField(max_length=50, verbose_name="邮箱")
+    avatar =  models.FileField(upload_to = 'avatar/',verbose_name='个人头像',null=True, blank=True, default="")
     department = models.ManyToManyField("Structure", blank=True, verbose_name="部门")
     post = models.CharField(max_length=50, null=True, blank=True, verbose_name="职位")
     superior = models.ForeignKey("self", null=True, blank=True, on_delete=models.SET_NULL, verbose_name="上级主管")
@@ -175,6 +176,12 @@ class User(AbstractUser):
             "roles":[ x.id for x in self.roles.all() ]
         }
         return  json_format
+    
+    def to_avatar(self):
+        return {
+                "username":self.username,
+                "avatar": str(self.avatar)
+            }
 
 TASK_STATUS = (
         (0, "进行中"),

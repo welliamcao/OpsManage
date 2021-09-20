@@ -1553,7 +1553,7 @@ $(document).ready(function() {
     	    		        {
        	    				targets: [9],
        	    				render: function(data, type, row, meta) {  
-    	                        if(row.assets_type == '服务器'){
+    	                        if(row.assets_type == '物理机'){
 		                            var hw = '<button type="button" name="btn-assets-hw" value="'+ row.id +'" class="btn btn-default" aria-label="Right Align"><span class="fa fa-hdd-o" aria-hidden="true"></span></button>'		    	               
     	                        }else{
     	                        	var hw = '<button type="button" name="btn-assets-hw" value="'+ row.id +'" class="btn btn-default" aria-label="Right Align" disabled><span class="fa fa-hdd-o" aria-hidden="true"></span></button>'		    	   

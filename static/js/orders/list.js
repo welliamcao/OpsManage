@@ -426,7 +426,7 @@ $(document).ready(function() {
 			                },		                   
 		                    {"data": "id"},
 		                    {"data": "order_type"},
-		                    {"data": "order_user"},
+		                    {"data": "user_info"},
 			                {"data": "order_subject"},
 			                {"data": "order_executor"},	
 			                {"data": "create_time"},	
@@ -445,7 +445,14 @@ $(document).ready(function() {
 								{
 									targets: [3],
 									render: function(data, type, row, meta) {
-								        return userInfo[row.order_user]["name"]
+			   	    					if(typeof row.user_info['avatar'] == "undefined" || row.user_info['avatar'] == null || row.user_info['avatar'] == ""){
+			   	    						return  '<a href="javascript:;" class="user-profile" data-toggle="dropdown" aria-expanded="false">' +
+							                      		'<img src="/static/images/img.jpg"  alt="">'+ row.user_info['username'] + '</a>'
+			   	    					}
+			   	    					else{
+			   	    						return  '<a href="javascript:;" class="user-profile" data-toggle="dropdown" aria-expanded="false">' +
+							                      		'<img src="/media/'+ row.user_info['avatar']  +'"  alt="">'+ row.user_info['username'] + '</a>'	   	    						
+			   	    					}								        
 									},
 								},
 								{

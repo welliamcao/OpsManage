@@ -6,7 +6,8 @@ from deploy.models import *
 from utils.logger import logger 
 from django.http import QueryDict
 from dao.base import DataHandle
-from datetime import datetime,timedelta,date
+from datetime import datetime
+
 
 class DeploySaveResult(object): 
     class Model(object): 
@@ -229,4 +230,4 @@ class DeployPlaybook(DataHandle):
             playbook.delete()
         except Exception as ex:
             return "删除部署剧本失败: {ex}".format(ex=ex)             
-        return True                                       
+        return True                                              

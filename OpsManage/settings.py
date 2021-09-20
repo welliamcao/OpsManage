@@ -16,10 +16,13 @@ import sys, os
 import ldap
 from django_auth_ldap.config import LDAPSearch, GroupOfNamesType, PosixGroupType
 
+
 try:
     import ConfigParser as conf
 except ImportError as e:
     import configparser as conf
+
+_deploy_tasks = {}
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) 
@@ -108,6 +111,8 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.BasicAuthentication',
     ),             
 }
+
+MEDIA_URL = '/media/'
 
 MEDIA_ROOT = os.path.join(BASE_DIR,'upload/')
 
@@ -239,4 +244,3 @@ if config.get('inception', 'enable') == 'true':
                  }
     
         
-

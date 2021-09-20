@@ -32,7 +32,7 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ('id','last_login','is_superuser','username',
                   'first_name','last_name','email','is_staff',
                   'is_active','date_joined',"mobile","name","department",
-                  'post','superior','roles','superior_name'
+                  'post','superior','roles','superior_name','avatar'
                   )   
         extra_kwargs = {
                         'department': {'required': False,"read_only":True},
@@ -182,9 +182,7 @@ class RaidSerializer(serializers.ModelSerializer):
     class Meta:
         model = Raid_Assets
         fields = ('id','raid_name')         
-
-        
-        
+       
 class AssetsSerializer(serializers.ModelSerializer):
     crontab_total = serializers.SerializerMethodField(read_only=True,required=False)
     database_total = serializers.SerializerMethodField(read_only=True,required=False)
@@ -200,7 +198,6 @@ class AssetsSerializer(serializers.ModelSerializer):
     
     def get_database_total(self,obj):
         return [ db.id for db in obj.database_total.all() ]  #返回列表          
-
 
 class ServerSerializer(serializers.ModelSerializer): 
     assets = AssetsSerializer(required=False)
@@ -288,11 +285,12 @@ class OrderSerializer(serializers.ModelSerializer):
     start_time = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S",required=False)
     end_time = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S",required=False)  
     expire = serializers.SerializerMethodField(read_only=True,required=False)  
+    user_info = serializers.SerializerMethodField(read_only=True,required=False)
     class Meta:
         model = Order_System
         fields = ('id','order_subject','order_user','order_audit_status','order_mark',
                   'order_type','order_level','create_time','modify_time','order_executor',
-                  'end_time','start_time',"expire","order_execute_status")
+                  'end_time','start_time',"expire","order_execute_status","user_info")
         extra_kwargs = {
                         'order_subject': {'required': False},
                         'order_user':{'required': False},
@@ -310,6 +308,12 @@ class OrderSerializer(serializers.ModelSerializer):
 
         elif obj.is_expired() == 0: #过期
             return 0             
+ 
+    def get_user_info(self,obj):
+        try:  
+            return User.objects.get(id=obj.order_user).to_avatar()
+        except Exception as ex:
+            return "未知"   
         
 class DataBaseServerSerializer(serializers.ModelSerializer):
     db_passwd = serializers.SerializerMethodField(read_only=True,required=False)
@@ -651,5 +655,41 @@ class IPVSNanmeServerSerializer(serializers.ModelSerializer):
         extra_kwargs = {
                         'ipvs_vip':{'required': False},
                         }       
-    
-  
+        
+class ApplyCenterConfigSerializer(serializers.ModelSerializer):
+    class  Meta:
+        model = APPLY_CENTER_CONFIG
+        fields = ('id','apply_name','apply_desc','apply_type','apply_payload','apply_icon','apply_playbook')       
+        
+        
+class ApplyTasksSerializer(serializers.ModelSerializer):
+    create_time = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S")
+    update_time = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S")
+    user_info = serializers.SerializerMethodField(read_only=True,required=False)
+    apply_detail = serializers.SerializerMethodField(read_only=True,required=False)
+    class  Meta:
+        model = ApplyTasksModel
+        fields = ('id','user_info','apply_id','apply_detail','task_id','task_per','status','deploy_type','payload','create_time','update_time','error_msg')
+        
+    def get_user_info(self,obj):
+        try:  
+            return User.objects.get(id=obj.user).to_avatar()
+        except Exception as ex:
+            return "未知"  
+        
+    def get_apply_detail(self,obj): 
+        try:
+            return APPLY_CENTER_CONFIG.objects.get(id=obj.apply_id).to_json()
+        except:
+            return {}  
+ 
+#     def create(self,  validated_data):
+#         return ApplyTasksModel.objects.create(
+#                                     user=validated_data.get('apply_name'),
+#                                     apply_id=validated_data.get('apply_id'),
+#                                     task_id=validated_data.get('task_id'),
+#                                     task_per=0,
+#                                     status='ready',
+#                                     deploy_type='playbook',
+#                                     payload=validated_data.get('payload')
+#                                     )                    

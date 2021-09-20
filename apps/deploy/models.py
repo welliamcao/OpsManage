@@ -228,4 +228,4 @@ class Deploy_CallBack_PlayBook_Result(models.Model):
         db_table = 'opsmanage_deploy_callback_playbook_result'
         default_permissions = ()
         verbose_name = '应用部署管理'  
-        verbose_name_plural = '部署剧本操作记录详情表'         
+        verbose_name_plural = '部署剧本操作记录详情表'                        

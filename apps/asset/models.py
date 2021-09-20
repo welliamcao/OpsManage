@@ -12,7 +12,7 @@ from dao.base import AESCharField
 
 class Assets(models.Model):
     assets_type_choices = (
-                          ('server',u'服务器'),
+                          ('server',u'物理机'),
                           ('vmser',u'虚拟机'),
                           ('switch',u'交换机'),
                           ('route',u'路由器'),
@@ -29,7 +29,7 @@ class Assets(models.Model):
         "route": "路由器",
         "wifi": "无线设备",
         "storage": "存储设备",
-        "server": "服务器",
+        "server": "物理机",
         "switch": "交换机",
         "vmser": "虚拟机"
     }

@@ -1374,7 +1374,6 @@ $(document).ready(function() {
 	                btnClass: 'btn-blue',
 	                action: function() {
 	                	var formData = {};	
-	                	console.log(this.$content)
 	            		var jobsForm = this.$content.find('input,textarea');                	
 	            		for (var i = 0; i < jobsForm.length; ++i) {
 	            			var name =  jobsForm[i].name

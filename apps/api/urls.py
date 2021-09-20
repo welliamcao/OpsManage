@@ -3,7 +3,7 @@ from api.views import (assets_api,deploy_api,mysql_api,
                        orders_api,cron_api,celery_api,
                        cicd_api,monitor_api,nav_api,
                        wiki_api,apscehd_api,ipvs_api,
-                       account_api, redis_api)
+                       account_api, redis_api, apply_api)
 urlpatterns = [
   
             #用户管理模块API
@@ -164,5 +164,13 @@ urlpatterns = [
             url(r'^apply/ipvs/tree/business/(?P<id>[0-9]+)/$', ipvs_api.ipvs_tree_business),
             url(r'^apply/ipvs/rs/assets/$', ipvs_api.ipvs_assets),                 
             url(r'^apply/ipvs/ns/$', ipvs_api.IPVS_NS_LIST.as_view()),     
-            url(r'^apply/ipvs/ns/(?P<pk>[0-9]+)/$', ipvs_api.IPVS_NS_LIST_DETAIL.as_view()),                                                                 
+            url(r'^apply/ipvs/ns/(?P<pk>[0-9]+)/$', ipvs_api.IPVS_NS_LIST_DETAIL.as_view()),   
+            url(r'^apply/config/$', apply_api.ApplyCenterConfig.as_view()),    
+            url(r'^apply/config/(?P<pk>[0-9]+)/$', apply_api.ApplyConfigDetail.as_view()),       
+            url(r'^apply/tasks/$', apply_api.ApplyTasks.as_view()),    
+            url(r'^apply/task/(?P<pk>[0-9]+)/$', apply_api.ApplyTasksDetail.as_view()),    
+            url(r'^apply/task/detail/(?P<pk>[0-9]+)/$', apply_api.ApplyTasksLogDetail.as_view()),          
+            url(r'^apply/sync/tag/(?P<pk>[0-9]+)/$', apply_api.ApplyTasksSyncTagsDetail.as_view()),     
+            url(r'^apply/tasks/count/$', apply_api.ApplyTasksCount.as_view()),                                                   
+                                                                          
     ]    

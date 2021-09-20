@@ -17,6 +17,8 @@ from django.conf.urls import url,include
 from django.contrib import admin
 from OpsManage.views import index
 from django.conf.urls import handler404, handler403
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
@@ -37,7 +39,7 @@ urlpatterns = [
     url(r'^order/',include('orders.urls')),
     url(r'^apply/',include('apply.urls')),
     url(r'^account/',include('account.urls')),
-]
+]  + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 handler404 = index.PageError.as_view()
 handler403 = index.Permission.as_view()

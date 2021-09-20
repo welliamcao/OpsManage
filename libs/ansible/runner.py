@@ -53,6 +53,7 @@ class ANSRunner(object):
         syntax=False,        
         websocket=None,
         background=None,
+        deplytask=None,
         skip_tags = [],
         tags = []
     ):
@@ -96,6 +97,7 @@ class ANSRunner(object):
         )
         self.websocket = websocket      
         self.background = background 
+        self.deplytask = deplytask
         self.loader = DataLoader()
         self.inventory = get_inventory(hosts)
         self.variable_manager = VariableManager(self.loader, self.inventory)
@@ -136,7 +138,7 @@ class ANSRunner(object):
             if self.loader:
                 self.loader.cleanup_all_tmp_files()  
 
-    def get_playbook_total_tasks(self,host_list ,playbook_path,extra_vars):
+    def get_playbook_total_tasks(self,host_list ,playbook_path, extra_vars):
         count = 0
         extra_vars['host'] = ','.join(host_list)
         self.variable_manager.extra_vars = extra_vars 
@@ -169,13 +171,13 @@ class ANSRunner(object):
                         count = count + _process_block(block)  
         return count
   
-    def run_playbook(self, host_list, playbook_path,extra_vars=dict()): 
+    def run_playbook(self, host_list, playbook_path, extra_vars=dict()): 
         """ 
         run ansible palybook 
         """   
         total_tasks = self.get_playbook_total_tasks(host_list,playbook_path,extra_vars)
         try: 
-            self.callback = Playbookcallback(self.websocket,self.background,total_tasks) 
+            self.callback = Playbookcallback(websocket=self.websocket,background=self.background,deplytask=self.deplytask,total_tasks=total_tasks) 
             extra_vars['host'] = ','.join(host_list)
             self.variable_manager.extra_vars = extra_vars            
             executor = PlaybookExecutor(  
@@ -192,9 +194,10 @@ class ANSRunner(object):
                 constants.DEFAULT_MODULE_PATH.append(extra_vars.get('module_path'))            
             executor.run()  
         except Exception as err: 
-            logger.error(msg="run playbook failed: {err}".format(err=str(err)))
+            msg="run playbook failed: {err}".format(err=str(err))
+            logger.error(msg)
             if self.websocket:self.websocket.send(str(err))       
-            return False
+            return str(msg)
         return True
             
     def get_model_result(self):  

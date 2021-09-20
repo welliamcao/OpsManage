@@ -167,4 +167,4 @@ class DeployPlaybooks(LoginRequiredMixin,DeployPlaybook,View):
 class DelolyLogs(LoginRequiredMixin,View):
     login_url = '/login/'
     def get(self, request, *args, **kwagrs):
-        return render(request, 'deploy/deploy_logs.html',{"user":request.user})       
+        return render(request, 'deploy/deploy_logs.html',{"user":request.user})         
