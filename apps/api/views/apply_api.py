@@ -44,8 +44,9 @@ class ApplyCenterConfig(LoginRequiredMixin, APIView):
             serializer.save() 
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+ 
     
-class ApplyConfigDetail(LoginRequiredMixin, APIView):
+class ApplyConfigDetail(LoginRequiredMixin, ApplyTaskManage, APIView):
     
     def get_object(self, pk):
         try:
@@ -67,7 +68,15 @@ class ApplyConfigDetail(LoginRequiredMixin, APIView):
             serializer.save()                    
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)    
-    
+
+    @method_decorator_adaptor(permission_required, "apply.apply_delete_config","/403/")
+    def delete(self, request, pk, format=None):
+        snippet = self.get_object(pk)   
+        for task in ApplyTasksModel.objects.filter(apply_id=snippet.id):
+            self.stop_task(task)
+            task.delete()
+        snippet.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)    
     
 class ApplyTasks(LoginRequiredMixin, ApplyTaskManage, APIView):
     login_url = '/login/'
