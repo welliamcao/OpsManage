@@ -1,3 +1,15 @@
+function DynamicSelect(ids, value, diabled){
+	$('select[name="'+ids+'"]' +" option").each(function(){ 
+		$(this).prop("selected",false);   
+	})
+	$('select[name="'+ ids +'"]'+ " option[value='" + value +"']").prop("selected",true);
+	if(diabled){
+		$("#" + ids).attr("disabled","")
+	}
+	$('select[name="'+ ids +'"]').selectpicker('refresh');
+}
+
+
 function makeOrderLogsTableList(url){
     var columns = [		                   
                     {"data": "order"},
@@ -330,11 +342,8 @@ $(document).ready(function() {
 			url:'/api/orders/notice/'+vIds+'/', //请求地址
 			type:"GET",  //提交类似
 			success:function(response){
-				DynamicSelect("order_type",response["order_type"])	
-				$("#order_type").prop('disabled', true);
-				DynamicSelect("grant_group",response["grant_group"])	
-				DynamicSelect("mode",response["mode"])
-				$("#number").val(response["number"])
+				DynamicSelect("order_type", response["order_type"], 'disable')		
+				DynamicSelect("mode", response["mode"])
 				$('.selectpicker').selectpicker('refresh');	
 				$("button[name='noticeonfig']").val(vIds).text("修改")
 			},

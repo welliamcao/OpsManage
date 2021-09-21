@@ -138,7 +138,7 @@ $(document).ready(function() {
 			              '<div class="media-body">' +
 			                '<a class="title" href="/order/list/">工单主题：'+dataList["results"][i]["order_subject"]+'</a>' +
 			                '<p><strong>申请人：'+ userInfo[dataList["results"][i]["order_user"]]["username"] +'</strong></p>' +
-			                '<p> <small>工单状态：'+orderStatusHtml[dataList["results"][i]["order_status"]]+'</small>' +
+			                '<p> <small>工单状态：'+orderStatusHtml[dataList["results"][i]["order_audit_status"]]+'</small>' +
 			                '</p>' +
 			              '</div>' +
 			              '</li>'
