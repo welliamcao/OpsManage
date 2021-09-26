@@ -115,7 +115,7 @@ class PlayBookResultsCollectorWebSocket(CallbackBase):
         self.task_changed = {}
         self.websocket = websocket
         self.total_tasks = total_tasks
-        self.count = 0
+        self.count = 1
         self.taks_check = {}
      
     def save_msg(self,msg):

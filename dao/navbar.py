@@ -22,20 +22,21 @@ class NavBarNumber(DataHandle):
             return False              
         
     def createNavBar(self,request):
-        fileName = '/upload/navbar/{ram}.png'.format(ram=uuid.uuid4().hex[0:8]) 
+        fileName = '{ram}.png'.format(ram=uuid.uuid4().hex[0:8]) 
+        filePath = 'navbar/{fileName}'.format(fileName=fileName) 
         try:
             navbar = Nav_Type_Number.objects.create(
                                           nav_type=self.get_navbar_type(request.data.get('nav_type')),
                                           nav_name=request.data.get('nav_name'),
                                           nav_desc=request.data.get('nav_desc'),
                                           nav_url=request.data.get('nav_url'),
-                                          nav_img=fileName,
+                                          nav_img=filePath,
                                           )  
         except Exception as ex:
             logger.warn(msg="添加导航栏失败: {ex}".format(ex=ex))  
             return "添加导航栏失败: {ex}".format(ex=ex)
         try:
-            AVATAR.generate_image(request.data.get('nav_name')[0], os.getcwd() + str(navbar.nav_img),AVATAR.randomColor())  
+            AVATAR.generate_image(request.data.get('nav_name')[0], os.getcwd() + '/upload/' + str(navbar.nav_img),AVATAR.randomColor())  
         except Exception as ex:
             navbar.delete()
             logger.warn(msg="创建导航栏缩略图失败: {ex}".format(ex=ex))  
@@ -43,7 +44,7 @@ class NavBarNumber(DataHandle):
         return navbar      
     
     def updateImg(self,navbar):
-        AVATAR.generate_image(str(navbar.nav_name)[0], os.getcwd() + str(navbar.nav_img), AVATAR.randomColor())  
+        AVATAR.generate_image(str(navbar.nav_name)[0], os.getcwd() + '/upload/' + str(navbar.nav_img), AVATAR.randomColor())  
 
 class NavBarThirdNumber(object):
     

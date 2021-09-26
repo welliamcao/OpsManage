@@ -55,7 +55,8 @@ class AssetsServer(LoginRequiredMixin,AssetsBase,View):
     
 class AssetsModf(LoginRequiredMixin,AssetsSource,View):
     login_url = '/login/'  
-        
+    
+    @method_decorator_adaptor(permission_required, "asset.assets_change_assets","/403/")    
     def post(self, request, *args, **kwagrs):
         fList,sList = self.allowcator(request.POST.get('model'),request)
         if fList:return JsonResponse({'msg':fList,"code":400})               

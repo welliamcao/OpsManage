@@ -51,7 +51,7 @@ def db_detail(request, id,format=None):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
      
     elif request.method == 'DELETE':
-        if not request.user.has_perm('databases.database_can_delete_database_server_config'):
+        if not request.user.has_perm('databases.database_delete_mysql_server_config'):
             return Response(status=status.HTTP_403_FORBIDDEN)
         snippet.delete()
         return Response(status=status.HTTP_204_NO_CONTENT) 
@@ -152,7 +152,7 @@ class DatabaseExecuteHistoryDetail(APIView):
 
     
 @api_view(['POST','GET'])
-@permission_required('databases.database_query_database_server_config',raise_exception=True)  
+@permission_required('databases.database_query_mysql_server_config',raise_exception=True)  
 def db_status(request, id,format=None):
     try:
         dbServer = DataBase_MySQL_Server_Config.objects.get(id=id)
@@ -169,7 +169,7 @@ def db_status(request, id,format=None):
         return JsonResponse({"code":200,"msg":"success","data":MySQL_STATUS})
     
 @api_view(['POST','GET'])
-@permission_required('databases.database_can_read_database_server_config',raise_exception=True)  
+@permission_required('databases.database_read_mysql_server_config',raise_exception=True)  
 def db_org(request, id,format=None):
     try:
         dbServer = DataBase_MySQL_Server_Config.objects.get(id=id)
@@ -186,19 +186,19 @@ def db_org(request, id,format=None):
         
         
 @api_view(['POST','GET'])
-@permission_required('databases.database_query_database_server_config',raise_exception=True)  
+@permission_required('databases.database_query_mysql_server_config',raise_exception=True)  
 def db_tree(request,format=None):   
     if request.method == 'GET':
         return Response(DBManage().tree(request))   
     
 
 class DB_SERVER_LIST(APIView,DBConfig):
-    @method_decorator_adaptor(permission_required, "databases.database_read_database_server_config","/403/")     
+    @method_decorator_adaptor(permission_required, "databases.database_read_mysql_server_config","/403/")     
     def get(self,request,format=None):
         snippets = [ x.to_json() for x in  DataBase_MySQL_Server_Config.objects.all() ]
         return Response(snippets)
     
-    @method_decorator_adaptor(permission_required, "databases.database_can_add_database_server_config","/403/")
+    @method_decorator_adaptor(permission_required, "databases.database_add_mysql_server_config","/403/")
     def post(self, request, format=None):
         try:
             database = DataBase_MySQL_Server_Config.objects.create(**request.data)
@@ -221,7 +221,7 @@ class DB_SERVER_DETAIL(APIView,DBConfig):
         except DataBase_MySQL_Server_Config.DoesNotExist:
             raise Http404    
     
-    @method_decorator_adaptor(permission_required, "databases.database_read_database_server_config","/403/")     
+    @method_decorator_adaptor(permission_required, "databases.database_read_mysql_server_config","/403/")     
     def get(self,request,pk,format=None):
         snippet = self.get_object(pk)
         try:  
@@ -231,7 +231,7 @@ class DB_SERVER_DETAIL(APIView,DBConfig):
             return Response(status=status.HTTP_404_NOT_FOUND) 
         return Response(serializer.data) 
     
-    @method_decorator_adaptor(permission_required, "databases.database_can_add_database_server_config","/403/")
+    @method_decorator_adaptor(permission_required, "databases.database_add_mysql_server_config","/403/")
     def post(self, request, pk, format=None):
         dbServer = self.get_object(pk)
         snippets = self.sync_db(dbServer)
@@ -252,14 +252,14 @@ class DB_SERVER_TABLES(APIView,DBConfig):
         except Database_MySQL_Detail.DoesNotExist:
             raise Http404         
     
-    @method_decorator_adaptor(permission_required, "databases.database_query_database_server_config","/403/")
+    @method_decorator_adaptor(permission_required, "databases.database_query_mysql_server_config","/403/")
     def get(self, request, pk, format=None):
         db = self.get_db(pk)
         snippets = Database_Table_Detail_Record.objects.filter(db=db.id)
         serializer = serializers.DatabaseTableSerializer(snippets, many=True)
         return Response(serializer.data)        
     
-    @method_decorator_adaptor(permission_required, "databases.database_can_add_database_server_config","/403/")
+    @method_decorator_adaptor(permission_required, "databases.database_add_mysql_server_config","/403/")
     def post(self, request, pk, format=None):
         dbServer = self.get_db_server(pk)
         snippets = self.sync_table(dbServer, request.POST.get("db_id",0), request.POST.get("db_name"))
@@ -283,7 +283,7 @@ def db_server_db_detail(request, sid, id,format=None):
         return Response(serializer.data) 
 
     elif  request.method == 'PUT':
-        if not request.user.has_perm('databases.database_change_add_database_server_config'):
+        if not request.user.has_perm('databases.database_change_mysql_server_config'):
             return Response(status=status.HTTP_403_FORBIDDEN)          
         serializer = serializers.DatabaseSerializer(snippet, data=request.data)
         if serializer.is_valid():
@@ -292,7 +292,7 @@ def db_server_db_detail(request, sid, id,format=None):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     elif request.method == 'DELETE':
-        if not request.user.has_perm('databases.database_change_add_database_server_config'):
+        if not request.user.has_perm('databases.database_change_mysql_server_config'):
             return Response(status=status.HTTP_403_FORBIDDEN)
         Database_Table_Detail_Record.objects.filter(db=id).delete() #删除数据库关联表记录
         Database_MySQL_User.objects.filter(db=snippet.id).delete() #删除用户关联数据库记录
@@ -313,7 +313,7 @@ class DB_DATA_DICT(APIView, DBConfig, DataHandle):
         except Database_MySQL_Detail.DoesNotExist:
             raise Http404              
     
-    @method_decorator_adaptor(permission_required, "databases.database_sqldict_database_server_config","/403/")    
+    @method_decorator_adaptor(permission_required, "databases.database_sqldict_mysql_server_config","/403/")    
     def post(self,request, sid, did, format=None):
         dbServer,db = self.get_db_server(sid), self.get_db(did) 
         user_tables = self.get_user_db_tables(db, request.user)
@@ -372,11 +372,11 @@ class DB_USER_SERVER_DBLIST(APIView,DBUser):
         except User.DoesNotExist:
             raise Http404      
     
-    @method_decorator_adaptor(permission_required, "databases.database_can_read_database_server_config","/403/")    
+    @method_decorator_adaptor(permission_required, "databases.database_read_mysql_server_config","/403/")    
     def get(self, request, uid, sid, format=None):   
         return Response(self.get_server_all_db(self.get_db_server(sid), self.get_user(uid)))
     
-    @method_decorator_adaptor(permission_required, "databases.database_can_add_database_server_config","/403/") 
+    @method_decorator_adaptor(permission_required, "databases.database_add_mysql_server_config","/403/") 
     def post(self, request, uid, sid, format=None):
         
         db_server, user = self.get_db_server(sid), self.get_user(uid) 
@@ -385,7 +385,7 @@ class DB_USER_SERVER_DBLIST(APIView,DBUser):
         
         return Response(self.get_user_server_db(db_server, user), status=status.HTTP_201_CREATED)        
     
-    @method_decorator_adaptor(permission_required, "databases.database_can_delete_database_server_config","/403/")     
+    @method_decorator_adaptor(permission_required, "databases.database_delete_mysql_server_config","/403/")     
     def delete(self, request, uid, sid, format=None):
         Database_MySQL_User.objects.filter(id=QueryDict(request.body).get("user_db_id")).delete()
         return Response(self.get_user_server_db(self.get_db_server(sid), self.get_user(uid)))        
@@ -429,7 +429,7 @@ def db_user_db_table_list(request, uid, did, format=None):
         return Response(user_table_list)
 
     elif  request.method == 'POST':
-        if not request.user.has_perm('databases.database_can_add_database_server_config'):
+        if not request.user.has_perm('databases.database_add_mysql_server_config'):
             return Response(status=status.HTTP_403_FORBIDDEN) 
 
         try:
@@ -455,11 +455,11 @@ class DB_USER_SERVER_DBSQL(APIView,DBUser):
         except User.DoesNotExist:
             raise Http404          
         
-    @method_decorator_adaptor(permission_required, "databases.database_can_read_database_server_config","/403/")    
+    @method_decorator_adaptor(permission_required, "databases.database_read_mysql_server_config","/403/")    
     def get(self, request, uid, did, format=None):   
         return Response(self.get_user_db_sql(self.get_db(uid, did)))    
     
-    @method_decorator_adaptor(permission_required, "databases.database_can_add_database_server_config","/403/") 
+    @method_decorator_adaptor(permission_required, "databases.database_add_mysql_server_config","/403/") 
     def post(self, request, uid, did, format=None):  
         
         user_db = self.get_db(uid, did)

@@ -308,7 +308,7 @@ $(document).ready(function() {
         	    							 '<div class="xe-widget xe-conversations box2 label-info" onclick=\'window.open("'+  response[i]["nav_type_number"][x]["nav_url"] +'", "_blank")\' data-toggle="tooltip" data-placement="bottom" title="" data-original-title="'+  response[i]["nav_type_number"][x]["nav_url"] +'">' +
         					                    '<div class="xe-comment-entry" title="'+ response[i]["nav_type_number"][x]["id"] +'">' +
         					                        '<a class="xe-user-img">' +
-        					                            '<img src="/nav/'+  response[i]["nav_type_number"][x]["nav_img"].replace("/navbar", "") +'" class="img-circle" width="40">' +
+        					                            '<img src="'+  response[i]["nav_type_number"][x]["nav_img"] +'" class="img-circle" width="40">' +
         					                        '</a>' +
         					                        '<div class="xe-comment">' +
         					                            '<a href="/assets/list" class="xe-user-name overflowClip_1">' +

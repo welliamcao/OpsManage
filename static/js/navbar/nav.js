@@ -98,7 +98,7 @@ function makeNavbarThirdTableList(){
    	                        return '<div class="btn-group  btn-group-xs">' +	
 	    	                           '<button type="button" name="btn-navbar-edit" value="'+ row.id +'" class="btn btn-default"  aria-label="Justify" data-toggle="modal" data-target=".bs-example-modal-info"><span class="fa fa-edit" aria-hidden="true"></span>' +	
 	    	                           '</button>' +		                				                            		                            			                          
-	    	                           '<button type="button" name="btn-navbar-delete" value="'+ row.id +'" class="btn btn-default" aria-label="Justify"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span>' +	
+	    	                           '<button type="button" name="btn-navbar-delete" value="'+ row.id +'" class="btn btn-default" aria-label="Justify"><span class="fa fa-trash" aria-hidden="true"></span>' +	
 	    	                           '</button>' +			                            
 	    	                           '</div>';
    	    				},

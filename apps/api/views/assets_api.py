@@ -30,7 +30,7 @@ def zone_list(request,format=None):
         return Response(serializer.data)     
     
     elif request.method == 'POST': 
-        if not request.user.has_perm('asset.assets_read_zone'):
+        if not request.user.has_perm('asset.assets_add_zone'):
             return Response(status=status.HTTP_403_FORBIDDEN)                
         serializer = serializers.ZoneSerializer(data=request.data)
         if serializer.is_valid():

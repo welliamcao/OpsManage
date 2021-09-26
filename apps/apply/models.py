@@ -183,7 +183,8 @@ class APPLY_CENTER_CONFIG(models.Model):
     apply_payload = models.TextField(verbose_name='参数变量',blank=True,null=True)
     class Meta:
         db_table = 'opsmanage_apply_config'
-        default_permissions = (
+        default_permissions = ()
+        permissions = (
             ("apply_read_config", "读取应用配置表权限"),
             ("apply_change_config", "更改应用配置表权限"),
             ("apply_add_config", "添加应用配置表权限"),

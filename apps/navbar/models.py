@@ -22,7 +22,7 @@ class Nav_Type_Number(models.Model):
     nav_name = models.CharField(max_length=100) 
     nav_desc = models.CharField(max_length=200) 
     nav_url = models.TextField() 
-    nav_img = models.FileField(upload_to = './avatar/',verbose_name='图片路径',blank=True,null=True) 
+    nav_img = models.FileField(upload_to = 'navbar/',verbose_name='图片路径',blank=True,null=True) 
     
     class Meta:
         db_table = 'opsmanage_nav_number'
