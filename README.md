@@ -223,6 +223,18 @@ server {
         add_header Cache-Control private;
         alias /mnt/OpsManage/static/;
      }
+    location /media/avatar {
+        expires 30d;
+        autoindex on;
+        add_header Cache-Control private;
+        alias /mnt/OpsManage/upload/avatar/;
+     }
+    location /media/apply/icon {
+        expires 30d;
+        autoindex on;
+        add_header Cache-Control private;
+        alias /mnt/OpsManage/upload/apply/icon/;
+     }     
 }
 # nginx -t  #检查配置文件
 # service start nginx			 #CentOS 6
