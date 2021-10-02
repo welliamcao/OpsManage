@@ -137,6 +137,7 @@ pip3 install --upgrade python-ldap
 # vim /etc/supervisord.conf
 最后添加，/var/log/celery-*.log这些是日志文件，如果有错误请注意查看，directory的值是代码路径
 [program:celery-worker-default]
+environment=C_FORCE_ROOT="true",PYTHONOPTIMIZE=1
 command=/usr/local/python3/bin/celery -A OpsManage worker --loglevel=info -E -Q default -n worker-default@%%h
 directory=/mnt/OpsManage
 stdout_logfile=/var/log/celery-worker-default.log
@@ -147,6 +148,7 @@ stopsignal=QUIT
 numprocs=1
 
 [program:celery-worker-ansible]
+environment=C_FORCE_ROOT="true",PYTHONOPTIMIZE=1
 command=/usr/local/python3/bin/celery -A OpsManage worker --loglevel=info -E -Q ansible -n worker-ansible@%%h
 directory=/mnt/OpsManage
 stdout_logfile=/var/log/celery-worker-ansible.log
@@ -157,9 +159,21 @@ stopsignal=QUIT
 numprocs=1
 
 [program:celery-beat]
+environment=C_FORCE_ROOT="true",PYTHONOPTIMIZE=1
 command=/usr/local/python3/bin/celery -A OpsManage  beat --loglevel=info --scheduler django_celery_beat.schedulers:DatabaseScheduler
 directory=/mnt/OpsManage
 stdout_logfile=/var/log/celery-beat.log
+autostart=true
+autorestart=true
+redirect_stderr=true
+stopsignal=QUIT
+numprocs=1
+
+[program:apply-task]
+environment=C_FORCE_ROOT="true",PYTHONOPTIMIZE=1
+command=/usr/local/python3/bin/python3 manage.py apply_task
+directory=/mnt/OpsManage
+stdout_logfile=/var/log/apply-task.log
 autostart=true
 autorestart=true
 redirect_stderr=true

@@ -11,12 +11,15 @@ from dao.orders import (ApplyManage,OrderSQLManage,
 from django.contrib.auth.mixins import LoginRequiredMixin
 from utils.logger import logger
 
+
 class OrderApply(LoginRequiredMixin,ApplyManage,View):
     login_url = '/login/'
     def get(self, request, *args, **kwagrs):
         return render(request,'orders/order_apply.html',{"user":request.user})
     
     def post(self, request, *args, **kwagrs):
+        if not request.user.has_perm('orders.orders_add_order_system'):
+            return JsonResponse({'msg':"您没有权限操作此项","code":403,'data':[]})        
         res = self.allowcator(request.POST.get('type'), request)
         if isinstance(res, str):return JsonResponse({'msg':res,"code":500,'data':[]})
         return JsonResponse({'msg':"操作成功","code":200,'data':res})            

@@ -241,7 +241,7 @@ function makeTasksLogsTableList(){
 							    var tagHtml = '<button type="button" name="btn-task-tag" value="'+ row.id +'" class="btn btn-default" aria-label="Justify"><span class="fa fa-tags" aria-hidden="true"></span></button>'
 							    break;
 							  case 'ready':
-							    var stopHtml = '<button type="button" name="btn-task-stop" value="'+ row.id +'" class="btn btn-default" aria-label="Justify"><span class="fa fa-stop" aria-hidden="true"></span></button>'
+							    var stopHtml = '<button type="button" name="btn-task-stop" class="btn btn-default" aria-label="Justify" disabled><span class="fa fa-stop" aria-hidden="true"></span></button>'
 							    break;
 							  default:
 							    var stopHtml = '<button type="button" name="btn-task-stop" class="btn btn-default" aria-label="Justify" disabled><span class="fa fa-stop" aria-hidden="true"></span></button>'  

@@ -188,7 +188,7 @@ class OrdersPaginator(APIView):
 
     
 @api_view(['GET', 'POST' ])
-# @permission_required('orders.orders_read_notice_config',raise_exception=True)
+@permission_required('orders.orders_read_notice_config',raise_exception=True)
 def notice_config(request,format=None):
     """
     List all order, or create a server assets order.

@@ -349,7 +349,6 @@ $(document).ready(function() {
 						resultHTML = resultHTML + trHtml + '</tbody></table>'
 						$('#auditResult').html(resultHTML);		
 					}
-					console.log(success)
 					if(success){
 		            	new PNotify({
 		                    title: 'Success!',

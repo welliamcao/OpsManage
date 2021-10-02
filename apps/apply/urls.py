@@ -3,7 +3,6 @@ from .ipvs import views as ipvsViews
 from .center import views as applyViews
 from .tasks import views as tasksViews
 # from .views import article_add,upload_image,article_edit,article_index
-from service.apply.tasks import startup_apply_tasks
 
 urlpatterns = [
     url(r'^ipvs/list/$', ipvsViews.Lists.as_view()), 
@@ -15,4 +14,4 @@ urlpatterns = [
     url(r'^tasks/$', tasksViews.ApplicationTasks.as_view()),
 ]
 
-startup_apply_tasks()
+# startup_apply_tasks()

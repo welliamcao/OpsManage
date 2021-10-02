@@ -59,14 +59,16 @@ def db_detail(request, id,format=None):
          
     
 class DB_CUSTOM_SQL(APIView,DBConfig):
-    @method_decorator_adaptor(permission_required, "databases.database_can_read_sql_custom_high_risk_sql","/403/")     
     def get(self, request, format=None):
+        if not request.user.has_perm('databases.database_can_read_sql_custom_high_risk_sql'):
+            return Response(status=status.HTTP_403_FORBIDDEN)         
         snippets = Custom_High_Risk_SQL.objects.all()
         serializer = serializers.CustomSQLSerializer(snippets, many=True)
         return Response(serializer.data) 
     
-    @method_decorator_adaptor(permission_required, "databases.database_can_add_sql_custom_high_risk_sql","/403/")
     def post(self, request, format=None):
+        if not request.user.has_perm('databases.database_can_add_sql_custom_high_risk_sql'):
+            return Response(status=status.HTTP_403_FORBIDDEN)         
         serializer = serializers.CustomSQLSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()

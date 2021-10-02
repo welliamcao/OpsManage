@@ -122,29 +122,30 @@ class ApplyTaskManager(object):
             return False
 
     def stop_deploy_task(self, task_id):
-        deploy_task_info = _deploy_tasks.get(task_id)
-        if deploy_task_info:
-            task_process = deploy_task_info['process']
-            task_process._kill_childs()  #先杀掉子进程
-            task_process.terminate()     #再杀掉ansible主进程
-            if task_process.is_alive():  #判断进程是否存活，如果还存活就调用os模块，强制杀掉
-                os.kill(task_process.pid, signal.SIGKILL)
-            logger.info("try to terminate task {task_name}, task_pid:{pid}".format(task_name=task_process.name, pid=task_process.pid))
-            time.sleep(1.5) #sleep 1.5秒之后再判断一次
-            if task_process.is_alive():
-                raise Exception("terminate task {task_name} process failed, task_id:{task_id} , process_pid:{pid}".format(task_name=task_process.name,task_id=task_id, pid=task_process.pid))            
-            del _deploy_tasks[task_id]
+#         deploy_task_info = _deploy_tasks.get(task_id)
+#         if deploy_task_info:
+#             task_process = deploy_task_info['process']
+#             task_process._kill_childs()  #先杀掉子进程
+#             task_process.terminate()     #再杀掉ansible主进程
+#             if task_process.is_alive():  #判断进程是否存活，如果还存活就调用os模块，强制杀掉
+#                 os.kill(task_process.pid, signal.SIGKILL)
+#             logger.info("try to terminate task {task_name}, task_pid:{pid}".format(task_name=task_process.name, pid=task_process.pid))
+#             time.sleep(1.5) #sleep 1.5秒之后再判断一次
+#             if task_process.is_alive():
+#                 raise Exception("terminate task {task_name} process failed, task_id:{task_id} , process_pid:{pid}".format(task_name=task_process.name,task_id=task_id, pid=task_process.pid))            
+#             del _deploy_tasks[task_id]
         return self.update_deploy_task_status(task_id, status='stop')   
         
-    def get_ready_deploy_task(self):
+    def get_ready_deploy_task(self, seconds):
+        update_time = (datetime.datetime.now()-datetime.timedelta(seconds=seconds)).strftime("%Y-%m-%d %H:%M:%S")
         try:            
-            return ApplyTasksModel.objects.filter(status__in=['ready','running']).order_by("-id")[:100]          
+            return ApplyTasksModel.objects.filter(status__in=['ready','running'],update_time__gte=update_time).order_by("-id")[:100]          
         except Exception as ex:
             logger.error(str(ex))
             return str(ex)    
         
-    def get_not_ready_deploy_task(self):
-        update_time = (datetime.datetime.now()-datetime.timedelta(seconds=600)).strftime("%Y-%m-%d %H:%M:%S")
+    def get_not_ready_deploy_task(self, seconds):
+        update_time = (datetime.datetime.now()-datetime.timedelta(seconds=seconds)).strftime("%Y-%m-%d %H:%M:%S")
         try:            
             return ApplyTasksModel.objects.filter(status__in=['stop','failed','finished','expired'],update_time__gte=update_time).order_by("-id")[:100]         
         except Exception as ex:

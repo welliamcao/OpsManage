@@ -217,7 +217,7 @@ class ApplyTasksModel(models.Model):
         ) 
     id = models.AutoField(verbose_name='id',primary_key=True)   
     user = models.IntegerField(verbose_name='用户')
-    apply_id = models.IntegerField(verbose_name='应用id',unique=True)
+    apply_id = models.IntegerField(verbose_name='应用id',db_index=True)
     task_id =  models.CharField(max_length=100,verbose_name='任务id')
     task_per = models.CharField(max_length=10,verbose_name='任务进度')
     status = models.CharField(choices=task_status,max_length=10,default='ready',verbose_name='状态',db_index=True)
