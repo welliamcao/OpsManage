@@ -27,7 +27,7 @@ class DatabaseManageView(LoginRequiredMixin,DBManage,View):
             return JsonResponse({'msg':"查询成功","code":200,'data':res})         
         return render(request, 'database/mysql/db_manage.html',{"user":request.user})    
     
-    @method_decorator_adaptor(permission_required, "databases.database_add_mysql_server_config","/403/")
+#     @method_decorator_adaptor(permission_required, "databases.database_add_mysql_server_config","/403/")
     def post(self, request, *args, **kwagrs):
         res = self.allowcator(request.POST.get('model'),request)
         if isinstance(res, str):return JsonResponse({'msg':res,"code":500,'data':[]})     

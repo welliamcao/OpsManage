@@ -229,6 +229,12 @@ server {
         add_header Cache-Control private;
         alias /mnt/OpsManage/upload/avatar/;
      }
+    location /media/navbar {
+        expires 30d;
+        autoindex on;
+        add_header Cache-Control private;
+        alias /srv/OpsManage/upload/navbar/;
+     }     
     location /media/apply/icon {
         expires 30d;
         autoindex on;
@@ -252,5 +258,11 @@ server {
 # /usr/local/opsched/opsched -f /usr/local/opsched/sched.conf -a runserver  #正式运行 
 ```
 
+十、demo地址
 
+```
+URL: http://42.194.214.22:8000/
+UserName：demo
+Password：demo
+```
 

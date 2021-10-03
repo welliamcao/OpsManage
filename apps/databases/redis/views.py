@@ -19,7 +19,7 @@ class RedisConfigView(LoginRequiredMixin,RedisConfig,View):
 class RedisManageView(LoginRequiredMixin,RedisManage,View):
     login_url = '/login/'
     
-    @method_decorator_adaptor(permission_required, "databases.database_dml_redis_server_config","/403/")
+    @method_decorator_adaptor(permission_required, "databases.database_read_redis_server_config","/403/")
     def get(self, request, *args, **kwagrs):
         if request.GET.get('type'):
             res = self.allowcator(request.GET.get('type'),request)

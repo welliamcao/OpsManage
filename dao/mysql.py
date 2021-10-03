@@ -269,7 +269,7 @@ class DBManage(AssetsBase):
             logger.error(msg="DBManage没有{sub}方法".format(sub=sub))       
             return "参数错误" 
     
-    def __check_user_perms(self,request,perms='databases.database_read_database_server_config'):
+    def __check_user_perms(self,request,perms='databases.database_read_mysql_server_config'):
         
         dbServer = self.__get_db(request)
 
@@ -378,7 +378,7 @@ class DBManage(AssetsBase):
             return ex          
     
     def exec_sql(self, request):
-        dbServer = self.__check_user_perms(request,'databases.database_dml_database_server_config')
+        dbServer = self.__check_user_perms(request,'databases.database_dml_mysql_server_config')
         
         result_list = []
         try:
@@ -407,7 +407,7 @@ class DBManage(AssetsBase):
         return result_list        
         
     def query_sql(self, request):
-        dbServer = self.__check_user_perms(request,'databases.database_query_database_server_config')
+        dbServer = self.__check_user_perms(request,'databases.database_query_mysql_server_config')
         
         if dbServer.get('db_rw') not in ["read", "r/w"]: return "请勿在主库上面执行查询操作"
         
@@ -438,7 +438,7 @@ class DBManage(AssetsBase):
             
     
     def binlog_sql(self,request):
-        dbServer =  self.__check_user_perms(request,'databases.database_binlog_database_server_config')
+        dbServer =  self.__check_user_perms(request,'databases.database_binlog_mysql_server_config')
         result = self.__get_db_server(dbServer).queryAll(sql='show binary logs;')
         binLogList = []
         if isinstance(result,tuple):
@@ -447,7 +447,7 @@ class DBManage(AssetsBase):
         return binLogList
     
     def table_list(self,request):
-        dbServer = self.__check_user_perms(request,'databases.database_query_database_server_config')
+        dbServer = self.__check_user_perms(request,'databases.database_query_mysql_server_config')
         result = self.__get_db_server(dbServer).queryAll(sql='show tables;')
         grant_tables = self.__check_user_db_tables(request)
         tableList = []
@@ -462,7 +462,7 @@ class DBManage(AssetsBase):
         return tableList
     
     def table_schema(self,request):
-        dbServer = self.__check_user_perms(request,'databases.database_schema_database_server_config')
+        dbServer = self.__check_user_perms(request,'databases.database_schema_mysql_server_config')
         table_data = {}
         database  = self.__get_db_server(dbServer)
         grant_tables = self.__check_user_db_tables(request)
@@ -474,7 +474,7 @@ class DBManage(AssetsBase):
             
     def parse_sql(self,request):
         flashback = False
-        dbServer = self.__check_user_perms(request,'databases.database_binlog_database_server_config')
+        dbServer = self.__check_user_perms(request,'databases.database_binlog_mysql_server_config')
         sqlList = []
         try:
             timeRange =  request.POST.get('binlog_time').split(' - ') 
@@ -526,7 +526,7 @@ class DBManage(AssetsBase):
         return sqlList
     
     def optimize_sql(self,request):
-        dbServer = self.__check_user_perms(request,'databases.database_optimize_database_server_config')
+        dbServer = self.__check_user_perms(request,'databases.database_optimize_mysql_server_config')
         status,result = base.getSQLAdvisor(host=dbServer.get("ip"), user=dbServer.get("db_user"),
                                            passwd=dbServer.get("db_passwd"), dbname=dbServer.get("db_name"), 
                                            sql=request.POST.get('sql'),port=dbServer.get("db_port"))
@@ -534,7 +534,7 @@ class DBManage(AssetsBase):
             
     
     def dump_table(self,request):
-        dbServer = self.__check_user_perms(request,'databases.database_dumptable_database_server_config')
+        dbServer = self.__check_user_perms(request,'databases.database_dumptable_mysql_server_config')
         try:
             args = {
                     "id":request.POST.get('db'),

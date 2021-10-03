@@ -64,13 +64,13 @@ class DataBase_MySQL_Server_Config(models.Model):
             ("database_schema_mysql_server_config", "MySQL表结构查询权限"),
             ("database_optimize_mysql_server_config", "MySQLSQL优化建议权限"),
             ("database_sqldict_mysql_server_config", "MySQL查看数据字典权限"),
+            ("database_dumptable_mysql_server_config", "MySQL导出表结构权限"),
             ("database_sqlfavorite_mysql_server_config", "MySQL用户自定SQL权限"),
         )
         unique_together = (("db_business","db_env", "db_assets","db_port"))
         verbose_name = 'MySQL数据库管理'  
         verbose_name_plural = 'MySQL数据库信息表'
         
-
     def business_paths(self):
         try:
             business = Business_Tree_Assets.objects.get(id=self.db_business)
