@@ -227,7 +227,13 @@ server {
         expires 30d;
         autoindex on;
         add_header Cache-Control private;
-        alias /srv/OpsManage/upload/navbar/;
+        alias /mnt/OpsManage/upload/navbar/;
+     }   
+	location /media/avatar/ {
+        expires 30d;
+        autoindex on;
+        add_header Cache-Control private;
+        alias /mnt/OpsManage/upload/avatar/;
      }     
     location /media/apply/icon/ {
         expires 30d;
