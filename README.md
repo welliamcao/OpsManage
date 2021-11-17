@@ -217,25 +217,19 @@ server {
         proxy_set_header Connection "upgrade";
         proxy_pass http://192.168.1.233:8000$request_uri;
     }
-    location /static {
+    location /static/ {
         expires 30d;
         autoindex on;
         add_header Cache-Control private;
         alias /mnt/OpsManage/static/;
      }
-    location /media/avatar {
-        expires 30d;
-        autoindex on;
-        add_header Cache-Control private;
-        alias /mnt/OpsManage/upload/avatar/;
-     }
-    location /media/navbar {
+    location /media/navbar/ {
         expires 30d;
         autoindex on;
         add_header Cache-Control private;
         alias /srv/OpsManage/upload/navbar/;
      }     
-    location /media/apply/icon {
+    location /media/apply/icon/ {
         expires 30d;
         autoindex on;
         add_header Cache-Control private;
