@@ -36,8 +36,8 @@ class AssetsManage(LoginRequiredMixin,AssetsBase,View):
 class AssetsList(LoginRequiredMixin,AssetsBase,View):
     login_url = '/login/'  
     @method_decorator_adaptor(permission_required, "asset.assets_read_assets","/403/")   
-    def get(self, request, *args, **kwagrs):
-        return render(request, 'assets/assets_list.html',{"user":request.user,"assets":self.base(),"assetsList":self.assetsList()})   
+    def get(self, request, *args, **kwagrs): 
+        return render(request, 'assets/assets_list.html',{"user":request.user,"assets":self.base()})   
     
     
 class AssetsTree(LoginRequiredMixin,AssetsBase,View):

@@ -1,12 +1,12 @@
 
-function InitDataTableAssets(tableId,dataList,buttons,columns,columnDefs){
+function InitDataTableAssets(tableId,data,buttons,columns,columnDefs, page){
 	oOverviewTable =$('#'+tableId).dataTable({
 				    "dom": "Bfrtip",
 				    "buttons":buttons,				  
 		    		"bScrollCollapse": false, 				
 		    	    "bRetrieve": true,			
 		    		"destroy": true, 
-		    		"data":	dataList,
+		    		"data":	data["results"],
 		    		"columns": columns,
 		    		"columnDefs" :columnDefs,			  
 		    		"language" : language,
@@ -17,7 +17,17 @@ function InitDataTableAssets(tableId,dataList,buttons,columns,columnDefs){
 		            },		    		
 		    		"order": [[ 0, "ase" ]],
 		    		"autoWidth": false	    			
-	});		  
+	});		
+	  if (data['next']){
+		  $("button[name='"+ page +"_page_next']").attr("disabled", false).val(data['next']);	
+	  }else{
+		  $("button[name='"+ page +"_page_next']").attr("disabled", true).val();
+	  }
+	  if (data['previous']){
+		  $("button[name='"+ page +"_page_previous']").attr("disabled", false).val(data['next']);	
+	  }else{
+		  $("button[name='"+ page +"_page_previous']").attr("disabled", true).val();
+	  }	  	  
 }	
 
 function makeRandomId() {
@@ -129,7 +139,7 @@ function format (dataList) {
 }	
 
 
-function RefreshAssetsTable(tableId, urlData){
+function RefreshAssetsTable(tableId, urlData, page){
 	$.getJSON(urlData, null, function( dataList )
 	{
 	  table = $('#'+tableId).dataTable();
@@ -137,13 +147,23 @@ function RefreshAssetsTable(tableId, urlData){
 	  
 	  table.fnClearTable(this);
 	
-	  for (var i=0; i<dataList.length; i++)
+	  for (var i=0; i<dataList["results"].length; i++)
 	  {
-	    table.oApi._fnAddData(oSettings, dataList[i]);
+	    table.oApi._fnAddData(oSettings, dataList["results"][i]);
 	  }
 	
 	  oSettings.aiDisplay = oSettings.aiDisplayMaster.slice();
 	  table.fnDraw();	  
+	  if (dataList['next']){
+	   	  $("button[name='"+ page +"_page_next']").attr("disabled", false).val(dataList['next']);	
+	  }else{
+	   	  $("button[name='"+ page +"_page_next']").attr("disabled", true).val();
+	  }
+	  if (dataList['previous']){
+	   	  $("button[name='"+ page +"_page_previous']").attr("disabled", false).val(dataList['previous']);	
+	  }else{
+	   	  $("button[name='"+ page +"_page_previous']").attr("disabled", true).val();
+	  } 		  
 	});
 }
 
@@ -190,7 +210,7 @@ function batchManageChoiceAssets(dataList, title, content, type){
 										styling: 'bootstrap3',
 										delay: 18000
 									}); 
-									RefreshAssetsTable("assetsListTable","/api/assets/")
+									RefreshAssetsTable("assetsListTable","/api/assets/", "page")
 								}
 								else{
 									new PNotify({
@@ -227,6 +247,15 @@ function batchManageChoiceAssets(dataList, title, content, type){
 }
 
 $(document).ready(function() {
+
+	$("button[name^='assets_page_']").on("click", function(){
+	   var url = $(this).val();
+	   $(this).attr("disabled",true);
+	   if (url.length){
+	     RefreshAssetsTable('assetsListTable', url, 'assets');
+	   }      	
+	   $(this).attr('disabled',false);
+	}); 	
 	
 	if($("#assetsListTable").length){
 	    function makeAssetsTableList(dataList){
@@ -355,7 +384,7 @@ $(document).ready(function() {
 						            }
 						        } ,	  					    
 		    ]   
-	    	InitDataTableAssets('assetsListTable',dataList,buttons,columns,columnDefs);	
+	    	InitDataTableAssets('assetsListTable',dataList,buttons,columns,columnDefs,"assets");	
 	    }		    
 	    makeAssetsTableList(requests("get","/api/assets/"))		
 	    $('#assetsListTable tbody').on('click', 'td.details-control', function () {
@@ -415,7 +444,7 @@ $(document).ready(function() {
 				                    type: 'success',
 				                    styling: 'bootstrap3'
 				                }); 
-				            	RefreshAssetsTable("assetsListTable","/api/assets/")
+				            	RefreshAssetsTable("assetsListTable","/api/assets/","assets")
 				            }  
 				    	});
 		        },
@@ -459,7 +488,7 @@ $(document).ready(function() {
 				                    type: 'success',
 				                    styling: 'bootstrap3'
 				                }); 
-				            	RefreshAssetsTable("assetsListTable","/api/assets/")			            		
+				            	RefreshAssetsTable("assetsListTable","/api/assets/","assets")			            		
 			            	}else{
 				            	new PNotify({
 				                    title: 'Ops Failed!',

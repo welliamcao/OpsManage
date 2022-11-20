@@ -211,14 +211,14 @@
 			}
 	}
 	
-	function InitDataTable(tableId,dataList,buttons,columns,columnDefs){
+	function InitDataTable(tableId,dataList,buttons,columns,columnDefs,page){
 		oOverviewTable =$('#'+tableId).dataTable({
 					    "dom": "Bfrtip",
 					    "buttons":buttons,				  
 			    		"bScrollCollapse": false, 				
 			    	    "bRetrieve": true,			
 			    		"destroy": true, 
-			    		"data":	dataList,
+			    		"data":	dataList.results,
 			    		"columns": columns,
 			    		"columnDefs" :columnDefs,			  
 			    		"language" : language,
@@ -229,10 +229,48 @@
 			            },		    		
 			    		"order": [[ 0, "ase" ]],
 			    		"autoWidth": false	    			
-		});		  
+		});	
+	  if (dataList['next']){
+		  $("button[name='"+ page +"_page_next']").attr("disabled", false).val(dataList['next']);	
+	  }else{
+		  $("button[name='"+ page +"_page_next']").attr("disabled", true).val();
+	  }
+	  if (dataList['previous']){
+		  $("button[name='"+ page +"_page_previous']").attr("disabled", false).val(dataList['next']);	
+	  }else{
+		  $("button[name='"+ page +"_page_previous']").attr("disabled", true).val();
+	  }	  		
 	}	
 	
-	function RefreshAssetsTable(tableId, urlData){
+	function RefreshTable(tableId, urlData, page){
+		$.getJSON(urlData, null, function( dataList )
+		{
+		  table = $('#'+tableId).dataTable();
+		  oSettings = table.fnSettings();
+		  
+		  table.fnClearTable(this);
+		
+		  for (var i=0; i<dataList["results"].length; i++)
+		  {
+		    table.oApi._fnAddData(oSettings, dataList["results"][i]);
+		  }
+		
+		  oSettings.aiDisplay = oSettings.aiDisplayMaster.slice();
+		  table.fnDraw();
+		  if (dataList['next']){
+		   	  $("button[name='"+ page +"_page_next']").attr("disabled", false).val(dataList['next']);	
+		  }else{
+		   	  $("button[name='"+ page +"_page_next']").attr("disabled", true).val();
+		  }
+		  if (dataList['previous']){
+		   	  $("button[name='"+ page +"_page_previous']").attr("disabled", false).val(dataList['previous']);	
+		  }else{
+		   	  $("button[name='"+ page +"_page_previous']").attr("disabled", true).val();
+		  } 	  
+		});
+	}	
+	
+	function RefreshAssetsTable(tableId, urlData, page){
 		$.getJSON(urlData, null, function( dataList ){
 	    table = $('#'+tableId).dataTable();
 	    oSettings = table.fnSettings();
@@ -245,6 +283,16 @@
 	    }    
 	    oSettings.aiDisplay = oSettings.aiDisplayMaster.slice();
 	    table.fnDraw();
+	  	if (dataList['next']){
+	   	  	$("button[name='"+ page +"_page_next']").attr("disabled", false).val(dataList['next']);	
+	  	}else{
+	   	  	$("button[name='"+ page +"_page_next']").attr("disabled", true).val();
+	  	}
+	  	if (dataList['previous']){
+	   	  	$("button[name='"+ page +"_page_previous']").attr("disabled", false).val(dataList['previous']);	
+	  	}else{
+	   	  	$("button[name='"+ page +"_page_previous']").attr("disabled", true).val();
+	  	} 		    
 	  });	
 	}	
 	
@@ -280,7 +328,7 @@
 	                    styling: 'bootstrap3',
 	                    delay: 18000
 	                }); 
-	            	RefreshAssetsTable("assetsListTable", "/api/assets/")
+	            	RefreshAssetsTable("assetsListTable", "/api/assets/", "assets")
 		    	}
 		    	else{
 	            	new PNotify({
@@ -352,7 +400,17 @@
 				},	      	        
 	      	    });		
 	      };	      
-	      if ($("#assetsListTable").length) {		    
+	      if ($("#assetsListTable").length) {	
+	      	
+	        $("button[name^='assets_page_']").on("click", function(){
+	          	var url = $(this).val();
+	          	$(this).attr("disabled",true);
+	          	if (url.length){
+	          		RefreshTable('assetsListTable', url, 'assets');
+	          	}      	
+	        	$(this).attr('disabled',false);
+	          }); 	      	
+	      	
 		    function makeAssetsTableList(dataList){
 		        var columns = [		                       
 		    		           {
@@ -453,7 +511,7 @@
 		                }
 		            }    	
 		        ]    
-		    	InitDataTable('assetsListTable',dataList,buttons,columns,columnDefs);	
+		    	InitDataTable('assetsListTable',dataList,buttons,columns,columnDefs,'assets');	
 		    }		    
 		    makeAssetsTableList(requests("get","/api/assets/"))
 		    // Add event listener for opening and closing details
@@ -1847,8 +1905,7 @@
             var value = $(this).val();
             if (key != "csrfmiddlewaretoken"){
             	parameter[key] = value;
-            }
-            
+            }  
         })
 
         var count = 0;
@@ -2087,4 +2144,5 @@
             }); 
 	  		btnObj.removeAttr('disabled');
 	  	}
-	});		
+	});	
+	

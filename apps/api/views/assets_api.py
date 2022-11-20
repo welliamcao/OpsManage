@@ -254,22 +254,26 @@ def raid_detail(request, id,format=None):
                    
 
 class AssetList(APIView,DataHandle):
-    
+      
     def get(self,request,*args,**kwargs):
-        query_params = dict()
-        for ds in request.query_params.keys():  
-            if ds == 'assets_type' and request.query_params.get(ds) == 'ser':         
-                query_params["assets_type__in"] = ["vmser","server"]
-                continue 
-            query_params[ds] = request.query_params.get(ds)     
+#         query_params = dict()
+#         for ds in request.query_params.keys():  
+#             if ds == 'assets_type' and request.query_params.get(ds) == 'ser':         
+#                 query_params["assets_type__in"] = ["vmser","server"]
+#                 continue 
+#             if ds == 'offset':continue
+#             query_params[ds] = request.query_params.get(ds)     
         if request.user.is_superuser:             
-            snippets = Assets.objects.filter(**query_params)
+#             snippets = Assets.objects.filter(**query_params)
+            snippets = Assets.objects.all()
         else:
-            snippets = [ ds.assets for ds in User_Server.objects.filter(user=request.user,assets__in=[ ds.id  for ds in Assets.objects.filter(**query_params) ]) ]
-        dataList = []
-        for assets in snippets:      
-            dataList.append(assets.to_json())
-        return Response(dataList) 
+#             snippets = [ ds.assets for ds in User_Server.objects.filter(user=request.user,assets__in=[ ds.id  for ds in Assets.objects.filter(**query_params) ])]
+            snippets = [ ds.assets for ds in User_Server.objects.filter(user=request.user)]
+        page = serializers.PageConfig()  # 注册分页
+        page_assets_list = page.paginate_queryset(queryset=snippets, request=request, view=self)
+        ser = serializers.AssetsSerializer(instance=page_assets_list, many=True)
+        return page.get_paginated_response(ser.data)            
+
     
     def post(self,request,*args,**kwargs):    
         if not request.user.has_perm('asset.assets_add_assets'):
