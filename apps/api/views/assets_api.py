@@ -262,9 +262,6 @@ class AssetList(APIView,DataHandle):
             snippets = [ ds.assets for ds in User_Server.objects.filter(user=request.user)]
         page = serializers.PageConfig()  # 注册分页
         page_assets_list = page.paginate_queryset(queryset=snippets, request=request, view=self)
-#         for s in page_assets_list:
-#             print(dir(s))
-#             s.group = s.get_group_name(s.id)     
         ser = serializers.AssetsSerializer(instance=page_assets_list, many=True)
         return page.get_paginated_response(ser.data)            
 
