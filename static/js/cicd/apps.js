@@ -245,22 +245,6 @@ $(document).ready(function() {
 	}	
 	
 	 
-/*	 $("#project_repertory").change(function(){
-		   var project_model = '<select class="form-control" id="project_model" name="project_model" required>' +
-								'<option selected="selected" value="">选择上线版本控制类型</option>' +
-								'<option value="tag" name="project_model">Tag</option>'
-		   var obj = document.getElementById("project_repertory"); 
-		   var index = obj.selectedIndex;
-		   var value = obj.options[index].value; 
-		   if (value=="svn"){
-			   $("#repo_type").show();  
-			   $("#project_model").html(project_model + '<option value="trunk" name="project_model">Trunk</option></select>')
-		   }
-		   else {
-			   $("#repo_type").hide();
-			   $("#project_model").html(project_model + '<option value="branch" name="project_model">Branch</option>')
-		   }
-	});	*/ 
 	
 	var compile_type = 'noncompile';
 	if ($("#project_local_command").length){

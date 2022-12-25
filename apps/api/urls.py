@@ -24,7 +24,7 @@ urlpatterns = [
             #资产管理模块API
             url(r'^assets/$', assets_api.AssetList.as_view()),   
             url(r'^assets/(?P<id>[0-9]+)/$', assets_api.asset_detail),
-            url(r'^assets/info/(?P<id>[0-9]+)/$', assets_api.asset_info),     
+#             url(r'^assets/info/(?P<id>[0-9]+)/$', assets_api.asset_info),     
             url(r'^assets/count/$', assets_api.asset_count),     
             url(r'^assets/tags/(?P<id>[0-9]+)/$',assets_api.assets_tags),             
             url(r'^business/last/$', assets_api.business_list),            

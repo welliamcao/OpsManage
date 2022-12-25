@@ -36,7 +36,6 @@ class AssetsBusiness(object):
     def get_node_unallocated_json_assets(self,business):
         dataList = []
         for ds in Assets.objects.filter(~Q(business_tree=business)):
-#         for ds in Assets.objects.filter(business_tree__isnull=True):
             dataList.append(ds.to_json())  
         return dataList      
     
@@ -290,7 +289,7 @@ class AssetsBase(DataHandle):
         if assets:
             data = self.convert_to_dict(assets)
             try:
-                data['group'] = Group.objects.get(id=assets.group).name
+                data['group'] = Structure.objects.get(id=assets.group).text
             except Exception as ex:
                 data['group'] = '未知'
             try:

@@ -47,53 +47,141 @@ function make_terminal(element, size, ws_url) {
 
 var assets_table_id = ''
 
-function format (dataList) {
-    var trHtml = '';
-	for (var i=0; i <dataList["astList"].length; i++){	
-	    trHtml += '<tr><td class="col-md-1 col-sm-12 col-xs-12">'+ dataList["astList"][i]["name"] +':</td>'+ '<td class="col-md-1 col-sm-12 col-xs-12">'+ dataList["astList"][i]["value"] +'</td></tr>'	    
-	};	
-	var nktTrHtml = '';
-    if (dataList["nktList"].length){
-    	var nktTdHtml = '';
-		for (var i=0; i <dataList["nktList"].length; i++){	
-			if ( dataList["nktList"][i]["status"]=="1"){
-				var status = '<span class="label label-success">on</span>' 
-			}else{
-				var status = '<span class="label label-danger">off</span>'
-			}
-			nktTdHtml += '</tr>' + 
-						 '<td class="col-md-1 col-sm-12 col-xs-12">'+ dataList["nktList"][i]["name"] +'</td>'+ 
-					  	 '<td class="col-md-1 col-sm-12 col-xs-12">'+ dataList["nktList"][i]["mac"] +'</td>' +
-					  	 '<td class="col-md-1 col-sm-12 col-xs-12">'+ dataList["nktList"][i]["ipv4"] +'</td>' +
-					  	 '<td class="col-md-1 col-sm-12 col-xs-12">'+ dataList["nktList"][i]["speed"] +'</td>' +
-					  	 '<td class="col-md-1 col-sm-12 col-xs-12">'+ dataList["nktList"][i]["mtu"] +'</td>' +
-					   	 '<td class="col-md-1 col-sm-12 col-xs-12">'+ status +'</td>' +
-					   	 '</tr>'
-		};	   
-		nktTrHtml += nktTrHtml + nktTdHtml 
-    }
-	var nHtml = '<div class="col-md-6 col-sm-12 col-xs-12">' +
-	    			'<legend>网卡信息</legend>' +
-	    				'<table class="table table-striped" cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">'+ 
-	    				'<tr>' +
-	    					'<th>Name</th>' +
-	    					'<th>MAC</th>' +
-	    					'<th>IPV4</th>' +
-	    					'<th>Speed</th>' +
-	    					'<th>MTU</th>' +
-	    					'<th>Status</th>' +
-	    				'</tr>' + nktTrHtml  +
-	    				'</table>'
-				'</div>'; 	
-		
-	    var vHtml = '<div class="col-md-6 col-sm-12 col-xs-12">' +
-	    			'<legend>硬件信息</legend>' +
-	    				'<table class="table table-striped" cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">'+ 
-	    				 trHtml  +
-	    				'</table>'
-				'</div>'; 				
-    return '<div class="row">'+ vHtml + '</div>' + nHtml + '</div>';
-}
+	function format (data) {
+	    var astHtml = '';
+	    if (data['assets_type'] == "物理机" || data['assets_type'] == "虚拟机"){
+	    	astHtml = '<tr><td class="col-md-1 col-sm-12 col-xs-12">CPU型号:</td><td class="col-md-1 col-sm-12 col-xs-12">'+ data['detail']['cpu'] +'</td></tr>' + 
+	    			 '<tr><td class="col-md-1 col-sm-12 col-xs-12">CPU个数:</td><td class="col-md-1 col-sm-12 col-xs-12">'+ data['detail']['vcpu_number'] +'</td></tr>' + 
+	    			 '<tr><td class="col-md-1 col-sm-12 col-xs-12">硬盘容量:</td><td class="col-md-1 col-sm-12 col-xs-12">'+ data['detail']['disk_total'] +'</td></tr>' + 
+	    			 '<tr><td class="col-md-1 col-sm-12 col-xs-12">内存容量:</td><td class="col-md-1 col-sm-12 col-xs-12">'+ data['detail']['ram_total'] +'</td></tr>' + 
+	    			 '<tr><td class="col-md-1 col-sm-12 col-xs-12">操作系统:</td><td class="col-md-1 col-sm-12 col-xs-12">'+ data['detail']['system'] +'</td></tr>' + 
+	    			 '<tr><td class="col-md-1 col-sm-12 col-xs-12">内核版本:</td><td class="col-md-1 col-sm-12 col-xs-12">'+ data['detail']['kernel'] +'</td></tr>' + 
+	    			 '<tr><td class="col-md-1 col-sm-12 col-xs-12">主机名:</td><td class="col-md-1 col-sm-12 col-xs-12">'+ data['detail']['hostname'] +'</td></tr>' + 
+	    			 '<tr><td class="col-md-1 col-sm-12 col-xs-12">资产备注:</td><td class="col-md-1 col-sm-12 col-xs-12">'+ data['detail']['mark'] +'</td></tr>' 
+	    }else{
+	    	astHtml = '<tr><td class="col-md-1 col-sm-12 col-xs-12">CPU型号:</td><td class="col-md-1 col-sm-12 col-xs-12">'+ data['detail']['cpu'] +'</td></tr>' + 
+	    			 '<tr><td class="col-md-1 col-sm-12 col-xs-12">内存容量:</td><td class="col-md-1 col-sm-12 col-xs-12">'+ data['detail']['ram_total'] +'</td></tr>' + 
+	    			 '<tr><td class="col-md-1 col-sm-12 col-xs-12">背板带宽:</td><td class="col-md-1 col-sm-12 col-xs-12">'+ data['detail']['bandwidth'] +'</td></tr>' + 
+	    			 '<tr><td class="col-md-1 col-sm-12 col-xs-12">端口总数:</td><td class="col-md-1 col-sm-12 col-xs-12">'+ data['detail']['port_number'] +'</td></tr>' + 
+	    			 '<tr><td class="col-md-1 col-sm-12 col-xs-12">资产备注:</td><td class="col-md-1 col-sm-12 col-xs-12">'+ data['detail']['mark'] +'</td></tr>'	    	
+	    }
+		var nktTrHtml = '';
+	    if (data["networkcard"].length){
+	    	var nktTdHtml = '';
+			for (var i=0; i <data["networkcard"].length; i++){	
+				if ( data["networkcard"][i]["active"]=="1"){
+					var status = '<span class="label label-success">on</span>' 
+				}else{
+					var status = '<span class="label label-danger">off</span>'
+				}
+				nktTdHtml += '</tr>' + 
+							 	'<td class="col-md-1 col-sm-12 col-xs-12">'+ data["networkcard"][i]["device"] +'</td>'+ 
+						  	 	'<td class="col-md-1 col-sm-12 col-xs-12">'+ data["networkcard"][i]["macaddress"] +'</td>' +
+						  	 	'<td class="col-md-1 col-sm-12 col-xs-12">'+ data["networkcard"][i]["ip"] +'</td>' +
+						  	 	'<td class="col-md-1 col-sm-12 col-xs-12">'+ data["networkcard"][i]["module"] +'</td>' +
+						  	 	'<td class="col-md-1 col-sm-12 col-xs-12">'+ data["networkcard"][i]["mtu"] +'</td>' +
+						   	 	'<td class="col-md-1 col-sm-12 col-xs-12">'+ status +'</td>' +
+						   	 '</tr>'
+			};	   
+			nktTrHtml += nktTrHtml + nktTdHtml 
+	    }
+	    var businessTrHtml = ''
+	    if (data["business"].length){
+	    	var bussTdHtml = '';
+			for (var i=0; i <data["business"].length; i++){	
+				bussTdHtml += '</tr>' + 
+							 	'<td class="col-md-1 col-sm-12 col-xs-12">关联业务线:</td>'+ 
+						  	 	'<td class="col-md-1 col-sm-12 col-xs-12">'+ data["business"][i] +'</td>' +
+						   	 '</tr>'
+			};	   
+			businessTrHtml += businessTrHtml + bussTdHtml 
+	    }	    	    
+	    var diskTrHtml = '';
+	    if (data["disk"].length){
+	    	var diskTdHtml = '';
+			for (var i=0; i <data["disk"].length; i++){	
+				if ( data["disk"][i]["active"]=="1"){
+					var status = '<span class="label label-success">on</span>' 
+				}else{
+					var status = '<span class="label label-danger">off</span>'
+				}
+				diskTdHtml += '</tr>' + 
+							 '<td class="col-md-1 col-sm-12 col-xs-12">'+ data["networkcard"][i]["device_volume"] +'</td>'+ 
+						  	 '<td class="col-md-1 col-sm-12 col-xs-12">'+ data["networkcard"][i]["device_model"] +'</td>' +
+						  	 '<td class="col-md-1 col-sm-12 col-xs-12">'+ data["networkcard"][i]["device_brand"] +'</td>' +
+						  	 '<td class="col-md-1 col-sm-12 col-xs-12">'+ data["networkcard"][i]["device_serial"] +'</td>' +
+						  	 '<td class="col-md-1 col-sm-12 col-xs-12">'+ data["networkcard"][i]["device_slot"] +'</td>' +
+						   	 '<td class="col-md-1 col-sm-12 col-xs-12">'+ status +'</td>' +
+						   	 '</tr>'
+			};	   
+			diskTrHtml += diskTrHtml + diskTdHtml 
+	    }	  
+	    var ramTrHtml = '';
+	    if (data["ram"].length){
+	    	var ramTdHtml = '';
+			for (var i=0; i <data["ram"].length; i++){	
+				if ( data["ram"][i]["active"]=="1"){
+					var status = '<span class="label label-success">on</span>' 
+				}else{
+					var status = '<span class="label label-danger">off</span>'
+				}
+				ramTdHtml += '</tr>' + 
+							 '<td class="col-md-1 col-sm-12 col-xs-12">'+ data["ram"][i]["device_model"] +'</td>'+ 
+						  	 '<td class="col-md-1 col-sm-12 col-xs-12">'+ data["ram"][i]["device_volume"] +'</td>' +
+						  	 '<td class="col-md-1 col-sm-12 col-xs-12">'+ data["ram"][i]["device_brand"] +'</td>' +
+						  	 '<td class="col-md-1 col-sm-12 col-xs-12">'+ data["ram"][i]["device_slot"] +'</td>' +
+						   	 '<td class="col-md-1 col-sm-12 col-xs-12">'+ status +'</td>' +
+						   	 '</tr>'
+			};	   
+			ramTrHtml += ramTrHtml + ramTdHtml 
+	    }		    
+	    
+		var netcardHtml = '<legend>网卡信息</legend>' +
+		    					'<table class="table table-striped" cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">'+ 
+		    						'<tr>' +
+		    							'<th>Name</th>' +
+		    							'<th>MAC</th>' +
+		    							'<th>IPV4</th>' +
+		    							'<th>Speed</th>' +
+		    							'<th>MTU</th>' +
+		    							'<th>Status</th>' +
+		    						'</tr>' + nktTrHtml  +
+		    					'</table>'
+			
+ 	    var astHtml = '<div class="col-md-6 col-sm-12 col-xs-12">' +
+		    			'<legend>硬件信息</legend>' +
+		    				'<table class="table table-striped" cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">'+ 
+		    				 astHtml  +
+		    				'</table>' +
+					  '</div>'; 	
+					
+		var businessHtml = '<legend>业务线信息</legend>' +
+			    				'<table class="table table-striped" cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">'+ 
+									businessTrHtml +
+			    				'</table>'								
+		var diskHtml = '<legend>磁盘信息</legend>' +
+		    					'<table class="table table-striped" cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">'+ 
+		    						'<tr>' +
+		    							'<th>硬盘容量</th>' +
+		    							'<th>硬盘状态</th>' +
+		    							'<th>硬盘型号</th>' +
+		    							'<th>硬盘生产商</th>' +
+		    							'<th>硬盘序列号</th>' +
+		    							'<th>硬盘插槽</th>' +
+		    						'</tr>' + diskTrHtml  +
+		    					'</table>'	
+		var ramHtml = '<legend>内存信息</legend>' +
+		    					'<table class="table table-striped" cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">'+ 
+		    						'<tr>' +
+		    							'<th>内存型号</th>' +
+		    							'<th>内存容量</th>' +
+		    							'<th>内存生产商</th>' +
+		    							'<th>内存插槽</th>' +
+		    							'<th>内存状态</th>' +
+		    						'</tr>' + ramTrHtml  +
+		    					'</table>'			    						
+	    return '<div class="col-md-6 col-sm-12 col-xs-12">'+ businessHtml + diskHtml + ramHtml + netcardHtml + '</div>' + astHtml;
+	}
 
 function RefreshAssetsTable(tableId, urlData){
 	$.getJSON(urlData, null, function( dataList ){
@@ -650,7 +738,7 @@ function viewAssets(ids,text){
         cache: true,  
         type: "get",    
         async: false,
-        url:"/assets/manage/?id=" + ids + "&model=info",  
+        url:"/api/assets/"+ ids +"/",    
         error: function(response) {
         	new PNotify({
                 title: 'Ops Failed!',
@@ -660,8 +748,8 @@ function viewAssets(ids,text){
             });       
         },  
         success: function(response) {  	
-        	if (Object.keys(response["data"]).length > 0){            		
-        		switch (response["data"]["status"])
+        	if (Object.keys(response).length > 0){            		
+        		switch (response["status"])
         		{
             		case 0:
             		  status = '<span class="label label-success">已上线</span>';
@@ -678,37 +766,7 @@ function viewAssets(ids,text){
             		case 4:
             		  status = '<span class="label label-primary">未使用</span>';
             		  break;
-        		}
-        		switch (response["data"]["assets_type"])
-        		{
-            		case 'server':
-            			assets_type = '<strong>物理服务器</strong>';
-            		  	break;
-            		case 'vmser':
-            			assets_type = '<strong>虚拟机</strong>';
-            			break;
-            		case 'switch':
-            			assets_type = '<strong>交换机</strong>';
-            			break;
-            		case 'route':
-            			assets_type = '<strong>路由器</strong>';
-            			break;
-            		case 'firewall':
-            			assets_type = '<strong>防火墙</strong>';
-            			break;
-            		case 'storage':
-            			assets_type = '<strong>存储设备</strong>';
-            			break;	
-            		case 'printer':
-            			assets_type = '<strong>打印机</strong>';
-		            	break;	
-            		case 'scanner':
-            			assets_type = '<strong>扫描仪</strong>';
-		            	break;	
-            		case 'wifi':
-            			assets_type = '<strong>WIFI设备</strong>';
-		            	break;				            	
-        		}            		
+        		}          		
         		var serverLiTags = '';
         		var netcardLiTags = '';
         		var tagliTags = '<li><a href="https://github.com/welliamcao/OpsManage" target="_blank">CMDB</a></li>' +
@@ -729,111 +787,111 @@ function viewAssets(ids,text){
 						                      '<tbody>' +
 						                        '<tr>' +
 						                          '<td>资产类型 :</td>' +
-						                         ' <td>'+ assets_type +'</td>' +
+						                         ' <td>'+ response["assets_type"] +'</td>' +
 						                          '<td> 资产编号  :</td>' +
-						                          '<td>'+ response["data"]["name"] +'</td>' +			                         
+						                          '<td>'+ response["name"] +'</td>' +			                         
 						                        '</tr>' +
 						                        '<tr>' +
 						                          '<td>设备序列号 :</td>' +
-						                          '<td>'+ response["data"]["sn"] +'</td>' +
+						                          '<td>'+ response["sn"] +'</td>' +
 						                          '<td>购买日期 : </td>' +
-						                          '<td>'+ response["data"]["buy_time"] +'</td>' +			                          
+						                          '<td>'+ response["buy_time"] +'</td>' +			                          
 						                        '</tr>' +		
 						                        '<tr>' +
 						                          '<td>过保日期 :</td>' +
-						                          '<td>'+ response["data"]["expire_date"] +'</td>' +
+						                          '<td>'+ response["expire_date"] +'</td>' +
 						                          '<td>管理IP:</td>' +
-						                          '<td>'+ response["data"]["management_ip"] +'</td>' +			                          
+						                          '<td>'+ response["management_ip"] +'</td>' +			                          
 						                        '</tr>' +
 						                        '<tr>' +
 						                          '<td>购买人 : </td>' +
-						                          '<td>'+ response["data"]["buy_user"] +'</td>' +
+						                          '<td>'+ response["buy_user"] +'</td>' +
 						                          '<td>生产制造商  :</td>' +
-						                          '<td>'+ response["data"]["manufacturer"] +'</td>' +			                          
+						                          '<td>'+ response["manufacturer"] +'</td>' +			                          
 						                        '</tr>' +		
 						                        '<tr>' +
 						                          '<td>设备型号 :</td>' +
-						                          '<td>'+ response["data"]["model"] +'</td>' +
+						                          '<td>'+ response["model"] +'</td>' +
 						                          '<td>供货商 : </td>' +
-						                          '<td>'+ response["data"]["provider"] +'</td>' +			                          
+						                          '<td>'+ response["provider"] +'</td>' +			                          
 						                        '</tr>' +	
 						                        '<tr>' +
 						                          '<td>放置区域 :</td>' +
-						                          '<td>'+ response["data"]["put_zone"] +'</td>' +
+						                          '<td>'+ response["put_zone"] +'</td>' +
 						                          '<td>机柜信息 : </td>' +
-						                          '<td>'+ response["data"]["cabinet"] +'</td>' +			                          
+						                          '<td>'+ response["cabinet"] +'</td>' +			                          
 						                        '</tr>' +	
 						                        '<tr>' +
 						                          '<td>设备状态 : </td>' +
 						                          '<td>'+ status +'</td>' +
 						                          '<td>使用组 :</td>' +
-						                          '<td>'+ response["data"]["group"] +'</td>' +			                          
+						                          '<td>'+ response["group"] +'</td>' +			                          
 						                        '</tr>' +
-						                        '<tr>' +
-						                          '<td>所属项目 : </td>' +
-						                          '<td>'+ response["data"]["project"] +'</td>' +
-						                          '<td>所属应用 : </td>' +
-						                          '<td>'+ response["data"]["service"] +'</td>' +			                          
-						                        '</tr>' +			                        
+//							                        '<tr>' +
+//							                          '<td>所属项目 : </td>' +
+//							                          '<td>'+ response["business"] +'</td>' +
+//							                          '<td>所属应用 : </td>' +
+//							                          '<td>'+ response["service"] +'</td>' +			                          
+//							                        '</tr>' +			                        
 						                      '</tbody>' +
 						                    '</table>'							
        		
-        		if (Object.keys(response["data"]["server"]).length > 0){
+        		if (Object.keys(response["detail"]).length > 0){
             		serverLiTags = '<table class="table table-striped">' +		                
 				                      '<tbody>' +
 				                        '<tr>' +
 				                          '<td>主机名 :</td>' +
-				                         ' <td>'+ response["data"]["server"]["hostname"] +'</td>' +
+				                         ' <td>'+ response["detail"]["hostname"] +'</td>' +
 				                          '<td>操作系统:</td>' +
-				                          '<td>'+ response["data"]["server"]["system"]+'</td>' +			                         
+				                          '<td>'+ response["detail"]["system"]+'</td>' +			                         
 				                        '</tr>' +
 				                        '<tr>' +
 				                          '<td>内核版本 :</td>' +
-				                          '<td>'+ response["data"]["server"]["kernel"] +'</td>' +
+				                          '<td>'+ response["detail"]["kernel"] +'</td>' +
 				                          '<td>IP地址 : </td>' +
-				                          '<td>'+ response["data"]["server"]["ip"] +'</td>' +			                          
+				                          '<td>'+ response["detail"]["ip"] +'</td>' +			                          
 				                        '</tr>' +		
 				                        '<tr>' +
 				                          '<td>CPU :</td>' +
-				                          '<td>'+ response["data"]["server"]["cpu"] +'</td>' +
+				                          '<td>'+ response["detail"]["cpu"] +'</td>' +
 				                          '<td>CPU个数:</td>' +
-				                          '<td>'+ response["data"]["server"]["vcpu_number"] +'</td>' +			                          
+				                          '<td>'+ response["detail"]["vcpu_number"] +'</td>' +			                          
 				                        '</tr>' +
 				                        '<tr>' +
 				                          '<td>硬盘大小(GB) : </td>' +
-				                          '<td>'+ response["data"]["server"]["disk_total"] +'</td>' +
+				                          '<td>'+ response["detail"]["disk_total"] +'</td>' +
 				                          '<td>Raid类型:</td>' +
-				                          '<td>'+ response["data"]["server"]["raid"] +'</td>' +			                          
+				                          '<td>'+ response["detail"]["raid"] +'</td>' +			                          
 				                        '</tr>' +		
 				                        '<tr>' +
 				                          '<td>出口线路 :</td>' +
-				                          '<td>'+ response["data"]["server"]["line"] +'</td>' +
+				                          '<td>'+ response["detail"]["line"] +'</td>' +
 				                          '<td>内存容量 (GB): </td>' +
-				                          '<td>'+ response["data"]["server"]["ram_total"] +'</td>' +			                          
+				                          '<td>'+ response["detail"]["ram_total"] +'</td>' +			                          
 				                        '</tr>' +	
 				                        '<tr>' +
 				                          '<td>Swap容量:</td>' +
-				                          '<td>'+ response["data"]["server"]["swap"] +'</td>' +
+				                          '<td>'+ response["detail"]["swap"] +'</td>' +
 				                          '<td>Selinux : </td>' +
-				                          '<td>'+ response["data"]["server"]["selinux"] +'</td>' +			                          
+				                          '<td>'+ response["detail"]["selinux"] +'</td>' +			                          
 				                        '</tr>' +				                        
 				                      '</tbody>' +
 				                    '</table>'							          			
         		}
-        		if (Object.keys(response["data"]["networkcard"]).length > 0){
+        		if (Object.keys(response["networkcard"]).length > 0){
         			var trTags = '';
-					for (var i=0; i <response["data"]["networkcard"].length; i++){
-	                      if (response["data"]["networkcard"][i]["active"]>0){
+					for (var i=0; i <response["networkcard"].length; i++){
+	                      if (response["networkcard"][i]["active"]>0){
 	                    	  status = '<td><span class="label label-success">on</span></td>' 
 	                      }else{
 	                    	  status = '<td><span class="label label-danger">off</span></td>'  
 	                      }								
 						trTags = trTags + '<tr>' +
-				                          '<td>'+ response["data"]["networkcard"][i]["device"] +'</td>' +
-				                          '<td>'+ response["data"]["networkcard"][i]["macaddress"]+'</td>' +	
-					                      '<td>'+ response["data"]["networkcard"][i]["ip"] +'</td>' +
-					                      '<td>'+ response["data"]["networkcard"][i]["module"]+'</td>' +			
-					                      '<td>'+ response["data"]["networkcard"][i]["mtu"]+'</td>' +
+				                          '<td>'+ response["networkcard"][i]["device"] +'</td>' +
+				                          '<td>'+ response["networkcard"][i]["macaddress"]+'</td>' +	
+					                      '<td>'+ response["networkcard"][i]["ip"] +'</td>' +
+					                      '<td>'+ response["networkcard"][i]["module"]+'</td>' +			
+					                      '<td>'+ response["networkcard"][i]["mtu"]+'</td>' +
 					                       status +
 				                        '</tr>';
 					};              			
@@ -851,19 +909,19 @@ function viewAssets(ids,text){
 				                    '</table>'							            			
 					
         		}
-        		if (Object.keys(response["data"]["ram"]).length > 0){
+        		if (Object.keys(response["ram"]).length > 0){
         			var trTags = '';
-					for (var i=0; i <response["data"]["ram"].length; i++){
-	                      if (response["data"]["ram"][i]["device_status"]>0){
+					for (var i=0; i <response["ram"].length; i++){
+	                      if (response["ram"][i]["device_status"]>0){
 	                    	  status = '<td><span class="label label-success">on</span></td>' 
 	                      }else{
 	                    	  status = '<td><span class="label label-danger">off</span></td>'  
 	                      }								
 						trTags = trTags + '<tr>' +
-				                          '<td>'+ response["data"]["ram"][i]["device_model"] +'</td>' +
-				                          '<td>'+ response["data"]["ram"][i]["device_volume"]+'</td>' +	
-					                      '<td>'+ response["data"]["ram"][i]["device_brand"] +'</td>' +
-					                      '<td>'+ response["data"]["ram"][i]["device_slot"]+'</td>' +			
+				                          '<td>'+ response["ram"][i]["device_model"] +'</td>' +
+				                          '<td>'+ response["ram"][i]["device_volume"]+'</td>' +	
+					                      '<td>'+ response["ram"][i]["device_brand"] +'</td>' +
+					                      '<td>'+ response["ram"][i]["device_slot"]+'</td>' +			
 					                       status +
 				                        '</tr>';
 					};              			
@@ -880,20 +938,20 @@ function viewAssets(ids,text){
 					                    '</table>' 							            			
 					
         		}   
-        		if (Object.keys(response["data"]["disk"]).length > 0){
+        		if (Object.keys(response["disk"]).length > 0){
         			var trTags = '';
-					for (var i=0; i <response["data"]["disk"].length; i++){
-	                      if (response["data"]["disk"][i]["device_status"]>0){
+					for (var i=0; i <response["disk"].length; i++){
+	                      if (response["disk"][i]["device_status"]>0){
 	                    	  status = '<td><span class="label label-success">on</span></td>' 
 	                      }else{
 	                    	  status = '<td><span class="label label-danger">off</span></td>'  
 	                      }								
 						trTags = trTags + '<tr>' +
-				                          '<td>'+ response["data"]["disk"][i]["device_model"] +'</td>' +
-				                          '<td>'+ response["data"]["disk"][i]["device_volume"]+'</td>' +	
-				                          '<td>'+ response["data"]["disk"][i]["device_serial"] +'</td>' +
-					                      '<td>'+ response["data"]["disk"][i]["device_brand"] +'</td>' +
-					                      '<td>'+ response["data"]["disk"][i]["device_slot"]+'</td>' +			
+				                          '<td>'+ response["disk"][i]["device_model"] +'</td>' +
+				                          '<td>'+ response["disk"][i]["device_volume"]+'</td>' +	
+				                          '<td>'+ response["disk"][i]["device_serial"] +'</td>' +
+					                      '<td>'+ response["disk"][i]["device_brand"] +'</td>' +
+					                      '<td>'+ response["disk"][i]["device_slot"]+'</td>' +			
 					                       status +
 				                        '</tr>';
 					};              			
@@ -912,10 +970,10 @@ function viewAssets(ids,text){
 					                    '</table>'							           			
 					
         		} 
-        		if (Object.keys(response["data"]["tags"]).length > 0){  
+        		if (Object.keys(response["tags"]).length > 0){  
         			tagliTags = ''
-					for (var i=0; i <response["data"]["tags"].length; i++){
-						tagliTags = tagliTags +  '<li><a href="#">'+ response["data"]["tags"][i]["tags_name"] +'</a></li>' 
+					for (var i=0; i <response["tags"].length; i++){
+						tagliTags = tagliTags +  '<li><a href="#">'+ response["tags"][i]["tags_name"] +'</a></li>' 
 					};              									           			
         		}            		
         		var divHtml = '<div class="col-md-12 col-sm-12 col-xs-12" '+ ids +'>' +
@@ -1801,26 +1859,25 @@ $(document).ready(function() {
     // Add event listener for opening and closing details
     $('#businessLastNodesAssetsTableLists tbody').on('click', 'td.details-control', function () {
     	var table = $('#businessLastNodesAssetsTableLists').DataTable();
-    	var dataList = [];
+    	var data = {};
         var tr = $(this).closest('tr');
         var row = table.row( tr );
         aId = row.data()["id"];
-        $.ajax({
-            url : "/api/assets/info/"+aId+"/",
-            type : "post",
-            async : false,
-            data : {"id":aId},
-            dataType : "json",
-            success : function(result) {
-            	dataList = result.data;
-            }
-        });	        
+		$.ajax({
+		    url : "/api/assets/"+aId+"/",
+		    type : "get",
+		    async : false,
+		    dataType : "json",
+		    success : function(result) {
+		       data = result
+		    }
+		});	      
         if ( row.child.isShown() ) {
             row.child.hide();
             tr.removeClass('shown');
         }
         else {
-            row.child( format(dataList) ).show();
+            row.child( format(data) ).show();
             tr.addClass('shown');
         }
     });	
@@ -1977,309 +2034,279 @@ $(document).ready(function() {
     		$.ajax({  
     	        cache: true,  
     	        type: "GET",  
-    	        url:"/assets/manage/?id="+ vIds +"&model=info",  
+    	        url:"/api/assets/"+ vIds +"/", 
     	        async: false,  
     	        error: function(response) {  
     	        	console.log(response)
     	        },  
-    	        success: function(response) {   	
-    	        	if (Object.keys(response["data"]).length > 0){
-    	        		switch (response["data"]["status"])
-    	        		{
-    	            		case 0:
-    	            		  status = '<span class="label label-success">已上线</span>';
-    	            		  break;
-    	            		case 1:
-    	            		  status = '<span class="label label-warning">已下线</span>';
-    	            		  break;
-    	            		case 2:
-    	            		  status = '<span class="label label-default">维修中</span>';
-    	            		  break;
-    	            		case 3:
-    	            		  status = '<span class="label label-info">已入库</span>';
-    	            		  break;
-    	            		case 4:
-    	            		  status = '<span class="label label-primary">未使用</span>';
-    	            		  break;
-    	        		}
-    	        		switch (response["data"]["assets_type"])
-    	        		{
-    	            		case 'server':
-    	            			assets_type = '<strong>物理服务器</strong>';
-    	            		  	break;
-    	            		case 'vmser':
-    	            			assets_type = '<strong>虚拟机</strong>';
-    	            			break;
-    	            		case 'switch':
-    	            			assets_type = '<strong>交换机</strong>';
-    	            			break;
-    	            		case 'route':
-    	            			assets_type = '<strong>路由器</strong>';
-    	            			break;
-    	            		case 'firewall':
-    	            			assets_type = '<strong>防火墙</strong>';
-    	            			break;
-    	            		case 'storage':
-    	            			assets_type = '<strong>存储设备</strong>';
-    	            			break;	
-    	            		case 'printer':
-    	            			assets_type = '<strong>打印机</strong>';
-    			            	break;	
-    	            		case 'scanner':
-    	            			assets_type = '<strong>扫描仪</strong>';
-    			            	break;	
-    	            		case 'wifi':
-    	            			assets_type = '<strong>WIFI设备</strong>';
-    			            	break;				            	
-    	        		}             		
-    	        		var ulTag = '<ul class="list-unstyled timeline" id="assets_info">';
-    	        		var serverLiTags = '';
-    	        		var netcardLiTags = '';
-    	        		var ramLiTags = '';
-    	        		var diskLiTags = '';            		
-    	        		var baseLiTags  =  '<li>' +
-    										  '<div class="block">' +
-    											'<div class="tags">' +
-    											  '<a href="" class="tag">' +
-    												'<span>基础信息</span>' +
-    											  '</a>' +
-    											'</div>' +
-    											'<div class="block_content">' +
-    							                    '<table class="table table-striped">' +		                
-    							                      '<tbody>' +
-    							                        '<tr>' +
-    							                          '<td>资产类型 :</td>' +
-    							                         ' <td>'+ assets_type +'</td>' +
-    							                          '<td> 资产编号  :</td>' +
-    							                          '<td>'+ response["data"]["name"] +'</td>' +			                         
-    							                        '</tr>' +
-    							                        '<tr>' +
-    							                          '<td>设备序列号 :</td>' +
-    							                          '<td>'+ response["data"]["sn"] +'</td>' +
-    							                          '<td>购买日期 : </td>' +
-    							                          '<td>'+ response["data"]["buy_time"] +'</td>' +			                          
-    							                        '</tr>' +		
-    							                        '<tr>' +
-    							                          '<td>过保日期 :</td>' +
-    							                          '<td>'+ response["data"]["expire_date"] +'</td>' +
-    							                          '<td>管理IP:</td>' +
-    							                          '<td>'+ response["data"]["management_ip"] +'</td>' +			                          
-    							                        '</tr>' +
-    							                        '<tr>' +
-    							                          '<td>购买人 : </td>' +
-    							                          '<td>'+ response["data"]["buy_user"] +'</td>' +
-    							                          '<td>生产制造商  :</td>' +
-    							                          '<td>'+ response["data"]["manufacturer"] +'</td>' +			                          
-    							                        '</tr>' +		
-    							                        '<tr>' +
-    							                          '<td>设备型号 :</td>' +
-    							                          '<td>'+ response["data"]["model"] +'</td>' +
-    							                          '<td>供货商 : </td>' +
-    							                          '<td>'+ response["data"]["provider"] +'</td>' +			                          
-    							                        '</tr>' +	
-    							                        '<tr>' +
-    							                          '<td>放置区域 :</td>' +
-    							                          '<td>'+ response["data"]["put_zone"] +'</td>' +
-    							                          '<td>机柜信息 : </td>' +
-    							                          '<td>'+ response["data"]["cabinet"] +'</td>' +			                          
-    							                        '</tr>' +	
-    							                        '<tr>' +
-    							                          '<td>设备状态 : </td>' +
-    							                          '<td>'+ status +'</td>' +
-    							                          '<td>使用组 :</td>' +
-    							                          '<td>'+ response["data"]["group"] +'</td>' +			                          
-    							                        '</tr>' +
-    							                        '<tr>' +
-    							                          '<td>所属项目 : </td>' +
-    							                          '<td>'+ response["data"]["project"] +'</td>' +
-    							                          '<td>所属应用 : </td>' +
-    							                          '<td>'+ response["data"]["service"] +'</td>' +			                          
-    							                        '</tr>' +			                        
-    							                      '</tbody>' +
-    							                    '</table>' +							
-    											'</div>' +
-    										  '</div>' +
-    										'</li>';
-    	        		if (Object.keys(response["data"]["server"]).length > 0){
-    	            		serverLiTags = '<li>' +
-    						  '<div class="block">' +
-    							'<div class="tags">' +
-    							  '<a href="" class="tag">' +
-    								'<span>硬件信息</span>' +
-    							  '</a>' +
-    							'</div>' +
-    							'<div class="block_content">' +
-    			                    '<table class="table table-striped">' +		                
-    			                      '<tbody>' +
-    			                        '<tr>' +
-    			                          '<td>主机名 :</td>' +
-    			                         ' <td>'+ response["data"]["server"]["hostname"] +'</td>' +
-    			                          '<td>操作系统:</td>' +
-    			                          '<td>'+ response["data"]["server"]["system"]+'</td>' +			                         
-    			                        '</tr>' +
-    			                        '<tr>' +
-    			                          '<td>内核版本 :</td>' +
-    			                          '<td>'+ response["data"]["server"]["kernel"] +'</td>' +
-    			                          '<td>IP地址 : </td>' +
-    			                          '<td>'+ response["data"]["server"]["ip"] +'</td>' +			                          
-    			                        '</tr>' +		
-    			                        '<tr>' +
-    			                          '<td>CPU :</td>' +
-    			                          '<td>'+ response["data"]["server"]["cpu"] +'</td>' +
-    			                          '<td>CPU个数:</td>' +
-    			                          '<td>'+ response["data"]["server"]["vcpu_number"] +'</td>' +			                          
-    			                        '</tr>' +
-    			                        '<tr>' +
-    			                          '<td>硬盘大小(GB) : </td>' +
-    			                          '<td>'+ response["data"]["server"]["disk_total"] +'</td>' +
-    			                          '<td>Raid类型:</td>' +
-    			                          '<td>'+ response["data"]["server"]["raid"] +'</td>' +			                          
-    			                        '</tr>' +		
-    			                        '<tr>' +
-    			                          '<td>出口线路 :</td>' +
-    			                          '<td>'+ response["data"]["server"]["line"] +'</td>' +
-    			                          '<td>内存容量 (GB): </td>' +
-    			                          '<td>'+ response["data"]["server"]["ram_total"] +'</td>' +			                          
-    			                        '</tr>' +	
-    			                        '<tr>' +
-    			                          '<td>Swap容量:</td>' +
-    			                          '<td>'+ response["data"]["server"]["swap"] +'</td>' +
-    			                          '<td>Selinux : </td>' +
-    			                          '<td>'+ response["data"]["server"]["selinux"] +'</td>' +			                          
-    			                        '</tr>' +				                        
-    			                      '</tbody>' +
-    			                    '</table>' +							
-    							'</div>' +
-    						  '</div>' +
-    						'</li>';            			
-    	        		}
-    	        		if (Object.keys(response["data"]["networkcard"]).length > 0){
-    	        			var trTags = '';
-    						for (var i=0; i <response["data"]["networkcard"].length; i++){
-    		                      if (response["data"]["networkcard"][i]["active"]>0){
-    		                    	  status = '<td><span class="label label-success">on</span></td>' 
-    		                      }else{
-    		                    	  status = '<td><span class="label label-danger">off</span></td>'  
-    		                      }								
-    							trTags = trTags + '<tr>' +
-    					                          '<td>'+ response["data"]["networkcard"][i]["device"] +'</td>' +
-    					                          '<td>'+ response["data"]["networkcard"][i]["macaddress"]+'</td>' +	
-    						                      '<td>'+ response["data"]["networkcard"][i]["ip"] +'</td>' +
-    						                      '<td>'+ response["data"]["networkcard"][i]["module"]+'</td>' +			
-    						                      '<td>'+ response["data"]["networkcard"][i]["mtu"]+'</td>' +
-    						                       status +
-    					                        '</tr>';
-    						};              			
-    	        			netcardLiTags = '<li>' +
-    						  '<div class="block">' +
-    							'<div class="tags">' +
-    							  '<a href="" class="tag">' +
-    								'<span>网卡信息</span>' +
-    							  '</a>' +
-    							'</div>' +
-    							'<div class="block_content">' +
-    			                    '<table class="table table-striped">' +		                
-    			                      '<tbody>' +
-    			                        '<tr>' +
-    			                          '<td>Name</td>' +
-    			                          '<td>MAC</td>' +	
-    				                      '<td>IPV4</td>' +
-    				                      '<td>Speed</td>' +			
-    				                      '<td>MTU</td>' +				
-    				                      '<td>Status</td>' +			                        	
-    			                        '</tr>' + trTags +		                        
-    			                      '</tbody>' +
-    			                    '</table>' +							
-    							'</div>' +
-    						  '</div>' +
-    						'</li>';               			
-    						
-    	        		}
-    	        		if (Object.keys(response["data"]["ram"]).length > 0){
-    	        			var trTags = '';
-    						for (var i=0; i <response["data"]["ram"].length; i++){
-    		                      if (response["data"]["ram"][i]["device_status"]>0){
-    		                    	  status = '<td><span class="label label-success">on</span></td>' 
-    		                      }else{
-    		                    	  status = '<td><span class="label label-danger">off</span></td>'  
-    		                      }								
-    							trTags = trTags + '<tr>' +
-    					                          '<td>'+ response["data"]["ram"][i]["device_model"] +'</td>' +
-    					                          '<td>'+ response["data"]["ram"][i]["device_volume"]+'</td>' +	
-    						                      '<td>'+ response["data"]["ram"][i]["device_brand"] +'</td>' +
-    						                      '<td>'+ response["data"]["ram"][i]["device_slot"]+'</td>' +			
-    						                       status +
-    					                        '</tr>';
-    						};              			
-    	        			ramLiTags = '<li>' +
-    									  '<div class="block">' +
-    										'<div class="tags">' +
-    										  '<a href="" class="tag">' +
-    											'<span>内存明细</span>' +
-    										  '</a>' +
-    										'</div>' +
-    										'<div class="block_content">' +
-    						                    '<table class="table table-striped">' +		                
-    						                      '<tbody>' +
-    						                        '<tr>' +
-    						                          '<td>内存型号</td>' +
-    						                          '<td>内存容量(GB)</td>' +	
-    							                      '<td>生产商</td>' +
-    							                      '<td>Slot</td>' +					
-    							                      '<td>Status</td>' +			                        	
-    						                        '</tr>' + trTags +		                        
-    						                      '</tbody>' +
-    						                    '</table>' +							
-    										'</div>' +
-    									  '</div>' +
-    									'</li>';               			
-    						
-    	        		}   
-    	        		if (Object.keys(response["data"]["disk"]).length > 0){
-    	        			var trTags = '';
-    						for (var i=0; i <response["data"]["disk"].length; i++){
-    		                      if (response["data"]["disk"][i]["device_status"]>0){
-    		                    	  status = '<td><span class="label label-success">on</span></td>' 
-    		                      }else{
-    		                    	  status = '<td><span class="label label-danger">off</span></td>'  
-    		                      }								
-    							trTags = trTags + '<tr>' +
-    					                          '<td>'+ response["data"]["disk"][i]["device_model"] +'</td>' +
-    					                          '<td>'+ response["data"]["disk"][i]["device_volume"]+'</td>' +	
-    					                          '<td>'+ response["data"]["disk"][i]["device_serial"] +'</td>' +
-    						                      '<td>'+ response["data"]["disk"][i]["device_brand"] +'</td>' +
-    						                      '<td>'+ response["data"]["disk"][i]["device_slot"]+'</td>' +			
-    						                       status +
-    					                        '</tr>';
-    						};              			
-    	        			diskLiTags = '<li>' +
-    									  '<div class="block">' +
-    										'<div class="tags">' +
-    										  '<a href="" class="tag">' +
-    											'<span>硬盘明细</span>' +
-    										  '</a>' +
-    										'</div>' +
-    										'<div class="block_content">' +
-    						                    '<table class="table table-striped">' +		                
-    						                      '<tbody>' +
-    						                        '<tr>' +
-    						                          '<td>硬盘型号</td>' +
-    						                          '<td>硬盘容量</td>' +	
-    						                          '<td>序列号</td>' +	
-    							                      '<td>生产商</td>' +
-    							                      '<td>Slot</td>' +					
-    							                      '<td>Status</td>' +			                        	
-    						                        '</tr>' + trTags +		                        
-    						                      '</tbody>' +
-    						                    '</table>' +							
-    										'</div>' +
-    									  '</div>' +
-    									'</li>';               			
-    						
-    	        		}            		
-    	        		$("#assets_info").html(ulTag + baseLiTags + serverLiTags + netcardLiTags + ramLiTags + diskLiTags + '</ul>');	
-    	        	}
-    	        }  
+            success: function(response) {   	
+            	if (Object.keys(response).length > 0){
+            		switch (response["status"])
+            		{
+	            		case 0:
+	            		  status = '<span class="label label-success">已上线</span>';
+	            		  break;
+	            		case 1:
+	            		  status = '<span class="label label-warning">已下线</span>';
+	            		  break;
+	            		case 2:
+	            		  status = '<span class="label label-default">维修中</span>';
+	            		  break;
+	            		case 3:
+	            		  status = '<span class="label label-info">已入库</span>';
+	            		  break;
+	            		case 4:
+	            		  status = '<span class="label label-primary">未使用</span>';
+	            		  break;
+            		}         		
+            		var ulTag = '<ul class="list-unstyled timeline" id="assets_info">';
+            		var serverLiTags = '';
+            		var netcardLiTags = '';
+            		var ramLiTags = '';
+            		var diskLiTags = '';            		
+            		var baseLiTags  =  '<li>' +
+										  '<div class="block">' +
+											'<div class="tags">' +
+											  '<a href="" class="tag">' +
+												'<span>基础信息</span>' +
+											  '</a>' +
+											'</div>' +
+											'<div class="block_content">' +
+							                    '<table class="table table-striped">' +		                
+							                      '<tbody>' +
+							                        '<tr>' +
+							                          '<td>资产类型 :</td>' +
+							                         ' <td>'+ response["assets_type"] +'</td>' +
+							                          '<td> 资产编号  :</td>' +
+							                          '<td>'+ response["name"] +'</td>' +			                         
+							                        '</tr>' +
+							                        '<tr>' +
+							                          '<td>设备序列号 :</td>' +
+							                          '<td>'+ response["sn"] +'</td>' +
+							                          '<td>购买日期 : </td>' +
+							                          '<td>'+ response["buy_time"] +'</td>' +			                          
+							                        '</tr>' +		
+							                        '<tr>' +
+							                          '<td>过保日期 :</td>' +
+							                          '<td>'+ response["expire_date"] +'</td>' +
+							                          '<td>管理IP:</td>' +
+							                          '<td>'+ response["management_ip"] +'</td>' +			                          
+							                        '</tr>' +
+							                        '<tr>' +
+							                          '<td>购买人 : </td>' +
+							                          '<td>'+ response["buy_user"] +'</td>' +
+							                          '<td>生产制造商  :</td>' +
+							                          '<td>'+ response["manufacturer"] +'</td>' +			                          
+							                        '</tr>' +		
+							                        '<tr>' +
+							                          '<td>设备型号 :</td>' +
+							                          '<td>'+ response["model"] +'</td>' +
+							                          '<td>供货商 : </td>' +
+							                          '<td>'+ response["provider"] +'</td>' +			                          
+							                        '</tr>' +	
+							                        '<tr>' +
+							                          '<td>放置区域 :</td>' +
+							                          '<td>'+ response["put_zone"] +'</td>' +
+							                          '<td>机柜信息 : </td>' +
+							                          '<td>'+ response["cabinet"] +'</td>' +			                          
+							                        '</tr>' +	
+							                        '<tr>' +
+							                          '<td>设备状态 : </td>' +
+							                          '<td>'+ status +'</td>' +
+							                          '<td>使用组 :</td>' +
+							                          '<td>'+ response["group"] +'</td>' +			                          
+							                        '</tr>' +
+							                        '<tr>' +
+							                          '<td>所属项目 : </td>' +
+							                          '<td>'+ response["project"] +'</td>' +
+							                          '<td>所属应用 : </td>' +
+							                          '<td>'+ response["service"] +'</td>' +			                          
+							                        '</tr>' +			                        
+							                      '</tbody>' +
+							                    '</table>' +							
+											'</div>' +
+										  '</div>' +
+										'</li>';
+            		if (Object.keys(response["detail"]).length > 0){
+                		serverLiTags = '<li>' +
+						  '<div class="block">' +
+							'<div class="tags">' +
+							  '<a href="" class="tag">' +
+								'<span>硬件信息</span>' +
+							  '</a>' +
+							'</div>' +
+							'<div class="block_content">' +
+			                    '<table class="table table-striped">' +		                
+			                      '<tbody>' +
+			                        '<tr>' +
+			                          '<td>主机名 :</td>' +
+			                         ' <td>'+ response["detail"]["hostname"] +'</td>' +
+			                          '<td>操作系统:</td>' +
+			                          '<td>'+ response["detail"]["system"]+'</td>' +			                         
+			                        '</tr>' +
+			                        '<tr>' +
+			                          '<td>内核版本 :</td>' +
+			                          '<td>'+ response["detail"]["kernel"] +'</td>' +
+			                          '<td>IP地址 : </td>' +
+			                          '<td>'+ response["detail"]["ip"] +'</td>' +			                          
+			                        '</tr>' +		
+			                        '<tr>' +
+			                          '<td>CPU :</td>' +
+			                          '<td>'+ response["detail"]["cpu"] +'</td>' +
+			                          '<td>CPU个数:</td>' +
+			                          '<td>'+ response["detail"]["vcpu_number"] +'</td>' +			                          
+			                        '</tr>' +
+			                        '<tr>' +
+			                          '<td>硬盘大小(GB) : </td>' +
+			                          '<td>'+ response["detail"]["disk_total"] +'</td>' +
+			                          '<td>Raid类型:</td>' +
+			                          '<td>'+ response["detail"]["raid"] +'</td>' +			                          
+			                        '</tr>' +		
+			                        '<tr>' +
+			                          '<td>出口线路 :</td>' +
+			                          '<td>'+ response["detail"]["line"] +'</td>' +
+			                          '<td>内存容量 (GB): </td>' +
+			                          '<td>'+ response["detail"]["ram_total"] +'</td>' +			                          
+			                        '</tr>' +	
+			                        '<tr>' +
+			                          '<td>Swap容量:</td>' +
+			                          '<td>'+ response["detail"]["swap"] +'</td>' +
+			                          '<td>Selinux : </td>' +
+			                          '<td>'+ response["detail"]["selinux"] +'</td>' +			                          
+			                        '</tr>' +				                        
+			                      '</tbody>' +
+			                    '</table>' +							
+							'</div>' +
+						  '</div>' +
+						'</li>';            			
+            		}
+            		if (Object.keys(response["networkcard"]).length > 0){
+            			var trTags = '';
+						for (var i=0; i <response["networkcard"].length; i++){
+		                      if (response["networkcard"][i]["active"]>0){
+		                    	  status = '<td><span class="label label-success">on</span></td>' 
+		                      }else{
+		                    	  status = '<td><span class="label label-danger">off</span></td>'  
+		                      }								
+							trTags = trTags + '<tr>' +
+					                          '<td>'+ response["networkcard"][i]["device"] +'</td>' +
+					                          '<td>'+ response["networkcard"][i]["macaddress"]+'</td>' +	
+						                      '<td>'+ response["networkcard"][i]["ip"] +'</td>' +
+						                      '<td>'+ response["networkcard"][i]["module"]+'</td>' +			
+						                      '<td>'+ response["networkcard"][i]["mtu"]+'</td>' +
+						                       status +
+					                        '</tr>';
+						};              			
+            			netcardLiTags = '<li>' +
+						  '<div class="block">' +
+							'<div class="tags">' +
+							  '<a href="" class="tag">' +
+								'<span>网卡信息</span>' +
+							  '</a>' +
+							'</div>' +
+							'<div class="block_content">' +
+			                    '<table class="table table-striped">' +		                
+			                      '<tbody>' +
+			                        '<tr>' +
+			                          '<td>Name</td>' +
+			                          '<td>MAC</td>' +	
+				                      '<td>IPV4</td>' +
+				                      '<td>Speed</td>' +			
+				                      '<td>MTU</td>' +				
+				                      '<td>Status</td>' +			                        	
+			                        '</tr>' + trTags +		                        
+			                      '</tbody>' +
+			                    '</table>' +							
+							'</div>' +
+						  '</div>' +
+						'</li>';               			
+						
+            		}
+            		if (Object.keys(response["ram"]).length > 0){
+            			var trTags = '';
+						for (var i=0; i <response["ram"].length; i++){
+		                      if (response["ram"][i]["device_status"]>0){
+		                    	  status = '<td><span class="label label-success">on</span></td>' 
+		                      }else{
+		                    	  status = '<td><span class="label label-danger">off</span></td>'  
+		                      }								
+							trTags = trTags + '<tr>' +
+					                          '<td>'+ response["ram"][i]["device_model"] +'</td>' +
+					                          '<td>'+ response["ram"][i]["device_volume"]+'</td>' +	
+						                      '<td>'+ response["ram"][i]["device_brand"] +'</td>' +
+						                      '<td>'+ response["ram"][i]["device_slot"]+'</td>' +			
+						                       status +
+					                        '</tr>';
+						};              			
+            			ramLiTags = '<li>' +
+									  '<div class="block">' +
+										'<div class="tags">' +
+										  '<a href="" class="tag">' +
+											'<span>内存明细</span>' +
+										  '</a>' +
+										'</div>' +
+										'<div class="block_content">' +
+						                    '<table class="table table-striped">' +		                
+						                      '<tbody>' +
+						                        '<tr>' +
+						                          '<td>内存型号</td>' +
+						                          '<td>内存容量(GB)</td>' +	
+							                      '<td>生产商</td>' +
+							                      '<td>Slot</td>' +					
+							                      '<td>Status</td>' +			                        	
+						                        '</tr>' + trTags +		                        
+						                      '</tbody>' +
+						                    '</table>' +							
+										'</div>' +
+									  '</div>' +
+									'</li>';               			
+						
+            		}   
+            		if (Object.keys(response["disk"]).length > 0){
+            			var trTags = '';
+						for (var i=0; i <response["disk"].length; i++){
+		                      if (response["disk"][i]["device_status"]>0){
+		                    	  status = '<td><span class="label label-success">on</span></td>' 
+		                      }else{
+		                    	  status = '<td><span class="label label-danger">off</span></td>'  
+		                      }								
+							trTags = trTags + '<tr>' +
+					                          '<td>'+ response["disk"][i]["device_model"] +'</td>' +
+					                          '<td>'+ response["disk"][i]["device_volume"]+'</td>' +	
+					                          '<td>'+ response["disk"][i]["device_serial"] +'</td>' +
+						                      '<td>'+ response["disk"][i]["device_brand"] +'</td>' +
+						                      '<td>'+ response["disk"][i]["device_slot"]+'</td>' +			
+						                       status +
+					                        '</tr>';
+						};              			
+            			diskLiTags = '<li>' +
+									  '<div class="block">' +
+										'<div class="tags">' +
+										  '<a href="" class="tag">' +
+											'<span>硬盘明细</span>' +
+										  '</a>' +
+										'</div>' +
+										'<div class="block_content">' +
+						                    '<table class="table table-striped">' +		                
+						                      '<tbody>' +
+						                        '<tr>' +
+						                          '<td>硬盘型号</td>' +
+						                          '<td>硬盘容量</td>' +	
+						                          '<td>序列号</td>' +	
+							                      '<td>生产商</td>' +
+							                      '<td>Slot</td>' +					
+							                      '<td>Status</td>' +			                        	
+						                        '</tr>' + trTags +		                        
+						                      '</tbody>' +
+						                    '</table>' +							
+										'</div>' +
+									  '</div>' +
+									'</li>';               			
+						
+            		}            		
+            		$("#assets_info").html(ulTag + baseLiTags + serverLiTags + netcardLiTags + ramLiTags + diskLiTags + '</ul>');	
+            	}
+            } 
     		});    	
     		$(this).attr('disabled',false);
     })     

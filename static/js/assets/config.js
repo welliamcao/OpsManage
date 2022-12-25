@@ -20,8 +20,8 @@ function getTagsServerList(vIds){
 	var iList = []
 	var sList = []
 	var allAssets = requests('get','/api/assets/')
-	for (var i=0; i <allAssets.length; i++){
-		sList.push({"id":allAssets[i]["id"],"name":allAssets[i]["detail"]["ip"]})
+	for (var i=0; i <allAssets["results"].length; i++){
+		sList.push({"id":allAssets["results"][i]["id"],"name":allAssets["results"][i]["detail"]["ip"]})
 	}
 	$.ajax({  
         cache: true,  

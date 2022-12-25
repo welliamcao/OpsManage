@@ -28,8 +28,8 @@ class AssetsManage(LoginRequiredMixin,AssetsBase,View):
     def get(self, request, *args, **kwagrs):
         if request.GET.get('id') and request.GET.get('model')=='edit':
             return render(request, 'assets/assets_modf.html',{"user":request.user,"assets":self.assets(id=request.GET.get('id')),"assetsBase":self.base()}) 
-        elif request.GET.get('id') and request.GET.get('model')=='info':
-            return JsonResponse({'msg':"主机查询成功","code":200,'data':self.info(request.GET.get('id'))})  
+#         elif request.GET.get('id') and request.GET.get('model')=='info':
+#             return JsonResponse({'msg':"主机查询成功","code":200,'data':self.info(request.GET.get('id'))})  
         return render(request, 'assets/assets_add.html',{"user":request.user,"assets":self.base()})    
                   
          

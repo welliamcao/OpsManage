@@ -255,22 +255,16 @@ def raid_detail(request, id,format=None):
 
 class AssetList(APIView,DataHandle):
       
-    def get(self,request,*args,**kwargs):
-#         query_params = dict()
-#         for ds in request.query_params.keys():  
-#             if ds == 'assets_type' and request.query_params.get(ds) == 'ser':         
-#                 query_params["assets_type__in"] = ["vmser","server"]
-#                 continue 
-#             if ds == 'offset':continue
-#             query_params[ds] = request.query_params.get(ds)     
+    def get(self,request,*args,**kwargs):  
         if request.user.is_superuser:             
-#             snippets = Assets.objects.filter(**query_params)
             snippets = Assets.objects.all()
         else:
-#             snippets = [ ds.assets for ds in User_Server.objects.filter(user=request.user,assets__in=[ ds.id  for ds in Assets.objects.filter(**query_params) ])]
             snippets = [ ds.assets for ds in User_Server.objects.filter(user=request.user)]
         page = serializers.PageConfig()  # 注册分页
         page_assets_list = page.paginate_queryset(queryset=snippets, request=request, view=self)
+#         for s in page_assets_list:
+#             print(dir(s))
+#             s.group = s.get_group_name(s.id)     
         ser = serializers.AssetsSerializer(instance=page_assets_list, many=True)
         return page.get_paginated_response(ser.data)            
 
@@ -285,7 +279,7 @@ class AssetList(APIView,DataHandle):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)    
     
 @api_view(['GET', 'PUT', 'DELETE'])
-def asset_detail(request, id,format=None):
+def asset_detail(request, id, format=None):
     """
     Retrieve, update or delete a server assets instance.
     """
@@ -295,8 +289,8 @@ def asset_detail(request, id,format=None):
         return Response(status=status.HTTP_404_NOT_FOUND)
  
     if request.method == 'GET':
-        serializer = serializers.AssetsSerializer(snippet)
-        return Response(serializer.data)
+#         serializer = serializers.AssetsFullSerializer(snippet)
+        return Response(snippet.to_full_json())
  
     elif request.method == 'PUT':
         if not request.user.has_perm('asset.assets_change_assets'):
@@ -468,43 +462,7 @@ def asset_net_detail(request, id,format=None):
         return Response(status=status.HTTP_204_NO_CONTENT) 
     
 
-@api_view(['GET', 'POST'])
-def asset_info(request, id,format=None):
-    """
-    Retrieve, update or delete a server assets instance.
-    """
-    try:
-        assets = Assets.objects.get(id=id)
-    except Assets.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
- 
-    if request.method == 'POST':
-        dataList = []
-        try:
-            if assets.assets_type in ['server','vmser']:
-                dataList.append({"name":'CPU型号',"value":assets.server_assets.cpu if assets.server_assets.cpu else ''})
-                dataList.append({"name":'CPU个数',"value":assets.server_assets.vcpu_number if assets.server_assets.vcpu_number else '' })
-                dataList.append({"name":'硬盘容量',"value":str(assets.server_assets.disk_total)+'GB' if assets.server_assets.disk_total else ''})
-                dataList.append({"name":'内存容量',"value":str(assets.server_assets.ram_total)+'GB' if assets.server_assets.ram_total else ''})
-                dataList.append({"name":'操作系统',"value":assets.server_assets.system if assets.server_assets.system else ''})
-                dataList.append({"name":'内核版本',"value":assets.server_assets.kernel if assets.server_assets.kernel else ''})
-                dataList.append({"name":'主机名',"value":assets.server_assets.hostname if assets.server_assets.hostname else ''})
-                dataList.append({"name":'资产备注',"value":assets.mark if assets.mark else ''})
-            else:
-                dataList.append({"name":'CPU型号',"value":assets.network_assets.cpu if assets.network_assets.cpu else ''})
-                dataList.append({"name":'内存容量',"value":assets.network_assets.stone if assets.network_assets.stone else ''})
-                dataList.append({"name":'背板带宽',"value":assets.network_assets.bandwidth if assets.network_assets.bandwidth else ''})
-                dataList.append({"name":'端口总数',"value":assets.network_assets.port_number if assets.network_assets.port_number else ''})
-                dataList.append({"name":'资产备注',"value":assets.mark if assets.mark else ''})
-        except Exception as ex:
-            logger.warn(msg="获取资产信息失败: {ex}".format(ex=ex))
-        ntkList = []
-        for ds in NetworkCard_Assets.objects.filter(assets=assets):
-            ntkList.append({"name":ds.device,'mac':ds.macaddress,
-                            "ipv4":ds.ip,"speed":ds.module,
-                            "mtu":ds.mtu,"status":ds.active})
-        return JsonResponse({"code":200,"msg":"success","data":{"astList":dataList,"nktList":ntkList}})   
-    
+      
 @api_view(['GET', 'POST'])
 def asset_count(request,format=None): 
     return JsonResponse({"code":200,"msg":"success","data":{"groupCount":ASSETS_COUNT_RBT.groupAssets(),

@@ -46,7 +46,6 @@ class Assets(models.Model):
     status = models.SmallIntegerField(default=0,blank=True,null=True,verbose_name='状态')
     put_zone = models.SmallIntegerField(blank=True,null=True,verbose_name='放置区域')
     group = models.SmallIntegerField(blank=True,null=True,verbose_name='使用组')
-#     business = models.SmallIntegerField(blank=True,null=True,verbose_name='业务类型')
     project = models.SmallIntegerField(blank=True,null=True,verbose_name='项目类型')
     host_vars = models.TextField(blank=True,null=True,verbose_name='ansible主机变量')
     mark = models.TextField(blank=True,null=True,verbose_name='资产标示')
@@ -75,11 +74,38 @@ class Assets(models.Model):
         except:
             return '未知'        
 
+    def get_group(self):
+        try:
+            return Structure.objects.get(id=self.group).text
+        except:
+            return '未知'  
+
     def get_buy_user(self):
         try:
             return User.objects.get(id=self.buy_user).username
         except:
             return '未知'  
+
+    def get_tags(self):
+        dataList = []
+        for ds in Tags_Server_Assets.objects.filter(aid=self.id):
+            data = {}
+            data['tags_name'] = ds.tid.tags_name
+            data['id'] = ds.tid.id
+            dataList.append(data)
+        return dataList          
+    
+    def get_disk(self):
+        return [ i.to_json() for i in Disk_Assets.objects.filter(assets=self.id) ]
+    
+    def get_ram(self):
+        return [ i.to_json() for i in Ram_Assets.objects.filter(assets=self.id) ]
+    
+    def get_networkcard(self):
+        return [ i.to_json() for i in NetworkCard_Assets.objects.filter(assets=self.id) ]
+    
+    def get_business(self):
+        return [ ds.node_path() for ds in self.business_tree.all() ]
                     
     def to_json(self):  
         if hasattr(self,'server_assets'):
@@ -94,7 +120,6 @@ class Assets(models.Model):
             "sn": self.sn,
             "buy_time": self.buy_time,
             "expire_date": self.expire_date,
-#             "business":[ ds.id for ds in self.business_tree.all() ],
             "buy_user": self.get_buy_user(),
             "management_ip": self.management_ip,
             "manufacturer": self.manufacturer,
@@ -102,7 +127,7 @@ class Assets(models.Model):
             "model": self.model,
             "status": self.status,
             "put_zone": self.get_put_zone(),
-            "group": self.group,
+            "group": self.get_group(),
             "host_vars": self.host_vars,
             "mark": self.mark,
             "cabinet": self.cabinet,
@@ -111,6 +136,41 @@ class Assets(models.Model):
             "detail":detail,
         }
         return  json_format
+    
+    def to_full_json(self):  
+        if hasattr(self,'server_assets'):
+            detail = self.server_assets.to_json()
+        elif hasattr(self,'network_assets'):
+            detail = self.network_assets.to_json() 
+            
+        json_format = {
+           "id": self.id,
+            "assets_type": self.assets_type_dicts[self.assets_type],
+            "name": self.name,
+            "sn": self.sn,
+            "buy_time": self.buy_time,
+            "expire_date": self.expire_date,
+            "disk":self.get_disk(),
+            "ram":self.get_ram(),
+            "business":self.get_business(),
+            "networkcard":self.get_networkcard(),
+            "tags":self.get_tags(),
+            "buy_user": self.get_buy_user(),
+            "management_ip": self.management_ip,
+            "manufacturer": self.manufacturer,
+            "provider": self.provider,
+            "model": self.model,
+            "status": self.status,
+            "put_zone": self.get_put_zone(),
+            "group": self.get_group(),
+            "host_vars": self.host_vars,
+            "mark": self.mark,
+            "cabinet": self.cabinet,
+            "create_date": datetime.strftime(self.create_date, '%Y-%m-%d %H:%M:%S'),
+            "update_date": datetime.strftime(self.update_date, '%Y-%m-%d %H:%M:%S'),
+            "detail":detail,
+        }
+        return  json_format    
 
 class Server_Assets(models.Model): 
     assets = models.OneToOneField('Assets', on_delete=models.CASCADE) 
@@ -254,7 +314,21 @@ class Disk_Assets(models.Model):
         ) 
         unique_together = (("assets", "device_slot"))
         verbose_name = '资产管理' 
-        verbose_name_plural = '磁盘资产表'  
+        verbose_name_plural = '磁盘资产表' 
+         
+    def to_json(self):
+        json_format = {
+            "id": self.id,
+            "device_model": self.device_model,
+            "device_volume": self.device_volume,
+            "device_brand": self.device_brand, 
+            "device_serial": self.device_serial,           
+            "device_slot": self.device_slot,
+            "device_status": self.device_status,
+            "create_date": datetime.strftime(self.create_date, '%Y-%m-%d %H:%M:%S'),
+            "update_date": datetime.strftime(self.update_date, '%Y-%m-%d %H:%M:%S'),
+        }
+        return  json_format        
 
 class Ram_Assets(models.Model):   
     assets = models.ForeignKey('Assets', on_delete=models.CASCADE)
@@ -276,7 +350,20 @@ class Ram_Assets(models.Model):
         ) 
         unique_together = (("assets", "device_slot"))
         verbose_name = '资产管理'  
-        verbose_name_plural = '内存资产表'         
+        verbose_name_plural = '内存资产表'    
+             
+    def to_json(self):
+        json_format = {
+            "id": self.id,
+            "device_model": self.device_model,
+            "device_volume": self.device_volume,
+            "device_brand": self.device_brand,            
+            "device_slot": self.device_slot,
+            "device_status": self.device_status,
+            "create_date": datetime.strftime(self.create_date, '%Y-%m-%d %H:%M:%S'),
+            "update_date": datetime.strftime(self.update_date, '%Y-%m-%d %H:%M:%S'),
+        }
+        return  json_format
         
 class NetworkCard_Assets(models.Model):   
     assets = models.ForeignKey('Assets', on_delete=models.CASCADE)
@@ -292,6 +379,18 @@ class NetworkCard_Assets(models.Model):
         verbose_name = '资产管理'  
         verbose_name_plural = '服务器网卡资产表'  
         unique_together = (("assets", "macaddress"))    
+
+    def to_json(self):
+        json_format = {
+            "id": self.id,
+            "device": self.device,
+            "macaddress": self.macaddress,
+            "ip": self.ip,            
+            "module": self.module,
+            "mtu": self.mtu,
+            "active": self.active
+        }
+        return  json_format
                     
 class Business_Env_Assets(models.Model):
     '''业务环境资产表'''

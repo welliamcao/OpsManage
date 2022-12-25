@@ -182,30 +182,22 @@ class RaidSerializer(serializers.ModelSerializer):
     class Meta:
         model = Raid_Assets
         fields = ('id','raid_name')         
-       
+           
+
 class AssetsSerializer(serializers.ModelSerializer):
-    crontab_total = serializers.SerializerMethodField(read_only=True,required=False)
-    database_total = serializers.SerializerMethodField(read_only=True,required=False)
     detail = serializers.SerializerMethodField(read_only=True,required=False)
     class Meta:
         model = Assets
         fields = ('id','assets_type','name','sn','buy_time','expire_date',
                   'buy_user','management_ip','manufacturer','provider','mark',
-                  'model','status','put_zone','group','project',
-                  'crontab_total','cabinet','database_total','detail')  
-
-    def get_crontab_total(self, obj):
-        return [ cron.id for cron in obj.crontab_total.all() ]  #返回列表          
-    
-    def get_database_total(self, obj):
-        return [ db.id for db in obj.database_total.all() ]  #返回列表      
-    
+                  'model','status','put_zone','group','project','cabinet','detail')  
+      
     def get_detail(self, obj):
         if obj.assets_type in ["vmser","server"]:
             return Server_Assets.objects.get(assets=obj).to_json()
         else:
-            return Network_Assets.objects.get(assets=obj).to_json()
-            
+            return Network_Assets.objects.get(assets=obj).to_json() 
+    
 
 class ServerSerializer(serializers.ModelSerializer): 
     assets = AssetsSerializer(required=False)
