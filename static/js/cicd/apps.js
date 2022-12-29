@@ -9,25 +9,48 @@ $(function(){
 
 function format ( data ) {
 	var serHtml = '';
-	serList = data["number"];
+	serList = data["project_servers"];
 	for  (var i=0; i <serList.length; i++){
 		serHtml += serList[i]['ip'] + ',';
 	}
-    var trHtml = '<tr><td>打包目录:</td><td>'+ data["project_dir"]  + '</td><td>源代码目录:</td><td>'+ data["project_repo_dir"] +'</td></tr>'	;
-    trHtml += '<tr><td>远程命令:</td><td>'+ data["project_remote_command"]  + '</td><td>目标服务器:</td><td>'+ serHtml.substring(0,serHtml.length-1) +'</td></tr>';
-    trHtml += '<tr><td>远程路径:</td><td>'+ data["project_target_root"]  + '</td><td>目录宿主:</td><td>'+ data["project_user"] +'</td></tr>';	
-    trHtml += '<tr><td>排除文件:</td><td>'+ data["project_exclude"]  + '</td><td>日志目录:</td><td>'+ data["project_logpath"] +'</td></tr>';	    
+    var deploytrHtml = '<tr><td>排除文件:</td><td>'+ data["project_exclude"]  + '</td><td>源代码目录:</td><td>'+ data["project_repo_dir"] +'</td></tr>'	;
+    deploytrHtml += '<tr><td>远程命令:</td><td>'+ data["project_remote_command"]  + '</td><td>目标服务器:</td><td>'+ serHtml.substring(0,serHtml.length-1) +'</td></tr>';
+    deploytrHtml += '<tr><td>远程路径:</td><td>'+ data["project_target_root"]  + '</td><td>目录宿主:</td><td>'+ data["project_user"] +'</td></tr>';	
+    deploytrHtml += '<tr><td>排除文件:</td><td>'+ data["project_exclude"]  + '</td><td>日志目录:</td><td>'+ data["project_logpath"] +'</td></tr>';	    
 	if (data["project_type"]=='compile'){
-		trHtml += '<tr><td>编译类型:</td><td>编译型</td><td>编译命令:</td><td>'+ data["project_local_command"].replace(/\r\n/g,'<br>') +'</td></tr>';	   
+		deploytrHtml += '<tr><td>编译类型:</td><td>编译型</td><td>编译命令:</td><td>'+ data["project_local_command"].replace(/\r\n/g,'<br>') +'</td></tr>';	   
 	}else{
-		trHtml += '<tr><td>编译类型:</td><td>非编译型</td><td>编译命令:</td><td></td></tr>';	   
-	}	    
-    var vHtml = '<div class="col-md-6 col-sm-12 col-xs-12">' +
-    			'<legend>'+ data["project_name"] +'部署信息</legend>' +
+		deploytrHtml += '<tr><td>编译类型:</td><td>非编译型</td><td>编译命令:</td><td></td></tr>';	   
+	}	  
+	
+	var roleHtml = ''
+	var roletrHtml = '<tr><td>用户名</td><td>电话</td><td>邮箱</td><td>角色</td></tr>'
+	for  (var i=0; i < data["project_roles"].length; i++){
+		if(data["project_roles"][i]["roles"]=='deploy'){
+			var roles = '<span class="label label-info"><strong>开发人员</strong></span>'
+		}else{
+			var roles = '<span class="label label-warning"><strong>管理人员</strong></span>'
+		}
+		roletrHtml += '<tr>' +
+		                   '<td>' + data["project_roles"][i]["username"]  +'</td>' +
+		                   '<td>' + data["project_roles"][i]["mobile"]  +'</td>' +
+		                   '<td>' + data["project_roles"][i]["email"]  +'</td>' +
+		                   '<td>' + roles  +'</td>' +
+					  '</tr>'
+	}	
+	
+    var vHtml = '<div class="col-md-7 col-sm-12 col-xs-12">' +
+    			'<legend>部署信息</legend>' +
     				'<table class="table table-striped" cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">'+
-    				  trHtml  +
+    				  deploytrHtml  +
+    				'</table>' +
+    		    '</div>' +
+    		    '<div class="col-md-5 col-sm-12 col-xs-12">' +
+    			'<legend>人员信息</legend>' +
+    				'<table class="table table-striped" cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">'+
+    					roletrHtml +
     				'</table>'
-    		    '</div>'; 				
+    		    '</div>' 		    
     return vHtml;
 }
 
@@ -437,13 +460,13 @@ $(document).ready(function() {
 	        var row = table.row( tr );
 	        aId = row.data()["id"];
 	        $.ajax({
-	            url : "/apps/config/?type=info&id="+aId,
+//	            url : "/apps/config/?type=info&id="+aId,
+	        	url: "/api/apps/detail/"+ aId +"/",
 	            type : "get",
 	            async : false,
-	            data : {"id":aId},
 	            dataType : "json",
 	            success : function(result) {
-	            	dataList = result.data;
+	            	dataList = result;
 	            }
 	        });	        
 	        if ( row.child.isShown() ) {

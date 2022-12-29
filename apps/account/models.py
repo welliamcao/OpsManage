@@ -158,6 +158,17 @@ class User(AbstractUser):
     def get_superior(self):
         if self.superior:
             return self.superior.id
+    
+    def to_base(self):
+        json_format = {
+            "id":self.id,
+            "username":self.username,
+            "name":self.name,
+            "mobile":self.mobile,
+            "email":self.email,
+            "post":self.post,
+        }
+        return  json_format            
 
     def to_json(self):
         json_format = {

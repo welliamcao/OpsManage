@@ -37,12 +37,12 @@ function AssetsTypeSelect(obj,model){
 					}
 				
 						
-				},
+				}
 			});	
 	   }
 }
 
-function AssetsSelect(name,dataList,selectIds){
+function AssetsSelect(name,dataList,selectIds,next,previous){
 	if(!selectIds){selectIds=0}
 	switch(name)
 	   {
@@ -52,25 +52,24 @@ function AssetsSelect(name,dataList,selectIds){
 		   default:
 			   action = ''	       
 	   }
-	var binlogHtml = '<select required="required" class="selectpicker form-control" data-live-search="true"  data-size="10" data-width="100%" '+ action +' name="'+ name +'"autocomplete="off"><option value="">选择一个进行操作</option>'
-	var selectHtml = '';
+	var selectHtml = '<select required="required" class="selectpicker form-control" data-live-search="true"  data-size="10" data-width="100%" '+ action +' name="'+ name +'"autocomplete="off"><option value="" disabled>选择一个进行操作</option>'
+	var optHtml = '';
+	if (previous){
+		optHtml += '<option value="'+ previous +'">回到上一批服务器</option>'
+	}
 	for (var i=0; i <dataList.length; i++){
-		if(dataList[i][name+"_name"]){
-			var text = dataList[i][name+"_name"]
-		}else if(name=="custom"){
-			var text = dataList[i]["detail"]["ip"]
-		}
-		else{
-			var text = dataList[i]["name"]
-		}
+		var text = dataList[i]["detail"]["ip"]
 		if(selectIds==dataList[i]["id"]){
-			selectHtml += '<option selected="selected" value="'+ dataList[i]["id"] +'">'+text +'</option>' 	
+			optHtml += '<option selected="selected" value="'+ dataList[i]["id"] +'">'+text +'</option>' 	
 		}else{
-			selectHtml += '<option value="'+ dataList[i]["id"] +'">'+text +'</option>'
+			optHtml += '<option value="'+ dataList[i]["id"] +'">'+text +'</option>'
 		} 					 
-	};                        
-	binlogHtml =  binlogHtml + selectHtml + '</select>';
-	$("select[name='"+name+"']").html(binlogHtml)
+	}; 	
+	if (next){
+		optHtml += '<option value="'+ next +'">加载下一批服务器</option>'
+	}	
+	selectHtml =  selectHtml + optHtml + '</select>';
+	$("select[name='"+name+"']").html(selectHtml)
 	$("select[name='"+name+"']").selectpicker('refresh');		
 }
 
@@ -141,10 +140,48 @@ $(document).ready(function() {
 	
 	$("button[name='sql_model_chioce']button[value='"+sql_type+"']").attr('disabled',true);
 	
-	if($("select[name='custom']").length){
-		AssetsSelect("custom",requests('get','/api/assets/'))
+	if($("select[name='upload_server']").length){
+		var respone = requests('get','/api/assets/')
+		AssetsSelect("upload_server",respone["results"],'',respone['next'],respone['previous'])
+		AssetsSelect("download_server",respone["results"],'',respone['next'],respone['previous'])
 	}
-
+	
+	$("#upload_server").change(function(){
+    	let selectVals = $("#upload_server").val()
+    	if (selectVals){
+	        for (var i=0; i <selectVals.length; i++){
+				if(selectVals[i].indexOf("http") >= 0 ) { 
+			   		var respone = requests('get',selectVals[i])
+			   		AssetsSelect("upload_server",respone["results"],'',respone['next'],respone['previous'])				    
+				}
+	        }    		
+    	}		
+	});	
+	
+	$("#download_server").change(function(){
+    	let selectVals = $("#download_server").val()
+    	if (selectVals){
+	        for (var i=0; i <selectVals.length; i++){
+				if(selectVals[i].indexOf("http") >= 0 ) { 
+			   		var respone = requests('get',selectVals[i])
+			   		AssetsSelect("download_server",respone["results"],'',respone['next'],respone['previous'])				    
+				}
+	        }    		
+    	}		
+	});		
+	
+	$("#download_server").change(function(){
+    	let selectVals = $("#upload_server").val()
+    	if (selectVals){
+	        for (var i=0; i <selectVals.length; i++){
+				if(selectVals[i].indexOf("http") >= 0 ) { 
+			   		var respone = requests('get',selectVals[i])
+			   		AssetsSelect("download_server",respone["results"],'',respone['next'],respone['previous'])				    
+				}
+	        }    		
+    	}		
+	});		
+	
 	setAceEditMode("mysql");
 	
 	
@@ -481,7 +518,7 @@ $(document).ready(function() {
 	                styling: 'bootstrap3'
 	            }); 
 	    	}
-		});	
+		});				
 	})   			
 	
 	$("button[name='btn-filedownload-add']").on('click', function() {	

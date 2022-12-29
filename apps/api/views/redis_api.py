@@ -268,7 +268,6 @@ class REDIS_USER_SERVER_DBCMDS(APIView,RedisUser):
     def post(self, request, uid, did, format=None):  
         
         user_db = self.get_db(uid, did)
-        print(request.data.getlist('cmds'))
         try:
             user_db.cmds = ",".join(request.data.getlist('cmds'))
             user_db.save()

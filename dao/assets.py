@@ -27,6 +27,12 @@ class AssetsBusiness(object):
             dataList.append(ds.to_json())
         return dataList
     
+    def get_node_json_project(self,business):
+        dataList = []
+        for ds in Project_Config.objects.filter(project_business=business.id):
+            dataList.append(ds.to_base_json())
+        return dataList    
+    
     def get_assets(self,business):
         return business.assets_set.all()
     
@@ -38,6 +44,9 @@ class AssetsBusiness(object):
         for ds in Assets.objects.filter(~Q(business_tree=business)):
             dataList.append(ds.to_json())  
         return dataList      
+
+    def get_node_unallocated_assets(self,business):
+        return Assets.objects.filter(~Q(business_tree=business)) 
     
 class AssetsBase(DataHandle):
     def __init__(self):
@@ -59,7 +68,7 @@ class AssetsBase(DataHandle):
     
     def zoneList(self):
         return Zone_Assets.objects.all()
-    
+        
     def idcList(self):
         return Idc_Assets.objects.all()
     
@@ -301,6 +310,10 @@ class AssetsBase(DataHandle):
             except Exception as ex:
                 data['put_zone'] = '未知'
             try:
+                data['idc'] = Idc_Assets.objects.get(id=assets.idc).zone_name
+            except Exception as ex:
+                data['idc'] = '未知'                
+            try:
                 data['project'] = Project_Assets.objects.get(id=assets.project).project_name
             except Exception as ex:
                 data['project'] = '未知'
@@ -424,7 +437,7 @@ class AssetsCount(object):
 
     def idcAssets(self):
         try:
-            return [ {"count":ds.count,"idc_name":ds.idc_name} for ds in Idc_Assets.objects.raw("""SELECT t1.id,count(*) as count,t1.idc_name from opsmanage_idc_assets t1, opsmanage_assets t2 WHERE t2.put_zone = t1.id GROUP BY t2.put_zone""")]
+            return [ {"count":ds.count,"idc_name":ds.idc_name} for ds in Idc_Assets.objects.raw("""SELECT t1.id,count(*) as count,t1.idc_name from opsmanage_idc_assets t1, opsmanage_assets t2 WHERE t2.idc = t1.id GROUP BY t2.idc""")]
         except Exception as ex:
             logger.error(msg="统计机房主机资产失败:{ex}".format(ex=ex))
         return self.dataList 

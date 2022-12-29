@@ -10,13 +10,11 @@ def order_notice(order):
     try:
         order = Order_System.objects.get(id=order)
     except Exception as ex:
-        print(ex)
         return {"status":"failed","msg":str(ex)}
     
     try:
         order_config = Order_Notice_Config.objects.get(order_type=order.order_type)
     except Exception as ex:
-        print(ex)
         return {"status":"failed","msg":str(ex)}
     
     order_json = order.to_json()

@@ -45,6 +45,7 @@ class Assets(models.Model):
     model = models.CharField(max_length=100,blank=True,null=True,verbose_name='资产型号')
     status = models.SmallIntegerField(default=0,blank=True,null=True,verbose_name='状态')
     put_zone = models.SmallIntegerField(blank=True,null=True,verbose_name='放置区域')
+    idc = models.SmallIntegerField(blank=True,null=True,verbose_name='放置机房')
     group = models.SmallIntegerField(blank=True,null=True,verbose_name='使用组')
     project = models.SmallIntegerField(blank=True,null=True,verbose_name='项目类型')
     host_vars = models.TextField(blank=True,null=True,verbose_name='ansible主机变量')
@@ -68,9 +69,9 @@ class Assets(models.Model):
         verbose_name_plural = '总资产表'  
     
  
-    def get_put_zone(self):
+    def get_idc(self):
         try:
-            return Idc_Assets.objects.get(id=self.put_zone).idc_name
+            return Idc_Assets.objects.get(id=self.idc).idc_name
         except:
             return '未知'        
 
@@ -105,7 +106,7 @@ class Assets(models.Model):
         return [ i.to_json() for i in NetworkCard_Assets.objects.filter(assets=self.id) ]
     
     def get_business(self):
-        return [ ds.node_path() for ds in self.business_tree.all() ]
+        return [ ds.business_env() + '/' + ds.node_path() for ds in self.business_tree.all() ]
                     
     def to_json(self):  
         if hasattr(self,'server_assets'):
@@ -126,7 +127,8 @@ class Assets(models.Model):
             "provider": self.provider,
             "model": self.model,
             "status": self.status,
-            "put_zone": self.get_put_zone(),
+            "idc": self.get_idc(),
+            "put_zone":self.put_zone,
             "group": self.get_group(),
             "host_vars": self.host_vars,
             "mark": self.mark,
@@ -161,11 +163,12 @@ class Assets(models.Model):
             "provider": self.provider,
             "model": self.model,
             "status": self.status,
-            "put_zone": self.get_put_zone(),
+            "idc": self.get_idc(),
             "group": self.get_group(),
             "host_vars": self.host_vars,
             "mark": self.mark,
             "cabinet": self.cabinet,
+            "put_zone": self.put_zone,
             "create_date": datetime.strftime(self.create_date, '%Y-%m-%d %H:%M:%S'),
             "update_date": datetime.strftime(self.update_date, '%Y-%m-%d %H:%M:%S'),
             "detail":detail,

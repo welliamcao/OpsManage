@@ -450,12 +450,19 @@
 		    	            	   "defaultContent": ''
 		    	               },
 		    	               {
-		    	            	   "data": "put_zone",
+		    	            	   "data": "idc_name",
 		    	            	   "defaultContent": ''
 		    	               },
 		    	               ]
-		       var columnDefs = [                      	    		     		    		    	    		    
-		    	    		        {
+		       var columnDefs = [     
+		       
+		    	    		       {
+		       	    				targets: [3],
+		       	    				render: function(data, type, row, meta) {  	    					
+		       	                        	return formart_assets_type(row.assets_type)
+		       	    					}
+		    	    		        },		       
+		    	    		       {
 		       	    				targets: [11],
 		       	    				render: function(data, type, row, meta) {  	    					
 		       	                        return '<div class="btn-group  btn-group-sm">' +	
@@ -470,7 +477,7 @@
 		    	    	                           '</div>';
 		       	    				},
 		       	    				"className": "text-center",
-		    	    		        },
+		    	    		        }
 		    	    		      ]	
 		        var buttons = [{
 		            text: '更新',
@@ -773,7 +780,7 @@
 							                        '</tr>' +	
 							                        '<tr>' +
 							                          '<td>放置区域 :</td>' +
-							                          '<td>'+ response["put_zone"] +'</td>' +
+							                          '<td>'+ response["idc"] +'</td>' +
 							                          '<td>机柜信息 : </td>' +
 							                          '<td>'+ response["cabinet"] +'</td>' +			                          
 							                        '</tr>' +	
@@ -1097,7 +1104,7 @@
 			   document.getElementById("asset_net_common_div").style.display = "none";
 			   document.getElementById("asset_vmserver_chioce").style.display = "";	
 			   document.getElementById("asset_common_chioce").style.display = "";
-//			   assets = ['asset_assets_type','asset_name','asset_sn','asset_expire_date','asset_buy_time','asset_buy_user','asset_management_ip','asset_manufacturer','asset_provider','asset_model','asset_status','asset_put_zone','asset_group','asset_business','asset_cabinet','asset_project'];
+//			   assets = ['asset_assets_type','asset_name','asset_sn','asset_expire_date','asset_buy_time','asset_buy_user','asset_management_ip','asset_manufacturer','asset_provider','asset_model','asset_status','asset_idc','asset_group','asset_business','asset_cabinet','asset_project'];
 		   }
 		   else if (value=="vmser"){
 			   document.getElementById("asset_server_chioce").style.display = ""; 
@@ -1106,7 +1113,7 @@
 			   document.getElementById("asset_net_chioce").style.display = "none";		
 			   document.getElementById("asset_vmserver_chioce").style.display = "none";
 			   document.getElementById("asset_common_chioce").style.display = "";
-//			   assets = ['asset_assets_type','asset_name','asset_status','asset_put_zone','asset_group','asset_business','asset_cabinet'];
+//			   assets = ['asset_assets_type','asset_name','asset_status','asset_idc','asset_group','asset_business','asset_cabinet'];
 		   }		   
  		   else {
 			   document.getElementById("asset_net_chioce").style.display = "";
@@ -1114,12 +1121,13 @@
 			   document.getElementById("asset_server_common_div").style.display = "none";
 			   document.getElementById("asset_server_chioce").style.display = "none";	
 			   document.getElementById("asset_vmserver_chioce").style.display = "none";	
-			   document.getElementById("asset_common_chioce").style.display = "none";
-//			   assets = ['asset_assets_type','asset_name','asset_sn','asset_expire_date','asset_buy_time','asset_buy_user','asset_management_ip','asset_manufacturer','asset_provider','asset_model','asset_status','asset_put_zone','asset_group','asset_business','asset_project','asset_cabinet'];
+			   document.getElementById("asset_common_chioce").style.display = "";
+//			   assets = ['asset_assets_type','asset_name','asset_sn','asset_expire_date','asset_buy_time','asset_buy_user','asset_management_ip','asset_manufacturer','asset_provider','asset_model','asset_status','asset_idc','asset_group','asset_business','asset_project','asset_cabinet'];
 		   }			 
 	 });	
 	
 	 $("#asset_put_zone").change(function(){
+		   $('#asset_idc option:selected').empty();
 		   $('#asset_cabinet option:selected').empty();
 		   var dbId = $('#asset_put_zone option:selected').val();
 		   if ( dbId.length > 0){	 
@@ -1128,19 +1136,41 @@
 					url:'/api/zone/'+ dbId + '/', //请求地址
 					type:"GET",  //提交类似
 					success:function(response){
-						var binlogHtml = '<select class="form-control" name="asset_cabinet" id="asset_cabinet" required="required">'
+						var idcHtml = '<select class="form-control" name="asset_idc" id="asset_idc">'
+						var selectHtml = '';
+						for (var i=0; i <response["idc_assets"].length; i++){
+							selectHtml += '<option name="asset_idc" value="'+ response["idc_assets"][i]["id"] +'">' +  response["idc_assets"][i]["idc_name"] + '</option>' 
+						};                        
+						idcHtml =  idcHtml + selectHtml + '</select>';
+						$("#asset_idc").html(idcHtml)
+					}
+				});	
+		   };
+		
+	});  	
+	
+	 $("#asset_idc").change(function(){
+		   $('#asset_cabinet option:selected').empty();
+		   var dbId = $('#asset_idc option:selected').val();
+		   if ( dbId.length > 0){	 
+				$.ajax({
+					dataType: "JSON",
+					url:'/api/idc/'+ dbId + '/', //请求地址
+					type:"GET",  //提交类似
+					success:function(response){
+						var cabinetHtml = '<select class="form-control" name="asset_cabinet" id="asset_cabinet">'
 						var selectHtml = '';
 						for (var i=0; i <response["cabinet_assets"].length; i++){
-							 selectHtml += '<option name="asset_cabinet" value="'+ response["cabinet_assets"][i]["id"] +'">' + response["cabinet_assets"][i]["cabinet_name"] + '</option>' 
+							selectHtml += '<option name="asset_idc" value="'+ response["cabinet_assets"][i]["id"] +'">' +  response["cabinet_assets"][i]["cabinet_name"] + '</option>' 
 						};                        
-						binlogHtml =  binlogHtml + selectHtml + '</select>';
-						document.getElementById("asset_cabinet").innerHTML= binlogHtml;	
+						cabinetHtml =  cabinetHtml + selectHtml + '</select>';
+						$("#asset_cabinet").html(cabinetHtml)
 							
 					},
 				});	
 		   };
 		
-	});  	 
+	}); 	
 
 	function addAssetsData(obj) {
 		var form = document.getElementById('addAssets');
@@ -1481,20 +1511,20 @@
         })             
         
 		//机房类型
-        $('#selZone').change(function () {
-            if ($('#selZone').val() != "") {
-                $("#hdnZone").val($('#selZone').val());
-                var span = "<span class='tag' id='spanZone'>" + $("#selZone").find("option:selected").text()
-                + "&nbsp;&nbsp;<a  title='Removing tag' onclick='removeself(this)'>x</a><input name='put_zone' type='hidden' value='"
-                + $('#selZone').val() + "'/></span> &nbsp;";
-                if ($("#spanZone").length == 0) {
+        $('#selIdc').change(function () {
+            if ($('#selIdc').val() != "") {
+                $("#hdnZone").val($('#selIdc').val());
+                var span = "<span class='tag' id='spanIdc'>" + $("#selIdc").find("option:selected").text()
+                + "&nbsp;&nbsp;<a  title='Removing tag' onclick='removeself(this)'>x</a><input name='idc' type='hidden' value='"
+                + $('#selIdc').val() + "'/></span> &nbsp;";
+                if ($("#spanIdc").length == 0) {
                 	$("#divSelectedType").show();
                     $('#divSelectedType').append(span);
                 }
                 else {
-                    $("#spanZone").html($("#selZone").find("option:selected").text()
-                     + "&nbsp;&nbsp;<a  title='Removing tag' onclick='removeself(this)'>x</a><input name='put_zone' type='hidden' value='"
-                     + $('#selZone').val() + "'/></span> &nbsp;");
+                    $("#spanIdc").html($("#selIdc").find("option:selected").text()
+                     + "&nbsp;&nbsp;<a  title='Removing tag' onclick='removeself(this)'>x</a><input name='idc' type='hidden' value='"
+                     + $('#selIdc').val() + "'/></span> &nbsp;");
                 }
                 changepage(1);
             }

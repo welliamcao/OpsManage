@@ -43,7 +43,7 @@ function GetUsersOfAssets(url,uid){
 	var sList = []
 	var url = url + '&id=' + uid
 	userAssetsList = requests('get',url)["data"]
-	allAssetsList = requests('get','/api/assets/')
+	allAssetsList = requests('get','/api/assets/')["results"]
 	if(allAssetsList.length){
 		for (var i=0; i <allAssetsList.length; i++){
 			var count = 0

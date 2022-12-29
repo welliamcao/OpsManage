@@ -45,143 +45,190 @@ function make_terminal(element, size, ws_url) {
     return {socket: ws, term: term};
 }
 
+function project_format ( data ) {
+	var serHtml = '';
+	serList = data["project_servers"];
+	for  (var i=0; i <serList.length; i++){
+		serHtml += serList[i]['ip'] + ',';
+	}
+    var deploytrHtml = '<tr><td>排除文件:</td><td>'+ data["project_exclude"]  + '</td><td>源代码目录:</td><td>'+ data["project_repo_dir"] +'</td></tr>'	;
+    deploytrHtml += '<tr><td>远程命令:</td><td>'+ data["project_remote_command"]  + '</td><td>目标服务器:</td><td>'+ serHtml.substring(0,serHtml.length-1) +'</td></tr>';
+    deploytrHtml += '<tr><td>远程路径:</td><td>'+ data["project_target_root"]  + '</td><td>目录宿主:</td><td>'+ data["project_user"] +'</td></tr>';	
+    deploytrHtml += '<tr><td>排除文件:</td><td>'+ data["project_exclude"]  + '</td><td>日志目录:</td><td>'+ data["project_logpath"] +'</td></tr>';	    
+	if (data["project_type"]=='compile'){
+		deploytrHtml += '<tr><td>编译类型:</td><td>编译型</td><td>编译命令:</td><td>'+ data["project_local_command"].replace(/\r\n/g,'<br>') +'</td></tr>';	   
+	}else{
+		deploytrHtml += '<tr><td>编译类型:</td><td>非编译型</td><td>编译命令:</td><td></td></tr>';	   
+	}	  
+	
+	var roleHtml = ''
+	var roletrHtml = '<tr><td>用户名</td><td>电话</td><td>邮箱</td><td>角色</td></tr>'
+	for  (var i=0; i < data["project_roles"].length; i++){
+		if(data["project_roles"][i]["roles"]=='deploy'){
+			var roles = '<span class="label label-info"><strong>开发人员</strong></span>'
+		}else{
+			var roles = '<span class="label label-warning"><strong>管理人员</strong></span>'
+		}
+		roletrHtml += '<tr>' +
+		                   '<td>' + data["project_roles"][i]["username"]  +'</td>' +
+		                   '<td>' + data["project_roles"][i]["mobile"]  +'</td>' +
+		                   '<td>' + data["project_roles"][i]["email"]  +'</td>' +
+		                   '<td>' + roles  +'</td>' +
+					  '</tr>'
+	}	
+	
+    var vHtml = '<div class="col-md-7 col-sm-12 col-xs-12">' +
+    			'<legend>部署信息</legend>' +
+    				'<table class="table table-striped" cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">'+
+    				  deploytrHtml  +
+    				'</table>' +
+    		    '</div>' +
+    		    '<div class="col-md-5 col-sm-12 col-xs-12">' +
+    			'<legend>人员信息</legend>' +
+    				'<table class="table table-striped" cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">'+
+    					roletrHtml +
+    				'</table>'
+    		    '</div>' 		    
+    return vHtml;
+}
+
 var assets_table_id = ''
 
-	function format (data) {
-	    var astHtml = '';
-	    if (data['assets_type'] == "物理机" || data['assets_type'] == "虚拟机"){
-	    	astHtml = '<tr><td class="col-md-1 col-sm-12 col-xs-12">CPU型号:</td><td class="col-md-1 col-sm-12 col-xs-12">'+ data['detail']['cpu'] +'</td></tr>' + 
-	    			 '<tr><td class="col-md-1 col-sm-12 col-xs-12">CPU个数:</td><td class="col-md-1 col-sm-12 col-xs-12">'+ data['detail']['vcpu_number'] +'</td></tr>' + 
-	    			 '<tr><td class="col-md-1 col-sm-12 col-xs-12">硬盘容量:</td><td class="col-md-1 col-sm-12 col-xs-12">'+ data['detail']['disk_total'] +'</td></tr>' + 
-	    			 '<tr><td class="col-md-1 col-sm-12 col-xs-12">内存容量:</td><td class="col-md-1 col-sm-12 col-xs-12">'+ data['detail']['ram_total'] +'</td></tr>' + 
-	    			 '<tr><td class="col-md-1 col-sm-12 col-xs-12">操作系统:</td><td class="col-md-1 col-sm-12 col-xs-12">'+ data['detail']['system'] +'</td></tr>' + 
-	    			 '<tr><td class="col-md-1 col-sm-12 col-xs-12">内核版本:</td><td class="col-md-1 col-sm-12 col-xs-12">'+ data['detail']['kernel'] +'</td></tr>' + 
-	    			 '<tr><td class="col-md-1 col-sm-12 col-xs-12">主机名:</td><td class="col-md-1 col-sm-12 col-xs-12">'+ data['detail']['hostname'] +'</td></tr>' + 
-	    			 '<tr><td class="col-md-1 col-sm-12 col-xs-12">资产备注:</td><td class="col-md-1 col-sm-12 col-xs-12">'+ data['detail']['mark'] +'</td></tr>' 
-	    }else{
-	    	astHtml = '<tr><td class="col-md-1 col-sm-12 col-xs-12">CPU型号:</td><td class="col-md-1 col-sm-12 col-xs-12">'+ data['detail']['cpu'] +'</td></tr>' + 
-	    			 '<tr><td class="col-md-1 col-sm-12 col-xs-12">内存容量:</td><td class="col-md-1 col-sm-12 col-xs-12">'+ data['detail']['ram_total'] +'</td></tr>' + 
-	    			 '<tr><td class="col-md-1 col-sm-12 col-xs-12">背板带宽:</td><td class="col-md-1 col-sm-12 col-xs-12">'+ data['detail']['bandwidth'] +'</td></tr>' + 
-	    			 '<tr><td class="col-md-1 col-sm-12 col-xs-12">端口总数:</td><td class="col-md-1 col-sm-12 col-xs-12">'+ data['detail']['port_number'] +'</td></tr>' + 
-	    			 '<tr><td class="col-md-1 col-sm-12 col-xs-12">资产备注:</td><td class="col-md-1 col-sm-12 col-xs-12">'+ data['detail']['mark'] +'</td></tr>'	    	
-	    }
-		var nktTrHtml = '';
-	    if (data["networkcard"].length){
-	    	var nktTdHtml = '';
-			for (var i=0; i <data["networkcard"].length; i++){	
-				if ( data["networkcard"][i]["active"]=="1"){
-					var status = '<span class="label label-success">on</span>' 
-				}else{
-					var status = '<span class="label label-danger">off</span>'
-				}
-				nktTdHtml += '</tr>' + 
-							 	'<td class="col-md-1 col-sm-12 col-xs-12">'+ data["networkcard"][i]["device"] +'</td>'+ 
-						  	 	'<td class="col-md-1 col-sm-12 col-xs-12">'+ data["networkcard"][i]["macaddress"] +'</td>' +
-						  	 	'<td class="col-md-1 col-sm-12 col-xs-12">'+ data["networkcard"][i]["ip"] +'</td>' +
-						  	 	'<td class="col-md-1 col-sm-12 col-xs-12">'+ data["networkcard"][i]["module"] +'</td>' +
-						  	 	'<td class="col-md-1 col-sm-12 col-xs-12">'+ data["networkcard"][i]["mtu"] +'</td>' +
-						   	 	'<td class="col-md-1 col-sm-12 col-xs-12">'+ status +'</td>' +
-						   	 '</tr>'
-			};	   
-			nktTrHtml += nktTrHtml + nktTdHtml 
-	    }
-	    var businessTrHtml = ''
-	    if (data["business"].length){
-	    	var bussTdHtml = '';
-			for (var i=0; i <data["business"].length; i++){	
-				bussTdHtml += '</tr>' + 
-							 	'<td class="col-md-1 col-sm-12 col-xs-12">关联业务线:</td>'+ 
-						  	 	'<td class="col-md-1 col-sm-12 col-xs-12">'+ data["business"][i] +'</td>' +
-						   	 '</tr>'
-			};	   
-			businessTrHtml += businessTrHtml + bussTdHtml 
-	    }	    	    
-	    var diskTrHtml = '';
-	    if (data["disk"].length){
-	    	var diskTdHtml = '';
-			for (var i=0; i <data["disk"].length; i++){	
-				if ( data["disk"][i]["active"]=="1"){
-					var status = '<span class="label label-success">on</span>' 
-				}else{
-					var status = '<span class="label label-danger">off</span>'
-				}
-				diskTdHtml += '</tr>' + 
-							 '<td class="col-md-1 col-sm-12 col-xs-12">'+ data["networkcard"][i]["device_volume"] +'</td>'+ 
-						  	 '<td class="col-md-1 col-sm-12 col-xs-12">'+ data["networkcard"][i]["device_model"] +'</td>' +
-						  	 '<td class="col-md-1 col-sm-12 col-xs-12">'+ data["networkcard"][i]["device_brand"] +'</td>' +
-						  	 '<td class="col-md-1 col-sm-12 col-xs-12">'+ data["networkcard"][i]["device_serial"] +'</td>' +
-						  	 '<td class="col-md-1 col-sm-12 col-xs-12">'+ data["networkcard"][i]["device_slot"] +'</td>' +
-						   	 '<td class="col-md-1 col-sm-12 col-xs-12">'+ status +'</td>' +
-						   	 '</tr>'
-			};	   
-			diskTrHtml += diskTrHtml + diskTdHtml 
-	    }	  
-	    var ramTrHtml = '';
-	    if (data["ram"].length){
-	    	var ramTdHtml = '';
-			for (var i=0; i <data["ram"].length; i++){	
-				if ( data["ram"][i]["active"]=="1"){
-					var status = '<span class="label label-success">on</span>' 
-				}else{
-					var status = '<span class="label label-danger">off</span>'
-				}
-				ramTdHtml += '</tr>' + 
-							 '<td class="col-md-1 col-sm-12 col-xs-12">'+ data["ram"][i]["device_model"] +'</td>'+ 
-						  	 '<td class="col-md-1 col-sm-12 col-xs-12">'+ data["ram"][i]["device_volume"] +'</td>' +
-						  	 '<td class="col-md-1 col-sm-12 col-xs-12">'+ data["ram"][i]["device_brand"] +'</td>' +
-						  	 '<td class="col-md-1 col-sm-12 col-xs-12">'+ data["ram"][i]["device_slot"] +'</td>' +
-						   	 '<td class="col-md-1 col-sm-12 col-xs-12">'+ status +'</td>' +
-						   	 '</tr>'
-			};	   
-			ramTrHtml += ramTrHtml + ramTdHtml 
-	    }		    
-	    
-		var netcardHtml = '<legend>网卡信息</legend>' +
-		    					'<table class="table table-striped" cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">'+ 
-		    						'<tr>' +
-		    							'<th>Name</th>' +
-		    							'<th>MAC</th>' +
-		    							'<th>IPV4</th>' +
-		    							'<th>Speed</th>' +
-		    							'<th>MTU</th>' +
-		    							'<th>Status</th>' +
-		    						'</tr>' + nktTrHtml  +
-		    					'</table>'
-			
- 	    var astHtml = '<div class="col-md-6 col-sm-12 col-xs-12">' +
-		    			'<legend>硬件信息</legend>' +
+function format (data) {
+    var astHtml = '';
+    if (data['assets_type'] == "物理机" || data['assets_type'] == "虚拟机"){
+    	astHtml = '<tr><td class="col-md-1 col-sm-12 col-xs-12">CPU型号:</td><td class="col-md-1 col-sm-12 col-xs-12">'+ data['detail']['cpu'] +'</td></tr>' + 
+    			 '<tr><td class="col-md-1 col-sm-12 col-xs-12">CPU个数:</td><td class="col-md-1 col-sm-12 col-xs-12">'+ data['detail']['vcpu_number'] +'</td></tr>' + 
+    			 '<tr><td class="col-md-1 col-sm-12 col-xs-12">硬盘容量:</td><td class="col-md-1 col-sm-12 col-xs-12">'+ data['detail']['disk_total'] +'</td></tr>' + 
+    			 '<tr><td class="col-md-1 col-sm-12 col-xs-12">内存容量:</td><td class="col-md-1 col-sm-12 col-xs-12">'+ data['detail']['ram_total'] +'</td></tr>' + 
+    			 '<tr><td class="col-md-1 col-sm-12 col-xs-12">操作系统:</td><td class="col-md-1 col-sm-12 col-xs-12">'+ data['detail']['system'] +'</td></tr>' + 
+    			 '<tr><td class="col-md-1 col-sm-12 col-xs-12">内核版本:</td><td class="col-md-1 col-sm-12 col-xs-12">'+ data['detail']['kernel'] +'</td></tr>' + 
+    			 '<tr><td class="col-md-1 col-sm-12 col-xs-12">主机名:</td><td class="col-md-1 col-sm-12 col-xs-12">'+ data['detail']['hostname'] +'</td></tr>' + 
+    			 '<tr><td class="col-md-1 col-sm-12 col-xs-12">资产备注:</td><td class="col-md-1 col-sm-12 col-xs-12">'+ data['detail']['mark'] +'</td></tr>' 
+    }else{
+    	astHtml = '<tr><td class="col-md-1 col-sm-12 col-xs-12">CPU型号:</td><td class="col-md-1 col-sm-12 col-xs-12">'+ data['detail']['cpu'] +'</td></tr>' + 
+    			 '<tr><td class="col-md-1 col-sm-12 col-xs-12">内存容量:</td><td class="col-md-1 col-sm-12 col-xs-12">'+ data['detail']['ram_total'] +'</td></tr>' + 
+    			 '<tr><td class="col-md-1 col-sm-12 col-xs-12">背板带宽:</td><td class="col-md-1 col-sm-12 col-xs-12">'+ data['detail']['bandwidth'] +'</td></tr>' + 
+    			 '<tr><td class="col-md-1 col-sm-12 col-xs-12">端口总数:</td><td class="col-md-1 col-sm-12 col-xs-12">'+ data['detail']['port_number'] +'</td></tr>' + 
+    			 '<tr><td class="col-md-1 col-sm-12 col-xs-12">资产备注:</td><td class="col-md-1 col-sm-12 col-xs-12">'+ data['detail']['mark'] +'</td></tr>'	    	
+    }
+	var nktTrHtml = '';
+    if (data["networkcard"].length){
+    	var nktTdHtml = '';
+		for (var i=0; i <data["networkcard"].length; i++){	
+			if ( data["networkcard"][i]["active"]=="1"){
+				var status = '<span class="label label-success">on</span>' 
+			}else{
+				var status = '<span class="label label-danger">off</span>'
+			}
+			nktTdHtml += '</tr>' + 
+						 	'<td class="col-md-1 col-sm-12 col-xs-12">'+ data["networkcard"][i]["device"] +'</td>'+ 
+					  	 	'<td class="col-md-1 col-sm-12 col-xs-12">'+ data["networkcard"][i]["macaddress"] +'</td>' +
+					  	 	'<td class="col-md-1 col-sm-12 col-xs-12">'+ data["networkcard"][i]["ip"] +'</td>' +
+					  	 	'<td class="col-md-1 col-sm-12 col-xs-12">'+ data["networkcard"][i]["module"] +'</td>' +
+					  	 	'<td class="col-md-1 col-sm-12 col-xs-12">'+ data["networkcard"][i]["mtu"] +'</td>' +
+					   	 	'<td class="col-md-1 col-sm-12 col-xs-12">'+ status +'</td>' +
+					   	 '</tr>'
+		};	   
+		nktTrHtml += nktTrHtml + nktTdHtml 
+    }
+    var businessTrHtml = ''
+    if (data["business"].length){
+    	var bussTdHtml = '';
+		for (var i=0; i <data["business"].length; i++){	
+			bussTdHtml += '</tr>' + 
+						 	'<td class="col-md-1 col-sm-12 col-xs-12">关联业务线:</td>'+ 
+					  	 	'<td class="col-md-1 col-sm-12 col-xs-12">'+ data["business"][i] +'</td>' +
+					   	 '</tr>'
+		};	   
+		businessTrHtml += businessTrHtml + bussTdHtml 
+    }	    	    
+    var diskTrHtml = '';
+    if (data["disk"].length){
+    	var diskTdHtml = '';
+		for (var i=0; i <data["disk"].length; i++){	
+			if ( data["disk"][i]["active"]=="1"){
+				var status = '<span class="label label-success">on</span>' 
+			}else{
+				var status = '<span class="label label-danger">off</span>'
+			}
+			diskTdHtml += '</tr>' + 
+						 '<td class="col-md-1 col-sm-12 col-xs-12">'+ data["networkcard"][i]["device_volume"] +'</td>'+ 
+					  	 '<td class="col-md-1 col-sm-12 col-xs-12">'+ data["networkcard"][i]["device_model"] +'</td>' +
+					  	 '<td class="col-md-1 col-sm-12 col-xs-12">'+ data["networkcard"][i]["device_brand"] +'</td>' +
+					  	 '<td class="col-md-1 col-sm-12 col-xs-12">'+ data["networkcard"][i]["device_serial"] +'</td>' +
+					  	 '<td class="col-md-1 col-sm-12 col-xs-12">'+ data["networkcard"][i]["device_slot"] +'</td>' +
+					   	 '<td class="col-md-1 col-sm-12 col-xs-12">'+ status +'</td>' +
+					   	 '</tr>'
+		};	   
+		diskTrHtml += diskTrHtml + diskTdHtml 
+    }	  
+    var ramTrHtml = '';
+    if (data["ram"].length){
+    	var ramTdHtml = '';
+		for (var i=0; i <data["ram"].length; i++){	
+			if ( data["ram"][i]["active"]=="1"){
+				var status = '<span class="label label-success">on</span>' 
+			}else{
+				var status = '<span class="label label-danger">off</span>'
+			}
+			ramTdHtml += '</tr>' + 
+						 '<td class="col-md-1 col-sm-12 col-xs-12">'+ data["ram"][i]["device_model"] +'</td>'+ 
+					  	 '<td class="col-md-1 col-sm-12 col-xs-12">'+ data["ram"][i]["device_volume"] +'</td>' +
+					  	 '<td class="col-md-1 col-sm-12 col-xs-12">'+ data["ram"][i]["device_brand"] +'</td>' +
+					  	 '<td class="col-md-1 col-sm-12 col-xs-12">'+ data["ram"][i]["device_slot"] +'</td>' +
+					   	 '<td class="col-md-1 col-sm-12 col-xs-12">'+ status +'</td>' +
+					   	 '</tr>'
+		};	   
+		ramTrHtml += ramTrHtml + ramTdHtml 
+    }		    
+    
+	var netcardHtml = '<legend>网卡信息</legend>' +
+	    					'<table class="table table-striped" cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">'+ 
+	    						'<tr>' +
+	    							'<th>Name</th>' +
+	    							'<th>MAC</th>' +
+	    							'<th>IPV4</th>' +
+	    							'<th>Speed</th>' +
+	    							'<th>MTU</th>' +
+	    							'<th>Status</th>' +
+	    						'</tr>' + nktTrHtml  +
+	    					'</table>'
+		
+    var astHtml = '<div class="col-md-6 col-sm-12 col-xs-12">' +
+	    			'<legend>硬件信息</legend>' +
+	    				'<table class="table table-striped" cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">'+ 
+	    				 astHtml  +
+	    				'</table>' +
+				  '</div>'; 	
+				
+	var businessHtml = '<legend>业务线信息</legend>' +
 		    				'<table class="table table-striped" cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">'+ 
-		    				 astHtml  +
-		    				'</table>' +
-					  '</div>'; 	
-					
-		var businessHtml = '<legend>业务线信息</legend>' +
-			    				'<table class="table table-striped" cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">'+ 
-									businessTrHtml +
-			    				'</table>'								
-		var diskHtml = '<legend>磁盘信息</legend>' +
-		    					'<table class="table table-striped" cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">'+ 
-		    						'<tr>' +
-		    							'<th>硬盘容量</th>' +
-		    							'<th>硬盘状态</th>' +
-		    							'<th>硬盘型号</th>' +
-		    							'<th>硬盘生产商</th>' +
-		    							'<th>硬盘序列号</th>' +
-		    							'<th>硬盘插槽</th>' +
-		    						'</tr>' + diskTrHtml  +
-		    					'</table>'	
-		var ramHtml = '<legend>内存信息</legend>' +
-		    					'<table class="table table-striped" cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">'+ 
-		    						'<tr>' +
-		    							'<th>内存型号</th>' +
-		    							'<th>内存容量</th>' +
-		    							'<th>内存生产商</th>' +
-		    							'<th>内存插槽</th>' +
-		    							'<th>内存状态</th>' +
-		    						'</tr>' + ramTrHtml  +
-		    					'</table>'			    						
-	    return '<div class="col-md-6 col-sm-12 col-xs-12">'+ businessHtml + diskHtml + ramHtml + netcardHtml + '</div>' + astHtml;
-	}
+								businessTrHtml +
+		    				'</table>'								
+	var diskHtml = '<legend>磁盘信息</legend>' +
+	    					'<table class="table table-striped" cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">'+ 
+	    						'<tr>' +
+	    							'<th>硬盘容量</th>' +
+	    							'<th>硬盘状态</th>' +
+	    							'<th>硬盘型号</th>' +
+	    							'<th>硬盘生产商</th>' +
+	    							'<th>硬盘序列号</th>' +
+	    							'<th>硬盘插槽</th>' +
+	    						'</tr>' + diskTrHtml  +
+	    					'</table>'	
+	var ramHtml = '<legend>内存信息</legend>' +
+	    					'<table class="table table-striped" cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">'+ 
+	    						'<tr>' +
+	    							'<th>内存型号</th>' +
+	    							'<th>内存容量</th>' +
+	    							'<th>内存生产商</th>' +
+	    							'<th>内存插槽</th>' +
+	    							'<th>内存状态</th>' +
+	    						'</tr>' + ramTrHtml  +
+	    					'</table>'			    						
+    return '<div class="col-md-6 col-sm-12 col-xs-12">'+ businessHtml + diskHtml + ramHtml + netcardHtml + '</div>' + astHtml;
+}
 
 function RefreshAssetsTable(tableId, urlData){
 	$.getJSON(urlData, null, function( dataList ){
@@ -266,15 +313,31 @@ function makeSelect(ids,key,name,dataList){
 	$("#"+ids).selectpicker('refresh');
 }
 
-function makeAssetsSelectpicker(ids,key,name,dataList){
+//function makeAssetsSelectpicker(ids,key,name,dataList){
+//	var selectHtml = '';
+//	for (var i=0; i <dataList.length; i++){
+//		selectHtml += '<option value="'+ dataList[i]["id"] +'">'+ dataList[i]["detail"][key] +'</option>' 					 
+//	};                        
+//	selectHtml =  selectHtml + '</select>';
+//	document.getElementById(ids).innerHTML = selectHtml;
+//	$("#"+ids).selectpicker('refresh');
+//}	
+
+function makeAssetsSelectpicker(ids,key,name,dataList,next,previous){
 	var selectHtml = '';
+	if (previous){
+		selectHtml += '<option value="'+ previous +'">回到上一批服务器</option>'
+	}	
 	for (var i=0; i <dataList.length; i++){
 		selectHtml += '<option value="'+ dataList[i]["id"] +'">'+ dataList[i]["detail"][key] +'</option>' 					 
-	};                        
+	}; 
+	if (next){
+		selectHtml += '<option value="'+ next +'">加载下一批服务器</option>'
+	}		
 	selectHtml =  selectHtml + '</select>';
 	document.getElementById(ids).innerHTML = selectHtml;
 	$("#"+ids).selectpicker('refresh');
-}	
+}
 
 var language =  {
 		"sProcessing" : "处理中...",
@@ -709,7 +772,6 @@ function getAssetsTags(vIds){
 			}
 		}
 	};	
-	console.log(dataDict)
 	return dataDict
 }
 
@@ -816,8 +878,8 @@ function viewAssets(ids,text){
 						                          '<td>'+ response["provider"] +'</td>' +			                          
 						                        '</tr>' +	
 						                        '<tr>' +
-						                          '<td>放置区域 :</td>' +
-						                          '<td>'+ response["put_zone"] +'</td>' +
+						                          '<td>放置机房 :</td>' +
+						                          '<td>'+ response["idc"] +'</td>' +
 						                          '<td>机柜信息 : </td>' +
 						                          '<td>'+ response["cabinet"] +'</td>' +			                          
 						                        '</tr>' +	
@@ -1126,7 +1188,6 @@ var envDataList = requests('get',"/api/business/env/")
 $(document).ready(function() {
 	
 	function makeBusinessRnvTables(envDataList){
-//		RefreshUserInfo()
 	    var columns = [
 	                    {"data": "id"},
 	                    {"data": "name"},	
@@ -1542,13 +1603,13 @@ $(document).ready(function() {
 						{"data": "desc"}
 		               ]
 	    var columnDefs = [	                      
-	   	    		        {
-	    	    				targets: [2],
-	    	    				render: function(data, type, row, meta) {	
-	    	                        return userInfo[row.manage]["username"]
-	    	    				},
-	    	    				"className": "text-center",
-	    		        },	                      
+//	   	    		        {
+//	    	    				targets: [2],
+//	    	    				render: function(data, type, row, meta) {	
+//	    	                        return userInfo[row.manage]["username"]
+//	    	    				},
+//	    	    				"className": "text-center",
+//	    		        },	                      
 //	    		        {
 //	    	    				targets: [6],
 //	    	    				render: function(data, type, row, meta) {
@@ -1603,7 +1664,7 @@ $(document).ready(function() {
     	            	   "defaultContent": ''
     	               },
     	               {
-    	            	   "data": "put_zone",
+    	            	   "data": "idc",
     	            	   "defaultContent": ''
     	               }
     	               ]
@@ -1638,9 +1699,9 @@ $(document).ready(function() {
                text: '关联',
                className: "btn-sm",
                action: function (e, dt, button, config) {        	
-            	let dataList = requests("get","/api/business/nodes/assets/"+ select_node["id"] +"/?type=unallocated")
-            	if (dataList.length){
-            		makeAssetsSelectpicker("addBusinessAssetsSelect","ip","assets",dataList)
+            	let respone = requests("get","/api/business/nodes/assets/"+ select_node["id"] +"/?type=unallocated")
+            	if (respone["results"].length){
+            		makeAssetsSelectpicker("addBusinessAssetsSelect","ip","assets",respone["results"],respone["next"],respone["previous"])
             		$('#addBusinessAssetsModal').modal("show");
             		$("#addBusinessAssetsModalLabel").html('<h4 class="modal-title" id="addBusinessAssetsModalLabel"><code>'+ select_node["paths"] +'</code> 分配资产</h4>')
             		$("#addBusinessAssetsSubmit").val(select_node["id"])         		
@@ -1734,6 +1795,69 @@ $(document).ready(function() {
         ]    
     	InitDataTable('businessLastNodesAssetsTableLists',dataList,buttons,columns,columnDefs,'multi');	
     }	
+    
+    
+    function makeProjectTableList(dataList,select_node){
+        var columns = [		                       
+                       {
+						"className": 'details-control',
+						"orderable": false,
+						"data":      null,
+						"defaultContent": ''
+                       },	
+                       {"data": "id"},		                        
+                       {
+                    	   "data": "project_name",
+                    	   "defaultContent": ''
+                       },
+    	               {
+    	            	   "data": "project_env",
+    	            	   "defaultContent": ''
+    	               },
+    	               {
+    	            	   "data": "project_repo_dir",
+    	            	   "defaultContent": ''
+    	               },
+    	               {
+    	            	   "data": "project_address",
+    	            	   "defaultContent": ''
+    	               },
+					   { "data": "操作" }    	               
+    	               ]
+       var columnDefs = [                      	    		     		    		    	    		    
+    	    		        {
+	       	    				targets: [3],
+	       	    				render: function(data, type, row, meta) {  
+									if(row.project_env=='uat'){
+										var status = '<span class="label label-danger">生产环境</span>'
+									}else if(row.project_env=='sit'){
+										var status = '<span class="label label-success">测试环境</span>'
+									}else{
+										var status = '<span class="label label-info">灰度环境</span>'
+									}
+							        return status
+	       	    				},
+	       	    				"className": "text-center",
+    	    		        },	    	    		        
+    	    		        {
+	    	    				targets: [6],
+	    	    				render: function(data, type, row, meta) {
+	    	    				    if (row.project_status == 0) {
+	    	    				        var run = '<button type="button" name="btn-project-run" value="'+ row.id +'" class="btn btn-default disabled" aria-label="Justify"><a><span class="fa fa-play" aria-hidden="true"></span></a>' + '</button>'
+	    	    				    } else {
+	    	    				        var run = '<button type="button" name="btn-project-run" value="'+ row.id +'" class="btn btn-default" aria-label="Justify"><a href="/apps/manage/?type=status&id='+ row.id + '"><span class="fa fa-play" aria-hidden="true"></span></a>' + '</button>'
+	    	    				    }
+	    	                        return '<div class="btn-group  btn-group-xs">' +
+		    	                           run +
+		    	                           '<button type="button" name="btn-project-edit" value="'+ row.id +'" class="btn btn-default"  aria-label="Justify"><a href="/apps/config/?type=edit&id='+ row.id +'"><span class="fa fa-pencil-square-o" aria-hidden="true"></span></a>' + '</button></div>';
+	    	    				},
+	    	    				"className": "text-center",
+    	    		        },  	    		        
+    	    		      ]	
+        var buttons = [   	
+        ]    
+    	InitDataTable('businessLastNodesProjectTableLists',dataList,buttons,columns,columnDefs);	
+    }	    
 	
     $('#addBusinessAssetsSubmit').on('click', function() {
 		var vIds = $(this).val();
@@ -1776,7 +1900,6 @@ $(document).ready(function() {
         $('#businessEnvSelect').change(function () {
         	let selectVal = $('#businessEnvSelect').val()
             if (selectVal != "") {
-                console.log(selectVal)
                 drawTree('#businessTree',requests("get","/api/business/tree/?env="+selectVal)) 
             }
         })    	
@@ -1825,30 +1948,24 @@ $(document).ready(function() {
 		              }
 				});    	 
 	     }else if(select_node["last_node"] == 1){
-				$.ajax({
-					  type: 'GET',
-					  url: '/api/business/nodes/assets/'+ select_node["id"] + '/',
-				      success:function(response){	
-				    	  $("#childrenNodes").hide()
-				    	  $("#nodesAssets").show()
-				    	  $("#lastNodeName").html('<h2 id="lastNodeName">'+ select_node["paths"] +' <small>Business Nodes Assets</small></h2>')
-				    	  if ($('#businessLastNodesAssetsTableLists').hasClass('dataTable')) {
-				            dttable = $('#businessLastNodesAssetsTableLists').dataTable();
-				            dttable.fnClearTable(); //清空table
-				            dttable.fnDestroy(); //还原初始化datatable
-				    	  }			    	  
-				    	  makeAssetsTableList(response,select_node)
-				    	  assets_table_id = select_node["id"]
-				      },
-		              error:function(response){
-		            	new PNotify({
-		                    title: 'Ops Failed!',
-		                    text: response.responseText,
-		                    type: 'error',
-		                    styling: 'bootstrap3'
-		                }); 
-		              }
-				});
+	     	    var project_datalist = requests('get','/api/business/nodes/project/'+ select_node["id"] + '/')
+	     	    var assets_datalist = requests('get','/api/business/nodes/assets/'+ select_node["id"] + '/')
+	    	  	$("#childrenNodes").hide()
+	    	  	$("#nodesAssets").show()
+	    	  	$("#lastNodeName").html('<h2 id="lastNodeName">'+ select_node["paths"] +' <small>Business Nodes Assets</small></h2>')
+	    	  	if ($('#businessLastNodesAssetsTableLists').hasClass('dataTable')) {
+	            	dttable = $('#businessLastNodesAssetsTableLists').dataTable();
+	            	dttable.fnClearTable(); //清空table
+	            	dttable.fnDestroy(); //还原初始化datatable
+	    	  	}	
+	    	  	if ($('#businessLastNodesProjectTableLists').hasClass('dataTable')) {
+	            	dttable = $('#businessLastNodesProjectTableLists').dataTable();
+	            	dttable.fnClearTable(); //清空table
+	            	dttable.fnDestroy(); //还原初始化datatable
+	    	  	}			    	  	
+	    	  	makeAssetsTableList(assets_datalist,select_node)
+	    	  	makeProjectTableList(project_datalist,select_node)
+	    	  	assets_table_id = select_node["id"]	 											
 	     }
 	}); 
     
@@ -1882,6 +1999,18 @@ $(document).ready(function() {
         }
     });	
 	
+	$("#addBusinessAssetsSelect").change(function(){
+    	let selectVals = $('#addBusinessAssetsSelect').val()
+    	if (selectVals){
+	        for (var i=0; i <selectVals.length; i++){
+				if(selectVals[i].indexOf("http") >= 0 ) { 
+			   		var respone = requests('get',selectVals[i])
+			   		makeAssetsSelectpicker("addBusinessAssetsSelect","ip","assets",respone["results"],respone["next"],respone["previous"])				    
+				}
+	        }    		
+    	}		
+	});	    
+    
 	//更新资产
 	$('#businessLastNodesAssetsTableLists tbody').on('click','button[name="btn-assets-update"]',function(){
 		$(this).attr('disabled',true);
@@ -2351,6 +2480,31 @@ $(document).ready(function() {
 	    	});		    		
     	}
 	
-    });	    
+    });	   
+    
+    $('#businessLastNodesProjectTableLists tbody').on('click', 'td.details-control', function () {
+    	var table = $('#businessLastNodesProjectTableLists').DataTable();
+    	var dataList = [];
+        var tr = $(this).closest('tr');
+        var row = table.row( tr );
+        aId = row.data()["id"];
+        $.ajax({
+        	url: "/api/apps/detail/"+ aId +"/",
+            type : "get",
+            async : false,
+            dataType : "json",
+            success : function(result) {
+            	dataList = result;
+            }
+        });	        
+        if ( row.child.isShown() ) {
+            row.child.hide();
+            tr.removeClass('shown');
+        }
+        else {
+            row.child( project_format(dataList) ).show();
+            tr.addClass('shown');
+        }
+    });      
     
 });

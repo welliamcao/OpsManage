@@ -253,7 +253,7 @@ def raid_detail(request, id,format=None):
         return Response(status=status.HTTP_204_NO_CONTENT)  
                    
 
-class AssetList(APIView,DataHandle):
+class AssetList(APIView):
       
     def get(self,request,*args,**kwargs):  
         if request.user.is_superuser:             
@@ -286,7 +286,6 @@ def asset_detail(request, id, format=None):
         return Response(status=status.HTTP_404_NOT_FOUND)
  
     if request.method == 'GET':
-#         serializer = serializers.AssetsFullSerializer(snippet)
         return Response(snippet.to_full_json())
  
     elif request.method == 'PUT':
@@ -319,7 +318,7 @@ def asset_server_list(request,format=None):
         
     elif request.method == 'POST':
         if not request.user.has_perm('asset.assets_add_server'):
-            return Response(status=status.HTTP_403_FORBIDDEN)        
+            return Response(status=status.HTTP_403_FORBIDDEN)       
         if(request.data.get('data')):
             data =  request.data.get('data')
         else:
@@ -930,9 +929,12 @@ class NODES_ASSERS_DETAIL(APIView,AssetsBusiness):
         if not query_params:
             return Response(self.get_node_json_assets(snippet))                    
         
-        elif query_params.get("type") == "unallocated":
-            
-            return Response(self.get_node_unallocated_json_assets(snippet))    
+        elif query_params.get("type") == "unallocated":   
+            snippets = self.get_node_unallocated_assets(snippet)
+            page = serializers.PageConfig()  # 注册分页
+            page_assets_list = page.paginate_queryset(queryset=snippets, request=request, view=self)
+            ser = serializers.AssetsSerializer(instance=page_assets_list, many=True)
+            return page.get_paginated_response(ser.data)           
         
         else: 
             
@@ -975,3 +977,24 @@ class NODES_ASSERS_DETAIL(APIView,AssetsBusiness):
             return Response(msg,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
      
         return Response(status=status.HTTP_204_NO_CONTENT)    
+    
+    
+class NODES_PROJECT_DETAIL(APIView,AssetsBusiness):
+    
+    def get_object(self, pk):
+        try:
+            return Business_Tree_Assets.objects.get(id=pk)
+        except Business_Tree_Assets.DoesNotExist:
+            raise Http404      
+    
+    def get(self, request, pk, *args,**kwargs): 
+        snippet = self.get_object(pk)
+        
+        query_params = dict()
+        for ds in request.query_params.keys():
+            query_params[ds] = request.query_params.get(ds)
+            
+        if not query_params:
+            return Response(self.get_node_json_project(snippet))                    
+        else: 
+            return Response([])     

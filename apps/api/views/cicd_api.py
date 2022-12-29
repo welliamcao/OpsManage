@@ -22,15 +22,18 @@ def project_list(request,format=None):
         return Response(serializer.data)     
     
     
-@api_view(['DELETE'])
+@api_view(['DELETE','GET'])
 @permission_required('cicd.project_delete_project_config',raise_exception=True)
 def project_detail(request, id,format=None):
     try:
         snippet = Project_Config.objects.get(id=id)
     except Project_Config.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
+    
+    if request.method == 'GET': 
+        return Response(snippet.to_full_json()) 
      
-    if request.method == 'DELETE':
+    elif request.method == 'DELETE':
         if not request.user.has_perm('cicd.project_read_project_config'):
             return Response(status=status.HTTP_403_FORBIDDEN)
         snippet.delete()

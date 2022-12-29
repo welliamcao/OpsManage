@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
+import json
 from django.db import models
-from asset.models import Business_Tree_Assets
+from asset.models import Business_Tree_Assets, Assets
+from account.models import User
 # Create your models here.
 class Project_Config(models.Model):  
     project_repertory_choices = (
@@ -53,6 +55,73 @@ class Project_Config(models.Model):
             return business.business_env() + '/' +business.node_path()
         except:
             return "未知"   
+    
+    def get_project_server(self):
+        try:
+            asset_id = json.loads(self.project_servers)
+            return [ {"id":a.to_json().get('detail').get('id'), "ip":a.to_json().get('detail').get('ip')} for a in Assets.objects.filter(id__in=asset_id) ]
+        except:
+            return "未知"
+    
+    def get_roles(self):
+        datalist = []
+        for ds in Project_Roles.objects.filter(project=self.id):
+            datalist.append(ds.to_json())
+        return datalist
+
+    def to_base_json(self):
+        json_format = {
+            "id": self.id,
+            "project_env": self.project_env,
+            "project_business_paths": self.business_paths(),
+            "project_name": self.project_name,
+            "project_type": self.project_type,
+            "project_local_command": self.project_local_command,
+            "project_repo_dir": self.project_repo_dir,
+            "project_exclude": self.project_exclude,
+            "project_address": self.project_address,
+            "project_uuid": self.project_uuid,
+            "project_repo_user": self.project_repo_user,
+            "project_repertory": self.project_repertory,
+            "project_status": self.project_status,
+            "project_remote_command": self.project_remote_command,
+            "project_user": self.project_user,
+            "project_model": self.project_model,
+            "project_business": self.project_business,
+            "project_pre_remote_command": self.project_pre_remote_command,
+            "project_logpath":self.project_logpath,
+            "project_target_root":self.project_target_root,
+
+        }
+        return  json_format 
+        
+    def to_full_json(self):
+        json_format = {
+            "id": self.id,
+            "project_env": self.project_env,
+            "project_business_paths": self.business_paths(),
+            "project_name": self.project_name,
+            "project_type": self.project_type,
+            "project_local_command": self.project_local_command,
+            "project_repo_dir": self.project_repo_dir,
+            "project_exclude": self.project_exclude,
+            "project_address": self.project_address,
+            "project_uuid": self.project_uuid,
+            "project_repo_user": self.project_repo_user,
+#             "project_repo_passwd": self.project_repo_passwd,
+            "project_repertory": self.project_repertory,
+            "project_status": self.project_status,
+            "project_remote_command": self.project_remote_command,
+            "project_user": self.project_user,
+            "project_model": self.project_model,
+            "project_business": self.project_business,
+            "project_pre_remote_command": self.project_pre_remote_command,
+            "project_servers":self.get_project_server(),
+            "project_logpath":self.project_logpath,
+            "project_target_root":self.project_target_root,
+            "project_roles":self.get_roles()
+        }
+        return  json_format          
  
 class Log_Project_Config(models.Model):
     project = models.ForeignKey('Project_Config',related_name='project_config', on_delete=models.CASCADE)
@@ -110,4 +179,17 @@ class Project_Roles(models.Model):
         unique_together = (("project", "user"))
         verbose_name = '项目发布管理' 
         verbose_name_plural = '项目角色管理表' 
+    
+    def get_username(self):
+        try:
+            return User.objects.get(id=self.user).to_base()
+        except:
+            return {}
+        
+    def to_json(self):
+        json_format = self.get_username()
+        json_format['uid'] = json_format.get('id')
+        json_format['roles'] = self.role
+        json_format['id'] = self.id
+        return  json_format         
         

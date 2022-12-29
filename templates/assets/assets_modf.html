@@ -215,7 +215,7 @@
 							<fieldset>		
 							{% if assets.assets_type == "server" or assets.assets_type == "vmser" %}
 							<div id="asset_server_chioce" >					
-							<legend>服务器设备资产信息修改 - 可选信息</legend>
+							<legend>设备资产信息录入 - 可选信息</legend>
 							
 							<div class="item form-group">
 								 <label class="control-label col-md-3 col-sm-3 col-xs-12">使用组</label>
@@ -230,18 +230,31 @@
 										{% endfor %}						   																						
 									</select>
 								 </div>
-							</div>	
-							
+							</div>			
 							<div class="item form-group">
 								 <label class="control-label col-md-3 col-sm-3 col-xs-12">放置区域</label>
 								 <div class="col-md-6 col-sm-6 col-xs-12">
-		<!-- 												 	<input type="text" class="form-control" name="asset_put_zone" placeholder="放置区域" value="{{ assets.put_zone }}" class="input-xlarge" /> -->
-									<select class="form-control" name="asset_put_zone"  >
-										{% for z in assetsBase.idcList %}
+								   <select class="form-control" name="asset_put_zone"  id="asset_put_zone">
+								   		<option selected="selected" value="">请选择一个类型</option>	
+										{% for z in assetsBase.zoneList %}
 											{% if z.id == assets.put_zone %}
-												<option value="{{z.id}}" name="asset_put_zone" selected="selected" >{{z.idc_name|default:""}}</option>
+												<option value="{{z.id}}" name="asset_put_zone" selected="selected" >{{z.zone_name|default:""}}</option>
 											{% else %}
-												<option value="{{z.id}}" name="asset_put_zone">{{z.idc_name|default:""}}</option>
+												<option value="{{z.id}}" name="asset_put_zone">{{z.zone_name|default:""}}</option>
+											{% endif %}										
+										{% endfor %}	
+									</select>							 	
+								 </div>
+							</div>										
+							<div class="item form-group">
+								 <label class="control-label col-md-3 col-sm-3 col-xs-12">放置机房</label>
+								 <div class="col-md-6 col-sm-6 col-xs-12">
+									<select class="form-control" name="asset_idc" id="asset_idc">
+										{% for z in assetsBase.idcList %}
+											{% if z.id == assets.idc %}
+												<option value="{{z.id}}" name="asset_idc" selected="selected" >{{z.idc_name|default:""}}</option>
+											{% else %}
+												<option value="{{z.id}}" name="asset_idc">{{z.idc_name|default:""}}</option>
 											{% endif %}										
 										{% endfor %}						   																						
 									</select>												 

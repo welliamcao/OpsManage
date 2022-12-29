@@ -185,19 +185,26 @@ class RaidSerializer(serializers.ModelSerializer):
            
 
 class AssetsSerializer(serializers.ModelSerializer):
+    idc_name = serializers.SerializerMethodField(read_only=True,required=False)
     detail = serializers.SerializerMethodField(read_only=True,required=False)
     class Meta:
         model = Assets
         fields = ('id','assets_type','name','sn','buy_time','expire_date',
                   'buy_user','management_ip','manufacturer','provider','mark',
-                  'model','status','put_zone','group','project','cabinet','detail')  
+                  'model','status','idc','group','project','cabinet','detail',
+                  'idc_name','put_zone')  
       
     def get_detail(self, obj):
         if obj.assets_type in ["vmser","server"]:
             return Server_Assets.objects.get(assets=obj).to_json()
         else:
             return Network_Assets.objects.get(assets=obj).to_json() 
-    
+        
+    def get_idc_name(self, obj):
+        try:
+            return Idc_Assets.objects.get(id=obj.idc).idc_name
+        except:
+            return "未知"
 
 class ServerSerializer(serializers.ModelSerializer): 
     assets = AssetsSerializer(required=False)
@@ -507,10 +514,10 @@ class AppsSerializer(serializers.ModelSerializer):
     project_business_paths = serializers.SerializerMethodField(read_only=True,required=False)
     class  Meta:
         model = Project_Config
-        fields = ('id','project_env','project_business_paths', 'project_name','project_type','project_local_command','project_repo_dir',
-                  'project_exclude','project_address','project_uuid','project_repo_user','project_repo_passwd',
-                  'project_repertory','project_status','project_remote_command','project_user','project_model',
-                  'project_business',"project_pre_remote_command") 
+        fields = ('id','project_env','project_business_paths', 'project_name','project_type','project_local_command',
+                  'project_exclude','project_address','project_uuid','project_repo_user','project_model',
+                  'project_repertory','project_status','project_remote_command','project_user',
+                  'project_business',"project_pre_remote_command",'project_repo_dir') 
     
     def get_project_business_paths(self,obj):
         return obj.business_paths()

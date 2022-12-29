@@ -147,10 +147,8 @@ function format (dataList) {
 	return '<div class="row">'+ vHtml + '</div>' + nHtml + '</div>';	
 }	
 
-function AssetsSelect(name,dataList,selectIds){
-	
+function AssetsSelect(name,dataList,selectIds,next,previous){
 	if(!selectIds){selectIds=0}
-	
 	switch(name)
 	   {
 		   case "project":
@@ -159,18 +157,35 @@ function AssetsSelect(name,dataList,selectIds){
 		   default:
 			   action = ''	       
 	   }
-	var binlogHtml = '<select required="required" class="selectpicker form-control" data-live-search="true"  data-size="10" data-width="100%" '+ action +' name="'+ name +'"autocomplete="off"><option value="">选择一个进行操作</option>'
-	var selectHtml = '';
+	var selectHtml = '<select required="required" class="selectpicker form-control" data-live-search="true"  data-size="10" data-width="100%" '+ action +' name="'+ name +'"autocomplete="off"><option value="" disabled>选择一个进行操作</option>'
+	var optHtml = '';
+	if (previous){
+		optHtml += '<option value="'+ previous +'">回到上一批服务器</option>'
+	}
 	for (var i=0; i <dataList.length; i++){
-		var text = dataList[i]["detail"]["ip"]				
+		if(dataList[i][name+"_name"]){
+			var text = dataList[i][name+"_name"]
+		}else if(name=="sched_server"){
+			var text = dataList[i]["detail"]["ip"]	
+		}else if(name=="business"){
+			var text = dataList[i]["paths"]
+		}else if(name=="group"){
+			var text = dataList[i]["paths"]
+		}
+		else{
+			var text = dataList[i]["name"]
+		}
 		if(selectIds==dataList[i]["id"]){
-			selectHtml += '<option selected="selected" value="'+ dataList[i]["id"] +'">'+text +'</option>' 	
+			optHtml += '<option selected="selected" value="'+ dataList[i]["id"] +'">'+text +'</option>' 	
 		}else{
-			selectHtml += '<option value="'+ dataList[i]["id"] +'">'+text +'</option>'
+			optHtml += '<option value="'+ dataList[i]["id"] +'">'+text +'</option>'
 		} 					 
-	};                        
-	binlogHtml =  binlogHtml + selectHtml + '</select>';
-	$("select[name='"+name+"']").html(binlogHtml)
+	}; 	
+	if (next){
+		optHtml += '<option value="'+ next +'">加载下一批服务器</option>'
+	}	
+	selectHtml =  selectHtml + optHtml + '</select>';
+	$("select[name='"+name+"']").html(selectHtml)
 	$("select[name='"+name+"']").selectpicker('refresh');		
 }
 
@@ -804,10 +819,18 @@ $(document).ready(function() {
 	
 	
 	if($("#sched_server").length){
-		var dataList = requests('get','/api/assets/?assets_type=ser')
-		AssetsSelect("sched_server",dataList)
+		let respone = requests('get','/api/assets/')
+		AssetsSelect("sched_server",respone["results"],'',respone['next'],respone['previous'])	
 	}	
 
+	$("#sched_server").change(function(){
+    	let selectVals = $("#sched_server").val()
+    	if (selectVals.indexOf("http") >= 0){
+	   		var respone = requests('get',selectVals)
+	   		AssetsSelect("sched_server",respone["results"],'',respone['next'],respone['previous'])				    
+
+    	}		
+	});		
 	
 	$("#sched_type").change(function(){
 		   var obj = document.getElementById("sched_type"); 

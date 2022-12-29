@@ -91,10 +91,8 @@ function InventoryGroupsSelect(inventoryId,groupId){
 		} 
 }
 
-function AssetsSelect(name,dataList,selectIds){
-	
+function AssetsSelect(name,dataList,selectIds,next,previous){
 	if(!selectIds){selectIds=0}
-	
 	switch(name)
 	   {
 		   case "project":
@@ -103,8 +101,11 @@ function AssetsSelect(name,dataList,selectIds){
 		   default:
 			   action = ''	       
 	   }
-	var binlogHtml = '<select required="required" class="selectpicker form-control" data-live-search="true"  data-size="10" data-width="100%" '+ action +' name="'+ name +'"autocomplete="off"><option value="" disabled>选择一个进行操作</option>'
-	var selectHtml = '';
+	var selectHtml = '<select required="required" class="selectpicker form-control" data-live-search="true"  data-size="10" data-width="100%" '+ action +' name="'+ name +'"autocomplete="off"><option value="" disabled>选择一个进行操作</option>'
+	var optHtml = '';
+	if (previous){
+		optHtml += '<option value="'+ previous +'">回到上一批服务器</option>'
+	}
 	for (var i=0; i <dataList.length; i++){
 		if(dataList[i][name+"_name"]){
 			var text = dataList[i][name+"_name"]
@@ -119,13 +120,16 @@ function AssetsSelect(name,dataList,selectIds){
 			var text = dataList[i]["name"]
 		}
 		if(selectIds==dataList[i]["id"]){
-			selectHtml += '<option selected="selected" value="'+ dataList[i]["id"] +'">'+text +'</option>' 	
+			optHtml += '<option selected="selected" value="'+ dataList[i]["id"] +'">'+text +'</option>' 	
 		}else{
-			selectHtml += '<option value="'+ dataList[i]["id"] +'">'+text +'</option>'
+			optHtml += '<option value="'+ dataList[i]["id"] +'">'+text +'</option>'
 		} 					 
-	};                        
-	binlogHtml =  binlogHtml + selectHtml + '</select>';
-	$("select[name='"+name+"']").html(binlogHtml)
+	}; 	
+	if (next){
+		optHtml += '<option value="'+ next +'">加载下一批服务器</option>'
+	}	
+	selectHtml =  selectHtml + optHtml + '</select>';
+	$("select[name='"+name+"']").html(selectHtml)
 	$("select[name='"+name+"']").selectpicker('refresh');		
 }
 
@@ -147,7 +151,8 @@ function controlServerSelectHide(value,selectIds){
 			   $("#project_server").hide();
 			   $("#inventory_server").hide();
 			   $("#tags_server").hide();
-			   AssetsSelect("custom",requests('get','/api/assets/'),selectIds)
+			   var respone = requests('get','/api/assets/')
+			   AssetsSelect("custom",respone["results"],selectIds,respone['next'],respone['previous'])
 		       break;
 		   case "business":
 			   $("#group_server").hide();
@@ -523,6 +528,18 @@ $(document).ready(function() {
 		   var value = obj.options[index].value; 
 		   controlServerSelectHide(value);	
 	});
+	
+	$("#deploy_server").change(function(){
+    	let selectVals = $('#deploy_server').val()
+    	if (selectVals){
+	        for (var i=0; i <selectVals.length; i++){
+				if(selectVals[i].indexOf("http") >= 0 ) { 
+			   		var respone = requests('get',selectVals[i])
+			   		AssetsSelect("custom",respone["results"],'',respone['next'],respone['previous'])				    
+				}
+	        }    		
+    	}		
+	});	
 	
 	$("#deploy_model").change(function(){
 		   var obj = document.getElementById("deploy_model"); 

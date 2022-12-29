@@ -33,7 +33,8 @@ urlpatterns = [
             url(r'^business/tree/$', assets_api.BUSINESS_TREE_LIST.as_view()), 
             url(r'^business/nodes/$',assets_api.NODE_LIST.as_view()), 
             url(r'^business/nodes/(?P<pk>[0-9]+)/$',assets_api.NODE_DETAIL.as_view()), 
-            url(r'^business/nodes/assets/(?P<pk>[0-9]+)/$', assets_api.NODES_ASSERS_DETAIL.as_view()),                                           
+            url(r'^business/nodes/assets/(?P<pk>[0-9]+)/$', assets_api.NODES_ASSERS_DETAIL.as_view()),    
+            url(r'^business/nodes/project/(?P<pk>[0-9]+)/$', assets_api.NODES_PROJECT_DETAIL.as_view()),                                       
             url(r'^tags/$', assets_api.tags_list), 
             url(r'^tags/(?P<id>[0-9]+)/$',assets_api.tags_detail),    
             url(r'^tags/assets/(?P<id>[0-9]+)/$',assets_api.tags_assets),                                         
@@ -128,7 +129,7 @@ urlpatterns = [
             
             #代码部署模块
             url(r'^apps/list/$', cicd_api.project_list),   
-            url(r'^apps/list/(?P<id>[0-9]+)/$', cicd_api.project_detail), 
+            url(r'^apps/detail/(?P<id>[0-9]+)/$', cicd_api.project_detail), 
             url(r'^apps/logs/$', cicd_api.AppsLogPaginator.as_view()),  
             url(r'^apps/log/(?P<id>.+)/$', cicd_api.project_log_detail), 
             url(r'^apps/logs/detail/(?P<id>.+)/$', cicd_api.AppsLogRecord.as_view()),  

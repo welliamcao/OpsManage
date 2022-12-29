@@ -1,4 +1,3 @@
-
 function InitDataTableAssets(tableId,data,buttons,columns,columnDefs, page){
 	oOverviewTable =$('#'+tableId).dataTable({
 				    "dom": "Bfrtip",
@@ -385,11 +384,17 @@ $(document).ready(function() {
 	    	            	   "defaultContent": ''
 	    	               },
 	    	               {
-	    	            	   "data": "put_zone",
+	    	            	   "data": "idc_name",
 	    	            	   "defaultContent": ''
-	    	               },
+	    	               }
 	    	               ]
-	       var columnDefs = [                      	    		     		    		    	    		    
+	       var columnDefs = [     
+	    	    		       {
+	       	    				targets: [3],
+	       	    				render: function(data, type, row, meta) {  	    					
+	       	                        	return formart_assets_type(row.assets_type)
+	       	    					}
+	    	    		        },	       
 	    	    		        {
 	       	    				targets: [11],
 	       	    				render: function(data, type, row, meta) {  	    					
@@ -676,7 +681,7 @@ $(document).ready(function() {
 							                        '</tr>' +	
 							                        '<tr>' +
 							                          '<td>放置区域 :</td>' +
-							                          '<td>'+ response["put_zone"] +'</td>' +
+							                          '<td>'+ response["idc_name"] +'</td>' +
 							                          '<td>机柜信息 : </td>' +
 							                          '<td>'+ response["cabinet"] +'</td>' +			                          
 							                        '</tr>' +	

@@ -173,8 +173,6 @@ class AppsManage(AssetsBase):
     def info_apps(self,request):
         project = self.get_apps(request)
         data = self.convert_to_dict(project)
-#             data['project_id'] = Project_Assets.objects.get(id=data['project_id']).project_name
-#             data['service_name'] = Service_Assets.objects.get(id=data['project_service']).service_name
         data['number'] = self.get_apps_number(project)   #member
         data['roles'] = self.get_role(project)
         data["project_servers"] = json.loads(project.project_servers)

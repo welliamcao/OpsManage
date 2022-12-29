@@ -22,7 +22,6 @@ def AnsibleScripts(**kw):
             ANS.run_model(host_list=sList,module_name='script',module_args="{filePath} {args}".format(filePath=filePath,args=script.script_args))
             return json.loads(ANS.get_model_result())
     except Exception as ex:
-        print(ex)
         return {"status":"failed","msg":str(ex)} 
     
     
@@ -40,5 +39,4 @@ def AnsiblePlayBook(**kw):
             ANS.run_playbook(host_list=sList, playbook_path=filePath)
             return json.loads(ANS.get_playbook_result())
     except Exception as ex:
-        print(ex)
         return {"status":"failed","msg":str(ex)}       

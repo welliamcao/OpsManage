@@ -151,7 +151,7 @@ $(document).ready(function() {
 			   $("#project_model").html(project_model + '<option value="branch" name="project_model">Branch</option>')
 		   }
 	});	 
-	url = '/apps/config/?type=info&id=' + get_url_param('id')
+	url = '/api/apps/detail/' + get_url_param('id')
 	var project = requests('get',url)
 	if (project["code"]!=200){
 		 window.location.href="/404/";

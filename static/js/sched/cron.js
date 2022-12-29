@@ -31,8 +31,7 @@ function DynamicSelect(ids,value){
 	$("#" + ids +" option[value='" + value +"']").prop("selected",true);	
 }
 
-
-function AssetsSelect(name,dataList,selectIds){
+function AssetsSelect(name,dataList,selectIds,next,previous){
 	
 	if(!selectIds){selectIds=0}
 	
@@ -44,18 +43,24 @@ function AssetsSelect(name,dataList,selectIds){
 		   default:
 			   action = ''	       
 	   }
-	var binlogHtml = '<select required="required" class="selectpicker form-control" data-live-search="true"  data-size="10" data-width="100%" '+ action +' name="'+ name +'"autocomplete="off"><option value="">选择一个进行操作</option>'
-	var selectHtml = '';
+	var selectHtml = '<select required="required" class="selectpicker form-control" data-live-search="true"  data-size="10" data-width="100%" '+ action +' name="'+ name +'"autocomplete="off"><option value="">选择一个进行操作</option>'
+	var optHtml = '';
+	if (previous){
+		optHtml += '<option value="'+ previous +'">回到上一批服务器</option>'
+	}	
 	for (var i=0; i <dataList.length; i++){
 		var text = dataList[i]["detail"]["ip"]			
 		if(selectIds==dataList[i]["id"]){
-			selectHtml += '<option selected="selected" value="'+ dataList[i]["id"] +'">'+text +'</option>' 	
+			optHtml += '<option selected="selected" value="'+ dataList[i]["id"] +'">'+text +'</option>' 	
 		}else{
-			selectHtml += '<option value="'+ dataList[i]["id"] +'">'+text +'</option>'
+			optHtml += '<option value="'+ dataList[i]["id"] +'">'+text +'</option>'
 		} 					 
-	};                        
-	binlogHtml =  binlogHtml + selectHtml + '</select>';
-	$("select[name='"+name+"']").html(binlogHtml)
+	};    
+	if (next){
+		optHtml += '<option value="'+ next +'">加载下一批服务器</option>'
+	}		
+	selectHtml =  selectHtml + optHtml + '</select>';
+	$("select[name='"+name+"']").html(selectHtml)
 	$("select[name='"+name+"']").selectpicker('refresh');		
 }
 
@@ -146,9 +151,21 @@ $(document).ready(function() {
 	});
 	
 	if($("#deploy_server").length){
-		var dataList = requests('get','/api/assets/')
-		AssetsSelect("deploy_server",dataList)
+		let respone = requests('get','/api/assets/')
+		AssetsSelect("deploy_server",respone["results"],'',respone['next'],respone['previous'])
 	}
+	
+	$("#deploy_server").change(function(){
+    	let selectVals = $('#deploy_server').val()
+    	if (selectVals){
+	        for (var i=0; i <selectVals.length; i++){
+				if(selectVals[i].indexOf("http") >= 0 ) { 
+			   		var respone = requests('get',selectVals[i])
+			   		AssetsSelect("deploy_server",respone["results"],'',respone['next'],respone['previous'])				    
+				}
+	        }    		
+    	}		
+	});		
 
     $('#deploy_inventory').change(function () {
 	 	   var sId = $('#deploy_inventory option:selected').val()
@@ -226,17 +243,18 @@ $(document).ready(function() {
     	    		        {
     	    				targets: [10],
     	    				render: function(data, type, row, meta) {
-    	    					if(row.cron_status == 2){
-    	    						var disable = '<button type="button" name="btn-script-enable" value="'+ row.id +'" class="btn btn-default" aria-label="Justify"><span class="fa fa-thumbs-o-up" aria-hidden="true"></span></button>'
-    	    					}else if(row.cron_status == 1){
-    	    						var disable = '<button type="button" name="btn-script-disabled" value="'+ row.id +'" class="btn btn-default" aria-label="Justify"><span class="fa fa-thumbs-o-down" aria-hidden="true"></span></button>'
+    	    					if (row.cron_status == 1){
+    	    						disable = '<button type="button" name="btn-script-disabled" value="'+ row.id +'" class="btn btn-default" aria-label="Justify"><span class="fa fa-thumbs-o-down" aria-hidden="true"></span></button>'
+    	    					}else if(row.cron_status == 2){
+    	    						disable = '<button type="button" name="btn-script-enable" value="'+ row.id +'" class="btn btn-default" aria-label="Justify"><span class="fa fa-thumbs-o-up" aria-hidden="true"></span></button>'
+    	    					}else{
+    	    						disable = '<button type="button" value="'+ row.id +'" class="btn btn-default disabled" aria-label="Justify"><span class="fa fa-thumbs-o-up" aria-hidden="true"></span></button>'
     	    					}
     	                        return '<div class="btn-group  btn-group-xs">' +	
-    	                           '<button type="button" name="btn-script-edit" value="'+ row.id +'" class="btn btn-default" aria-label="Justify"><span class="fa fa-pencil-square-o" aria-hidden="true"></span>' +	
-    	                           '</button>' + disable +			                				                            		                            			                          
-    	                           '<button type="button" name="btn-script-view" value="'+ row.id +'" class="btn btn-default" aria-label="Justify"><span class="fa fa-search-plus" aria-hidden="true"></span>' +	
-    	                           '</button>' +	
-    	                           '<button type="button" name="btn-script-delete" value="'+ row.id +'" class="btn btn-default" aria-label="Justify"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span>' +	
+    	                           '<button type="button" name="btn-script-edit" value="'+ row.id +'" class="btn btn-default" aria-label="Justify"><span class="fa fa-pencil-square-o" aria-hidden="true"></span></button>' + 
+    	                            disable +
+    	                           '<button type="button" name="btn-script-view" value="'+ row.id +'" class="btn btn-default" aria-label="Justify"><span class="fa fa-search-plus" aria-hidden="true"></span></button>' +	
+    	                           '<button type="button" name="btn-script-delete" value="'+ row.id +'" class="btn btn-default" aria-label="Justify"><span class="fa fa-trash" aria-hidden="true"></span>' +	
     	                           '</button>' +			                            
     	                          '</div>';
     	    				},
@@ -669,7 +687,7 @@ $(document).ready(function() {
 		$.confirm({
 		    title: '启用确认',
 		    content: server + ': ' +name,
-		    type: 'red',
+		    type: 'blue',
 		    buttons: {
 		        启用: function () {
 		    	$.ajax({  

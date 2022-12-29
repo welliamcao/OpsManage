@@ -640,7 +640,7 @@ $(document).ready(function() {
 												var env = '<code>灰度环境</code>'
 											}
 									        return env
-										},
+										}
 									},
 									{
 										targets: [5],
@@ -880,7 +880,7 @@ $(document).ready(function() {
     	$.ajax({  
             cache: true,  
             type: "GET",  
-            url:"/apps/config/?type=info&id="+ get_url_param('id') ,  
+            url:"/api/apps/detail/"+ get_url_param('id')  + '/',  
             async: false,  
             error: function(response) {  
             	new PNotify({
@@ -891,28 +891,26 @@ $(document).ready(function() {
                 }); 
             },  
             success: function(response) {   	
-            	if (response["code"]=="200"){
-            		var serverSelect = '<select  class="selectpicker form-control"  data-size="10" data-selected-text-format="count > 5" data-live-search="true" data-width="100%"   autocomplete="off"  class="form-control"   autocomplete="off" name="server" id="server"  required>'
-            		var serverSelectOption = ''	
-            		var logpathSelectOption = ''	
-            		var logList = []	           		
-            		for (var i = 0; i < response["data"]["number"].length; ++i) {
-            			serverSelectOption += '<option name="server" value="'+ response["data"]["number"][i]["id"] +'">'+ response["data"]["number"][i]["ip"]  +'</option>'
-            			var logsPath = response["data"]["project_logpath"].split(";")
-            			for(var x = 0; x < logsPath.length; ++x){
-            				if(logList.indexOf(logsPath[x]) == -1){
-            					logList.push(logsPath[x])
-            					logpathSelectOption += '<option name="server" value="'+ logsPath[x] +'">'+ logsPath[x]  +'</option>'
-            				}
-            			}
-            		}
-            		serverSelect += serverSelectOption + '</select>'
-            		$("#server").html(serverSelect)
-            		var logpathSelect = '<select  class="selectpicker form-control"  data-size="10" data-selected-text-format="count > 5" data-live-search="true" data-width="100%"   autocomplete="off"  class="form-control"   autocomplete="off" name="server" id="logpath"  required>'
-            		logpathSelect += logpathSelectOption + '</select>'
-            		$("#logpath").html(logpathSelect)
-            		$('.selectpicker').selectpicker('refresh');	
-            	}
+        		var serverSelect = '<select  class="selectpicker form-control"  data-size="10" data-selected-text-format="count > 5" data-live-search="true" data-width="100%"   autocomplete="off"  class="form-control"   autocomplete="off" name="server" id="server"  required>'
+        		var serverSelectOption = ''	
+        		var logpathSelectOption = ''	
+        		var logList = []	           		
+        		for (var i = 0; i < response["project_servers"].length; ++i) {
+        			serverSelectOption += '<option name="server" value="'+ response["project_servers"][i]["id"] +'">'+ response["project_servers"][i]["ip"]  +'</option>'
+        			var logsPath = response["project_logpath"].split(";")
+        			for(var x = 0; x < logsPath.length; ++x){
+        				if(logList.indexOf(logsPath[x]) == -1){
+        					logList.push(logsPath[x])
+        					logpathSelectOption += '<option name="server" value="'+ logsPath[x] +'">'+ logsPath[x]  +'</option>'
+        				}
+        			}
+        		}
+        		serverSelect += serverSelectOption + '</select>'
+        		$("#server").html(serverSelect)
+        		var logpathSelect = '<select  class="selectpicker form-control"  data-size="10" data-selected-text-format="count > 5" data-live-search="true" data-width="100%"   autocomplete="off"  class="form-control"   autocomplete="off" name="server" id="logpath"  required>'
+        		logpathSelect += logpathSelectOption + '</select>'
+        		$("#logpath").html(logpathSelect)
+        		$('.selectpicker').selectpicker('refresh');	
             }  
     	}); 		 
 	})    
@@ -958,7 +956,7 @@ $(document).ready(function() {
     $("#member").on('click', function() {
 		$.ajax({
 			dataType: "JSON",
-			url:"/apps/config/?type=info&id="+get_url_param('id'),  
+			url:"/api/apps/detail/"+get_url_param('id') + '/',  
 			type:"GET",  //提交类似
 			async:false,
             error: function(response) {  
@@ -969,34 +967,36 @@ $(document).ready(function() {
                     styling: 'bootstrap3'
                 }); 
             	btnObj.attr('disabled',false);
-            },			
+            },			                   
 			success:function(response){
 			    var columns = [
 			                    {"data": "id"},
 			                    {"data": "username"},
+			                    {"data": "name"},
 				                {"data": "email"},
-				                {"data": "role","sClass": "text-center"},				                
+				                {"data": "mobile"},
+				                {"data": "roles","sClass": "text-center"},				                
 				               ]
-			    var columnDefs = [	
+			    var columnDefs = [		
 									{
 										targets: [1],
 										render: function(data, type, row, meta) {
-									        return '<span title="'+ row.user +'">'+ row.username +'</span>'
-										},
-									},			                      
+									        return '<span title="'+ row.uid +'">'+ row.username +'</span>'
+										}
+									},				    
 									{
-										targets: [3],
+										targets: [5],
 										render: function(data, type, row, meta) {
-											if(row.role=='deploy'){
+											if(row.roles=='deploy'){
 												var env = '<span class="label label-info"><strong>开发人员</strong></span>'
 											}else{
 												var env = '<span class="label label-warning"><strong>管理人员</strong></span>'
 											}
 									        return env
-										},
+										}
 									},								
 		    	    		        {
-			    	    				targets: [4],
+			    	    				targets: [6],
 			    	    				render: function(data, type, row, meta) {		    	    					
 			    	                        return '<div class="btn-group  btn-group-xs">' +	
 				    	                           '<button type="button" name="btn-role-edit" value="'+ row.id +'" class="btn btn-default"  aria-label="Justify"><span class="fa fa-edit" aria-hidden="true"></span>' +	
@@ -1020,7 +1020,7 @@ $(document).ready(function() {
 		    		"bScrollCollapse": false, 				
 		    	    "bRetrieve": true,			
 		    		"destroy": true, 
-		    		"data":	response["data"]["roles"],
+		    		"data":	response["project_roles"],
 		    		"columns": columns,
 		    		"columnDefs" :columnDefs,			  
 		    		"language" : language,
@@ -1040,9 +1040,9 @@ $(document).ready(function() {
         
         table.fnClearTable(this);
 
-        for (var i=0; i<dataList["data"]["roles"].length; i++)
+        for (var i=0; i < dataList["project_roles"].length; i++)
         {
-          table.oApi._fnAddData(oSettings, dataList["data"]["roles"][i]);
+          table.oApi._fnAddData(oSettings, dataList["project_roles"][i]);
         }
 
         oSettings.aiDisplay = oSettings.aiDisplayMaster.slice();
@@ -1103,7 +1103,7 @@ $(document).ready(function() {
                     type: 'success',
                     styling: 'bootstrap3'
                 });	
-            	RefreshDeployRolesTable("#deployRolesList","/apps/config/?type=info&id="+get_url_param('id'))
+            	RefreshDeployRolesTable("#deployRolesList","/api/apps/detail/"+get_url_param('id') + '/')
 			}					
 		});
     });  
@@ -1138,7 +1138,7 @@ $(document).ready(function() {
 		                    type: 'success',
 		                    styling: 'bootstrap3'
 		                });	
-		            	RefreshDeployRolesTable("#deployRolesList","/apps/config/?type=info&id="+get_url_param('id'))
+		            	RefreshDeployRolesTable("#deployRolesList","/api/apps/detail/"+get_url_param('id') + '/')
 		            }  
 		    	});
 		        },
@@ -1202,7 +1202,7 @@ $(document).ready(function() {
 				                    type: 'success',
 				                    styling: 'bootstrap3'
 				                }); 
-				            	RefreshDeployRolesTable("#deployRolesList","/apps/config/?type=info&id="+get_url_param('id'))
+				            	RefreshDeployRolesTable("#deployRolesList","/api/apps/detail/"+get_url_param('id') + '/')
 				            }  
 				    	});
 	                }

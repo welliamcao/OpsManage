@@ -240,7 +240,7 @@ function controlServerSelectHide(value,selectIds){
 			   $("#project_server").hide();
 			   $("#inventory_server").hide();
 			   $("#tags_server").hide();
-			   AssetsSelect("custom",requests('get','/api/assets/'),selectIds)
+			   AssetsSelect("custom",requests('get','/api/assets/')["results"],selectIds)
 		       break;
 		   case "business":
 			   $("#group_server").hide();

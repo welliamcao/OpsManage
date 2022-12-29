@@ -62,7 +62,7 @@ $(document).ready(function() {
 		$("#order_audit_status").html(orderAuditStatusHtml[data["order_audit_status"]])
 		$("#filedownload_order_subject").val(data["order_subject"]).attr("disabled","")
 		$("#order_content").val(data["detail"]["order_content"]).attr("disabled","")
-		AssetsSelect("custom",requests('get','/api/assets/?assets_type=ser'),data["detail"]["dest_server"])
+		AssetsSelect("custom",requests('get','/api/assets/)["results"],data["detail"]["dest_server"])
 		$("#dest_path").val(data["detail"]["dest_path"]).attr("disabled","")
 		$("#ans_uuid").val(uuid())
 		switch(data["order_audit_status"])

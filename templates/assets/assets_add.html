@@ -160,45 +160,49 @@
 						<fieldset>		
 						
 						<div id="asset_common_chioce" >
-						<legend>服务器设备资产信息录入 - 可选信息</legend>
-							<div class="item form-group">
-								 <label class="control-label col-md-3 col-sm-3 col-xs-12">使用组</label>
-								 <div class="col-md-6 col-sm-6 col-xs-12">
-								   <select class="form-control" name="asset_group"  required>
-								   		<option selected="selected" value="">请选择一个类型</option>
+							<legend>设备资产信息录入 - 可选信息</legend>
+								<div class="item form-group">
+									 <label class="control-label col-md-3 col-sm-3 col-xs-12">使用组</label>
+									 <div class="col-md-6 col-sm-6 col-xs-12">
+									   <select class="form-control" name="asset_group"  required>
+									   		<option selected="selected" value="">请选择一个类型</option>	
 											{% for g in assets.groupList %}
 												<option value="{{g.id}}" name="asset_group">{{g.paths}}</option>
-											{% endfor %}							   		
-									</select>
+											{% endfor %}
+										</select>
+									 </div>
+								</div>	
+							<div class="item form-group">
+								 <label class="control-label col-md-3 col-sm-3 col-xs-12">放置区域</label>
+								 <div class="col-md-6 col-sm-6 col-xs-12">
+								   <select class="form-control" name="asset_put_zone"  id="asset_put_zone">
+								   		<option selected="selected" value="">请选择一个类型</option>	
+										{% for z in assets.zoneList %}
+											<option value="{{z.id}}" name="asset_put_zone">{{z.zone_name}}</option>
+										{% endfor %}
+									</select>							 	
 								 </div>
-							</div>																	
-						<div class="item form-group">
-							 <label class="control-label col-md-3 col-sm-3 col-xs-12">放置机房</label>
-							 <div class="col-md-6 col-sm-6 col-xs-12">
-							   <select class="form-control" name="asset_put_zone"  id="asset_put_zone">
-							   		<option selected="selected" value="">请选择一个类型</option>
-										{% for z in assets.idcList %}
-											<option value="{{z.id}}" name="asset_put_zone">{{z.idc_name}}</option>
-										{% endfor %}							   		
-								</select>							 	
-							 </div>
-						</div>	
-					
+							</div>	
+							<div class="item form-group">
+								 <label class="control-label col-md-3 col-sm-3 col-xs-12">放置机房</label>
+								 <div class="col-md-6 col-sm-6 col-xs-12">
+								   <select class="form-control" name="asset_idc"  id="asset_idc">
+								   		<option selected="selected" value="">请选择一个类型</option>							   		
+									</select>							 	
+								 </div>
+							</div>																																									
 						</div>
 						<div id="asset_vmserver_chioce" >	
-						
-                      	<div class="item form-group">
-                        	<label class="control-label col-md-3 col-sm-3 col-xs-12" for="number">机柜
-                        	</label>
-	                        <div class="col-md-6 col-sm-6 col-xs-12">
-							    <select class="form-control" name="asset_cabinet" id="asset_cabinet" required>
-							    	<option selected="selected" value="">请选择一个类型</option>
-									{% for c in assets.cabinetList %}
-										<option value="{{c.id}}" name="asset_cabinet">{{c.cabinet_name}}</option>
-									{% endfor %}							   							
-								</select>                          
-	                        </div>
-                      	</div>			 						
+<!-- 							<legend>服务器设备资产信息录入 - 可选信息</legend>	 -->				
+	                      	<div class="item form-group">
+	                        	<label class="control-label col-md-3 col-sm-3 col-xs-12" for="number">机柜
+	                        	</label>
+		                        <div class="col-md-6 col-sm-6 col-xs-12">
+								    <select class="form-control" name="asset_cabinet" id="asset_cabinet" required>
+								    	<option selected="selected" value="">请选择一个类型</option>					   							
+									</select>                          
+		                        </div>
+	                      	</div>			 						
 						
 							<div class="item form-group">
 								 <label class="control-label col-md-3 col-sm-3 col-xs-12">设备序列号</label>
@@ -376,7 +380,7 @@
 						<fieldset>
 
 						<div id="asset_net_chioce" style="display:none;">					
-						<legend>网络设备资产信息录入 - 可选信息</legend>
+<!-- 						<legend>网络设备资产信息录入 - 可选信息</legend> -->
 
 						<div class="form-group" >
 							 <label class="control-label col-md-3 col-sm-3 col-xs-12">背板带宽</label>
