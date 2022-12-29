@@ -650,7 +650,7 @@ $(document).ready(function() {
 						"type":"disabled"
 					}, 		            
 		            url:"/sched/cron/",  
-		            error: function(request) {  
+		            error: function(request) {  		  
 		            	new PNotify({
 		                    title: 'Ops Failed!',
 		                    text: "禁用失败",

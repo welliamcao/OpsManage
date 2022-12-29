@@ -161,7 +161,7 @@ class CrontabManage(AssetsBase):
         if isinstance(cron, Cron_Config):
             sList,resource = self.assets_source.idSource(cron.cron_server.id)
             ANS = ANSRunner(resource)    
-            module_args="""name={name} state=absent""".format(name=cron.cron_name)  
+            module_args="""name='{name}' state=absent""".format(name=cron.cron_name)  
             ANS.run_model(host_list=sList,module_name="cron",module_args=module_args) 
             result = ANS.handle_model_data(ANS.get_model_result(), 'cron', module_args)  
             for ds in result:
@@ -177,10 +177,11 @@ class CrontabManage(AssetsBase):
     
     def disabled(self,request):   
         cron = self.crontab(request) 
+        print(cron.cron_name)
         if isinstance(cron, Cron_Config):
             sList,resource = self.assets_source.idSource(cron.cron_server.id)
             ANS = ANSRunner(resource)    
-            module_args="""name={name} state=absent""".format(name=cron.cron_name)  
+            module_args="""name='{name}' state=absent""".format(name=cron.cron_name)  
             ANS.run_model(host_list=sList,module_name="cron",module_args=module_args) 
             result = ANS.handle_model_data(ANS.get_model_result(), 'cron', module_args)  
             for ds in result:
