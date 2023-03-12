@@ -996,9 +996,9 @@ $(document).ready(function() {
 						var selectHtml = '';
 						for (var i=0; i <response["data"].length; i++){
 							 if(response["data"][i]["seletcd"] == 1){
-							 	selectHtml += '<option name="inventory_group_server" selected="selected" value="'+ response["data"][i]["id"] +'">' + response["data"][i]["ip"] + " | " + response["data"][i]["project"] + " | " + response["data"][i]["service"] + '</option>' 
+							 	selectHtml += '<option name="inventory_group_server" selected="selected" value="'+ response["data"][i]["id"] +'">' + response["data"][i]["ip"] + '</option>' 
 							 }else{
-							 	selectHtml += '<option name="inventory_group_server"  value="'+ response["data"][i]["id"] +'">' + response["data"][i]["ip"] + " | " + response["data"][i]["project"] + " | " + response["data"][i]["service"] + '</option>' 
+							 	selectHtml += '<option name="inventory_group_server"  value="'+ response["data"][i]["id"] +'">' + response["data"][i]["ip"]  + '</option>' 
 							 }
 							 
 						};                        
