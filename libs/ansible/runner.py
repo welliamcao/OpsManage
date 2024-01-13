@@ -206,11 +206,9 @@ class ANSRunner(object):
         for host, result in self.callback.host_ok.items():  
             self.results_raw['success'][host] = result._result  
 
-
         for host, result in self.callback.host_failed.items():  
             self.results_raw['failed'][host] = result._result 
 
-  
         for host, result in self.callback.host_unreachable.items():  
             self.results_raw['unreachable'][host]= result._result 
 
@@ -236,7 +234,7 @@ class ANSRunner(object):
 
         for host, result in self.callback.task_unreachable.items():
             self.results_raw['unreachable'][host] = result
-        return self.results_raw
+        return json.dumps(self.results_raw)
 
     def handle_cmdb_data(self,data):
         '''处理setup返回结果方法'''
