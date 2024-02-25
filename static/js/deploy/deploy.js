@@ -1388,7 +1388,8 @@ $(document).ready(function() {
 						
 					}
 					$('.selectpicker').selectpicker('refresh');
-					$("#script_args").val(script["script_args"]);	
+					$("#script_args").val(script["script_args"]);
+					$("#script_desc").val(script["script_desc"]);	
 			   		$("#save_deploy_script").hide();
 			   		$("#modf_deploy_script").show();	
 			   		$("#modf_deploy_script").val(vIds);
