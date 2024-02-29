@@ -52,7 +52,7 @@ numpy==1.15.4
 odfpy==1.3.6
 openpyxl==2.5.3
 pandas==0.23.4
-paramiko==2.4.1
+paramiko==2.10.1
 Pillow==5.0.0
 ply==3.11
 prettytable==0.7.2
