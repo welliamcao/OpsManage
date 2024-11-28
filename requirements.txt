@@ -40,7 +40,7 @@ hyperlink==18.0.0
 idna==2.7
 incremental==17.5.0
 jdcal==1.4
-Jinja2==2.10
+Jinja2==2.11.3
 kombu==4.6.4
 ldap3==2.5.1
 MarkupSafe==1.1.0
