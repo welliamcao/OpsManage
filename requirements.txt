@@ -70,7 +70,7 @@ python-dateutil==2.8.0
 python-ldap==3.2.0
 python-magic==0.4.15
 pytz==2018.7
-PyYAML==3.13
+PyYAML==5.4
 redis==3.0.1
 redis-py-cluster==2.0.0
 requests==2.20.0
