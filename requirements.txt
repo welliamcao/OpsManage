@@ -11,7 +11,7 @@ Automat==0.7.0
 bcrypt==3.1.4
 billiard==3.6.1.0
 celery==4.3.0
-certifi==2018.10.15
+certifi==2022.12.7
 cffi==1.11.5
 channels==2.1.6
 channels-redis==2.2.1
